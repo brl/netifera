@@ -92,6 +92,10 @@
    <includes
          id="com.netifera.platform.demo.feature"
          version="0.0.0"/>
+
+	<includes
+		id="com.netifera.platform.net.wifi.feature"
+		version="0.0.0"/>
          
 
    <requires>
