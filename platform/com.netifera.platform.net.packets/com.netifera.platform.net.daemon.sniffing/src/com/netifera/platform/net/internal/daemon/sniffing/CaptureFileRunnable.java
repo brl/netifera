@@ -56,6 +56,6 @@ public class CaptureFileRunnable implements Runnable {
 		};
 	}
 	public void run() {
-		daemon.runCaptureFile(spaceId, captureFileInterface, progress);
+		//daemon.runCaptureFile(spaceId, captureFileInterface, progress);
 	}
 }

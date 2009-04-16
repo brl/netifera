@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.daemon.sniffing.IArpSniffer;
 import com.netifera.platform.net.daemon.sniffing.IIPSniffer;
 import com.netifera.platform.net.daemon.sniffing.IRawSniffer;
 import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
 import com.netifera.platform.net.daemon.sniffing.ITCPBlockSniffer;
 import com.netifera.platform.net.daemon.sniffing.ITCPStreamSniffer;
+import com.netifera.platform.net.daemon.sniffing.extend.SniffingDaemonModules;
 import com.netifera.platform.net.packets.IPacketHeader;
 import com.netifera.platform.net.packets.link.ARP;
 import com.netifera.platform.net.packets.tcpip.IPv4;
@@ -30,7 +30,7 @@ import com.netifera.platform.net.sniffing.stream.ISessionContext;
  * prepared to run (or actively running).  It allows registering a sniffing module on
  * multiple interfaces and manages the sniffing handles returned from the sniffing engine.
  */
-class EnabledSniffingModule {
+public class EnabledSniffingModule {
 	
 	/**
 	 * Set containing handles returned from the sniffing engine.
@@ -47,14 +47,12 @@ class EnabledSniffingModule {
 	 */
 	private final ISniffingModule moduleInstance;
 	
-	private final ISniffingModuleOutput output;
+	private final SniffingDaemonModules moduleManager;
 	
-	private final ILogger logger;
 	
-	EnabledSniffingModule(ISniffingModule module, ISniffingModuleOutput output, ILogger logger) {
+	public EnabledSniffingModule(ISniffingModule module, SniffingDaemonModules moduleManager) {
 		this.moduleInstance = module;
-		this.output = output;
-		this.logger = logger;
+		this.moduleManager = moduleManager;
 	}
 	
 	public ISniffingModule getModule() {
@@ -104,7 +102,6 @@ class EnabledSniffingModule {
 	 * Start this module on a single interface.
 	 */
 	private void startInterface(ISniffingEngineService sniffingEngine, ICaptureInterface iface, long realm, long spaceId) {
-		
 		if(moduleInstance instanceof IRawSniffer) {
 				register( createRawHandle(sniffingEngine, iface, (IRawSniffer) moduleInstance, spaceId), realm);
 		}
@@ -147,9 +144,9 @@ class EnabledSniffingModule {
 					public void handlePacket(IPacketHeader packet,
 							final IPacketContext ctx) {
 						try {
-							sniffer.handleRawPacket(packet, new PacketModuleContext(ctx, spaceId, output));
+							sniffer.handleRawPacket(packet, new PacketModuleContext(ctx, spaceId, moduleManager.getModuleOutput()));
 						} catch (Exception e) {
-							logger.warning("Exception processing raw packet", e);
+							moduleManager.getLogger().warning("Exception processing raw packet", e);
 						}
 					}
 		});
@@ -165,9 +162,9 @@ class EnabledSniffingModule {
 
 					public void handlePacket(IPv4 packet, IPacketContext ctx) {
 						try {
-							sniffer.handleIPv4Packet(packet, new PacketModuleContext(ctx, spaceId, output));
+							sniffer.handleIPv4Packet(packet, new PacketModuleContext(ctx, spaceId, moduleManager.getModuleOutput()));
 						} catch (Exception e) {
-							logger.warning("Exception processing IPv4 packet", e);
+							moduleManager.getLogger().warning("Exception processing IPv4 packet", e);
 						}
 					}
 		});
@@ -182,9 +179,9 @@ class EnabledSniffingModule {
 
 					public void handlePacket(IPv6 packet, IPacketContext ctx) {
 						try {
-							sniffer.handleIPv6Packet(packet, new PacketModuleContext(ctx, spaceId, output));
+							sniffer.handleIPv6Packet(packet, new PacketModuleContext(ctx, spaceId, moduleManager.getModuleOutput()));
 						} catch (Exception e) {
-							logger.warning("Exception processing IPv6 packet", e);
+							moduleManager.getLogger().warning("Exception processing IPv6 packet", e);
 						}
 					}
 		});
@@ -199,9 +196,9 @@ class EnabledSniffingModule {
 
 					public void handlePacket(final ARP packet, final IPacketContext ctx) {
 						try {
-							sniffer.handleArpPacket(packet, new PacketModuleContext(ctx, spaceId, output));
+							sniffer.handleArpPacket(packet, new PacketModuleContext(ctx, spaceId, moduleManager.getModuleOutput()));
 						} catch (Exception e) {
-							logger.warning("Exception processing ARP packet", e);
+							moduleManager.getLogger().warning("Exception processing ARP packet", e);
 						}
 					}
 		});
@@ -213,9 +210,9 @@ class EnabledSniffingModule {
 			public void handleBlock(final ISessionContext ctx, final ByteBuffer clientData,
 					final ByteBuffer serverData) {
 				try {
-					sniffer.handleBlock(new StreamModuleContext(ctx, spaceId, output), clientData, serverData);
+					sniffer.handleBlock(new StreamModuleContext(ctx, spaceId, moduleManager.getModuleOutput()), clientData, serverData);
 				} catch (Exception e) {
-					logger.warning("Exception processing assembled TCP block", e);
+					moduleManager.getLogger().warning("Exception processing assembled TCP block", e);
 				}
 			}
 			
@@ -229,7 +226,7 @@ class EnabledSniffingModule {
 	private ISnifferHandle createTcpStreamHandle(ISniffingEngineService sniffingEngine, ICaptureInterface iface, final ITCPStreamSniffer sniffer, long spaceId) {
 			
 		return sniffingEngine.createTcpStreamHandle(iface, moduleInstance.getFilter(),
-				new StreamHandler(spaceId, sniffer, output));
+				new StreamHandler(spaceId, sniffer, moduleManager.getModuleOutput()));
 		
 	}
 	/**

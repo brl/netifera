@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.daemon.sniffing" immediate="true">
 	<implementation class="com.netifera.platform.net.internal.daemon.sniffing.SniffingDaemon" />
-	<service>
-		<provide interface="com.netifera.platform.net.daemon.sniffing.ISniffingDaemonEx" />
-	</service>
 	
 	<reference
 		name="SNIFFING_MODULE"

@@ -23,6 +23,7 @@ public class ServerDispatcher implements IServerDispatcher {
 
 	ServerDispatcher(ILogManager logManager) {
 		logger = logManager.getLogger("Dispatcher [server]");
+		logger.enableDebug();
 		dispatcher = new MessageDispatcher(logger);
 		messengers = new HashSet<IMessenger>();
 	}

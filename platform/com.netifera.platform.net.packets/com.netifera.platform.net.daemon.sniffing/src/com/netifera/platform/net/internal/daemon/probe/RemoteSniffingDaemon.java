@@ -86,7 +86,6 @@ public class RemoteSniffingDaemon implements ISniffingDaemon {
 	}
 
 	public Collection<ICaptureInterface> getInterfaces() {
-		
 		synchronized(lock) {
 			while(interfaceRecords == null) {
 				try {
@@ -135,7 +134,6 @@ public class RemoteSniffingDaemon implements ISniffingDaemon {
 	}
 	
 	public boolean isEnabled(ICaptureInterface iface) {
-		
 		synchronized(lock) {
 			while(interfaceRecords == null) {
 				try {
@@ -158,7 +156,6 @@ public class RemoteSniffingDaemon implements ISniffingDaemon {
 	}
 
 	public boolean isEnabled(ISniffingModule module) {
-		
 		synchronized(lock) {
 			while(moduleRecords == null) {
 				try {
@@ -271,7 +268,6 @@ public class RemoteSniffingDaemon implements ISniffingDaemon {
 	}
 	
 	private IProbeMessage exchangeMessage(IProbeMessage message) {
-		
 		try {
 			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
 			if(response instanceof StatusMessage) { 

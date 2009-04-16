@@ -51,6 +51,7 @@ public abstract class AbstractPacketManager<T extends IPacketHeader>
 	protected boolean hasClients() {
 		return !handles.isEmpty();
 	}
+	
 	public synchronized void registerSniffer(IPacketSnifferHandle<T> handle, boolean priority) {
 		if(disposed) {
 			return;

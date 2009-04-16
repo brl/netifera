@@ -1,70 +1,14 @@
 package com.netifera.platform.net.internal.daemon.sniffing;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import com.netifera.platform.net.daemon.sniffing.extend.AbstractSniffingDaemon;
 
-import org.osgi.service.component.ComponentContext;
-
-import com.netifera.platform.api.dispatcher.DispatchException;
-import com.netifera.platform.api.dispatcher.DispatchMismatchException;
-import com.netifera.platform.api.dispatcher.IMessageDispatcher;
-import com.netifera.platform.api.dispatcher.IMessageDispatcherService;
-import com.netifera.platform.api.dispatcher.IMessageHandler;
-import com.netifera.platform.api.dispatcher.IMessenger;
-import com.netifera.platform.api.dispatcher.IProbeMessage;
-import com.netifera.platform.api.dispatcher.MessengerException;
-import com.netifera.platform.api.log.ILogManager;
-import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.net.daemon.sniffing.ISniffingDaemonEx;
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
-import com.netifera.platform.net.daemon.sniffing.model.CaptureFileEntity;
-import com.netifera.platform.net.daemon.sniffing.model.ISniffingEntityFactory;
-import com.netifera.platform.net.daemon.sniffing.model.NetworkInterfaceEntity;
-import com.netifera.platform.net.daemon.sniffing.model.SniffingSessionEntity;
-import com.netifera.platform.net.internal.daemon.probe.CancelCaptureFile;
-import com.netifera.platform.net.internal.daemon.probe.CaptureFileValid;
-import com.netifera.platform.net.internal.daemon.probe.InterfaceRecord;
-import com.netifera.platform.net.internal.daemon.probe.ModuleRecord;
-import com.netifera.platform.net.internal.daemon.probe.RequestInterfaceInformation;
-import com.netifera.platform.net.internal.daemon.probe.RequestModuleInformation;
-import com.netifera.platform.net.internal.daemon.probe.RunCaptureFile;
-import com.netifera.platform.net.internal.daemon.probe.SetInterfaceEnableState;
-import com.netifera.platform.net.internal.daemon.probe.SetModuleEnableState;
-import com.netifera.platform.net.internal.daemon.probe.SniffingDaemonStatus;
-import com.netifera.platform.net.internal.daemon.probe.SniffingModuleOutput;
-import com.netifera.platform.net.internal.daemon.probe.StartSniffingDaemon;
-import com.netifera.platform.net.internal.daemon.probe.StopSniffingDaemon;
-import com.netifera.platform.net.pcap.ICaptureInterface;
-import com.netifera.platform.net.sniffing.ICaptureFileInterface;
-import com.netifera.platform.net.sniffing.ISniffingEngineService;
-import com.netifera.platform.net.sniffing.util.ICaptureFileProgress;
-
-public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput {
+public class SniffingDaemon extends AbstractSniffingDaemon {
 	
-	/*
-	 * All sniffing modules which have been registered with the daemon.
-	 */
+/*
 	private final Set<ISniffingModule> modules;
 	
-	/*
-	 * Sniffing modules which have been enabled with the enableModules()
-	 * method.
-	 */
 	private final Set<EnabledSniffingModule> enabledModules;
 	
-	/*
-	 * Network interfaces which have been enabled with the enableInterfaces()
-	 * method.
-	 */
 	private final Set<ICaptureInterface> enabledInterfaces;	
 	
 	private final Map<String, ISniffingModule> moduleByName = new HashMap<String, ISniffingModule>();
@@ -72,25 +16,18 @@ public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput 
 
 	private IMessenger openMessenger;
 
-	/*
-	 * DS controlled services
-	 */
+	
 	private ISniffingEngineService defaultSniffingEngine;
 	private ISniffingEntityFactory sniffingEntityFactory;
 	private IProbeManagerService probeManager;
 	private ILogger logger;
-	/*
-	 * Flag which indicates when the sniffing daemon is currently running.
-	 */
+
 	private boolean running;
 	private boolean isActivated;
 	
 	private ICaptureFileInterface runningCaptureFile;
 	
-	/**
-	 * SniffingDaemon constructor creates a TreeSet for storing sniffing modules
-	 * in alphabetic order.
-	 */
+	
 	public SniffingDaemon() {
 		modules = new TreeSet<ISniffingModule>(new Comparator<ISniffingModule>() {
 
@@ -162,7 +99,7 @@ public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput 
 		}
 		if(enable) {
 			if(findEnabledModule(module) == null) {
-				enabledModules.add(new EnabledSniffingModule(module, this, logger));
+			//	enabledModules.add(new EnabledSniffingModule(module, this, logger));
 			}
 		} else {
 			EnabledSniffingModule esm = findEnabledModule(module);
@@ -200,7 +137,7 @@ public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput 
 				throw new IllegalArgumentException("Unknown Sniffing Module requested in enableModules() " +
 						module);
 			}
-			enabledModules.add(new EnabledSniffingModule(module, this, logger));
+		//	enabledModules.add(new EnabledSniffingModule(module, this, logger));
 		}
 	}
 	
@@ -307,10 +244,7 @@ public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput 
 		
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see com.netifera.platform.api.daemon.IDaemon#stop()
-	 */
+	
 	public synchronized void stop() {
 		if(!running) {
 			return;
@@ -353,9 +287,7 @@ public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput 
 		
 	}
 	
-	/*
-	 * OSGi DS bindings
-	 */
+	
 	protected void registerModule(ISniffingModule module) {
 		synchronized(modules) {
 			modules.add(module);
@@ -411,9 +343,7 @@ public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput 
 		
 	}
 	
-	/*
-	 * Probe message handling
-	 */
+	
 	
 	private void requestInterfaceInformation(IMessenger messenger, RequestInterfaceInformation msg) throws MessengerException {
 		final List<InterfaceRecord> interfaces = new ArrayList<InterfaceRecord>();
@@ -553,6 +483,6 @@ public class SniffingDaemon implements ISniffingDaemonEx, ISniffingModuleOutput 
 		}
 	}
 	
-	
+	*/
 	
 }

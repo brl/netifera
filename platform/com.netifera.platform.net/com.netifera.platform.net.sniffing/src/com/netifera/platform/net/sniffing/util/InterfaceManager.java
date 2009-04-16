@@ -50,7 +50,7 @@ public class InterfaceManager implements IBasicInterfaceManager {
 		ipv6Manager = new IPv6Manager(packetSource);
 		tcpManager = new TCPManager(packetSource, ipv4Manager, ipv6Manager);
 	}
-	
+
 	public ISniffingEngineEx getSniffingEngine() {
 		return packetSource.getSniffingEngine();
 	}

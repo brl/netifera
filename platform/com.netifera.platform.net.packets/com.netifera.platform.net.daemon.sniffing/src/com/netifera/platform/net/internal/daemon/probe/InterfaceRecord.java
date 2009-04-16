@@ -44,7 +44,24 @@ public class InterfaceRecord implements Serializable, ICaptureInterface {
 	
 	@Override
 	public String toString() {
-		return label;
+		if(label != null)
+			return label;
+		else
+			return name;
+	}
+	
+	public boolean equals(Object other) {
+		if(this == other)
+			return true;
+		if(!(other instanceof ICaptureInterface))
+			return false;
+		
+		return ((ICaptureInterface)other).getName().equals(name);
+		
+	}
+	
+	public int hashCode() {
+		return name.hashCode();
 	}
 
 }

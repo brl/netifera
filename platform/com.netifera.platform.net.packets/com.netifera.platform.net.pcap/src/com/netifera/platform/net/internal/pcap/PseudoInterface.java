@@ -1,5 +1,6 @@
 package com.netifera.platform.net.internal.pcap;
 
+import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.pcap.IPacketCapture;
 import com.netifera.platform.net.pcap.IPacketCaptureFactoryService;
 import com.netifera.platform.net.pcap.IPacketHandler;
@@ -19,10 +20,10 @@ public class PseudoInterface implements ICaptureInterfaceEx {
 	}
 
 	public boolean equals(Object other) {
-		if(!(other instanceof PseudoInterface))
+		if(!(other instanceof ICaptureInterface))
 			return false;
-		else
-			return name.equals(((PseudoInterface)other).name);
+		
+		return ((ICaptureInterface)other).getName().equals(name);
 	}
 	
 	public int hashCode() {

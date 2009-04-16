@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
+import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.pcap.IPacketCapture;
 import com.netifera.platform.net.pcap.IPacketCaptureFactoryService;
 import com.netifera.platform.net.pcap.IPacketHandler;
@@ -50,14 +51,15 @@ public class PhysicalInterface implements ICaptureInterfaceEx {
 	}
 	
 	public boolean equals(Object other) {
-		if(!(other instanceof PhysicalInterface))
+		if(!(other instanceof ICaptureInterface))
 			return false;
-		else
-			return interfaceInstance.equals(((PhysicalInterface)other).interfaceInstance);
+		
+		return ((ICaptureInterface)other).getName().equals(getName());
+		
 	}
 	
 	public int hashCode() {
-		return interfaceInstance.hashCode();
+		return getName().hashCode();
 	}
 
 	public IPacketCapture pcapCreate(int snaplen, boolean promiscuous,

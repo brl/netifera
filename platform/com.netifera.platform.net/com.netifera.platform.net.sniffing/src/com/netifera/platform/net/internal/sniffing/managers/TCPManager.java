@@ -12,7 +12,6 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.internal.sniffing.stream.TCPReassemblyConfig;
 import com.netifera.platform.net.internal.sniffing.stream.TCPSession;
 import com.netifera.platform.net.internal.sniffing.stream.TCPSessionKey;
-import com.netifera.platform.net.packets.IPacketHeader;
 import com.netifera.platform.net.packets.tcpip.IP;
 import com.netifera.platform.net.packets.tcpip.IPv4;
 import com.netifera.platform.net.packets.tcpip.IPv6;
@@ -25,6 +24,7 @@ import com.netifera.platform.net.sniffing.IPacketSnifferHandle;
 import com.netifera.platform.net.sniffing.ISnifferHandle;
 import com.netifera.platform.net.sniffing.stream.IBlockSnifferHandle;
 import com.netifera.platform.net.sniffing.stream.IStreamSnifferHandle;
+import com.netifera.platform.net.sniffing.util.IPacketSource;
 import com.netifera.platform.net.sniffing.util.ISniffingEngineEx;
 
 public class TCPManager {
@@ -58,7 +58,7 @@ public class TCPManager {
 	private boolean disposed;
 	private boolean started;
 	
-	public TCPManager(IPacketManager<IPacketHeader> packetManager,
+	public TCPManager(IPacketSource packetManager,
 			IPv4Manager ipv4Manager, IPv6Manager ipv6Manager) {
 		this.engine = packetManager.getSniffingEngine();
 		logger = engine.getLogger();
