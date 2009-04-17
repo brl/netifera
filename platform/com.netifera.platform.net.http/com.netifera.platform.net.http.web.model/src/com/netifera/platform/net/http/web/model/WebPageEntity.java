@@ -1,5 +1,10 @@
 package com.netifera.platform.net.http.web.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
@@ -19,6 +24,7 @@ public class WebPageEntity extends AbstractEntity {
 	
 	private String contentType;
 	private IEntityReference authentication;
+	private Set<IEntityReference> links;
 	
 	public WebPageEntity(IWorkspace workspace, long realm, WebSiteEntity site, String path, String contentType) {
 		super(ENTITY_TYPE, workspace, realm);
@@ -26,6 +32,7 @@ public class WebPageEntity extends AbstractEntity {
 		this.site = site.createReference();
 		this.path = path;
 		this.contentType = contentType;
+		this.links = new HashSet<IEntityReference>();
 	}
 
 	WebPageEntity() {
@@ -57,10 +64,25 @@ public class WebPageEntity extends AbstractEntity {
 		return referenceToEntity(authentication);
 	}
 
+	public synchronized List<WebPageEntity> getLinks() {
+		List<WebPageEntity> answer = new ArrayList<WebPageEntity>();
+		for (IEntityReference ref: links)
+			answer.add((WebPageEntity) ref.getEntity(getWorkspace()));
+		return answer;
+	}
+	
+	public synchronized void addLink(WebPageEntity page) {
+		links.add(page.createReference());
+	}
+	
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
 		WebPageEntity page = (WebPageEntity) masterEntity;
 		this.contentType = page.contentType;
 		this.authentication = page.authentication.createClone();
+		
+//		links.clear();
+		for (IEntityReference ref: ((WebPageEntity) masterEntity).links)
+			links.add(ref);
 	}
 	
 	@Override
