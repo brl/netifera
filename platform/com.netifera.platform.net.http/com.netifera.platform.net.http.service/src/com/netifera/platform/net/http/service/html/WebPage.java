@@ -63,8 +63,6 @@ public class WebPage {
 	}
 	
 	public Set<String> emails() {
-		EmailCollector collector = new EmailCollector();
-		collector.parse(content, EmailCollector.PARSE_ALL);
-		return collector.results();
+		return null;
 	}
 }

@@ -1,6 +1,5 @@
 package com.netifera.platform.net.http.tools;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -10,6 +9,13 @@ import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
+import com.netifera.platform.net.http.spider.impl.WebSpider;
+import com.netifera.platform.net.http.spider.modules.CrawlBackupFilesModule;
+import com.netifera.platform.net.http.spider.modules.CrawlDefaultFilesModule;
+import com.netifera.platform.net.http.spider.modules.EmailsHarversterModule;
+import com.netifera.platform.net.http.spider.modules.FaviconHarvesterModule;
+import com.netifera.platform.net.http.spider.modules.HTTPBasicAuthExtractorModule;
+import com.netifera.platform.net.http.spider.modules.WebApplicationDetectorModule;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 
 public class WebCrawler implements ITool {
@@ -40,25 +46,34 @@ public class WebCrawler implements ITool {
 			spider.setRealm(realm);
 			spider.setBaseURL(base);
 			spider.addURL(base);
-			spider.addURL(base.resolve("/favicon.ico"));
+			
+			spider.addModule(new FaviconHarvesterModule());
+			spider.addModule(new EmailsHarversterModule());
+			spider.addModule(new HTTPBasicAuthExtractorModule());
+			spider.addModule(new CrawlBackupFilesModule());
+			spider.addModule(new CrawlDefaultFilesModule());
+			
 			if (context.getConfiguration().get("followLinks") != null)
 				spider.setFollowLinks((Boolean)context.getConfiguration().get("followLinks"));
 			if (context.getConfiguration().get("fetchImages") != null)
 				spider.setFetchImages((Boolean)context.getConfiguration().get("fetchImages"));
 			if (context.getConfiguration().get("scanWebApplications") != null)
 				if ((Boolean)context.getConfiguration().get("scanWebApplications"))
-					for (String url: Activator.getInstance().getWebApplicationDetector().getTriggers())
-						spider.addURL(base.resolve(url));
+					spider.addModule(new WebApplicationDetectorModule());
 			if (context.getConfiguration().get("maximumConnections") != null)
 				spider.setMaximumConnections((Integer)context.getConfiguration().get("maximumConnections"));
-			
+			if (context.getConfiguration().get("bufferSize") != null)
+				spider.setBufferSize((Integer)context.getConfiguration().get("bufferSize"));
+
 			spider.run();
-		} catch (IOException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
+/*		} catch (IOException e) {
 			context.exception("I/O error: " + e.getMessage(), e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			context.warning("Interrupted");
-		} finally {
+*/		} finally {
 			context.done();
 		}
 	}

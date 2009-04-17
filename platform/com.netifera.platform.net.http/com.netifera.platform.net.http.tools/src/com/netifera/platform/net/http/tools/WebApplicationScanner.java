@@ -8,6 +8,8 @@ import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
+import com.netifera.platform.net.http.spider.impl.WebSpider;
+import com.netifera.platform.net.http.spider.modules.WebApplicationDetectorModule;
 
 public class WebApplicationScanner implements ITool {
 	private IToolContext context;
@@ -33,8 +35,10 @@ public class WebApplicationScanner implements ITool {
 			spider.setRealm(realm);
 			if (context.getConfiguration().get("maximumConnections") != null)
 				spider.setMaximumConnections((Integer)context.getConfiguration().get("maximumConnections"));
-			for (String url: Activator.getInstance().getWebApplicationDetector().getTriggers())
-				spider.addURL(spider.getBaseURL().resolve(url));
+			if (context.getConfiguration().get("bufferSize") != null)
+				spider.setBufferSize((Integer)context.getConfiguration().get("bufferSize"));
+			
+			spider.addModule(new WebApplicationDetectorModule());
 			spider.run();
 		} catch (IOException e) {
 			context.exception("I/O error: " + e.getMessage(), e);

@@ -85,6 +85,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		webCrawler.addOption(new BooleanOption("fetchImages", "Fetch images", "Fetch images following <img> tags?", false));
 		webCrawler.addOption(new BooleanOption("scanWebApplications", "Scan common web applications", "Try common URLs for known web applications?", false));
 		webCrawler.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+		webCrawler.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
 		answer.add(webCrawler);
 	}
 	
@@ -94,6 +95,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		webApplicationScanner.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
 		webApplicationScanner.addOption(new StringOption("hostname", "Host name", "Host name for the web site", hostname != null ? hostname : http.getURIHost()));
 		webApplicationScanner.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+		webApplicationScanner.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
 		answer.add(webApplicationScanner);
 	}
 
