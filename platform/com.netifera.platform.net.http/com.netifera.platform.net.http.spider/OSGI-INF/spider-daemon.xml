@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.daemon.spider" immediate="true">
+	<implementation class="com.netifera.platform.net.http.internal.spider.WebSpiderDaemon" />
+	<service>
+		<provide interface="com.netifera.platform.net.http.spider.IWebSpiderDaemonEx" />
+	</service>
+	
+	<reference
+		name="SPIDER_MODULE"
+		interface="com.netifera.platform.net.http.spider.IWebSpiderModule"
+		bind="registerModule"
+		unbind="unregisterModule"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+	    
+      <reference
+    	name="LOG_MANAGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
+   
+</component>
