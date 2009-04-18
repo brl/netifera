@@ -1,6 +1,6 @@
 package com.netifera.platform.net.wifi.tools;
 
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.wifi.packets.Beacon;
 import com.netifera.platform.net.wifi.packets.ManagementFrame;
 import com.netifera.platform.util.addresses.MACAddress;

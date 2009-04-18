@@ -17,7 +17,7 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 
 	private final static IPacketDecoder ethernetDecoder = new EthernetDecoder();
 	private final static IPacketDecoder nullDecoder = new NullDecoder();
-	
+
 	private final IPcapCaptureFile captureFile;
 	private final boolean isValid;
 	private final ISniffingEngineEx sniffingEngine;
@@ -26,22 +26,22 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 	private IPacketSniffer<IPacketHeader> sniffer;
 	private boolean processing = false;
 	private volatile boolean isCancelled = false;
-	
+
 
 	public CaptureFileInterface(String path, ISniffingEngineEx engine) {
 		this.captureFile = new PcapCaptureFile(path);
-		this.sniffingEngine = engine;	
+		this.sniffingEngine = engine;
 		isValid = tryOpen();
 	}
-	
+
 	public String getPath() {
 		return captureFile.getPath();
 	}
-	
+
 	public boolean captureAvailable() {
 		return isValid;
 	}
-	
+
 	private boolean tryOpen() {
 		try {
 			captureFile.open();
@@ -49,17 +49,17 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 			errorMessage = e.getMessage();
 			return false;
 		}
-		
+
 		switch(captureFile.getLinkType()) {
 		case DLT_EN10MB:
 			decoder = ethernetDecoder;
 			return true;
-			
+
 		case DLT_NULL:
 			decoder = nullDecoder;
 			return true;
 		}
-		
+
 		decoder = GenericDecoder.createForDatalink(captureFile.getLinkType().getConstant());
 		if(decoder != null) {
 			return true;
@@ -68,39 +68,39 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 			return false;
 		}
 	}
-	
+
 	public String getName() {
 		return "Pcap Capture [" + captureFile.getPath() + "]";
 	}
-	
+
 	public boolean isValid() {
 		return isValid;
 	}
-	
+
 	public String getErrorMessage() {
 		return errorMessage;
 	}
-	
+
 	public void process() {
 		process(null);
 	}
-	
+
 	public void setSniffer(IPacketSniffer<IPacketHeader> sniffer) {
 		this.sniffer = sniffer;
 	}
-	
+
 	public void cancelProcessing() {
 		isCancelled = true;
 	}
-	
+
 	public synchronized void process(final ICaptureFileProgress progress) {
 		if(processing) {
 			throw new IllegalStateException("Multiple calls to process() are not allowed");
 		}
-		
+
 		processing = true;
 		isCancelled = false;
-		
+
 		final Thread processThread = new Thread(new Runnable() {
 
 			public void run() {
@@ -118,14 +118,14 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 
 		processThread.start();
 	}
-	
+
 	public void dispose() {
 		sniffingEngine.removeCaptureFileInterface(this);
 	}
 	private void finish() {
 		dispose();
 	}
-	
+
 	private void runProcess(ICaptureFileProgress progress) throws CaptureFileException {
 		while(!isCancelled) {
 			ICaptureFileRecord record = captureFile.readRecord();
@@ -135,7 +135,7 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 				}
 				return;
 			}
-			
+
 			IPacketHeader packet;
 			try {
 				packet = decoder.decode(record.getRecordBytes());
@@ -143,17 +143,17 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 				sniffingEngine.getLogger().error("Unexpected exception decoding packet from capture file: " + e.getMessage(), e);
 				continue;
 			}
-			
+
 			if(sniffer == null) {
 				throw new CaptureFileException("No sniffer set to deliver packets to");
 			}
-			
+
 			try {
 				sniffer.handlePacket(packet, new PacketContext(record));
 			} catch(Exception e) {
 				sniffingEngine.getLogger().error("Exception processing capture file: " + e.getMessage(), e);
 			}
-			
+
 			if(progress != null) {
 				if(!progress.updateProgress(captureFile.getProgress(), captureFile.getPacketCount())) {
 					progress.finished();
@@ -161,6 +161,7 @@ public class CaptureFileInterface implements ICaptureFileInterface {
 				}
 			}
 		}
+
 		if(isCancelled && progress != null) {
 			progress.finished();
 		}

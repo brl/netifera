@@ -20,10 +20,10 @@ public class CaptureFileRunnable implements IRunnableWithProgress {
 	private final ILogger logger;
 	private IProgressMonitor progressMonitor;
 	private int lastPercent = 0;
-	
+
 	private boolean done;
 	private boolean cancelled;
-	
+
 	CaptureFileRunnable(ICaptureFileInterface iface, ISniffingDaemon daemon,
 			SniffingActionManager manager, ISpace space) {
 		captureInterface = iface;
@@ -32,53 +32,52 @@ public class CaptureFileRunnable implements IRunnableWithProgress {
 		this.space = space;
 		this.logger = Activator.getDefault().getLogManager().getLogger("Capture File");
 	}
-	
-	public void run(IProgressMonitor monitor) throws 
+
+	public void run(IProgressMonitor monitor) throws
 			InterruptedException {
 		this.progressMonitor = monitor;
 		progressMonitor.beginTask("", 100);
 		actionManager.disableAll();
 		done = false;
-		// XXX
+
 		sniffingDaemon.runCaptureFile(space.getId(), captureInterface, new ICaptureFileProgress() {
 
 			public void error(String message, Throwable e) {
-				handleError(message);				
+				handleError(message);
 			}
 
 			public void finished() {
-				handleFinished();				
+				handleFinished();
 			}
 
 			public boolean updateProgress(int percent, int count) {
-				return handleUpdateProgress(percent, count);				
+				return handleUpdateProgress(percent, count);
 			}
-			
+
 		});
-		
 		synchronized(lock) {
-			while(!done && !cancelled) {
+			while(!done) {
 				lock.wait();
 			}
 		}
-		if(cancelled) {
+		if(cancelled)
 			throw new InterruptedException();
-		}
+
 
 	}
-	
+
 	private void handleError(String message) {
 		progressMonitor.done();
 		synchronized(lock) {
 			done = true;
 			lock.notifyAll();
 		}
-		
+
 		actionManager.asynchSetState();
 		logger.error("Error parsing capture file : " + message);
-		
+
 	}
-	
+
 	private void handleFinished() {
 		progressMonitor.done();
 		synchronized(lock) {
@@ -87,32 +86,39 @@ public class CaptureFileRunnable implements IRunnableWithProgress {
 		}
 		actionManager.asynchSetState();
 	}
-	
+
 	private boolean handleUpdateProgress(int percent, int count) {
-		if(PlatformUI.getWorkbench().getDisplay().isDisposed() || progressMonitor.isCanceled()) {
-			synchronized (lock) {
-				cancelled = true;
-				lock.notifyAll();
-				return true;
-			}
+		if(cancelled)
+			return false;
+
+		if(PlatformUI.getWorkbench().getDisplay().isDisposed()) {
+			notifyCancel();
+			return false;
 		}
+
+		if(progressMonitor.isCanceled()) {
+			progressMonitor.done();
+			actionManager.setState();
+			notifyCancel();
+			return false;
+		}
+
+
 		if(percent > lastPercent) {
 			progressMonitor.worked(percent - lastPercent);
 			lastPercent = percent;
 		}
 		progressMonitor.setTaskName("Parsed " + count + " packets (" + percent + "% )");
-		if(progressMonitor.isCanceled()) {
-			progressMonitor.done();
-			synchronized(lock) {
-				done = true;
-				lock.notifyAll();
-			}
-			actionManager.setState();
-			return false;
-		} else {
-			return true;
+		return true;
+	}
+
+
+	private void notifyCancel() {
+		synchronized(lock) {
+			cancelled = true;
+			done = true;
+			lock.notifyAll();
 		}
-		
 	}
 
 }

@@ -19,7 +19,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.pcap.ICaptureInterface;
 
 public class ConfigPanel extends PopupDialog {

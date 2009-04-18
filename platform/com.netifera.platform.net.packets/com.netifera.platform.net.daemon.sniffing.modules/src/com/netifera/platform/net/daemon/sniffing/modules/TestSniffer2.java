@@ -1,7 +1,7 @@
 package com.netifera.platform.net.daemon.sniffing.modules;
 
-import com.netifera.platform.net.daemon.sniffing.IArpSniffer;
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IArpSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.packets.link.ARP;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 

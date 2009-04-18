@@ -2,7 +2,7 @@ package com.netifera.platform.net.wifi.internal.sniffing.daemon.probe;
 
 import java.io.Serializable;
 
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 
 public class ModuleRecord implements Serializable, ISniffingModule {

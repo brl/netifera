@@ -2,6 +2,6 @@
 <component name="netifera.sniffer.pof">
 	<implementation class="com.netifera.platform.net.daemon.sniffing.modules.passivefp.PassiveFingerprint" />
 	<service>
-		<provide interface="com.netifera.platform.net.daemon.sniffing.ISniffingModule" />
+		<provide interface="com.netifera.platform.net.daemon.sniffing.module.ISniffingModule" />
 	</service>
 </component>

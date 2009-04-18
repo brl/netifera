@@ -27,7 +27,7 @@ public class TCPStreamManager {
 	synchronized void handleEstablished(IStreamSniffer.SessionType sessionType) {
 		for(Iterator<IStreamSnifferHandle> itr = streamHandles.iterator(); itr.hasNext(); ) {
 			IStreamSnifferHandle handle = itr.next();
-			if(handle.getSniffer().handleNewSession(new TCPSessionContext(key, sessionTag), sessionType) == false) {
+			if(handle.getSniffer().handleNewSession(new TCPSessionContext(key, getTagForHandle(handle)), sessionType) == false) {
 				itr.remove();
 			}
 		}
@@ -36,7 +36,7 @@ public class TCPStreamManager {
 	synchronized void handleClientData(ByteBuffer data) {
 		for(Iterator<IStreamSnifferHandle> itr = streamHandles.iterator(); itr.hasNext(); ) {
 			IStreamSnifferHandle handle = itr.next();
-			if(handle.getSniffer().handleClientData(new TCPSessionContext(key, sessionTag), data) == false) {
+			if(handle.getSniffer().handleClientData(new TCPSessionContext(key, getTagForHandle(handle)), data) == false) {
 				itr.remove();
 			}
 		}
@@ -45,7 +45,7 @@ public class TCPStreamManager {
 	synchronized void handleServerData(ByteBuffer data) {
 		for(Iterator<IStreamSnifferHandle> itr = streamHandles.iterator(); itr.hasNext(); ) {
 			IStreamSnifferHandle handle = itr.next();
-			if(handle.getSniffer().handleServerData(new TCPSessionContext(key, sessionTag), data) == false) {
+			if(handle.getSniffer().handleServerData(new TCPSessionContext(key, getTagForHandle(handle)), data) == false) {
 				itr.remove();
 			}
 		}
@@ -54,10 +54,16 @@ public class TCPStreamManager {
 	synchronized void handleClose() {
 		closed = true;
 		for(IStreamSnifferHandle handle : streamHandles) {
-			handle.getSniffer().handleSessionClose(new TCPSessionContext(key, sessionTag));
+			handle.getSniffer().handleSessionClose(new TCPSessionContext(key, getTagForHandle(handle)));
 		}
 	}
 	
+	private Object getTagForHandle(IStreamSnifferHandle handle) {
+		if(sessionTag != null)
+			return sessionTag;
+		else
+			return handle.getDefaultTag();
+	}
 	boolean isActive() {
 		return streamHandles.size() > 0;
 	}

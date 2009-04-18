@@ -2,8 +2,8 @@ package com.netifera.platform.net.daemon.sniffing.modules;
 
 import java.nio.ByteBuffer;
 
-import com.netifera.platform.net.daemon.sniffing.IStreamModuleContext;
-import com.netifera.platform.net.daemon.sniffing.ITCPBlockSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IStreamModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.ITCPBlockSniffer;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 import com.netifera.platform.net.sniffing.stream.IBlockSnifferConfig;
 import com.netifera.platform.util.HexDump;

@@ -8,7 +8,7 @@ Bundle-Vendor: netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.model,
  com.netifera.platform.api.probe,
- com.netifera.platform.net.daemon.sniffing,
+ com.netifera.platform.net.daemon.sniffing.module,
  com.netifera.platform.net.http.web.model,
  com.netifera.platform.net.model,
  com.netifera.platform.net.packets,

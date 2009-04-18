@@ -2,6 +2,6 @@
 <component name="netifera.sniffer.http">
 	<implementation class="com.netifera.platform.net.http.internal.sniffing.HTTPSniffer" />
 	<service>
-		<provide interface="com.netifera.platform.net.daemon.sniffing.ISniffingModule" />
+		<provide interface="com.netifera.platform.net.daemon.sniffing.module.ISniffingModule" />
 	</service>
 </component>

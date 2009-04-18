@@ -12,9 +12,9 @@ import org.osgi.service.component.ComponentContext;
 
 import com.netifera.platform.api.dispatcher.IMessenger;
 import com.netifera.platform.api.dispatcher.MessengerException;
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
 import com.netifera.platform.net.daemon.sniffing.model.NetworkInterfaceEntity;
 import com.netifera.platform.net.daemon.sniffing.model.SniffingSessionEntity;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.wifi.internal.sniffing.daemon.probe.ModuleRecord;
 import com.netifera.platform.net.wifi.internal.sniffing.daemon.probe.RequestWirelessInterfaceInformation;
@@ -57,13 +57,13 @@ public class WifiSniffingDaemon extends AbstractWifiSniffingDaemon implements IW
 			if(m.getModule().equals(m))
 				return true;
 		}
-		return sniffingDaemon.isEnabled(iface);
+		return false;
 	}
 
 	
 	public void disableAllInterfaces() {
 		enabledInterfaces.clear();
-		sniffingDaemon.disableAllInterfaces();
+		//sniffingDaemon.disableAllInterfaces();
 	}
 
 	public void setWirelessEnabled(ISniffingModule module, boolean enable) {
@@ -93,7 +93,7 @@ public class WifiSniffingDaemon extends AbstractWifiSniffingDaemon implements IW
 		return null;
 	}
 	public void setEnabled(ISniffingModule module, boolean enable) {
-		sniffingDaemon.setEnabled(module, enable);		
+		//sniffingDaemon.setEnabled(module, enable);		
 	}
 
 	public boolean isRunning() {
@@ -115,27 +115,27 @@ public class WifiSniffingDaemon extends AbstractWifiSniffingDaemon implements IW
 			return;
 		
 		final Set<WifiDaemonInterface> interfaces = new HashSet<WifiDaemonInterface>();
-		sniffingDaemon.disableAllInterfaces();
+		//sniffingDaemon.disableAllInterfaces();
 		
 		for(IWirelessCaptureInterface iface : enabledInterfaces) {
 			
 			NetworkInterfaceEntity interfaceEntity = sniffingEntityFactory.createNetworkInterface(realm, spaceId, iface.getName());
 			interfaces.add(new WifiDaemonInterface(iface, interfaceEntity.getId()));
-			sniffingDaemon.setEnabled(iface.getInterface(), true);
+			//sniffingDaemon.setEnabled(iface.getInterface(), true);
 		}
 		
 		for(EnabledWifiModule module : enabledModules) {
 			module.start(interfaces, spaceId);	
 		}
 		final Set<ICaptureInterface> ifs = new HashSet<ICaptureInterface>(enabledInterfaces);
-		sniffingDaemon.start(ifs, wirelessSniffingEngine, spaceId, realm);
+		//sniffingDaemon.start(ifs, wirelessSniffingEngine, spaceId, realm);
 		running = true;
 	}
 	
 	public void stop() {
 		if(!running)
 			return;
-		sniffingDaemon.stop();	
+		//sniffingDaemon.stop();	
 		for(EnabledWifiModule module : enabledModules) {
 			module.stop();
 		}

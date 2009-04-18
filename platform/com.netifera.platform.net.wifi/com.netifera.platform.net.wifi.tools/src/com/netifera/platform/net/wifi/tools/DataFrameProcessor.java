@@ -1,6 +1,6 @@
 package com.netifera.platform.net.wifi.tools;
 
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.packets.tcpip.IP;
 import com.netifera.platform.net.wifi.model.ExtendedServiceSetEntity;
 import com.netifera.platform.net.wifi.model.WirelessStationEntity;

@@ -27,6 +27,8 @@ Import-Package: com.netifera.platform.api.daemon,
  com.netifera.platform.util.addresses.inet,
  org.osgi.service.component;version="1.0.0"
 Export-Package: com.netifera.platform.net.daemon.sniffing,
+ com.netifera.platform.net.daemon.sniffing.extend,
  com.netifera.platform.net.daemon.sniffing.model,
- com.netifera.platform.net.internal.daemon.probe,
+ com.netifera.platform.net.daemon.sniffing.module,
+ com.netifera.platform.net.internal.daemon.remote,
  com.netifera.platform.net.internal.daemon.sniffing.model;x-internal:=true

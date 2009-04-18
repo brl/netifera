@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.netifera.platform.net.daemon.sniffing.IStreamModuleContext;
-import com.netifera.platform.net.daemon.sniffing.ITCPBlockSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IStreamModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.ITCPBlockSniffer;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 import com.netifera.platform.net.sniffing.stream.IBlockSnifferConfig;
 import com.netifera.platform.net.sniffing.stream.ISessionKey;

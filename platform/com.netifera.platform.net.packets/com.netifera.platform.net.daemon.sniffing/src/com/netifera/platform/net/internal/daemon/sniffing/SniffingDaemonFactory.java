@@ -17,14 +17,14 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemonFactory;
-import com.netifera.platform.net.internal.daemon.probe.CaptureFileProgress;
-import com.netifera.platform.net.internal.daemon.probe.RemoteSniffingDaemon;
-import com.netifera.platform.net.internal.daemon.probe.SniffingModuleOutput;
+import com.netifera.platform.net.internal.daemon.remote.CaptureFileProgress;
+import com.netifera.platform.net.internal.daemon.remote.SniffingDaemonStub;
+import com.netifera.platform.net.internal.daemon.remote.SniffingModuleOutput;
 
 public class SniffingDaemonFactory implements ISniffingDaemonFactory {
 
 	private ILogger logger;
-	private Map<IProbe, RemoteSniffingDaemon> probeMap = new HashMap<IProbe, RemoteSniffingDaemon>();
+	private Map<IProbe, SniffingDaemonStub> probeMap = new HashMap<IProbe, SniffingDaemonStub>();
 	private IClientDispatcher clientDispatcher;
 
 
@@ -32,7 +32,7 @@ public class SniffingDaemonFactory implements ISniffingDaemonFactory {
 		if(probeMap.containsKey(probe)) {
 			return probeMap.get(probe);
 		}
-		RemoteSniffingDaemon rsd = new RemoteSniffingDaemon(probe, logger, changeHandler);
+		SniffingDaemonStub rsd = new SniffingDaemonStub(probe, logger, changeHandler);
 		probeMap.put(probe, rsd);
 		return rsd;
 		
@@ -43,14 +43,14 @@ public class SniffingDaemonFactory implements ISniffingDaemonFactory {
 	}
 	
 	private void captureFileProgress(IMessenger messenger, CaptureFileProgress msg) {
-		final RemoteSniffingDaemon rsd = probeMap.get(messenger.getProbe());
+		final SniffingDaemonStub rsd = probeMap.get(messenger.getProbe());
 		if(rsd != null) {
 			rsd.captureFileProgress(msg);
 		}
 	}
 	
 	private void sniffingModuleOutput(IMessenger messenger, SniffingModuleOutput msg) {
-		final RemoteSniffingDaemon rsd = probeMap.get(messenger.getProbe());
+		final SniffingDaemonStub rsd = probeMap.get(messenger.getProbe());
 		if(rsd != null) {
 			rsd.sniffingModuleOutput(msg.getMessage());
 		}

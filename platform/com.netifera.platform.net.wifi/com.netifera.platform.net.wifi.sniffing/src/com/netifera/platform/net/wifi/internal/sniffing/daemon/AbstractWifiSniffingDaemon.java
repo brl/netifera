@@ -14,9 +14,8 @@ import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.net.daemon.sniffing.ISniffingDaemonEx;
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
 import com.netifera.platform.net.daemon.sniffing.model.ISniffingEntityFactory;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.sniffing.ICaptureFileInterface;
 import com.netifera.platform.net.sniffing.util.ICaptureFileProgress;
@@ -33,7 +32,6 @@ abstract public class AbstractWifiSniffingDaemon  {
 	protected IWifiSniffingEngine wirelessSniffingEngine;
 	protected ISniffingEntityFactory sniffingEntityFactory;
 	protected IProbeManagerService probeManager;
-	protected ISniffingDaemonEx sniffingDaemon;
 
 
 	abstract protected void requestInterfaceInformation(IMessenger messenger, RequestWirelessInterfaceInformation message) throws MessengerException;
@@ -117,13 +115,7 @@ abstract public class AbstractWifiSniffingDaemon  {
 		
 	}
 	
-	protected void setSniffingDaemon(ISniffingDaemonEx daemon) {
-		sniffingDaemon = daemon;
-	}
 	
-	protected void unsetSniffingDaemon(ISniffingDaemonEx daemon) {
-		
-	}
 	
 	protected void setSniffingEngine(IWifiSniffingEngine engine) {
 		wirelessSniffingEngine = engine;
@@ -134,41 +126,36 @@ abstract public class AbstractWifiSniffingDaemon  {
 	}
 	
 	public void cancelCaptureFile() {
-		sniffingDaemon.cancelCaptureFile();
 		
 	}
 
 	public ICaptureFileInterface createCaptureFileInterface(String path) {
-		return sniffingDaemon.createCaptureFileInterface(path);
+		return null;
 	}
 
 	public void enableInterfaces(Collection<ICaptureInterface> interfaces) {
-		sniffingDaemon.enableInterfaces(interfaces);
 	}
 
 	public void enableModules(Set<ISniffingModule> enabledModuleSet) {
-		sniffingDaemon.enableModules(enabledModuleSet);		
 	}
 
 	public Collection<ICaptureInterface> getInterfaces() {
-		return sniffingDaemon.getInterfaces();
+		return null;
 	}
 
 	public Set<ISniffingModule> getModules() {
-		return sniffingDaemon.getModules();
+		return null;
 	}
 	
 	public boolean isEnabled(ISniffingModule module) {
-		return sniffingDaemon.isEnabled(module);
+		return false;
 	}
 
 	public void runCaptureFile(long spaceId, ICaptureFileInterface iface,
 			ICaptureFileProgress progress) {
-		sniffingDaemon.runCaptureFile(spaceId, iface, progress);		
 	}
 
 	public void setEnabled(ICaptureInterface iface, boolean enable) {
-		sniffingDaemon.setEnabled(iface, enable);		
 	}
 }
 

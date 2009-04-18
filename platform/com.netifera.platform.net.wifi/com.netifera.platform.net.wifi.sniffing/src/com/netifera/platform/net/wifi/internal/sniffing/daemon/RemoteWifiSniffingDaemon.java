@@ -13,7 +13,7 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.dispatcher.StatusMessage;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.sniffing.ICaptureFileInterface;
 import com.netifera.platform.net.sniffing.util.ICaptureFileProgress;

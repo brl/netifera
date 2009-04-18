@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.netifera.platform.net.daemon.sniffing.IIPSniffer;
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IIPSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.internal.daemon.sniffing.modules.Activator;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.packets.tcpip.IPv4;

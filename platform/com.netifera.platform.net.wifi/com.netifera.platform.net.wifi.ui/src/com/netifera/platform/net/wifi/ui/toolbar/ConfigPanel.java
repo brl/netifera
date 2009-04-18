@@ -23,7 +23,7 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.wifi.pcap.IWirelessCaptureInterface;
 import com.netifera.platform.net.wifi.sniffing.IWifiSniffingDaemon;
 import com.netifera.platform.net.wifi.ui.Activator;
@@ -111,9 +111,9 @@ public class ConfigPanel extends PopupDialog {
 		warning.setBackground(new Color(parent.getDisplay(), WARNING_COLOR));
 	}
 	private void addInterface(final IWirelessCaptureInterface iface, Composite parent) {
-		final boolean enabled = sniffingDaemon.isEnabled(iface);
+		//final boolean enabled = sniffingDaemon.isEnabled(iface);
 		final Button b = toolkit.createButton(parent, iface.toString(), SWT.CHECK);
-		b.setSelection(enabled);
+		//b.setSelection(enabled);
 		b.setEnabled(iface.captureAvailable());
 		b.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -136,9 +136,9 @@ public class ConfigPanel extends PopupDialog {
 	}
 	
 	private void addWirelessModule(final ISniffingModule module, Composite parent) {
-		final boolean enabled = sniffingDaemon.isEnabled(module);
+		//final boolean enabled = sniffingDaemon.isEnabled(module);
 		final Button b = toolkit.createButton(parent, module.getName(), SWT.CHECK);
-		b.setSelection(enabled);
+		//b.setSelection(enabled);
 		b.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				sniffingDaemon.setWirelessEnabled(module, b.getSelection());
@@ -154,18 +154,18 @@ public class ConfigPanel extends PopupDialog {
 		sectionClient.setLayout(new GridLayout());
 		section.setClient(sectionClient);
 		
-		for(ISniffingModule module : sniffingDaemon.getModules()) {
-			addModule(module, sectionClient);
-		}
+		//for(ISniffingModule module : sniffingDaemon.getModules()) {
+		//	addModule(module, sectionClient);
+		//}
 	}
 	
 	private void addModule(final ISniffingModule module, Composite parent) {
-		final boolean enabled = sniffingDaemon.isEnabled(module);
+	//	final boolean enabled = sniffingDaemon.isEnabled(module);
 		final Button b = toolkit.createButton(parent, module.getName(), SWT.CHECK);
-		b.setSelection(enabled);
+		//b.setSelection(enabled);
 		b.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				sniffingDaemon.setEnabled(module, b.getSelection());
+				//sniffingDaemon.setEnabled(module, b.getSelection());
 			}
 		});
 	}

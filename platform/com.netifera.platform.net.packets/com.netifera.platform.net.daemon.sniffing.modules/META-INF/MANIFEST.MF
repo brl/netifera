@@ -11,7 +11,7 @@ Service-Component: OSGI-INF/arp-sniffer.xml,
  OSGI-INF/service-detector.xml
 Import-Package: com.netifera.platform.api.model,
  com.netifera.platform.api.probe,
- com.netifera.platform.net.daemon.sniffing,
+ com.netifera.platform.net.daemon.sniffing.module,
  com.netifera.platform.net.model,
  com.netifera.platform.net.packets,
  com.netifera.platform.net.packets.link,

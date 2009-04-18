@@ -73,7 +73,6 @@ public class TreeBuilder {
 		IShadowEntity realmEntity = getShadow(entity.getRealmId());
 		if(realmEntity == null) {
 			System.err.println("Realm entity not found for entity: "  + entity);
-			Thread.dumpStack();
 			return;
 		}
 		

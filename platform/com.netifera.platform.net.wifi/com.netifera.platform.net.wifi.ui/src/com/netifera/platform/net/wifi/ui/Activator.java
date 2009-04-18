@@ -16,8 +16,6 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
-import com.netifera.platform.net.daemon.sniffing.ISniffingDaemonFactory;
 import com.netifera.platform.net.wifi.sniffing.IWifiSniffingDaemon;
 import com.netifera.platform.net.wifi.sniffing.IWifiSniffingDaemonFactory;
 import com.netifera.platform.net.wifi.ui.toolbar.WifiToolbar;
@@ -34,7 +32,6 @@ public class Activator extends AbstractUIPlugin {
 
 	private static Activator plugin;
 	
-	private ServiceTracker sniffingDaemonFactoryTracker;
 	private ServiceTracker wifiDaemonFactoryTracker;
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker logManagerTracker;
@@ -52,9 +49,6 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		
-		sniffingDaemonFactoryTracker = new ServiceTracker(context, ISniffingDaemonFactory.class.getName(), null);
-		sniffingDaemonFactoryTracker.open();
 		
 		wifiDaemonFactoryTracker = new ServiceTracker(context, IWifiSniffingDaemonFactory.class.getName(), null);
 		wifiDaemonFactoryTracker.open();
@@ -82,9 +76,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	
-	public ISniffingDaemonFactory getSniffingDaemonFactory() {
-		return (ISniffingDaemonFactory) sniffingDaemonFactoryTracker.getService();
-	}
+
 	
 	public IWifiSniffingDaemonFactory getWifiDaemonFactory() {
 		return (IWifiSniffingDaemonFactory) wifiDaemonFactoryTracker.getService();
@@ -98,6 +90,7 @@ public class Activator extends AbstractUIPlugin {
 		return (ILogManager) logManagerTracker.getService();
 	}
 	
+	/*
 	public ISniffingDaemon getSniffingDaemon() {
 		IProbe probe = getCurrentProbe();
 		if(probe == null)
@@ -106,6 +99,7 @@ public class Activator extends AbstractUIPlugin {
 		return getSniffingDaemonFactory().createForProbe(probe, null);
 	}
 	
+	*/
 
 	public IWifiSniffingDaemon getWifiDaemon() {
 		final IProbe probe = getCurrentProbe();

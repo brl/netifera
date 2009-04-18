@@ -2,6 +2,6 @@
 <component name="netifera.sniffer.dns">
 	<implementation class="com.netifera.platform.net.dns.internal.sniffing.DNSSniffer" />
 	<service>
-		<provide interface="com.netifera.platform.net.daemon.sniffing.ISniffingModule" />
+		<provide interface="com.netifera.platform.net.daemon.sniffing.module.ISniffingModule" />
 	</service>
 </component>

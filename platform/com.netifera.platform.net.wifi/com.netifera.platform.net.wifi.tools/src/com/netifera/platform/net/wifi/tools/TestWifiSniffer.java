@@ -2,7 +2,7 @@ package com.netifera.platform.net.wifi.tools;
 
 import java.nio.ByteBuffer;
 
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.packets.PacketPayload;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 import com.netifera.platform.net.wifi.packets.WiFiFrame;

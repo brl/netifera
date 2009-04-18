@@ -2,6 +2,6 @@
 <component name="netifera.sniffer.service-detector">
 	<implementation class="com.netifera.platform.net.daemon.sniffing.modules.detection.PassiveServiceDetector" />
 	<service>
-		<provide interface="com.netifera.platform.net.daemon.sniffing.ISniffingModule" />
+		<provide interface="com.netifera.platform.net.daemon.sniffing.module.ISniffingModule" />
 	</service>
 </component>

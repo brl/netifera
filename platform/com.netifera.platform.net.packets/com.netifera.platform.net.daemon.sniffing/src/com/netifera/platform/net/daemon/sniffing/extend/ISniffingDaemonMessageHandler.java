@@ -2,16 +2,16 @@ package com.netifera.platform.net.daemon.sniffing.extend;
 
 import com.netifera.platform.api.dispatcher.IMessenger;
 import com.netifera.platform.api.dispatcher.MessengerException;
-import com.netifera.platform.net.internal.daemon.probe.CancelCaptureFile;
-import com.netifera.platform.net.internal.daemon.probe.CaptureFileValid;
-import com.netifera.platform.net.internal.daemon.probe.RequestInterfaceInformation;
-import com.netifera.platform.net.internal.daemon.probe.RequestModuleInformation;
-import com.netifera.platform.net.internal.daemon.probe.RunCaptureFile;
-import com.netifera.platform.net.internal.daemon.probe.SetInterfaceEnableState;
-import com.netifera.platform.net.internal.daemon.probe.SetModuleEnableState;
-import com.netifera.platform.net.internal.daemon.probe.SniffingDaemonStatus;
-import com.netifera.platform.net.internal.daemon.probe.StartSniffingDaemon;
-import com.netifera.platform.net.internal.daemon.probe.StopSniffingDaemon;
+import com.netifera.platform.net.internal.daemon.remote.CancelCaptureFile;
+import com.netifera.platform.net.internal.daemon.remote.CaptureFileValid;
+import com.netifera.platform.net.internal.daemon.remote.RequestInterfaceInformation;
+import com.netifera.platform.net.internal.daemon.remote.RequestModuleInformation;
+import com.netifera.platform.net.internal.daemon.remote.RunCaptureFile;
+import com.netifera.platform.net.internal.daemon.remote.SetInterfaceEnableState;
+import com.netifera.platform.net.internal.daemon.remote.SetModuleEnableState;
+import com.netifera.platform.net.internal.daemon.remote.SniffingDaemonStatus;
+import com.netifera.platform.net.internal.daemon.remote.StartSniffingDaemon;
+import com.netifera.platform.net.internal.daemon.remote.StopSniffingDaemon;
 
 public interface ISniffingDaemonMessageHandler {
 	void requestInterfaceInformation(IMessenger messenger, RequestInterfaceInformation msg) throws MessengerException;

@@ -3,7 +3,7 @@ package com.netifera.platform.net.wifi.tools;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.sniffing.IPacketFilter;

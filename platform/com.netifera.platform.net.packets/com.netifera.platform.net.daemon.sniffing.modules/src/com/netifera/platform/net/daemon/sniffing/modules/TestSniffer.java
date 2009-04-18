@@ -1,7 +1,7 @@
 package com.netifera.platform.net.daemon.sniffing.modules;
 
-import com.netifera.platform.net.daemon.sniffing.IIPSniffer;
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IIPSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.packets.tcpip.IPv4;
 import com.netifera.platform.net.packets.tcpip.IPv6;
 import com.netifera.platform.net.sniffing.IPacketFilter;

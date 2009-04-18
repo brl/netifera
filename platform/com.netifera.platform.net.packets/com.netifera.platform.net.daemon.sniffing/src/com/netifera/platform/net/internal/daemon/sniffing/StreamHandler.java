@@ -2,8 +2,8 @@ package com.netifera.platform.net.internal.daemon.sniffing;
 
 import java.nio.ByteBuffer;
 
-import com.netifera.platform.net.daemon.sniffing.IStreamSnifferConfig;
-import com.netifera.platform.net.daemon.sniffing.ITCPStreamSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IStreamSnifferConfig;
+import com.netifera.platform.net.daemon.sniffing.module.ITCPStreamSniffer;
 import com.netifera.platform.net.sniffing.stream.ISessionContext;
 import com.netifera.platform.net.sniffing.stream.IStreamSniffer;
 

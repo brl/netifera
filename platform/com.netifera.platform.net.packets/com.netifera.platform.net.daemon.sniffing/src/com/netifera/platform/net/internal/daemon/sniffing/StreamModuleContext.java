@@ -1,6 +1,6 @@
 package com.netifera.platform.net.internal.daemon.sniffing;
 
-import com.netifera.platform.net.daemon.sniffing.IStreamModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IStreamModuleContext;
 import com.netifera.platform.net.sniffing.stream.ISessionContext;
 import com.netifera.platform.net.sniffing.stream.ISessionKey;
 

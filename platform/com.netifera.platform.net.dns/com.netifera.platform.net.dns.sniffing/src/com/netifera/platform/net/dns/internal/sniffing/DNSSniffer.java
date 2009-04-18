@@ -12,8 +12,8 @@ import org.xbill.DNS.PTRRecord;
 import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Record;
 
-import com.netifera.platform.net.daemon.sniffing.IIPSniffer;
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IIPSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.packets.tcpip.IP;
 import com.netifera.platform.net.packets.tcpip.IPv4;
 import com.netifera.platform.net.packets.tcpip.IPv6;

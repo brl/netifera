@@ -3,10 +3,10 @@ package com.netifera.platform.net.daemon.sniffing.modules.detection;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import com.netifera.platform.net.daemon.sniffing.IIPSniffer;
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
-import com.netifera.platform.net.daemon.sniffing.IStreamModuleContext;
-import com.netifera.platform.net.daemon.sniffing.ITCPBlockSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IIPSniffer;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IStreamModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.ITCPBlockSniffer;
 import com.netifera.platform.net.internal.daemon.sniffing.modules.Activator;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.packets.tcpip.IP;

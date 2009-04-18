@@ -1,7 +1,6 @@
 package com.netifera.platform.net.daemon.sniffing.extend;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.osgi.service.component.ComponentContext;
 
 import com.netifera.platform.api.dispatcher.IMessageDispatcherService;
 import com.netifera.platform.api.dispatcher.IMessenger;
@@ -9,62 +8,65 @@ import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.net.daemon.sniffing.ISniffingModule;
 import com.netifera.platform.net.daemon.sniffing.model.ISniffingEntityFactory;
-import com.netifera.platform.net.daemon.sniffing.model.SniffingSessionEntity;
-import com.netifera.platform.net.internal.daemon.probe.CancelCaptureFile;
-import com.netifera.platform.net.internal.daemon.probe.CaptureFileValid;
-import com.netifera.platform.net.internal.daemon.probe.InterfaceRecord;
-import com.netifera.platform.net.internal.daemon.probe.ModuleRecord;
-import com.netifera.platform.net.internal.daemon.probe.RequestInterfaceInformation;
-import com.netifera.platform.net.internal.daemon.probe.RequestModuleInformation;
-import com.netifera.platform.net.internal.daemon.probe.RunCaptureFile;
-import com.netifera.platform.net.internal.daemon.probe.SetInterfaceEnableState;
-import com.netifera.platform.net.internal.daemon.probe.SetModuleEnableState;
-import com.netifera.platform.net.internal.daemon.probe.SniffingDaemonStatus;
-import com.netifera.platform.net.internal.daemon.probe.StartSniffingDaemon;
-import com.netifera.platform.net.internal.daemon.probe.StopSniffingDaemon;
-import com.netifera.platform.net.pcap.ICaptureInterface;
-import com.netifera.platform.net.sniffing.ICaptureFileInterface;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
+import com.netifera.platform.net.internal.daemon.remote.CancelCaptureFile;
+import com.netifera.platform.net.internal.daemon.remote.CaptureFileValid;
+import com.netifera.platform.net.internal.daemon.remote.RequestInterfaceInformation;
+import com.netifera.platform.net.internal.daemon.remote.RequestModuleInformation;
+import com.netifera.platform.net.internal.daemon.remote.RunCaptureFile;
+import com.netifera.platform.net.internal.daemon.remote.SetInterfaceEnableState;
+import com.netifera.platform.net.internal.daemon.remote.SetModuleEnableState;
+import com.netifera.platform.net.internal.daemon.remote.SniffingDaemonStatus;
+import com.netifera.platform.net.internal.daemon.remote.StartSniffingDaemon;
+import com.netifera.platform.net.internal.daemon.remote.StopSniffingDaemon;
+import com.netifera.platform.net.internal.daemon.sniffing.SniffingDaemonCaptureFile;
+import com.netifera.platform.net.internal.daemon.sniffing.SniffingDaemonInterfaces;
+import com.netifera.platform.net.internal.daemon.sniffing.SniffingDaemonMessageDispatcher;
+import com.netifera.platform.net.internal.daemon.sniffing.SniffingDaemonModules;
 import com.netifera.platform.net.sniffing.ISniffingEngineService;
 
 public class AbstractSniffingDaemon implements ISniffingDaemonMessageHandler {
-	
-	private final SniffingDaemonModules modules = new SniffingDaemonModules();
-	private final SniffingDaemonMessageDispatcher messages = new SniffingDaemonMessageDispatcher(this);
-	private final SniffingDaemonInterfaces interfaces = new SniffingDaemonInterfaces();
-	private final SniffingDaemonCaptureFile capture = new SniffingDaemonCaptureFile(modules);
-	
-	
+
+	/* Sniffing Daemon subsystems */
+	private final SniffingDaemonModules modules;
+	private final SniffingDaemonMessageDispatcher messages;
+	private final SniffingDaemonInterfaces interfaces;
+	private final SniffingDaemonCaptureFile capture;
+
+	/* OSGi Services */
 	private ILogger logger;
-	private IMessenger openMessenger;
 	private ISniffingEngineService sniffingEngine;
 	private ISniffingEntityFactory entityFactory;
 	private IProbeManagerService probeManager;
-	
-	
-	boolean isRunning() {
-		return modules.isRunning();
-	}
-	
-	
-	public void start(IMessenger messenger, long spaceId) {
-		System.out.println("start go go");
-		final long realmId = probeManager.getLocalProbe().getEntity().getId();
-		final SniffingSessionEntity session = entityFactory.createSniffingSession(realmId, spaceId);
-		
-		modules.start(messenger, sniffingEngine, interfaces.getEnabledInterfaces(), spaceId, session.getId());
-		
+	private IMessageDispatcherService dispatcher;
 
+
+	protected AbstractSniffingDaemon() {
+		messages = new SniffingDaemonMessageDispatcher(this);
+		interfaces = new SniffingDaemonInterfaces();
+		modules = new SniffingDaemonModules(interfaces);
+		capture = new SniffingDaemonCaptureFile(modules);
 	}
-	
-	void stop() {
-		
+
+	boolean isRunning() {
+		return modules.isRunning() || capture.isRunning();
 	}
-	
+
 	/*
-	 * OSGi DS bindings
+	 * OSGi DS binding
 	 */
+
+	protected void activate(ComponentContext ctx) {
+		interfaces.setServices(logger, sniffingEngine);
+		capture.setServices(logger, entityFactory, probeManager, sniffingEngine);
+		modules.setServices(logger, entityFactory, probeManager, sniffingEngine);
+		messages.setServices(logger, dispatcher.getServerDispatcher());
+		messages.registerHandlers();
+	}
+
+	protected void deactivate(ComponentContext ctx) { }
+
 	protected void registerModule(ISniffingModule module) {
 		modules.addModule(module);
 	}
@@ -72,47 +74,37 @@ public class AbstractSniffingDaemon implements ISniffingDaemonMessageHandler {
 	protected void unregisterModule(ISniffingModule module) {
 		modules.removeModule(module);
 	}
-	
+
 	protected void setSniffingEngine(ISniffingEngineService sniffingEngine) {
 		this.sniffingEngine = sniffingEngine;
-		interfaces.setSniffingEngine(sniffingEngine);
 	}
-	
-	protected void unsetSniffingEngine(ISniffingEngineService sniffingEngine) {
-		
-	}
-	
+
+	protected void unsetSniffingEngine(ISniffingEngineService sniffingEngine) {}
+
 	protected void setProbeManager(IProbeManagerService manager) {
-		this.probeManager = manager;;
+		this.probeManager = manager;
 	}
-	
-	protected void unsetProbeManager(IProbeManagerService manager) {
-		
+
+	protected void unsetProbeManager(IProbeManagerService manager) {}
+
+	protected void setDispatcher(IMessageDispatcherService dispatcher) {
+		this.dispatcher = dispatcher;
 	}
-	
-	protected void setDispatcher(IMessageDispatcherService dispatcherService) {
-		messages.registerHandlers(dispatcherService.getServerDispatcher());
-	}
-	
+
+	protected void unsetDispatcher(IMessageDispatcherService dispatcher) {}
+
 	protected void setLogManager(ILogManager logManager) {
 		logger = logManager.getLogger("Sniffing Daemon");
-		messages.setLogger(logger);
-		modules.setLogger(logger);
 	}
-	
-	protected void unsetLogManager(ILogManager logManager) {
-		
-	}
-	
+
+	protected void unsetLogManager(ILogManager logManager) {}
+
 	protected void setEntityFactory(ISniffingEntityFactory factory) {
 		this.entityFactory = factory;
-		modules.setEntityFactory(factory);
 	}
-	
-	protected void unsetEntityFactory(ISniffingEntityFactory factory) {
-		
-	}
-	
+
+	protected void unsetEntityFactory(ISniffingEntityFactory factory) {}
+
 	/*
 	 * Probe message handling
 	 */
@@ -121,88 +113,60 @@ public class AbstractSniffingDaemon implements ISniffingDaemonMessageHandler {
 		capture.cancelCaptureFile();
 		messenger.respondOk(msg);
 	}
-	
+
 	public void captureFileValid(IMessenger messenger, CaptureFileValid msg)
 			throws MessengerException {
-		final ICaptureFileInterface iface = capture.createCaptureFileInterface(msg.getPath());
-		messenger.emitMessage(msg.createResponse(iface.isValid(), iface.getErrorMessage()));
-		iface.dispose();		
+		capture.captureFileValid(messenger, msg);
 	}
-	
+
 	public void requestInterfaceInformation(IMessenger messenger,
 			RequestInterfaceInformation msg) throws MessengerException {
-		final List<InterfaceRecord> result = new ArrayList<InterfaceRecord>();
-		for(ICaptureInterface iface : interfaces.getInterfaces())
-			result.add(new InterfaceRecord(iface.getName(), iface.toString(), iface.captureAvailable(), interfaces.isEnabled(iface)));
-		messenger.emitMessage(msg.createResponse(result));
-		
+		interfaces.requestInterfaceInformation(messenger, msg);
 	}
-	  
+
 	public void requestModuleInformation(IMessenger messenger,
 			RequestModuleInformation msg) throws MessengerException {
-		final List <ModuleRecord> result = new ArrayList<ModuleRecord>();
-		for(ISniffingModule mod : modules.getModules()) {
-			result.add(new ModuleRecord(mod.getName(), modules.isEnabled(mod)));
-		}
-		messenger.emitMessage(msg.createResponse(result));		
+		modules.requestModuleInformation(messenger, msg);
 	}
-	
+
 	public void runCaptureFile(IMessenger messenger, RunCaptureFile msg)
 			throws MessengerException {
-		// TODO Auto-generated method stub
-		
+		if(isRunning()) {
+			messenger.respondError(msg, "Cannot run capture file as Sniffing Service is already running");
+			return;
+		}
+		capture.runCaptureFile(messenger, msg);
+		messenger.respondOk(msg);
 	}
+
 	public void setInterfaceEnableState(IMessenger messenger,
 			SetInterfaceEnableState msg) throws MessengerException {
-		for(InterfaceRecord iface : msg.getInterfaceRecords()) {
-			final ICaptureInterface captureInterface = interfaces.lookupInterfaceByName(iface.getName());
-			if(captureInterface == null) {
-				logger.warning("No capture interface found with name : " + iface.getName());
-			} else {
-				if(iface.isEnabled()) {
-					interfaces.enableInterface(iface);
-				} else {
-					interfaces.disableInterface(iface);
-				}
-			}
-		}
-		messenger.respondOk(msg);		
+		interfaces.setInterfaceEnableState(messenger, msg);
 	}
+
 	public void setModuleEnableState(IMessenger messenger,
 			SetModuleEnableState msg) throws MessengerException {
-		for(ModuleRecord module : msg.getModuleRecords()) {
-			final ISniffingModule sniffingModule = modules.getModuleByName(module.getName());
-			if(sniffingModule == null) {
-				logger.warning("No sniffing module found with name : " + module.getName());
-			} else {
-				if(module.isEnabled())
-					modules.enableModule(sniffingModule);
-				else
-					modules.disableModule(sniffingModule);
-			}
-		}
-		messenger.respondOk(msg);
-		
+		modules.setModuleEnableState(messenger, msg);
 	}
-	
+
 	public void sniffingDaemonStatus(IMessenger messenger,
 			SniffingDaemonStatus msg) throws MessengerException {
 		messenger.emitMessage(msg.createResponse(isRunning()));
 	}
-	
+
 	public void startSniffingDaemon(IMessenger messenger,
 			StartSniffingDaemon msg) throws MessengerException {
-		start(messenger, msg.getSpaceId());
-		messenger.respondOk(msg);
-		
+		if(isRunning()) {
+			messenger.respondError(msg, "Sniffing Service already running");
+		}
+		modules.startSniffingDaemon(messenger, msg);
 	}
+
 	public void stopSniffingDaemon(IMessenger messenger, StopSniffingDaemon msg)
 			throws MessengerException {
-		stop();
-		messenger.respondOk(msg);
-		
+		modules.stopSniffingDaemon(messenger, msg);
 	}
-	
+
 
 
 }

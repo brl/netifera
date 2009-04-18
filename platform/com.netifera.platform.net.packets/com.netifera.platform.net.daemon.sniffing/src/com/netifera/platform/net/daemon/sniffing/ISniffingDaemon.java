@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.netifera.platform.api.daemon.IDaemon;
+import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.sniffing.ICaptureFileInterface;
 import com.netifera.platform.net.sniffing.util.ICaptureFileProgress;

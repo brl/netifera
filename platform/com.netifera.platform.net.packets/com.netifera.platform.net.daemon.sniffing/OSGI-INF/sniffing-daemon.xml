@@ -4,7 +4,7 @@
 	
 	<reference
 		name="SNIFFING_MODULE"
-		interface="com.netifera.platform.net.daemon.sniffing.ISniffingModule"
+		interface="com.netifera.platform.net.daemon.sniffing.module.ISniffingModule"
 		bind="registerModule"
 		unbind="unregisterModule"
 		cardinality="0..n"

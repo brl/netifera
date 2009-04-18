@@ -1,6 +1,6 @@
 package com.netifera.platform.net.internal.daemon.sniffing;
 
-import com.netifera.platform.net.daemon.sniffing.IPacketModuleContext;
+import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.pcap.ICaptureHeader;
 import com.netifera.platform.net.sniffing.IPacketContext;
 

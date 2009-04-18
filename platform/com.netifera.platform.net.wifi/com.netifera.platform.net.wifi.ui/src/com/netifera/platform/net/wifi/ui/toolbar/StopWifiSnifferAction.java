@@ -3,7 +3,6 @@ package com.netifera.platform.net.wifi.ui.toolbar;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
 import com.netifera.platform.net.wifi.ui.Activator;
 
 public class StopWifiSnifferAction extends Action {
@@ -19,16 +18,16 @@ public class StopWifiSnifferAction extends Action {
 	}
 
 	public void run() {
-		final ISniffingDaemon daemon = Activator.getDefault().getWifiDaemon();
-		if(daemon == null) {
-			toolbar.setFailed("No sniffing service found");
-			return;
-		}
+		//final ISniffingDaemon daemon = Activator.getDefault().getWifiDaemon();
+		//if(daemon == null) {
+		//	toolbar.setFailed("No sniffing service found");
+		//	return;
+		//}
 		
 		new Thread(new Runnable() {
 
 			public void run() {
-				daemon.stop();
+				//daemon.stop();
 				toolbar.asynchSetState();				
 			}
 			
