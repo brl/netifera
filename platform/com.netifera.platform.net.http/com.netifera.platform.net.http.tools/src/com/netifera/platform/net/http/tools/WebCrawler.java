@@ -42,8 +42,8 @@ public class WebCrawler implements ITool {
 		
 		try {
 			WebSpider spider = new WebSpider(http);
-			spider.setContext(context);
 			spider.setRealm(realm);
+			spider.setSpaceId(context.getSpaceId());
 			spider.setBaseURL(base);
 			spider.addURL(base);
 			

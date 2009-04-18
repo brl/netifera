@@ -11,17 +11,14 @@ import com.netifera.platform.net.http.web.model.WebPageEntity;
 
 public class EdgeLayerProvider implements IEdgeLayerProvider {
 
-	@Override
 	public List<IEdge> getEdges(final IEntity entity) {
 		if (entity instanceof WebPageEntity) {
 			List<IEdge> answer = new ArrayList<IEdge>();
 			for (final WebPageEntity link: ((WebPageEntity) entity).getLinks())
 				answer.add(new IEdge() {
-					@Override
 					public IEntity getSource() {
 						return entity;
 					}
-					@Override
 					public IEntity getTarget() {
 						return link;
 					}
@@ -31,12 +28,10 @@ public class EdgeLayerProvider implements IEdgeLayerProvider {
 		return Collections.emptyList();
 	}
 
-	@Override
 	public String getLayerName() {
 		return "Web Links";
 	}
 
-	@Override
 	public boolean isDefaultEnabled() {
 		return false;
 	}
