@@ -1,10 +1,9 @@
-package com.netifera.platform.net.wifi.internal.sniffing.daemon;
+package com.netifera.platform.net.wifi.internal.daemon.remote;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.netifera.platform.api.dispatcher.ProbeMessage;
-import com.netifera.platform.net.wifi.internal.sniffing.daemon.probe.ModuleRecord;
 
 public class SetWirelessModuleEnableState extends ProbeMessage {
 	

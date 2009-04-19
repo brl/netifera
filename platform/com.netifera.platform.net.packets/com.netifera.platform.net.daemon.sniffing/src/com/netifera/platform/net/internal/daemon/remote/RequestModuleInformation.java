@@ -12,17 +12,17 @@ public class RequestModuleInformation extends ProbeMessage {
 
 	private final List<ModuleRecord> modules;
 	
-	public RequestModuleInformation() {
-		super(ID);
+	public RequestModuleInformation(String prefix) {
+		super(prefix + ID);
 		modules = null;
 	}
 	
-	public RequestModuleInformation createResponse(List<ModuleRecord> modules) {
-		return new RequestModuleInformation(modules, getSequenceNumber());
+	public RequestModuleInformation createResponse(String prefix, List<ModuleRecord> modules) {
+		return new RequestModuleInformation(prefix, modules, getSequenceNumber());
 	}
 	
-	private RequestModuleInformation(List<ModuleRecord> modules, int sequenceNumber) {
-		super(ID);
+	private RequestModuleInformation(String prefix, List<ModuleRecord> modules, int sequenceNumber) {
+		super(prefix + ID);
 		this.modules = modules;
 		setSequenceNumber(sequenceNumber);
 		markAsResponse();

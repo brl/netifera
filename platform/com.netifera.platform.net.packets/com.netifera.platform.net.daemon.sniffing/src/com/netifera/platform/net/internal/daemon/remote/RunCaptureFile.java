@@ -11,8 +11,8 @@ public class RunCaptureFile extends ProbeMessage {
 	private final long spaceId;
 	private final String path;
 
-	public RunCaptureFile(long spaceId, String path) {
-		super(ID);
+	public RunCaptureFile(String prefix, long spaceId, String path) {
+		super(prefix + ID);
 		this.spaceId = spaceId;
 		this.path = path;
 	}

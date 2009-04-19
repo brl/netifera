@@ -10,8 +10,8 @@ public class StartSniffingDaemon extends ProbeMessage {
 	
 	private final long spaceId;
 	
-	public StartSniffingDaemon(long spaceId) {
-		super(ID);
+	public StartSniffingDaemon(String prefix, long spaceId) {
+		super(prefix + ID);
 		this.spaceId = spaceId;
 	}
 	

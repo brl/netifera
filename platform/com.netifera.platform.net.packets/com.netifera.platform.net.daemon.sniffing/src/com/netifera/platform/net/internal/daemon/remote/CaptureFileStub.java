@@ -9,7 +9,7 @@ public class CaptureFileStub implements ICaptureFileInterface {
 	private final boolean isValid;
 	private final String errorMessage;
 	
-	CaptureFileStub(String path, boolean valid, String errorMessage) {
+	public CaptureFileStub(String path, boolean valid, String errorMessage) {
 		this.captureFilePath = path;
 		this.isValid = valid;
 		this.errorMessage = errorMessage;

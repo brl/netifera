@@ -9,8 +9,8 @@ public class SniffingModuleOutput extends ProbeMessage {
 	public final static String ID = "SniffingModuleOutput";
 
 	private final String message;
-	public SniffingModuleOutput(String message) {
-		super(ID);
+	public SniffingModuleOutput(String prefix, String message) {
+		super(prefix + ID);
 		this.message = message;
 	}
 

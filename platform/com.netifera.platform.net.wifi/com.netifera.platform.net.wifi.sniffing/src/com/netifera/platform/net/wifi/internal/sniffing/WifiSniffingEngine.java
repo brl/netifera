@@ -2,6 +2,7 @@ package com.netifera.platform.net.wifi.internal.sniffing;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
@@ -17,15 +18,13 @@ import com.netifera.platform.net.sniffing.ICaptureFileInterface;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 import com.netifera.platform.net.sniffing.IPacketSniffer;
 import com.netifera.platform.net.sniffing.ISnifferHandle;
-import com.netifera.platform.net.sniffing.ISniffingEngineService;
 import com.netifera.platform.net.sniffing.stream.IBlockSniffer;
 import com.netifera.platform.net.sniffing.stream.IBlockSnifferHandle;
 import com.netifera.platform.net.sniffing.stream.IStreamSniffer;
 import com.netifera.platform.net.sniffing.stream.IStreamSnifferHandle;
 import com.netifera.platform.net.sniffing.util.CaptureFileInterface;
 import com.netifera.platform.net.sniffing.util.IBasicInterfaceManager;
-import com.netifera.platform.net.sniffing.util.IPacketSource;
-import com.netifera.platform.net.sniffing.util.ISniffingEngineEx;
+import com.netifera.platform.net.sniffing.util.InterfaceManager;
 import com.netifera.platform.net.wifi.packets.WiFiFrame;
 import com.netifera.platform.net.wifi.pcap.IWifiPacketCaptureFactory;
 import com.netifera.platform.net.wifi.pcap.IWirelessCaptureInterface;
@@ -33,16 +32,28 @@ import com.netifera.platform.net.wifi.sniffing.IWifiSniffingEngine;
 
 public class WifiSniffingEngine implements IWifiSniffingEngine {
 
+	private final static int DEFAULT_SNAPLEN = 65535;
+	private final static int DEFAULT_TIMEOUT = 500;
+	
+	private final int snaplen = DEFAULT_SNAPLEN;
+	private final int timeout = DEFAULT_TIMEOUT;
+	private final boolean promiscuous = true;
 	
 	private IWifiPacketCaptureFactory wifiFactory;
-	private ISniffingEngineEx sniffingEngine;
 	
 	private final Map<IWirelessCaptureInterface, WifiInterfaceManager> interfaces =
 		new HashMap<IWirelessCaptureInterface, WifiInterfaceManager>();
 	
+	private final Map<CaptureFileInterface, WifiInterfaceManager> captureFileInterfaces =
+		new HashMap<CaptureFileInterface, WifiInterfaceManager>();
+	
+	public Collection<ICaptureInterface> getInterfaces() {
+		System.out.println("Getting wifi interfaces " + wifiFactory.getWifiInterfaces());
+		return new HashSet<ICaptureInterface>(wifiFactory.getWifiInterfaces());
+	}
 	
 	public Collection<IWirelessCaptureInterface> getWifiInterfaces() {
-		return interfaces.keySet();
+		return wifiFactory.getWifiInterfaces();
 	}
 	
 	public ISnifferHandle createWifiHandle(IWirelessCaptureInterface iface,
@@ -88,7 +99,7 @@ public class WifiSniffingEngine implements IWifiSniffingEngine {
 	
 	private void initializeInterfaces() {
 		for(IWirelessCaptureInterface iface: wifiFactory.getWifiInterfaces()) {
-			final IBasicInterfaceManager manager = sniffingEngine.createInterfaceManager(new WirelessRawManager(this, iface));
+			final IBasicInterfaceManager manager = InterfaceManager.createBasic(new WirelessRawManager(this, iface));
 			interfaces.put(iface, new WifiInterfaceManager(manager, this, iface));
 		}
 	}
@@ -112,13 +123,7 @@ public class WifiSniffingEngine implements IWifiSniffingEngine {
 		logger = null;
 	}
 
-	protected void setSniffingEngine(ISniffingEngineEx sniffingEngine) {
-		this.sniffingEngine = sniffingEngine;
-	}
-	
-	protected void unsetSniffingEngine(ISniffingEngineService sniffingEngine) {
-		this.sniffingEngine = null;
-	}
+
 	public ILogger getLogger() {
 		return logger;
 	}
@@ -129,7 +134,13 @@ public class WifiSniffingEngine implements IWifiSniffingEngine {
 	}
 
 	public ICaptureFileInterface createCaptureFileInterface(String path) {
-		return sniffingEngine.createCaptureFileInterface(path);
+		final CaptureFileInterface iface = new CaptureFileInterface(path, this);
+		if(iface.isValid()) {
+			final IBasicInterfaceManager basicManager = InterfaceManager.createCaptureFileManager(this, iface);
+			final WifiInterfaceManager wifiManager = new WifiInterfaceManager(basicManager, this, iface);
+			captureFileInterfaces.put(iface, wifiManager);
+		}
+		return iface;
 	}
 
 	public ISnifferHandle createIPv4Handle(ICaptureInterface iface,
@@ -159,24 +170,17 @@ public class WifiSniffingEngine implements IWifiSniffingEngine {
 		return getManagerForInterface(iface).createTCPStreamHandle(filter, sniffer);
 	}
 
-	public Collection<ICaptureInterface> getInterfaces() {
-		return sniffingEngine.getInterfaces();
-	}
-
+	
 	public boolean getPromiscuous() {
-		return sniffingEngine.getPromiscuous();
+		return promiscuous;
 	}
 
 	public int getSnaplen() {
-		return sniffingEngine.getSnaplen();
+		return snaplen;
 	}
 
 	public int getTimeout() {
-		return sniffingEngine.getTimeout();
+		return timeout;
 	}
 
-	public IBasicInterfaceManager createInterfaceManager(
-			IPacketSource packetManager) {
-		return sniffingEngine.createInterfaceManager(packetManager);
-	}
 }

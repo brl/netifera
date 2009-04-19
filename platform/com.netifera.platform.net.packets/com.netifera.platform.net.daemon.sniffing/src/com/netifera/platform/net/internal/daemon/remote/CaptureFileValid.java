@@ -12,15 +12,15 @@ public class CaptureFileValid extends ProbeMessage {
 	private final boolean valid;
 	private final String errorMessage;
 	
-	public CaptureFileValid(String path) {
-		super(ID);
+	public CaptureFileValid(String prefix, String path) {
+		super(prefix + ID);
 		this.path = path;
 		valid = false;
 		errorMessage = null;
 	}
 	
-	public CaptureFileValid createResponse(boolean isValid, String errorMessage) {
-		return new CaptureFileValid(isValid, errorMessage, getSequenceNumber());
+	public CaptureFileValid createResponse(String prefix, boolean isValid, String errorMessage) {
+		return new CaptureFileValid(prefix, isValid, errorMessage, getSequenceNumber());
 	}
 	
 	public String getPath() {
@@ -35,8 +35,8 @@ public class CaptureFileValid extends ProbeMessage {
 		return errorMessage;
 	}
 	
-	private CaptureFileValid(boolean valid, String errorMessage, int sequenceNumber) {
-		super(ID);
+	private CaptureFileValid(String prefix, boolean valid, String errorMessage, int sequenceNumber) {
+		super(prefix + ID);
 		this.valid = valid;
 		this.errorMessage = errorMessage;
 		this.path = null;

@@ -15,16 +15,15 @@ import com.netifera.platform.net.sniffing.stream.IStreamSnifferHandle;
 import com.netifera.platform.net.sniffing.util.IBasicInterfaceManager;
 import com.netifera.platform.net.sniffing.util.ISniffingEngineEx;
 import com.netifera.platform.net.wifi.packets.WiFiFrame;
-import com.netifera.platform.net.wifi.pcap.IWirelessCaptureInterface;
 
 
 public class WifiInterfaceManager implements IBasicInterfaceManager {
 	
 	private final IBasicInterfaceManager basicManager;
 	private final WifiFrameManager wifiManager;
-	private final IWirelessCaptureInterface captureInterface;
+	private final ICaptureInterface captureInterface;
 	
-	WifiInterfaceManager(IBasicInterfaceManager basicManager, ISniffingEngineEx sniffingEngine, IWirelessCaptureInterface captureInterface) {
+	WifiInterfaceManager(IBasicInterfaceManager basicManager, ISniffingEngineEx sniffingEngine, ICaptureInterface captureInterface) {
 	
 		this.basicManager = basicManager;
 		wifiManager = new WifiFrameManager(sniffingEngine, captureInterface);

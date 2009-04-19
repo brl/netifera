@@ -9,39 +9,31 @@ import java.util.Set;
 
 import com.netifera.platform.api.dispatcher.IMessenger;
 import com.netifera.platform.api.dispatcher.MessengerException;
-import com.netifera.platform.api.log.ILogger;
+import com.netifera.platform.net.daemon.sniffing.extend.AbstractSniffingDaemon;
 import com.netifera.platform.net.internal.daemon.remote.InterfaceRecord;
 import com.netifera.platform.net.internal.daemon.remote.RequestInterfaceInformation;
 import com.netifera.platform.net.internal.daemon.remote.SetInterfaceEnableState;
 import com.netifera.platform.net.pcap.ICaptureInterface;
-import com.netifera.platform.net.sniffing.ISniffingEngineService;
 
 public class SniffingDaemonInterfaces {
-	/*
-	 * Network interfaces which have been enabled with the enableInterfaces()
-	 * method.
-	 */
+	
 	private final Set<ICaptureInterface> enabledInterfaces;
 	
-	private ISniffingEngineService sniffingEngine;
-	private ILogger logger;
-	private boolean isInitialized;
-	
+	private final AbstractSniffingDaemon sniffingDaemon;
+		
 	public void requestInterfaceInformation(IMessenger messenger, RequestInterfaceInformation msg) throws MessengerException {
-		verifyInitialized();
 		final List<InterfaceRecord> result = new ArrayList<InterfaceRecord>();
 		
 		for(ICaptureInterface iface : getInterfaces()) 
 			result.add(new InterfaceRecord(iface.getName(), iface.toString(), iface.captureAvailable(), isEnabled(iface)));
-		messenger.emitMessage(msg.createResponse(result));
+		messenger.emitMessage(msg.createResponse(sniffingDaemon.getMessagePrefix(), result));
 	}
 	
 	public void setInterfaceEnableState(IMessenger messenger, SetInterfaceEnableState msg) throws MessengerException {
-		verifyInitialized();
 		for(InterfaceRecord iface : msg.getInterfaceRecords()) {
 			final ICaptureInterface captureInterface = lookupInterfaceByName(iface.getName());
 			if(captureInterface == null) {
-				logger.warning("No capture interface found with name : " + iface.getName());
+				sniffingDaemon.getLogger().warning("No capture interface found with name : " + iface.getName());
 			} else {
 				if(iface.isEnabled()) {
 					enableInterface(captureInterface);
@@ -53,22 +45,16 @@ public class SniffingDaemonInterfaces {
 		messenger.respondOk(msg);		
 	}
 	
-	public SniffingDaemonInterfaces() {
-		enabledInterfaces = new HashSet<ICaptureInterface>();		
+	public SniffingDaemonInterfaces(AbstractSniffingDaemon sniffingDaemon) {
+		enabledInterfaces = new HashSet<ICaptureInterface>();
+		this.sniffingDaemon = sniffingDaemon;
 	}
 
-	public void setServices(ILogger logger, ISniffingEngineService sniffingEngine) {
-		this.logger = logger;
-		this.sniffingEngine = sniffingEngine;
+	public void initialize() {
 		enableAllInterfaces();
-		this.isInitialized = true;
 	}
 	
-	private void verifyInitialized() {
-		if(!isInitialized) {
-			throw new IllegalStateException("Sniffing Daemon Interface subsystem is not initialized");
-		}
-	}
+	
 	
 	private void enableAllInterfaces() {
 		synchronized(enabledInterfaces) {
@@ -79,10 +65,10 @@ public class SniffingDaemonInterfaces {
 		}
 	}
 	private Collection<ICaptureInterface> getInterfaces() {
-		return sniffingEngine.getInterfaces();
+		return sniffingDaemon.getSniffingEngine().getInterfaces();
 	}
 	
-	Collection<ICaptureInterface> getEnabledInterfaces() {
+	public Collection<ICaptureInterface> getEnabledInterfaces() {
 		return Collections.unmodifiableCollection(enabledInterfaces);
 	}
 	
@@ -102,7 +88,8 @@ public class SniffingDaemonInterfaces {
 	
 	void enableInterface(ICaptureInterface iface) {
 		if(!getInterfaces().contains(iface)) {
-			//System.out.println("getInterfaces " + getInterfaces());
+			
+			System.out.println("getInterfaces " + getInterfaces());
 			throw new IllegalArgumentException("Unknown interface passed to enableInterface() : " + iface);
 		}
 		if(!iface.captureAvailable()) {

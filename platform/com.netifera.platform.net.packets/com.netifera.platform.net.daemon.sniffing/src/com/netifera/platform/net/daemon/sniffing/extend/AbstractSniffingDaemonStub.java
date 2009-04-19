@@ -1,4 +1,4 @@
-package com.netifera.platform.net.internal.daemon.remote;
+package com.netifera.platform.net.daemon.sniffing.extend;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,11 +19,25 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.dispatcher.StatusMessage;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
 import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
+import com.netifera.platform.net.internal.daemon.remote.CancelCaptureFile;
+import com.netifera.platform.net.internal.daemon.remote.CaptureFileProgress;
+import com.netifera.platform.net.internal.daemon.remote.CaptureFileStub;
+import com.netifera.platform.net.internal.daemon.remote.CaptureFileValid;
+import com.netifera.platform.net.internal.daemon.remote.InterfaceRecord;
+import com.netifera.platform.net.internal.daemon.remote.ModuleRecord;
+import com.netifera.platform.net.internal.daemon.remote.RequestInterfaceInformation;
+import com.netifera.platform.net.internal.daemon.remote.RequestModuleInformation;
+import com.netifera.platform.net.internal.daemon.remote.RunCaptureFile;
+import com.netifera.platform.net.internal.daemon.remote.SetInterfaceEnableState;
+import com.netifera.platform.net.internal.daemon.remote.SetModuleEnableState;
+import com.netifera.platform.net.internal.daemon.remote.SniffingDaemonStatus;
+import com.netifera.platform.net.internal.daemon.remote.StartSniffingDaemon;
+import com.netifera.platform.net.internal.daemon.remote.StopSniffingDaemon;
 import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.sniffing.ICaptureFileInterface;
 import com.netifera.platform.net.sniffing.util.ICaptureFileProgress;
 
-public class SniffingDaemonStub implements ISniffingDaemon {
+abstract public class AbstractSniffingDaemonStub implements ISniffingDaemon {
 	private final IProbe probe;
 	private final ILogger logger;
 	private String messengerError;
@@ -31,17 +45,20 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 	private final Thread sendThread;
 	private ICaptureFileProgress progress;
 	
+	private final String messagePrefix;
+	
 	private List<InterfaceRecord> interfaceRecords;
 	private List<ModuleRecord> moduleRecords;
-	private Object lock = new Object();
+	protected Object lock = new Object();
 	
 	private final EventListenerManager stateChangeListeners;
 	
 	private boolean isRunning;
 	
-	public SniffingDaemonStub(IProbe probe, ILogger logger, IEventHandler changeHandler) {
+	protected AbstractSniffingDaemonStub(String messagePrefix, IProbe probe, ILogger logger, IEventHandler changeHandler) {
 		this.probe = probe;
 		this.logger = logger;
+		this.messagePrefix = messagePrefix;
 		stateChangeListeners = new EventListenerManager();
 		stateChangeListeners.addListener(changeHandler);
 		
@@ -54,7 +71,7 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 	}
 	
 	public ICaptureFileInterface createCaptureFileInterface(String path) {
-		final CaptureFileValid valid = (CaptureFileValid) exchangeMessage(new CaptureFileValid(path));
+		final CaptureFileValid valid = (CaptureFileValid) exchangeMessage(new CaptureFileValid(messagePrefix, path));
 		if(valid == null) {
 			logger.warning("CaptureFileValid failed");
 			return null;
@@ -67,7 +84,7 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 		for(ICaptureInterface iface : interfaces) {
 			interfaceRecords.add(new InterfaceRecord(iface.getName(), true, true));
 		}
-		sendQueue.add(new SetInterfaceEnableState(interfaceRecords));
+		sendQueue.add(new SetInterfaceEnableState(messagePrefix, interfaceRecords));
 	}
 
 	public void enableModules(Set<ISniffingModule> enabledModuleSet) {
@@ -75,7 +92,7 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 		for(ISniffingModule module : enabledModuleSet) {
 			moduleRecords.add(new ModuleRecord(module.getName(), true));
 		}
-		sendQueue.add(new SetModuleEnableState(moduleRecords));		
+		sendQueue.add(new SetModuleEnableState(messagePrefix, moduleRecords));		
 	}
 
 	public Collection<ICaptureInterface> getInterfaces() {
@@ -94,7 +111,7 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 	}
 
 	private List<InterfaceRecord> getInterfaceRecords() {
-		final RequestInterfaceInformation response = (RequestInterfaceInformation) exchangeMessage(new RequestInterfaceInformation());
+		final RequestInterfaceInformation response = (RequestInterfaceInformation) exchangeMessage(new RequestInterfaceInformation(messagePrefix));
 		if(response == null) {
 			logger.warning("Failed to get capture interface information: " + getLastError());
 			return null;
@@ -117,7 +134,7 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 	}
 
 	private List<ModuleRecord> getModuleRecords() {
-		final RequestModuleInformation response = (RequestModuleInformation) exchangeMessage(new RequestModuleInformation());
+		final RequestModuleInformation response = (RequestModuleInformation) exchangeMessage(new RequestModuleInformation(messagePrefix));
 		if(response == null) {
 			logger.warning("Failed to get module information: " + getLastError());
 			return null;
@@ -173,26 +190,26 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 	public void runCaptureFile(long spaceId, ICaptureFileInterface iface,
 			ICaptureFileProgress progress) {
 		this.progress = progress;
-		if(!sendMessage(new RunCaptureFile(spaceId, iface.getPath()))) {
+		if(!sendMessage(new RunCaptureFile(messagePrefix, spaceId, iface.getPath()))) {
 			logger.warning("Error running capture file " + getLastError());
 		}
 	}
 	
 	public void cancelCaptureFile() {
-		if(!sendMessage(new CancelCaptureFile())) {
+		if(!sendMessage(new CancelCaptureFile(messagePrefix))) {
 			logger.warning("Error cancelling capture file " + getLastError());
 		}
 	}
 
 	public void setEnabled(ICaptureInterface iface, boolean enable) {
 		final InterfaceRecord interfaceRecord = new InterfaceRecord(iface.getName(), iface.captureAvailable(), enable);
-		sendQueue.add(new SetInterfaceEnableState(interfaceRecord));
+		sendQueue.add(new SetInterfaceEnableState(messagePrefix, interfaceRecord));
 		refreshInterfaceInformation();
 	}
 
 	public void setEnabled(ISniffingModule module, boolean enable) {
 		final ModuleRecord moduleRecord = new ModuleRecord(module.getName(), enable);
-		sendQueue.add(new SetModuleEnableState(moduleRecord));
+		sendQueue.add(new SetModuleEnableState(messagePrefix, moduleRecord));
 		refreshModuleInformation();
 	}
 
@@ -201,13 +218,14 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 	}
 
 	public void start(long spaceId) {
-		sendQueue.add(new StartSniffingDaemon(spaceId));
+		System.out.println("START");
+		sendQueue.add(new StartSniffingDaemon(messagePrefix, spaceId));
 		isRunning = true;
 		refreshStatus();
 	}
 
 	public void stop() {
-		sendQueue.add(new StopSniffingDaemon());
+		sendQueue.add(new StopSniffingDaemon(messagePrefix));
 		isRunning = false;
 		refreshStatus();		
 	}
@@ -226,8 +244,15 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 		logger.getManager().logRaw(output);
 	}
 	
-	private String getLastError() {
+	protected ILogger getLogger() {
+		return logger;
+	}
+	protected String getLastError() {
 		return messengerError;
+	}
+	
+	protected void enqueue(IProbeMessage message) {
+		sendQueue.add(message);
 	}
 	private boolean sendMessage(IProbeMessage message) {
 		try {
@@ -239,7 +264,7 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 		} 
 	}
 	
-	private IProbeMessage exchangeMessage(IProbeMessage message) {
+	protected IProbeMessage exchangeMessage(IProbeMessage message) {
 		try {
 			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
 			if(response instanceof StatusMessage) { 
@@ -277,7 +302,7 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 		};
 	}
 	
-	private void waitForEmptySendQueue() {
+	protected void waitForEmptySendQueue() {
 		synchronized (sendQueue) {
 			while(!sendQueue.isEmpty()) {
 				try {
@@ -320,13 +345,13 @@ public class SniffingDaemonStub implements ISniffingDaemon {
 
 			public void run() {
 				waitForEmptySendQueue();
-				SniffingDaemonStatus status = (SniffingDaemonStatus) exchangeMessage(new SniffingDaemonStatus());
+				SniffingDaemonStatus status = (SniffingDaemonStatus) exchangeMessage(new SniffingDaemonStatus(messagePrefix));
 				if(status == null) {
 					logger.warning("Failed to receive status message");
 					return;
 				}
-				if(status.isRunning != isRunning) {
-					isRunning = status.isRunning;
+				if(status.isRunning() != isRunning) {
+					isRunning = status.isRunning();
 					stateChangeListeners.fireEvent(new IEvent() {});
 				}
 				

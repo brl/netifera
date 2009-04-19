@@ -1,4 +1,4 @@
-package com.netifera.platform.net.wifi.internal.sniffing.daemon;
+package com.netifera.platform.net.wifi.internal.daemon;
 
 import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.pcap.ICaptureHeader;

@@ -1,4 +1,4 @@
-package com.netifera.platform.net.wifi.internal.sniffing.daemon.probe;
+package com.netifera.platform.net.wifi.internal.daemon.remote;
 
 import java.util.List;
 

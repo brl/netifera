@@ -8,9 +8,7 @@ import com.netifera.platform.net.sniffing.ISniffingEngineService;
  * components.
  */
 public interface ISniffingEngineEx extends ISniffingEngineService {
-	
-	IBasicInterfaceManager createInterfaceManager(IPacketSource packetManager);
-	
+		
 	ILogger getLogger();
 	
 	void removeCaptureFileInterface(CaptureFileInterface iface);

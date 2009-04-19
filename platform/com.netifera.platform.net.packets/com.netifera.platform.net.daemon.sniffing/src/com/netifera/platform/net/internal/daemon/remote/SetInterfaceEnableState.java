@@ -12,13 +12,13 @@ public class SetInterfaceEnableState extends ProbeMessage {
 	public final static String ID = "SetInterfaceEnableState";
 	
 	private final List<InterfaceRecord> interfaces;
-	public SetInterfaceEnableState(List<InterfaceRecord> interfaces) {
-		super(ID);
+	public SetInterfaceEnableState(String prefix, List<InterfaceRecord> interfaces) {
+		super(prefix + ID);
 		this.interfaces = interfaces;
 	}
 	
-	public SetInterfaceEnableState(InterfaceRecord iface) {
-		super(ID);
+	public SetInterfaceEnableState(String prefix, InterfaceRecord iface) {
+		super(prefix + ID);
 		this.interfaces = new ArrayList<InterfaceRecord>();
 		this.interfaces.add(iface);
 	}

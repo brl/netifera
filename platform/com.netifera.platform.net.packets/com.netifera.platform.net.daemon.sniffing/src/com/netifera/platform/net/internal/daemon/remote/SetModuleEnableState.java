@@ -12,13 +12,13 @@ public class SetModuleEnableState extends ProbeMessage {
 	public final static String ID = "SetModuleEnableState";
 	
 	private final List<ModuleRecord> modules;
-	public SetModuleEnableState(List<ModuleRecord> modules) {
-		super(ID);
+	public SetModuleEnableState(String prefix, List<ModuleRecord> modules) {
+		super(prefix + ID);
 		this.modules = modules;
 	}
 	
-	public SetModuleEnableState(ModuleRecord module) {
-		super(ID);
+	public SetModuleEnableState(String prefix, ModuleRecord module) {
+		super(prefix + ID);
 		this.modules = new ArrayList<ModuleRecord>();
 		this.modules.add(module);
 	}

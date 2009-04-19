@@ -8,20 +8,20 @@ public class SniffingDaemonStatus extends ProbeMessage {
 
 	public final static String ID = "SniffingDaemonStatus";
 
-	final boolean isRunning;
-	public SniffingDaemonStatus() {
-		super(ID);
+	private final boolean isRunning;
+	public SniffingDaemonStatus(String prefix) {
+		super(prefix + ID);
 		isRunning = false;
 	}
 	
 	public boolean isRunning() {
 		return isRunning;
 	}
-	public SniffingDaemonStatus createResponse(boolean isRunning) {
-		return new SniffingDaemonStatus(isRunning, getSequenceNumber());
+	public SniffingDaemonStatus createResponse(String prefix, boolean isRunning) {
+		return new SniffingDaemonStatus(prefix, isRunning, getSequenceNumber());
 	}
-	private SniffingDaemonStatus(boolean isRunning, int sequenceNumber) {
-		super(ID);
+	private SniffingDaemonStatus(String prefix, boolean isRunning, int sequenceNumber) {
+		super(prefix + ID);
 		this.isRunning = isRunning;
 		setSequenceNumber(sequenceNumber);
 		markAsResponse();

@@ -19,11 +19,4 @@
     	unbind="unsetWifiCaptureFactory"
     />
     
-    <reference
-    	name="SNIFFING_ENGINE"
-    	interface="com.netifera.platform.net.sniffing.util.ISniffingEngineEx"
-    	bind="setSniffingEngine"
-    	unbind="unsetSniffingEngine"
-    />
-    
 </component>

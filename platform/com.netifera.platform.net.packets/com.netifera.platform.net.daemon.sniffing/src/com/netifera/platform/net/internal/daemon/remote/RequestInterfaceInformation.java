@@ -12,17 +12,17 @@ public class RequestInterfaceInformation extends ProbeMessage {
 
 	private final List<InterfaceRecord> interfaces;
 	
-	public RequestInterfaceInformation() {
-		super(ID);
+	public RequestInterfaceInformation(String prefix) {
+		super(prefix + ID);
 		interfaces = null;
 	}
 	
-	public RequestInterfaceInformation createResponse(List<InterfaceRecord> interfaces) {
-		return new RequestInterfaceInformation(interfaces, getSequenceNumber());
+	public RequestInterfaceInformation createResponse(String prefix, List<InterfaceRecord> interfaces) {
+		return new RequestInterfaceInformation(prefix, interfaces, getSequenceNumber());
 	}
 	
-	private RequestInterfaceInformation(List<InterfaceRecord> interfaces, int sequenceNumber) {
-		super(ID);
+	private RequestInterfaceInformation(String prefix, List<InterfaceRecord> interfaces, int sequenceNumber) {
+		super(prefix + ID);
 		this.interfaces = interfaces;
 		setSequenceNumber(sequenceNumber);
 		markAsResponse();

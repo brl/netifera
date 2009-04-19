@@ -7,7 +7,7 @@ public class CancelCaptureFile extends ProbeMessage {
 	private static final long serialVersionUID = 3525556017068724188L;
 	public final static String ID = "CancelCaptureFile";
 
-	public CancelCaptureFile() {
-		super(ID);
+	public CancelCaptureFile(String prefix) {
+		super(prefix + ID);
 	}
 }

@@ -12,7 +12,7 @@ public class WirelessCaptureInterface implements IWirelessCaptureInterface {
 	final private ICaptureInterface pcapInterface;
 	final private IWifiPacketCaptureFactory wifiFactory;
 	
-	WirelessCaptureInterface(IWifiPacketCaptureFactory wifiPcapFactory, ICaptureInterface iface) {
+	public WirelessCaptureInterface(IWifiPacketCaptureFactory wifiPcapFactory, ICaptureInterface iface) {
 		this.pcapInterface = iface;
 		this.wifiFactory = wifiPcapFactory;
 	}
@@ -37,6 +37,17 @@ public class WirelessCaptureInterface implements IWirelessCaptureInterface {
 	
 	public String toString() {
 		return "Wireless: " + pcapInterface.toString();
+	}
+	
+	public boolean equals(Object other) {
+		if(!(other instanceof ICaptureInterface)) {
+			return false;
+		}
+		return ((ICaptureInterface)other).getName().equals(getName());
+	}
+	
+	public int hashCode() {
+		return getName().hashCode();
 	}
 	public IPacketCapture pcapCreate(int snaplen, boolean promiscuous,
 			int timeout, IPacketHandler handler) {

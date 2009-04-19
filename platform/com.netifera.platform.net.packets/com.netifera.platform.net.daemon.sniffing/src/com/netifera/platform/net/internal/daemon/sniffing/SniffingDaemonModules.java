@@ -14,21 +14,17 @@ import java.util.TreeSet;
 import com.netifera.platform.api.dispatcher.IMessenger;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.net.daemon.sniffing.model.ISniffingEntityFactory;
+import com.netifera.platform.net.daemon.sniffing.extend.AbstractSniffingDaemon;
+import com.netifera.platform.net.daemon.sniffing.extend.IModuleExecutionProvider;
 import com.netifera.platform.net.daemon.sniffing.model.NetworkInterfaceEntity;
-import com.netifera.platform.net.daemon.sniffing.model.SniffingSessionEntity;
 import com.netifera.platform.net.daemon.sniffing.module.ISniffingModule;
 import com.netifera.platform.net.internal.daemon.remote.ModuleRecord;
 import com.netifera.platform.net.internal.daemon.remote.RequestModuleInformation;
 import com.netifera.platform.net.internal.daemon.remote.SetModuleEnableState;
 import com.netifera.platform.net.internal.daemon.remote.SniffingModuleOutput;
-import com.netifera.platform.net.internal.daemon.remote.StartSniffingDaemon;
-import com.netifera.platform.net.internal.daemon.remote.StopSniffingDaemon;
 import com.netifera.platform.net.pcap.ICaptureInterface;
-import com.netifera.platform.net.sniffing.ISniffingEngineService;
 
-public class SniffingDaemonModules {
+public class SniffingDaemonModules implements IModuleExecutionProvider {
 	/*
 	 * All sniffing modules which have been registered with the daemon.
 	 */
@@ -42,22 +38,15 @@ public class SniffingDaemonModules {
 	
 	private final Map<String, ISniffingModule> moduleByName;
 	
-	private ISniffingEntityFactory entityFactory;
-	private IProbeManagerService probeManager;
-	private ISniffingEngineService sniffingEngine;
-	private ILogger logger;
-	private boolean isInitialized;
 	
 	private volatile boolean isRunning;
-	private IMessenger openMessenger;
 	
 	private final ISniffingModuleOutput moduleOutput;
-	private final SniffingDaemonInterfaces interfaces;
 	
+	private final AbstractSniffingDaemon sniffingDaemon;
 
-	public SniffingDaemonModules(SniffingDaemonInterfaces interfaces) {
-		this.interfaces = interfaces;
-		
+	public SniffingDaemonModules(AbstractSniffingDaemon sniffingDaemon) {
+		this.sniffingDaemon = sniffingDaemon;
 		modules = new TreeSet<ISniffingModule>(new Comparator<ISniffingModule>() {
 
 			public int compare(ISniffingModule module1,
@@ -74,7 +63,7 @@ public class SniffingDaemonModules {
 	}
 	
 	public ILogger getLogger() {
-		return logger;
+		return sniffingDaemon.getLogger();
 	}
 	
 	public ISniffingModuleOutput getModuleOutput() {
@@ -85,7 +74,7 @@ public class SniffingDaemonModules {
 		for(ModuleRecord module : msg.getModuleRecords()) {
 			final ISniffingModule sniffingModule = getModuleByName(module.getName());
 			if(sniffingModule == null) {
-				logger.warning("No sniffing module found with name : " + module.getName());
+				sniffingDaemon.getLogger().warning("No sniffing module found with name : " + module.getName());
 			} else {
 				if(module.isEnabled())
 					enableModule(sniffingModule);
@@ -101,42 +90,8 @@ public class SniffingDaemonModules {
 		for(ISniffingModule mod : getModules()) {
 			result.add(new ModuleRecord(mod.getName(), isEnabled(mod)));
 		}
-		messenger.emitMessage(msg.createResponse(result));		
+		messenger.emitMessage(msg.createResponse(sniffingDaemon.getMessagePrefix(), result));		
 	}
-	
-	
-	public void startSniffingDaemon(IMessenger messenger, StartSniffingDaemon msg) throws MessengerException {
-		verifyInitialized();
-		final long realmId = probeManager.getLocalProbe().getEntity().getId();
-		final SniffingSessionEntity session = entityFactory.createSniffingSession(realmId, msg.getSpaceId());
-		start(messenger, sniffingEngine, interfaces.getEnabledInterfaces(), msg.getSpaceId(), session.getId());
-		messenger.respondOk(msg);
-	}
-	
-	public void stopSniffingDaemon(IMessenger messenger, StopSniffingDaemon msg) throws MessengerException {
-		verifyInitialized();
-		stop();
-		messenger.respondOk(msg);
-	}
-	
-	public void setServices(ILogger logger, ISniffingEntityFactory factory, IProbeManagerService probeManager, ISniffingEngineService sniffingEngine) {
-		if(logger == null || factory == null || probeManager == null || sniffingEngine == null) {
-			throw new IllegalArgumentException();
-		}
-		
-		this.logger = logger;
-		this.entityFactory = factory;
-		this.probeManager = probeManager;
-		this.sniffingEngine = sniffingEngine;
-		this.isInitialized = true;
-	}
-	
-	private void verifyInitialized() {
-		if(!isInitialized) {
-			throw new IllegalStateException("Sniffing Daemon Module subsystem is not initialized");
-		}
-	}
-	
 	
 	
 	public boolean isRunning() {
@@ -151,28 +106,31 @@ public class SniffingDaemonModules {
 		return Collections.unmodifiableSet(enabledModules);
 	}
 	
-	private void start(IMessenger messenger, ISniffingEngineService sniffingEngine, Collection<ICaptureInterface> interfaces,
-			long spaceId, long realmId) {
+	public void startModules(Collection<ICaptureInterface> interfaces,
+			long spaceId, long realmId, boolean createInterfaceEntities) {
 		if(isRunning)
 			return;
 		isRunning = true;
-		openMessenger = messenger;
 		
 		final Set<SniffingDaemonInterface> ifs = new HashSet<SniffingDaemonInterface>();
 		
 		for(ICaptureInterface iface : interfaces) {
-			final NetworkInterfaceEntity interfaceEntity  = entityFactory.createNetworkInterface(realmId, spaceId, iface.getName());
-			ifs.add(new SniffingDaemonInterface(iface, interfaceEntity.getId()));
+			if(createInterfaceEntities) {
+				final NetworkInterfaceEntity interfaceEntity  = sniffingDaemon.createNetworkInterfaceEntity(realmId, spaceId, iface.getName());
+				ifs.add(new SniffingDaemonInterface(iface, interfaceEntity.getId()));
+			} else {
+				ifs.add(new SniffingDaemonInterface(iface, realmId));
+			}
 		}
 		
 		synchronized (enabledModules) {
 			for(EnabledSniffingModule module : enabledModules) {
-				module.start(sniffingEngine, ifs, spaceId);
+				module.start(sniffingDaemon.getSniffingEngine(), ifs, spaceId);
 			}
 		}
 	}
 	
-	void stop() {
+	public void stopModules() {
 		if(!isRunning) {
 			return;
 		}
@@ -262,16 +220,16 @@ public class SniffingDaemonModules {
 	}
 	
 	private void printModuleOutput(String message) {
-		if(openMessenger == null)
+		if(sniffingDaemon.getActiveMessenger() == null)
 			return;
 		if(!message.endsWith("\n")) {
 			message = message.concat("\n");
 		}
 		
 		try {
-			openMessenger.emitMessage(new SniffingModuleOutput(message));
+			sniffingDaemon.getActiveMessenger().emitMessage(new SniffingModuleOutput(sniffingDaemon.getMessagePrefix(), message));
 		} catch(MessengerException e) {
-			openMessenger = null;
+			sniffingDaemon.setActiveMessengerClosed();
 		}
 	}
 }

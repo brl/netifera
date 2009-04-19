@@ -17,10 +17,11 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 
+import com.netifera.platform.api.events.IEvent;
+import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.net.pcap.ICaptureInterface;
-import com.netifera.platform.net.wifi.pcap.IWirelessCaptureInterface;
-import com.netifera.platform.net.wifi.sniffing.IWifiSniffingDaemon;
+import com.netifera.platform.net.wifi.daemon.IWifiSniffingDaemon;
 import com.netifera.platform.net.wifi.ui.Activator;
 
 
@@ -39,6 +40,9 @@ public class WifiToolbar {
 	private final ActionContributionItem configureActionItem;
 	private final IContributionItem captureActionItem;
 	private final IToolBarManager toolbarManager;
+	private IEventHandler changeHandler;
+
+	private IWifiSniffingDaemon wifiDaemon;
 	
 	public WifiToolbar(IToolBarManager manager) {
 		toolbarManager = manager;
@@ -55,6 +59,15 @@ public class WifiToolbar {
 		manager.add(startActionItem);
 		manager.add(configureActionItem);
 		manager.add(captureActionItem);
+		
+		changeHandler = new IEventHandler() {
+			public void handleEvent(IEvent event) {
+				setState();
+			}
+		};
+		
+		wifiDaemon = Activator.getDefault().createWifiDaemon(changeHandler);
+		
 		
 		
 	}
@@ -128,7 +141,7 @@ public class WifiToolbar {
 			return;
 		}
 		
-		final Collection<IWirelessCaptureInterface> wifiInterfaces = wifiDaemon.getWirelessInterfaces();
+		final Collection<ICaptureInterface> wifiInterfaces = wifiDaemon.getInterfaces();
 		if(wifiInterfaces == null) {
 			failAll("No Wireless service found on remote probe");
 			return;
@@ -177,7 +190,7 @@ public class WifiToolbar {
 		stopAction.setEnabled(false);
 	}
 	
-	private boolean hasEnabledInterface(Collection<IWirelessCaptureInterface> interfaces) {
+	private boolean hasEnabledInterface(Collection<ICaptureInterface> interfaces) {
 		for(ICaptureInterface iface : interfaces) {
 			if(iface.captureAvailable())
 				return true;

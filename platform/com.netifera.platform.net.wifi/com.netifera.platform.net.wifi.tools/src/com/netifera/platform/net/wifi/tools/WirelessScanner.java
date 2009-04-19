@@ -7,6 +7,7 @@ import com.netifera.platform.net.daemon.sniffing.module.IPacketModuleContext;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.sniffing.IPacketFilter;
+import com.netifera.platform.net.wifi.daemon.IWirelessSniffingModule;
 import com.netifera.platform.net.wifi.model.AccessPointEntity;
 import com.netifera.platform.net.wifi.model.ExtendedServiceSetEntity;
 import com.netifera.platform.net.wifi.model.IWirelessEntityFactory;
@@ -14,11 +15,10 @@ import com.netifera.platform.net.wifi.model.WirelessStationEntity;
 import com.netifera.platform.net.wifi.packets.DataFrame;
 import com.netifera.platform.net.wifi.packets.ManagementFrame;
 import com.netifera.platform.net.wifi.packets.WiFiFrame;
-import com.netifera.platform.net.wifi.sniffing.IWifiSniffer;
 import com.netifera.platform.util.addresses.MACAddress;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
-public class WirelessScanner implements IWifiSniffer {
+public class WirelessScanner implements IWirelessSniffingModule {
 
 	private final DataFrameProcessor dataProcessor;
 	private final ManagementFrameProcessor managementProcessor;

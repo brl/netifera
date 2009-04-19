@@ -12,12 +12,13 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
+import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.net.wifi.sniffing.IWifiSniffingDaemon;
-import com.netifera.platform.net.wifi.sniffing.IWifiSniffingDaemonFactory;
+import com.netifera.platform.net.wifi.daemon.IWifiSniffingDaemon;
+import com.netifera.platform.net.wifi.daemon.IWifiSniffingDaemonFactory;
 import com.netifera.platform.net.wifi.ui.toolbar.WifiToolbar;
 import com.netifera.platform.ui.application.ApplicationPlugin;
 import com.netifera.platform.ui.spaces.ISpaceEditor;
@@ -90,23 +91,20 @@ public class Activator extends AbstractUIPlugin {
 		return (ILogManager) logManagerTracker.getService();
 	}
 	
-	/*
-	public ISniffingDaemon getSniffingDaemon() {
-		IProbe probe = getCurrentProbe();
+	
+	public IWifiSniffingDaemon createWifiDaemon(IEventHandler changeHandler) {
+		final IProbe probe = getCurrentProbe();
 		if(probe == null)
 			return null;
-		// XXX fix with change handler
-		return getSniffingDaemonFactory().createForProbe(probe, null);
+		return getWifiDaemonFactory().createWifiForProbe(probe, changeHandler);
 	}
-	
-	*/
 
 	public IWifiSniffingDaemon getWifiDaemon() {
 		final IProbe probe = getCurrentProbe();
 		if(probe == null) 
 			return null;
 		// XXX fix with change handler
-		return getWifiDaemonFactory().createForProbe(probe, null);
+		return getWifiDaemonFactory().createWifiForProbe(probe, null);
 	}
 	
 	public void initialize() {

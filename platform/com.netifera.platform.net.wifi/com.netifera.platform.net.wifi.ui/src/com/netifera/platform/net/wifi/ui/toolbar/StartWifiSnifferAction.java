@@ -7,8 +7,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.net.pcap.ICaptureInterface;
-import com.netifera.platform.net.wifi.pcap.IWirelessCaptureInterface;
-import com.netifera.platform.net.wifi.sniffing.IWifiSniffingDaemon;
+import com.netifera.platform.net.wifi.daemon.IWifiSniffingDaemon;
 import com.netifera.platform.net.wifi.ui.Activator;
 
 public class StartWifiSnifferAction extends Action {
@@ -49,14 +48,14 @@ public class StartWifiSnifferAction extends Action {
 	}
 
 	private boolean hasInterfacesAvailable(IWifiSniffingDaemon daemon) {
-		final Collection<IWirelessCaptureInterface> interfaces = daemon.getWirelessInterfaces();
+		final Collection<ICaptureInterface> interfaces = daemon.getInterfaces();
 		if(interfaces.isEmpty()) 
 			return false;
 		return hasEnabledInterfaces(interfaces);
 	}
 
 	private boolean hasEnabledInterfaces(
-			Collection<IWirelessCaptureInterface> interfaces) {
+			Collection<ICaptureInterface> interfaces) {
 		for(ICaptureInterface iface : interfaces) {
 			if(iface.captureAvailable())
 				return true;

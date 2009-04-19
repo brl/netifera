@@ -14,16 +14,16 @@ public class CaptureFileProgress extends ProbeMessage {
 	private final int percent;
 	private int count;
 	
-	public static CaptureFileProgress createFinished() {
-		return new CaptureFileProgress(true, false, 0, 0, null);
+	public static CaptureFileProgress createFinished(String prefix) {
+		return new CaptureFileProgress(prefix, true, false, 0, 0, null);
 	}
 	
-	public static CaptureFileProgress createUpdate(int percent, int count) {
-		return new CaptureFileProgress(false, false, percent, count, null);
+	public static CaptureFileProgress createUpdate(String prefix, int percent, int count) {
+		return new CaptureFileProgress(prefix, false, false, percent, count, null);
 	}
 	
-	public static CaptureFileProgress createError(String message) {
-		return new CaptureFileProgress(false, true, 0, 0, message);
+	public static CaptureFileProgress createError(String prefix, String message) {
+		return new CaptureFileProgress(prefix, false, true, 0, 0, message);
 	}
 	
 	public boolean isFinished() {
@@ -50,8 +50,8 @@ public class CaptureFileProgress extends ProbeMessage {
 	}
 	
 	
-	private CaptureFileProgress(boolean isFinished, boolean isError, int percent, int count, String errorMessage) {
-		super(ID);
+	private CaptureFileProgress(String prefix, boolean isFinished, boolean isError, int percent, int count, String errorMessage) {
+		super(prefix + ID);
 		this.isFinished = isFinished;
 		this.isError = isError;
 		this.percent = percent;

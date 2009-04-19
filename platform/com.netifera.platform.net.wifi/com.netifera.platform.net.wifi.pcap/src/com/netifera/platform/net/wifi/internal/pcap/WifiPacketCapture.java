@@ -16,15 +16,19 @@ public class WifiPacketCapture implements IWifiPacketCapture {
 	private final static IPacketDecoder radiotapDecoder = new RadioTapDecoder();
 	
 	private final IPacketCapture packetCapture;
-	private final IWifiNative wifiNative;
+	private final INativeWireless wifiNative;
 	
-	WifiPacketCapture(IPacketCapture pcap, IWifiNative wifiNative) {
+	WifiPacketCapture(IPacketCapture pcap, INativeWireless wifiNative) {
 		packetCapture = pcap;
 		this.wifiNative = wifiNative;
 	}
 	
 	public boolean enableMonitorMode(boolean enable) {
-		return wifiNative.enableMonitorMode(enable);
+		if(enable) {
+			return wifiNative.enableMonitorMode(this);
+		} else {
+			return wifiNative.disableMonitorMode(this);
+		}
 	}
 
 	public boolean setChannel(int channel) {
@@ -48,7 +52,7 @@ public class WifiPacketCapture implements IWifiPacketCapture {
 			return false;
 		}
 		
-		if(!wifiNative.enableMonitorMode(true)) {
+		if(!wifiNative.enableMonitorMode(this)) {
 			packetCapture.close();
 			return false;
 		}

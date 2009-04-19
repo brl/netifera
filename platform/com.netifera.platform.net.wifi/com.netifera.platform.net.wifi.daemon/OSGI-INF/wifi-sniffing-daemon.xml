@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.wifi-sniffing-daemon">
+	<implementation class="com.netifera.platform.net.wifi.internal.daemon.WirelessSniffingDaemon" />
+	
+	<reference
+		name="WIRELESS_SNIFFING_MODULE"
+		interface="com.netifera.platform.net.wifi.daemon.IWirelessSniffingModule"
+		bind="registerWirelessModule"
+		unbind="unregisterWirelessModule"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+	
+	<reference
+		name="SNIFFING_MODULE"
+		interface="com.netifera.platform.net.daemon.sniffing.module.ISniffingModule"
+		bind="registerModule"
+		unbind="unregisterModule"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+	
+	<reference
+		name="WIRELESS_SNIFFING_ENGINE"
+		interface="com.netifera.platform.net.wifi.sniffing.IWifiSniffingEngine"
+		bind="setWirelessSniffingEngine"
+		unbind="unsetWirelessSniffingEngine"
+	/>
+	
+	<reference
+		name="SNIFFING_ENTITY_FACTORY"
+		interface="com.netifera.platform.net.daemon.sniffing.model.ISniffingEntityFactory"
+		bind="setEntityFactory"
+		unbind="unsetEntityFactory"
+	/>
+	
+	<reference
+		name="PROBE_MANAGER"
+		interface="com.netifera.platform.api.probe.IProbeManagerService"
+		bind="setProbeManager"
+		unbind="unsetProbeManager"
+	/>
+	
+	<reference
+    	name="DISPATCHER"
+    	interface="com.netifera.platform.api.dispatcher.IMessageDispatcherService"
+    	bind="setDispatcher"
+    	unbind="unsetDispatcher"
+    />
+</component>
