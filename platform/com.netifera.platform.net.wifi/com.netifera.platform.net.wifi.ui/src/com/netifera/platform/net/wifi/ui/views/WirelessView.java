@@ -2,12 +2,10 @@ package com.netifera.platform.net.wifi.ui.views;
 
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.ViewPart;
 
 import com.netifera.platform.api.model.IEntity;
@@ -27,7 +25,6 @@ public class WirelessView extends ViewPart implements ISpaceChangeListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		Activator.getDefault().registerSpaceChangeListener(this);
 		treeViewer = new TreeViewer(parent, SWT.NONE);
 		treeViewer.getTree().setHeaderVisible(true);
 		treeViewer.setLabelProvider(new WirelessLabelProvider());
@@ -42,6 +39,8 @@ public class WirelessView extends ViewPart implements ISpaceChangeListener {
 			}
 			
 		});
+		Activator.getDefault().registerSpaceChangeListener(this);
+
 	}
 
 	private void doubleClickHandler(IStructuredSelection selection) {
@@ -78,7 +77,8 @@ public class WirelessView extends ViewPart implements ISpaceChangeListener {
 	}
 
 	public void spaceChanged(ISpace space) {
-		treeViewer.setInput(space);		
+		if(treeViewer.getContentProvider() != null)
+			treeViewer.setInput(space);		
 	}
 
 }
