@@ -3,7 +3,6 @@ package com.netifera.platform.net.wifi.internal.pcap.osx;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.netifera.platform.net.pcap.Datalink;
@@ -107,9 +106,10 @@ public class OsxNativeWireless implements INativeWireless {
 		return true;
 	}
 
-	public int getChannel() {
-		// TODO Auto-generated method stub
-		return 0;
+
+	public int getChannel(IWifiPacketCapture pcap) {
+		pcap.setError("Getting current channel not yet supported");
+		return -1;
 	}
 
 	public Collection<IWirelessCaptureInterface> listInterfaces() {
@@ -123,8 +123,8 @@ public class OsxNativeWireless implements INativeWireless {
 		return wirelessInterfaces;
 	}
 
-	public boolean setChannel(int channel) {
-		// TODO Auto-generated method stub
+	public boolean setChannel(IWifiPacketCapture pcap, int channel) {
+		pcap.setError("Setting channel not yet supported");
 		return false;
 	}
 
