@@ -12,6 +12,8 @@ public interface IPacketCapture {
 	int getFileDescriptor();
 	Datalink getLinkType();
 	boolean setDataLink(Datalink dlt);
+	void saveCurrentDataLink();
+	void restoreSavedDataLink();
 	List<Datalink> getDltList();
 	String getLastError();
 	void setError(String error);

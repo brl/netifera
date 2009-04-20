@@ -15,11 +15,11 @@ import com.netifera.platform.net.pcap.IPacketCapture;
 import com.netifera.platform.net.pcap.IPacketHandler;
 
 public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
-	
+
 	private final static IPacketDecoder ethernetDecoder = new EthernetDecoder();
 	private final static IPacketDecoder nullDecoder = new NullDecoder();
 	private final static IPacketDecoder rawipDecoder = new RawIPDecoder();
-	
+
 	private INativePacketCapture nativeCapture;
 	private final IPacketHandler packetHandler;
 	private final String interfaceName;
@@ -29,7 +29,8 @@ public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
 	private final List<Datalink> dltList = new ArrayList<Datalink>();
 	private String errorMessage;
 	private boolean testOnly;
-	
+	private Datalink savedDatalink;
+
 	PacketCapture(String interfaceName, int snaplen, boolean promiscious, int timeout, IPacketHandler packetHandler) {
 		this.interfaceName = interfaceName;
 		this.snaplen = snaplen;
@@ -37,18 +38,18 @@ public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
 		this.timeout = timeout;
 		this.packetHandler = packetHandler;
 	}
-	
+
 	PacketCapture(String interfaceName) {
 		this(interfaceName, 0, false, 0, null);
 		testOnly = true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "(iface:" + interfaceName + ", snaplen:"
 			+ snaplen + (promiscuous ? ", PROMISC)" : ")");
 	}
-	
+
 	void setNativeCapture(INativePacketCapture nativeCapture) {
 		this.nativeCapture = nativeCapture;
 	}
@@ -69,32 +70,32 @@ public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
 	public String getInterfaceName() {
 		return interfaceName;
 	}
-	
+
 	public int getSnaplen() {
 		return snaplen;
 	}
-	
+
 	public boolean isPromiscuous() {
 		return promiscuous;
 	}
-	
+
 	public int getTimeout() {
 		return timeout;
 	}
-	
+
 	public boolean read() {
 		if(testOnly) {
 			throw new IllegalStateException("Cannot read packets because capture was opened in 'test-only' mode");
 		}
 		return nativeCapture.packetRead(packetHandler);
 	}
-	
+
 	public void close() {
 		nativeCapture.close();
 	}
-	
+
 	public void setError(String error) {
-		errorMessage = error;		
+		errorMessage = error;
 	}
 
 	public String getLastError() {
@@ -108,6 +109,16 @@ public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
 		return nativeCapture.getLinkType();
 	}
 
+	public void saveCurrentDataLink() {
+		savedDatalink = getLinkType();
+	}
+
+	public void restoreSavedDataLink() {
+		if(savedDatalink == null)
+			return;
+		setDataLink(savedDatalink);
+	}
+
 	public void dltListAdd(Datalink dlt) {
 		if(dlt != null && dlt != Datalink.DLT_INVALID) {
 			dltList.add(dlt);
@@ -117,12 +128,12 @@ public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
 	public void dltListClear() {
 		dltList.clear();
 	}
-	
+
 	public List<Datalink> getDltList() {
 		return Collections.unmodifiableList(dltList);
 	}
-	
-	
+
+
 	public Datalink dltLookup(int n) {
 		for(Datalink dlt : Datalink.values()) {
 			if(dlt.getConstant() == n) {
@@ -133,7 +144,7 @@ public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
 	}
 
 	public int getFileDescriptor() {
-		return nativeCapture.getFileDescriptor();  
+		return nativeCapture.getFileDescriptor();
 	}
 
 	public boolean setDataLink(Datalink dlt) {
@@ -151,7 +162,7 @@ public class PacketCapture implements IPacketCapture, IPacketCaptureInternal {
 		default:
 			break;
 		}
-		
+
 		return GenericDecoder.createForDatalink(nativeCapture.getLinkType().getConstant());
 	}
 }

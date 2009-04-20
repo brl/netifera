@@ -94,4 +94,15 @@ public class WifiPacketCapture implements IWifiPacketCapture {
 		return packetCapture.getDecoder();
 	}
 
+	public void restoreSavedDataLink() {
+		if(savedDatalink == null)
+			return;
+		setDataLink(savedDatalink);
+		
+	}
+
+	public void saveCurrentDataLink() {
+		savedDatalink = getLinkType();		
+	}
+
 }
