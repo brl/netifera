@@ -50,9 +50,7 @@ public class WirelessCaptureInterface implements IWirelessCaptureInterface {
 	}
 	public IPacketCapture pcapCreate(int snaplen, boolean promiscuous,
 			int timeout, IPacketHandler handler) {
-		final IWifiPacketCapture capture = wifiFactory.create(this, snaplen, promiscuous, timeout, handler);
-		capture.enableMonitorMode(true);
-		return capture;
+		return wifiFactory.create(this, snaplen, promiscuous, timeout, handler);
 	}
 
 }
