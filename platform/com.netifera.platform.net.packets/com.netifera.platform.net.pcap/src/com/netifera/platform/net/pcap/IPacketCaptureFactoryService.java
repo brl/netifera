@@ -14,6 +14,8 @@ public interface IPacketCaptureFactoryService {
 	 */
 	Collection<ICaptureInterface> getCurrentInterfaces();
 
+	public boolean isInterfaceAvailable(String name);
+
 	IPacketCapture create(ICaptureInterface iface, int snaplen, boolean promiscuous,
 			int timeout, IPacketHandler packetHandler);
 
