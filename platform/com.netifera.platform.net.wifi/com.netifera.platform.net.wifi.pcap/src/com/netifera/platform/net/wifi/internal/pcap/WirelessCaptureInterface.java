@@ -9,12 +9,13 @@ import com.netifera.platform.net.wifi.pcap.IWirelessCaptureInterface;
 
 public class WirelessCaptureInterface implements IWirelessCaptureInterface {
 
-	final private ICaptureInterface pcapInterface;
 	final private IWifiPacketCaptureFactory wifiFactory;
-	
-	public WirelessCaptureInterface(IWifiPacketCaptureFactory wifiPcapFactory, ICaptureInterface iface) {
-		this.pcapInterface = iface;
+	final private String interfaceName;
+	final private boolean isAvailable;
+	public WirelessCaptureInterface(IWifiPacketCaptureFactory wifiPcapFactory, String interfaceName, boolean isAvailable) {
 		this.wifiFactory = wifiPcapFactory;
+		this.interfaceName = interfaceName;
+		this.isAvailable = isAvailable;
 	}
 	
 	public boolean isMonitorModeCapable() {
@@ -23,20 +24,18 @@ public class WirelessCaptureInterface implements IWirelessCaptureInterface {
 	}
 
 	public boolean captureAvailable() {
-		return pcapInterface.captureAvailable();
+		return isAvailable;
 	}
 
 	public String getName() {
-		return pcapInterface.getName();
+		return interfaceName;
 	}
 	
 	
-	public ICaptureInterface getInterface() {
-		return pcapInterface;
-	}
+	
 	
 	public String toString() {
-		return "Wireless: " + pcapInterface.toString();
+		return "Wireless: " + interfaceName;
 	}
 	
 	public boolean equals(Object other) {
