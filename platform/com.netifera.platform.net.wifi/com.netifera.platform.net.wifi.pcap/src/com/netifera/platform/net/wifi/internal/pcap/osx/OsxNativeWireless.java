@@ -3,7 +3,6 @@ package com.netifera.platform.net.wifi.internal.pcap.osx;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.netifera.platform.net.pcap.Datalink;
@@ -87,29 +86,17 @@ public class OsxNativeWireless implements INativeWireless {
 			return false;
 		}
 		
-		// From kismet:
-		// 
-		// OSX hack which should work on other platforms still, cascade through
-		// desired DLTs and the "best one" should stick.  We try in the order we
-		// least want - 80211, avs, then radiotap. 
-
+		
 		pcap.setDataLink(Datalink.DLT_IEEE802_11);
-		// XXX decoder not implemented yet
-		//pcap.setDataLink(Datalink.DLT_IEEE802_11_RADIO_AVS);
 		pcap.setDataLink(Datalink.DLT_IEEE802_11_RADIO);
 		
-		// From kismet:  XXX do we need to do this?
-		//
-		// Hack to re-enable promisc mode since changing the DLT seems to make it
-		// drop it on some bsd pcap implementations
-		// ioctl(pcap_get_selectable_fd(pd), BIOCPROMISC, NULL);
-
+	
 		return true;
 	}
 
-	public int getChannel() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getChannel(IWifiPacketCapture pcap) {
+		pcap.setError("Getting current channel not yet supported");
+		return -1;
 	}
 
 	public Collection<IWirelessCaptureInterface> listInterfaces() {
@@ -123,8 +110,8 @@ public class OsxNativeWireless implements INativeWireless {
 		return wirelessInterfaces;
 	}
 
-	public boolean setChannel(int channel) {
-		// TODO Auto-generated method stub
+	public boolean setChannel(IWifiPacketCapture pcap, int channel) {
+		pcap.setError("Setting channel not yet supported");
 		return false;
 	}
 
