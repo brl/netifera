@@ -22,6 +22,7 @@ public abstract class AbstractPacketManager<T extends IPacketHeader>
 
 	private boolean disposed;
 	private boolean started;
+	private boolean startFailed;
 
 	protected AbstractPacketManager(ISniffingEngineEx engine, ICaptureInterface captureInterface) {
 		this.engine = engine;
@@ -71,9 +72,11 @@ public abstract class AbstractPacketManager<T extends IPacketHeader>
 			handles.add(handle);
 		}
 
-		if(!started) {
+		if(!started && !startFailed) {
 			if(start()) {
 				started = true;
+			} else {
+				startFailed = true;
 			}
 		}
 	}
