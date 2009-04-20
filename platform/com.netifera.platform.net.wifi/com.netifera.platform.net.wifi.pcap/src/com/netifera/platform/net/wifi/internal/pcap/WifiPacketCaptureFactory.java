@@ -10,6 +10,7 @@ import com.netifera.platform.api.system.ISystemService;
 import com.netifera.platform.net.pcap.IPacketCapture;
 import com.netifera.platform.net.pcap.IPacketCaptureFactoryService;
 import com.netifera.platform.net.pcap.IPacketHandler;
+import com.netifera.platform.net.wifi.internal.pcap.linux.LinuxNativeWireless;
 import com.netifera.platform.net.wifi.internal.pcap.osx.OsxNativeWireless;
 import com.netifera.platform.net.wifi.pcap.IWifiPacketCapture;
 import com.netifera.platform.net.wifi.pcap.IWifiPacketCaptureFactory;
@@ -34,8 +35,7 @@ public class WifiPacketCaptureFactory implements IWifiPacketCaptureFactory {
 	private INativeWireless createNative() {
 		switch(system.getOS()) {
 		case OS_LINUX:
-			//return new LinuxWifiCapture(system, pcap);
-			return null;
+			return new LinuxNativeWireless(pcapFactory, this, system);
 		case OS_OSX:
 			return new OsxNativeWireless(pcapFactory, this);
 		default:
