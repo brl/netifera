@@ -106,4 +106,8 @@ public class WifiPacketCapture implements IWifiPacketCapture {
 		savedDatalink = getLinkType();		
 	}
 
+	public String getInterfaceName() {
+		return packetCapture.getInterfaceName();
+	}
+
 }

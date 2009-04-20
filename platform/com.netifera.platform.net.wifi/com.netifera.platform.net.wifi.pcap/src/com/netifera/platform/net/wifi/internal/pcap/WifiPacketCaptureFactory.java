@@ -23,7 +23,7 @@ public class WifiPacketCaptureFactory implements IWifiPacketCaptureFactory {
 	
 	public IWifiPacketCapture create(IWirelessCaptureInterface iface, int snaplen, boolean promiscuous,
 			int timeout, IPacketHandler packetHandler) {
-		IPacketCapture pcap = pcapFactory.create(iface.getInterface(), snaplen, promiscuous, timeout, packetHandler);
+		IPacketCapture pcap = pcapFactory.create(iface, snaplen, promiscuous, timeout, packetHandler);
 		return new WifiPacketCapture(pcap, nativeWireless);
 	}
 

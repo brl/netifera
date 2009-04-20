@@ -11,6 +11,7 @@ public interface IPacketCapture {
 	boolean read();
 	int getFileDescriptor();
 	Datalink getLinkType();
+	String getInterfaceName();
 	boolean setDataLink(Datalink dlt);
 	void saveCurrentDataLink();
 	void restoreSavedDataLink();

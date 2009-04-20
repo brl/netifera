@@ -117,7 +117,7 @@ public class OsxNativeWireless implements INativeWireless {
 		for(ICaptureInterface iface : pcapFactory.getCurrentInterfaces()) {
 			if(isWirelessInterface(iface)) {
 				System.out.println("Adding wireless interface " + iface);
-				wirelessInterfaces.add(new WirelessCaptureInterface(wifiFactory, iface));
+				wirelessInterfaces.add(new WirelessCaptureInterface(wifiFactory, iface.getName(), true));
 			}
 		}
 		return wirelessInterfaces;
