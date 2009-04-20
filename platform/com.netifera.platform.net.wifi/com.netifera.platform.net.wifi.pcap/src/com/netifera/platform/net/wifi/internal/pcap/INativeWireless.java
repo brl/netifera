@@ -9,7 +9,7 @@ public interface INativeWireless {
 	Collection<IWirelessCaptureInterface> listInterfaces();
 	boolean enableMonitorMode(IWifiPacketCapture pcap);
 	boolean disableMonitorMode(IWifiPacketCapture pcap);
-	int getChannel();
-	boolean setChannel(int channel);
+	int getChannel(IWifiPacketCapture pcap);
+	boolean setChannel(IWifiPacketCapture pcap, int channel);
 
 }

@@ -17,6 +17,7 @@ public class WifiPacketCapture implements IWifiPacketCapture {
 	
 	private final IPacketCapture packetCapture;
 	private final INativeWireless wifiNative;
+	private Datalink savedDatalink;
 	
 	WifiPacketCapture(IPacketCapture pcap, INativeWireless wifiNative) {
 		packetCapture = pcap;
@@ -32,7 +33,7 @@ public class WifiPacketCapture implements IWifiPacketCapture {
 	}
 
 	public boolean setChannel(int channel) {
-		return wifiNative.setChannel(channel);
+		return wifiNative.setChannel(this, channel);
 	}
 
 	public void close() {
