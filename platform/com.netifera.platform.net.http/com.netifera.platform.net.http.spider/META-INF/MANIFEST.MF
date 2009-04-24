@@ -25,3 +25,5 @@ Require-Bundle: com.netifera.platform.net.http.service;bundle-version="1.0.0"
 Export-Package: com.netifera.platform.net.http.spider,
  com.netifera.platform.net.http.spider.daemon,
  com.netifera.platform.net.http.spider.impl
+Service-Component: OSGI-INF/spider-daemon.xml,
+ OSGI-INF/spider-daemon-factory.xml

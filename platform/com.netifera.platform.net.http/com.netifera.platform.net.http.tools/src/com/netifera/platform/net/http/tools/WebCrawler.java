@@ -12,7 +12,7 @@ import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.spider.impl.WebSpider;
 import com.netifera.platform.net.http.spider.modules.CrawlBackupFilesModule;
 import com.netifera.platform.net.http.spider.modules.CrawlDefaultFilesModule;
-import com.netifera.platform.net.http.spider.modules.EmailsHarversterModule;
+import com.netifera.platform.net.http.spider.modules.EmailsHarvesterModule;
 import com.netifera.platform.net.http.spider.modules.FaviconHarvesterModule;
 import com.netifera.platform.net.http.spider.modules.HTTPBasicAuthExtractorModule;
 import com.netifera.platform.net.http.spider.modules.WebApplicationDetectorModule;
@@ -49,7 +49,7 @@ public class WebCrawler implements ITool {
 			spider.visit(base);
 			
 			spider.addModule(new FaviconHarvesterModule());
-			spider.addModule(new EmailsHarversterModule());
+			spider.addModule(new EmailsHarvesterModule());
 			spider.addModule(new HTTPBasicAuthExtractorModule());
 			spider.addModule(new CrawlBackupFilesModule());
 			spider.addModule(new CrawlDefaultFilesModule());

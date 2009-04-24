@@ -13,6 +13,7 @@ import com.netifera.platform.api.dispatcher.IMessenger;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
+import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.FetchURL;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.GetAvailableModules;
@@ -46,7 +47,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 	private Thread spiderThread;
 
 	
-	protected WebSpiderDaemon() {
+	public WebSpiderDaemon() {
 		spider = new WebSpider();
 		messages = new WebSpiderMessageDispatcher(this);
 		modules = new ArrayList<IWebSpiderModule>();
@@ -66,18 +67,20 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 
 	protected void registerModule(IWebSpiderModule module) {
 		modules.add(module);
+		logger.debug("Registered module: "+module.getName());
 	}
 
 	protected void unregisterModule(IWebSpiderModule module) {
 		modules.remove(module);
+		logger.debug("Unregistered module: "+module.getName());
 	}
 
-/*	protected void setProbeManager(IProbeManagerService manager) {
-		this.probeManager = manager;
+	protected void setProbeManager(IProbeManagerService manager) {
+//		this.probeManager = manager;
 	}
 
 	protected void unsetProbeManager(IProbeManagerService manager) {}
-*/
+
 	protected void setDispatcher(IMessageDispatcherService dispatcher) {
 		this.dispatcher = dispatcher;
 	}

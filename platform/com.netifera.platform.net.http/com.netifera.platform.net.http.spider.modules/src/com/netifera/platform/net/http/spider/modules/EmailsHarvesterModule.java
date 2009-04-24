@@ -8,7 +8,7 @@ import com.netifera.platform.net.http.spider.IWebSpiderContext;
 import com.netifera.platform.net.http.spider.IWebSpiderModule;
 import com.netifera.platform.util.patternmatching.EmailCollector;
 
-public class EmailsHarversterModule implements IWebSpiderModule {
+public class EmailsHarvesterModule implements IWebSpiderModule {
 
 	private IDomainEntityFactory factory;
 	
