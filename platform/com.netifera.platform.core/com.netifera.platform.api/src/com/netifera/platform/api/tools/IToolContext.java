@@ -1,5 +1,6 @@
 package com.netifera.platform.api.tools;
 
+import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.tasks.ITaskMessenger;
 
 public interface IToolContext extends ITaskMessenger {
@@ -21,4 +22,6 @@ public interface IToolContext extends ITaskMessenger {
 	
 	void print(String message);
 	void exception(String message, Throwable throwable);
+	
+	ILogger getLogger();
 }
