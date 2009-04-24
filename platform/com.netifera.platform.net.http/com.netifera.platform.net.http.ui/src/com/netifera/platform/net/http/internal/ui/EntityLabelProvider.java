@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Display;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IShadowEntity;
+import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.HTTPResponseEntity;
@@ -19,6 +20,7 @@ import com.netifera.platform.net.http.web.model.WebApplicationEntity;
 import com.netifera.platform.net.http.web.model.WebFormAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
+import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.ui.api.model.IEntityLabelProvider;
 import com.netifera.platform.ui.images.ImageCache;
 
@@ -57,6 +59,12 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 
 	public String getText(IShadowEntity e) {
 		if (e instanceof WebSiteEntity) {
+			WebSiteEntity site = (WebSiteEntity) e;
+			if (site.getStructureContext() instanceof TreeStructureContext) {
+				if (!(((TreeStructureContext)site.getStructureContext()).getParent() instanceof HostEntity)) {
+					return ((WebSiteEntity) e).getRootURL() + "  ("+site.getHTTP().getAddress().getAddressString()+")";
+				}
+			}
 			return ((WebSiteEntity) e).getRootURL();
 		} else if (e instanceof WebPageEntity) {
 			WebPageEntity page = (WebPageEntity)e;
