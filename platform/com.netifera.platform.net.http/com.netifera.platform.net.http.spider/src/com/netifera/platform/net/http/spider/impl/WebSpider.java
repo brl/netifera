@@ -3,9 +3,11 @@ package com.netifera.platform.net.http.spider.impl;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -20,9 +22,8 @@ import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.protocol.HttpContext;
 
-import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.net.http.internal.spider.Activator;
+import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
 import com.netifera.platform.net.http.service.AsynchronousHTTPClient;
 import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.spider.HTTPRequest;
@@ -30,24 +31,23 @@ import com.netifera.platform.net.http.spider.HTTPResponse;
 import com.netifera.platform.net.http.spider.IWebSpider;
 import com.netifera.platform.net.http.spider.IWebSpiderContext;
 import com.netifera.platform.net.http.spider.IWebSpiderModule;
+import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class WebSpider implements IWebSpider {
-	final private HTTP http;
-	private boolean followLinks = true;
-	private boolean fetchImages = false;
-	private int maximumConnections = 5;
-	private int bufferSize = 1024*16;
-	private URI base;// = URI.create("http:///");
-	private String hostname = null;
-	private final BloomFilter knownPaths = new BloomFilter(1024*1024); // 1M
-	private final Queue<URI> urlsQueue = new LinkedList<URI>();
-	private int queueSize = 100;
+	private volatile boolean followLinks = true;
+	private volatile boolean fetchImages = false;
+	private volatile int maximumConnections = 5;
+	private volatile int bufferSize = 1024*16;
+	private volatile int queueSize = 100;
+	
 	private long realm;
 	private long spaceId;
+
+	private final List<WebSpiderWorker> workers = new ArrayList<WebSpiderWorker>();
 
 	private volatile int successCount = 0;
 	private volatile int errorsCount = 0;
@@ -56,44 +56,132 @@ public class WebSpider implements IWebSpider {
 	private List<IWebSpiderModule> modules = new ArrayList<IWebSpiderModule>();
 
 	private ILogger logger;
+	private IWebEntityFactory factory;
+	private INameResolver resolver;
 
-
-	public WebSpider(HTTP service) {
-		this.http = service;
-	}
-	
-	public synchronized void addModule(IWebSpiderModule module) {
-		modules.add(module);
-	}
-
-	private IWebSpiderContext getContext() {
-		return new IWebSpiderContext() {
-			public TCPSocketLocator getLocator() {
-				return http.getLocator();
-			}
-
-			public URI getBaseURL() {
-				return WebSpider.this.getBaseURL();
-			}
-
-			public long getRealm() {
-				return realm;
-			}
-			
-			public long getSpaceId() {
-				return spaceId;
-			}
-
-			public IWebSpider getSpider() {
-				return WebSpider.this;
-			}
-		};
-	}
 	
 	class WebSpiderWorker implements HttpRequestExecutionHandler {
-		private URI url = null;
 
+		private final HTTP http;
+		private String vhost;
+		private URI base;
+		
+		private final Queue<URI> queue = new LinkedList<URI>();
+		private final BloomFilter knownPaths = new BloomFilter(1024*1024); // 1M
+		
+		private AsynchronousHTTPClient client;
+
+		public WebSpiderWorker(HTTP http, String vhost) {
+			this.http = http;
+			this.vhost = vhost;
+			
+			int port = http.getLocator().getPort();
+			this.base = URI.create(http.getURIScheme()+"://"+vhost+(port == 80 ? "" : ":"+port)+"/");
+		}
+		
+		IWebSpiderContext getContext() {
+			return new IWebSpiderContext() {
+				public TCPSocketLocator getSocketLocator() {
+					return http.getLocator();
+				}
+
+				public URI getBaseURL() {
+					return base;
+				}
+
+				public long getRealm() {
+					return realm;
+				}
+				
+				public long getSpaceId() {
+					return spaceId;
+				}
+
+				public IWebSpider getSpider() {
+					return WebSpider.this;
+				}
+				
+				public ILogger getLogger() {
+					return logger;
+				}
+			};
+		}
+		
+		public synchronized void addURL(URI url) {
+			if (queue.size() > queueSize) {
+//				toolContext.debug("Queue overflow, ignoring "+url);
+				return;
+			}
+			
+			String path = url.getPath();
+			if (path.length() == 0)
+				path = "/";
+			//FIXME what if we want to send again the same request with different query parameters?
+			if (knownPaths.add(path)) // if returns true, it means it was already added to the queue before, already crawled or enqueued
+				return;
+			queue.add(url);
+		}
+		
+		private synchronized void retryURL(URI url) {
+			logger.warning("Retrying "+url);
+			if (queue.size() > queueSize) {
+//				toolContext.debug("Queue overflow, ignoring "+url);
+				return;
+			}
+			queue.add(url);
+		}
+
+		public synchronized boolean hasNextURL() {
+			return !queue.isEmpty();
+		}
+
+		private synchronized URI nextURLOrNull() {
+			return queue.poll();
+		}
+
+		public synchronized int getConnectionsCount() {
+			if (client != null)
+				return client.getConnectionsCount();
+			return 0;
+		}
+		
+		public synchronized void connect() throws IOException {
+			if (client == null)
+				client = http.createAsynchronousClient(this);
+			
+			logger.debug("Launching new connection");
+			client.connect(new SessionRequestCallback() {
+
+				public void cancelled(SessionRequest request) {
+					errorsCount++;
+				}
+
+				public void completed(SessionRequest request) {
+					successCount++;						
+				}
+
+				public void failed(SessionRequest request) {
+					if (request.getException() != null) {
+						logger.error("Can not connect: " + request.getException().getMessage());
+					}
+					errorsCount++;
+				}
+
+				public void timeout(SessionRequest request) {
+					errorsCount++;
+				}
+				
+			});
+		}
+		
+		public synchronized void shutdown() throws IOException {
+			if (client != null)
+				client.shutdown();
+		}
+		
 		public void initalizeContext(final HttpContext context, final Object attachment) {
+			context.setAttribute("target", attachment);
+			
 //			if (base != null && base.getHost() != null)
 //				context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, new HttpHost(base.getHost()));
 //			else
@@ -101,7 +189,7 @@ public class WebSpider implements IWebSpider {
 		}
 
 		public void finalizeContext(final HttpContext context) {
-			if (context.getAttribute("url")!=null) {
+			if (context.getAttribute("url") != null) {
 				errorsCount += 1;
 				retryURL((URI)context.getAttribute("url"));
 			}
@@ -112,7 +200,7 @@ public class WebSpider implements IWebSpider {
 				return null;
 			}
 			
-			url = nextURLOrNull();
+			URI url = nextURLOrNull();
 			if (url == null) {
 				logger.debug("No more requests to submit");
 				return null; // no new request to submit
@@ -125,7 +213,7 @@ public class WebSpider implements IWebSpider {
 			
 			HttpRequest request = new BasicHttpRequest("GET", page);
 			
-			request.addHeader("Host", http.getURIHostPort(hostname));
+			request.addHeader("Host", (vhost == null ? http.getLocator().getAddress().toString() : vhost)+":"+http.getLocator().getPort());
 			
 			context.setAttribute("request", request);
 			context.setAttribute("url", url);
@@ -161,7 +249,7 @@ public class WebSpider implements IWebSpider {
 					WebPageEntity pageEntity = null;
 					
 					if (status == 200) {
-						pageEntity = Activator.getInstance().getWebEntityFactory().createWebPage(realm, toolContext.getSpaceId(), http.getLocator(), url, contentType);
+						pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
 /*						if (referrer != null) {
 							referrer.addLink(pageEntity);
 							referrer.update();
@@ -193,10 +281,10 @@ public class WebSpider implements IWebSpider {
 							addresses = new ArrayList<InternetAddress>(1);
 							addresses.add(InternetAddress.fromString(hostname));
 						} else {
-							addresses = Activator.getInstance().getNameResolver().getAddressesByName(hostname);
+							addresses = resolver.getAddressesByName(hostname);
 						}
 						for (InternetAddress address : addresses) {
-							Activator.getInstance().getWebEntityFactory().createWebSite(realm, spaceId, new TCPSocketLocator(address, port), hostname);
+							factory.createWebSite(realm, spaceId, new TCPSocketLocator(address, port), hostname);
 						}
 						if (followLinks)
 							follow(url.resolve(location), null);
@@ -254,6 +342,16 @@ public class WebSpider implements IWebSpider {
 
 		return answer;
 	}
+
+	
+	public void setServices(ILogger logger, IWebEntityFactory factory, INameResolver resolver) {
+		this.logger = logger;
+		this.factory = factory;
+		this.resolver = resolver;
+	}
+	
+	
+	/* Spider API */
 	
 	public void setRealm(long realm) {
 		this.realm = realm;
@@ -263,54 +361,90 @@ public class WebSpider implements IWebSpider {
 		this.spaceId = spaceId;
 	}
 
-	public void setBaseURL(URI base) {
-		this.base = base;
-		
-		if (hostname == null && base.getHost() != null && base.getHost().length()>0)
-			hostname = base.getHost();
-	}
-	
-	public URI getBaseURL() {
-		return base;
-	}
-	
-	public void setHostName(String hostname) {
-		this.hostname = hostname;
-		this.base = URI.create(http.getURI(hostname));
-	}
-	
 	public void setFollowLinks(boolean followLinks) {
 		this.followLinks = followLinks;
 	}
 	
+	public boolean getFollowLinks() {
+		return followLinks;
+	}
+	
 	public void setFetchImages(boolean fetchImages) {
 		this.fetchImages = fetchImages;
+	}
+	
+	public boolean getFetchImages() {
+		return fetchImages;
 	}
 
 	public void setMaximumConnections(int maximumConnections) {
 		this.maximumConnections = maximumConnections;
 	}
 	
+	public int getMaximumConnections() {
+		return maximumConnections;
+	}
+	
 	public void setBufferSize(int bufferSize) {
 		this.bufferSize = bufferSize;
+	}
+
+	public int getBufferSize() {
+		return bufferSize;
 	}
 	
 	public void setQueueSize(int queueSize) {
 		this.queueSize = queueSize;
 	}
+
+	public int getQueueSize() {
+		return queueSize;
+	}
+	
+	public synchronized void addModule(IWebSpiderModule module) {
+		modules.add(module);
+	}
+
+	public synchronized void removeModule(IWebSpiderModule module) {
+		modules.remove(module);
+	}
+	
+	public synchronized List<IWebSpiderModule> getModules() {
+		return Collections.unmodifiableList(modules);
+	}
+
+	public synchronized void addTarget(HTTP http, String vhost) {
+		WebSpiderWorker worker = new WebSpiderWorker(http, vhost);
+		workers.add(worker);
+		
+		for (IWebSpiderModule module: modules) {
+			try {
+				module.start(worker.getContext());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private boolean hasNextURL() {
+		for (WebSpiderWorker worker: workers) {
+			if (worker.hasNextURL())
+				return true;
+		}
+		return false;
+	}
+	
+	private int getConnectionsCount() {
+		int count = 0;
+		for (WebSpiderWorker worker: workers) {
+			count += worker.getConnectionsCount();
+		}
+		return count;
+	}
 	
 	public void run() throws InterruptedException, IOException {
 		interrupted = false;
-		final AsynchronousHTTPClient client = http.createAsynchronousClient(new WebSpiderWorker());
 		try {
-			for (IWebSpiderModule module: modules) {
-				try {
-					module.start(getContext());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			
 			while (!Thread.currentThread().isInterrupted()) {
 				if (!hasNextURL()) {
 					logger.debug("No next URL.. waiting..");
@@ -322,8 +456,8 @@ public class WebSpider implements IWebSpider {
 					Thread.sleep(5000);
 				
 				if (!hasNextURL()) {
-					while (client.getConnectionsCount() >= maximumConnections && !isExceededErrorThreshold() && !Thread.currentThread().isInterrupted()) {
-						logger.debug("Waiting, still "+client.getConnectionsCount()+" active connections");
+					while (getConnectionsCount() >= maximumConnections && !isExceededErrorThreshold() && !Thread.currentThread().isInterrupted()) {
+						logger.debug("Waiting, still "+getConnectionsCount()+" active connections");
 						Thread.sleep(1000);
 					}
 					break;
@@ -331,34 +465,16 @@ public class WebSpider implements IWebSpider {
 				
 				// XXX gracefully handle filtered web sites
 				// for example blogspot or youtube or something from cn
-				logger.debug("Launching new connection");
-				client.connect(new SessionRequestCallback() {
-
-					public void cancelled(SessionRequest request) {
-						errorsCount++;
-					}
-
-					public void completed(SessionRequest request) {
-						successCount++;						
-					}
-
-					public void failed(SessionRequest request) {
-						if (request.getException() != null) {
-							logger.error("Can not connect: " + request.getException().getMessage());
-						}
-						errorsCount++;
-					}
-
-					public void timeout(SessionRequest request) {
-						errorsCount++;
-					}
-					
-				});
+				
+				for (WebSpiderWorker worker: workers) {
+					if (worker.hasNextURL())
+						worker.connect();
+				}
 				
 				Thread.sleep(500);
 				
-				while (client.getConnectionsCount() >= maximumConnections && !isExceededErrorThreshold() && !Thread.currentThread().isInterrupted()) {
-					logger.debug("Waiting, currently already "+client.getConnectionsCount()+" connections");
+				while (getConnectionsCount() >= maximumConnections && !isExceededErrorThreshold() && !Thread.currentThread().isInterrupted()) {
+					logger.debug("Waiting, currently already "+getConnectionsCount()+" connections");
 					Thread.sleep(1000);
 				}
 				
@@ -378,7 +494,10 @@ public class WebSpider implements IWebSpider {
 
 			if (Thread.currentThread().isInterrupted())
 				interrupted = true;
-			client.shutdown();
+			
+			for (WebSpiderWorker worker: workers) {
+				worker.shutdown();
+			}
 		}
 	}
 
@@ -386,15 +505,16 @@ public class WebSpider implements IWebSpider {
 		return errorsCount > ((successCount + 1) * 5);
 	}
 	
-	private synchronized boolean hasNextURL() {
-		return !urlsQueue.isEmpty();
+	private synchronized void follow(URI url, WebPageEntity referer) {
+		fetch(url, "GET", null, null);
 	}
 
-	private synchronized URI nextURLOrNull() {
-		return urlsQueue.poll();
+	public synchronized void fetch(URI url, String method, Map<String,String> headers, String content) {
+		// TODO (now we just do a GET; method, headers and content are ignored)
+		visit(url);
 	}
-
-	private synchronized void follow(URI url, WebPageEntity referrer) {
+	
+	public synchronized void visit(URI url) {
 		url = url.normalize();
 		String path = url.getPath();
 		if (path == null) {
@@ -408,52 +528,15 @@ public class WebSpider implements IWebSpider {
 		}
 		if (!fetchImages && path.matches(".*(jpg|gif|png)$"))
 			return;
-		// TODO improve "outside site" concept
-		int basePort = base.getPort() == -1 ? 80 : base.getPort();
-		int urlPort = url.getPort() == -1 ? 80 : url.getPort();
-		// follow redirects only to subdomains
-		if (!host.equals(base.getHost()) || basePort != urlPort) {
-			logger.debug("Ignoring "+url+" (outside site)");
-//			String site = url.resolve("/").toString();
-			//TODO
-			return;
-		}
-		addURL(url);
-	}
 
-	public synchronized void addURL(URI url) {
-		if (urlsQueue.size() > queueSize) {
-//			toolContext.debug("Queue overflow, ignoring "+url);
-			return;
+		for (WebSpiderWorker worker: workers) {
+			int basePort = worker.base.getPort() == -1 ? 80 : worker.base.getPort();
+			int urlPort = url.getPort() == -1 ? 80 : url.getPort();
+			if (host.equals(worker.base.getHost()) && basePort == urlPort) {
+				worker.addURL(url);
+				return;
+			}
 		}
-		
-		String path = url.getPath();
-		if (path.length() == 0)
-			path = "/";
-		//FIXME what if we want to send again the same request with different query parameters?
-		if (knownPaths.add(path)) // if returns true, it means it was already added to the queue before, already crawled or enqueued
-			return;
-		urlsQueue.add(url);
-	}
-	
-	private synchronized void retryURL(URI url) {
-		logger.warning("Retrying "+url);
-		if (urlsQueue.size() > queueSize) {
-//			toolContext.debug("Queue overflow, ignoring "+url);
-			return;
-		}
-		urlsQueue.add(url);
-	}
-
-	public void get(URI url) {
-		addURL(url);
-	}
-	
-	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Sniffing Daemon");
-	}
-	
-	protected void unsetLogManager(ILogManager logManager) {
-		
+		logger.debug("Ignoring "+url+" (outside scope)");
 	}
 }

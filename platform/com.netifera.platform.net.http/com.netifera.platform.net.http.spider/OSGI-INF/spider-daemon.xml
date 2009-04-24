@@ -1,24 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.daemon.spider" immediate="true">
-	<implementation class="com.netifera.platform.net.http.internal.spider.WebSpiderDaemon" />
+	<implementation class="com.netifera.platform.net.http.internal.spider.daemon.WebSpiderDaemon" />
 	<service>
-		<provide interface="com.netifera.platform.net.http.spider.IWebSpiderDaemonEx" />
+		<provide interface="com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemon" />
 	</service>
 	
 	<reference
-		name="SPIDER_MODULE"
+		name="SPIDER_MODULES"
 		interface="com.netifera.platform.net.http.spider.IWebSpiderModule"
 		bind="registerModule"
 		unbind="unregisterModule"
 		cardinality="0..n"
 		policy="dynamic"
 	/>
+
+	<reference
+		name="PROBE_MANAGER"
+		interface="com.netifera.platform.api.probe.IProbeManagerService"
+		bind="setProbeManager"
+		unbind="unsetProbeManager"
+	/>
+
+	<reference
+    	name="DISPATCHER"
+    	interface="com.netifera.platform.api.dispatcher.IMessageDispatcherService"
+    	bind="setDispatcher"
+    	unbind="unsetDispatcher"
+    />
 	    
-      <reference
+    <reference
     	name="LOG_MANAGER"
     	interface="com.netifera.platform.api.log.ILogManager"
     	bind="setLogManager"
     	unbind="unsetLogManager"
+    />
+
+    <reference
+    	name="FACTORY"
+    	interface="com.netifera.platform.net.http.web.model.IWebEntityFactory"
+    	bind="setFactory"
+    	unbind="unsetFactory"
+    />
+
+    <reference
+    	name="RESOLVER"
+    	interface="com.netifera.platform.net.dns.service.nameresolver.INameResolver"
+    	bind="setResolver"
+    	unbind="unsetResolver"
     />
    
 </component>

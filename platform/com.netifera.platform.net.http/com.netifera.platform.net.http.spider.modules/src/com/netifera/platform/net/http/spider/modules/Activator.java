@@ -1,4 +1,4 @@
-package com.netifera.platform.net.http.internal.spider;
+package com.netifera.platform.net.http.spider.modules;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

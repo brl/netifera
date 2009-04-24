@@ -1,7 +1,10 @@
 package com.netifera.platform.net.http.spider;
 
 import java.net.URI;
+import java.util.Map;
+
 
 public interface IWebSpider {
-	void get(URI url);
+	void fetch(URI url, String method, Map<String,String> headers, String content);
+	void visit(URI url);
 }

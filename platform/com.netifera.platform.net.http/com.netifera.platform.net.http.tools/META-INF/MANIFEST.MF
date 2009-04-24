@@ -34,6 +34,7 @@ Import-Package: com.netifera.platform.api.iterables,
  org.osgi.util.tracker;version="1.3.0",
  org.xbill.DNS
 Bundle-ActivationPolicy: lazy
-Require-Bundle: com.netifera.platform.net.http.service;bundle-version="1.0.0"
+Require-Bundle: com.netifera.platform.net.http.service;bundle-version="1.0.0",
+ com.netifera.platform.net.http.spider;bundle-version="1.0.0"
 Export-Package: com.netifera.platform.net.http.tools
 Service-Component: OSGI-INF/tool-provider.xml

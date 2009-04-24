@@ -1,64 +1,42 @@
-package com.netifera.platform.net.internal.daemon.sniffing;
+package com.netifera.platform.net.http.internal.spider.daemon;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.netifera.platform.api.dispatcher.DispatchException;
-import com.netifera.platform.api.dispatcher.DispatchMismatchException;
 import com.netifera.platform.api.dispatcher.IClientDispatcher;
 import com.netifera.platform.api.dispatcher.IMessageDispatcher;
 import com.netifera.platform.api.dispatcher.IMessageDispatcherService;
-import com.netifera.platform.api.dispatcher.IMessageHandler;
-import com.netifera.platform.api.dispatcher.IMessenger;
-import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
-import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
-import com.netifera.platform.net.daemon.sniffing.ISniffingDaemonFactory;
-import com.netifera.platform.net.internal.daemon.probe.CaptureFileProgress;
-import com.netifera.platform.net.internal.daemon.probe.RemoteSniffingDaemon;
-import com.netifera.platform.net.internal.daemon.probe.SniffingModuleOutput;
+import com.netifera.platform.net.http.internal.spider.daemon.remote.WebSpiderDaemonStub;
+import com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemon;
+import com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemonFactory;
 
-public class SniffingDaemonFactory implements ISniffingDaemonFactory {
+public class WebSpiderDaemonFactory implements IWebSpiderDaemonFactory {
 
 	private ILogger logger;
-	private Map<IProbe, RemoteSniffingDaemon> probeMap = new HashMap<IProbe, RemoteSniffingDaemon>();
+	private Map<IProbe, WebSpiderDaemonStub> probeMap = new HashMap<IProbe, WebSpiderDaemonStub>();
 	private IClientDispatcher clientDispatcher;
 
 
-	public ISniffingDaemon createForProbe(IProbe probe, IEventHandler changeHandler) {
+	public IWebSpiderDaemon createForProbe(IProbe probe, IEventHandler changeHandler) {
 		if(probeMap.containsKey(probe)) {
 			return probeMap.get(probe);
 		}
-		RemoteSniffingDaemon rsd = new RemoteSniffingDaemon(probe, logger, changeHandler);
+		WebSpiderDaemonStub rsd = new WebSpiderDaemonStub(probe, logger, changeHandler);
 		probeMap.put(probe, rsd);
 		return rsd;
 		
 	}
 	
-	public ISniffingDaemon lookupForProbe(IProbe probe) {
+	public IWebSpiderDaemon lookupForProbe(IProbe probe) {
 		return probeMap.get(probe);
 	}
-	
-	private void captureFileProgress(IMessenger messenger, CaptureFileProgress msg) {
-		final RemoteSniffingDaemon rsd = probeMap.get(messenger.getProbe());
-		if(rsd != null) {
-			rsd.captureFileProgress(msg);
-		}
-	}
-	
-	private void sniffingModuleOutput(IMessenger messenger, SniffingModuleOutput msg) {
-		final RemoteSniffingDaemon rsd = probeMap.get(messenger.getProbe());
-		if(rsd != null) {
-			rsd.sniffingModuleOutput(msg.getMessage());
-		}
-	}
-	
+		
 	private void registerHandlers(IMessageDispatcher dispatcher) {
-		IMessageHandler handler = new IMessageHandler() {
-
+/*		IMessageHandler handler = new IMessageHandler() {
 			public void call(IMessenger messenger, IProbeMessage message)
 					throws DispatchException {
 				if (message instanceof CaptureFileProgress) {
@@ -73,11 +51,11 @@ public class SniffingDaemonFactory implements ISniffingDaemonFactory {
 		};
 		dispatcher.registerMessageHandler(CaptureFileProgress.ID, handler);
 		dispatcher.registerMessageHandler(SniffingModuleOutput.ID, handler);
-
+*/
 	}
 	
 	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Web Spider Daemon");
+		logger = logManager.getLogger("Sniffing Daemon");
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {
@@ -92,5 +70,4 @@ public class SniffingDaemonFactory implements ISniffingDaemonFactory {
 	protected void unsetDispatcher(IMessageDispatcherService dispatcher) {
 		clientDispatcher = null;
 	}
-
 }

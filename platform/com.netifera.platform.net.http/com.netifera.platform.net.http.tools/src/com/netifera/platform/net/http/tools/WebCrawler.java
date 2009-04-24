@@ -41,11 +41,12 @@ public class WebCrawler implements ITool {
 		}
 		
 		try {
-			WebSpider spider = new WebSpider(http);
+			WebSpider spider = new WebSpider();
+			spider.setServices(context.getLogger(), Activator.getInstance().getWebEntityFactory(), Activator.getInstance().getNameResolver());
 			spider.setRealm(realm);
 			spider.setSpaceId(context.getSpaceId());
-			spider.setBaseURL(base);
-			spider.addURL(base);
+			spider.addTarget(http, base.getHost());
+			spider.visit(base);
 			
 			spider.addModule(new FaviconHarvesterModule());
 			spider.addModule(new EmailsHarversterModule());

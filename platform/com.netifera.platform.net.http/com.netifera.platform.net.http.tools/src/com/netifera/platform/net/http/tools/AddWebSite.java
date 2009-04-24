@@ -31,6 +31,7 @@ public class AddWebSite  implements ITool {
 	private long realm;
 
 	public void toolRun(IToolContext context) throws ToolException {
+		System.err.println("1");
 		this.context = context;
 
 		// XXX hardcode local probe as realm
@@ -40,6 +41,7 @@ public class AddWebSite  implements ITool {
 		context.setTitle("Add web site");
 		
 		setupToolOptions();
+		System.err.println("2");
 
 		try {
 			URI actualURL = new URI(url);
@@ -52,7 +54,9 @@ public class AddWebSite  implements ITool {
 				addresses.add(InternetAddress.fromString(hostname));
 			} else {
 				try {
+					System.err.println("3");
 					addresses = resolver.getAddressesByName(hostname);
+					System.err.println("4");
 				} catch (UnknownHostException e) {
 					context.error("Unknown host: "+actualURL.getHost());
 					return;
@@ -71,17 +75,20 @@ public class AddWebSite  implements ITool {
 			}
 			
 			for (InternetAddress address : addresses) {
+				System.err.println("5");
 				WebSiteEntity entity = Activator.getInstance().getWebEntityFactory().createWebSite(realm, context.getSpaceId(), new TCPSocketLocator(address, port), hostname);
 				entity.addTag("Target");
 				entity.update();
 			}
 
+			System.err.println("6");
 			// TODO: add credentials if any
 		} catch (URISyntaxException e) {
 			context.error("Malformed URL: " + url);
 		} finally {
 			context.done();
 		}
+		System.err.println("7");
 	}
 	
 	private void setupToolOptions() throws RequiredOptionMissingException {

@@ -1,13 +1,15 @@
 package com.netifera.platform.net.http.spider.modules;
 
-import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.spider.HTTPRequest;
 import com.netifera.platform.net.http.spider.HTTPResponse;
 import com.netifera.platform.net.http.spider.IWebSpiderContext;
 import com.netifera.platform.net.http.spider.IWebSpiderModule;
+import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 
 public class HTTPBasicAuthExtractorModule implements IWebSpiderModule {
 
+	private IWebEntityFactory factory;
+	
 	public String getName() {
 		return "Extract HTTP Basic Authentication";
 	}
@@ -19,8 +21,8 @@ public class HTTPBasicAuthExtractorModule implements IWebSpiderModule {
 				String method = header.split(" ")[0];
 				if (method.toLowerCase().equals("basic")) {
 					String authRealm = header.split("\"")[1];
-					context.getToolContext().info("Basic authentication realm \""+authRealm+"\" at "+request.getURL());
-					Activator.getInstance().getWebEntityFactory().createBasicAuthentication(context.getRealm(), context.getSpaceId(), context.getLocator(), request.getURL(), authRealm);
+					context.getLogger().info("Basic authentication realm \""+authRealm+"\" at "+request.getURL());
+					factory.createBasicAuthentication(context.getRealm(), context.getSpaceId(), context.getSocketLocator(), request.getURL(), authRealm);
 				}
 			}
 		}
@@ -30,5 +32,13 @@ public class HTTPBasicAuthExtractorModule implements IWebSpiderModule {
 	}
 
 	public void stop() {
+	}
+	
+	protected void setFactory(IWebEntityFactory factory) {
+		this.factory = factory;
+	}
+	
+	protected void unsetFactory(IWebEntityFactory factory) {
+		this.factory = null;
 	}
 }

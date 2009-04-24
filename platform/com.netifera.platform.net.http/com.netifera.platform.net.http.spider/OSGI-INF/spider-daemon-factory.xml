@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.spider-daemon-factory">
-	<implementation class="com.netifera.platform.net.http.internal.spider.WebSpiderDaemonFactory" />
+	<implementation class="com.netifera.platform.net.http.internal.spider.daemon.WebSpiderDaemonFactory" />
 	<service>
-		<provide interface="com.netifera.platform.net.http.spider.IWebSpiderDaemonFactory" />
+		<provide interface="com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemonFactory" />
 	</service>
 	
    <reference

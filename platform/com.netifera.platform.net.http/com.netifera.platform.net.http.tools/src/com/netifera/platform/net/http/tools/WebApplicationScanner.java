@@ -28,10 +28,9 @@ public class WebApplicationScanner implements ITool {
 
 		context.setTitle("Scan web applications at "+http.getLocator());
 		try {
-			WebSpider spider = new WebSpider(http);
-			spider.setHostName(hostname);
+			WebSpider spider = new WebSpider();
+			spider.addTarget(http, hostname);
 			spider.setFollowLinks(false);
-			spider.setContext(context);
 			spider.setRealm(realm);
 			if (context.getConfiguration().get("maximumConnections") != null)
 				spider.setMaximumConnections((Integer)context.getConfiguration().get("maximumConnections"));

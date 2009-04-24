@@ -15,11 +15,11 @@ public class CrawlBackupFilesModule implements IWebSpiderModule {
 		if (response.getContentType() != null) {
 			if (response.getStatusCode() == 200) {
 				if (request.getURL().getPath().toLowerCase().matches(".*\\.(php|asp|aspx|jsp)$")) {
-					context.getSpider().get(request.getURL().resolve(request.getURL().getPath()+"~"));
-					context.getSpider().get(request.getURL().resolve(request.getURL().getPath()+".bak"));
-					context.getSpider().get(request.getURL().resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".bak")));
-					context.getSpider().get(request.getURL().resolve(request.getURL().getPath()+".old"));
-					context.getSpider().get(request.getURL().resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".old")));
+					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath()+"~"));
+					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath()+".bak"));
+					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".bak")));
+					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath()+".old"));
+					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".old")));
 				}
 			}
 		}

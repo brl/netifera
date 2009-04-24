@@ -14,10 +14,10 @@ public class CrawlDefaultFilesModule implements IWebSpiderModule {
 	public void handle(IWebSpiderContext context, HTTPRequest request, HTTPResponse response) {
 		if (response.getContentType() != null) {
 			if (response.getStatusCode() == 200) {
-				context.getSpider().get(request.getURL().resolve("web.config"));
-				context.getSpider().get(request.getURL().resolve("machine.config"));
-				context.getSpider().get(request.getURL().resolve("default.asp"));
-				context.getSpider().get(request.getURL().resolve("default.aspx"));
+				context.getSpider().visit(request.getURL().resolve("web.config"));
+				context.getSpider().visit(request.getURL().resolve("machine.config"));
+				context.getSpider().visit(request.getURL().resolve("default.asp"));
+				context.getSpider().visit(request.getURL().resolve("default.aspx"));
 			}
 		}
 	}

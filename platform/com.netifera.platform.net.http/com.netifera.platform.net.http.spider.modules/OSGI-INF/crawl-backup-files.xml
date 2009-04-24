@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.spider.crawl-backup-files">
+	<implementation class="com.netifera.platform.net.http.spider.modules.CrawlBackupFilesModule" />
+	<service>
+		<provide interface="com.netifera.platform.net.http.spider.IWebSpiderModule" />
+	</service>
+</component>

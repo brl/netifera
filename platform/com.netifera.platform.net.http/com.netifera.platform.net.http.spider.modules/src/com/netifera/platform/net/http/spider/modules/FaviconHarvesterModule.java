@@ -2,14 +2,16 @@ package com.netifera.platform.net.http.spider.modules;
 
 import java.io.IOException;
 
-import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.spider.HTTPRequest;
 import com.netifera.platform.net.http.spider.HTTPResponse;
 import com.netifera.platform.net.http.spider.IWebSpiderContext;
 import com.netifera.platform.net.http.spider.IWebSpiderModule;
+import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 
 public class FaviconHarvesterModule implements IWebSpiderModule {
 
+	private IWebEntityFactory factory;
+	
 	public String getName() {
 		return "Extract Favicon";
 	}
@@ -26,9 +28,9 @@ public class FaviconHarvesterModule implements IWebSpiderModule {
 					byte[] content;
 					try {
 						content = response.getContent();
-						Activator.getInstance().getWebEntityFactory().setFavicon(context.getRealm(), context.getSpaceId(), context.getLocator(), context.getBaseURL().resolve(request.getURL()), content);
+						factory.setFavicon(context.getRealm(), context.getSpaceId(), context.getSocketLocator(), context.getBaseURL().resolve(request.getURL()), content);
 					} catch (IOException e) {
-						context.getToolContext().exception("Exception in Favicon module", e);
+						context.getLogger().debug("Exception in Favicon module", e);
 						e.printStackTrace();
 					}
 				}
@@ -37,9 +39,17 @@ public class FaviconHarvesterModule implements IWebSpiderModule {
 	}
 
 	public void start(IWebSpiderContext context) {
-		context.getSpider().get(context.getBaseURL().resolve("/favicon.ico"));
+		context.getSpider().visit(context.getBaseURL().resolve("/favicon.ico"));
 	}
 
 	public void stop() {
+	}
+	
+	protected void setFactory(IWebEntityFactory factory) {
+		this.factory = factory;
+	}
+	
+	protected void unsetFactory(IWebEntityFactory factory) {
+		this.factory = null;
 	}
 }
