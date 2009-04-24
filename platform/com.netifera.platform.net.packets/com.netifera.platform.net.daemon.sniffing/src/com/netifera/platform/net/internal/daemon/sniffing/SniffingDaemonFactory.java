@@ -77,7 +77,7 @@ public class SniffingDaemonFactory implements ISniffingDaemonFactory {
 	}
 	
 	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Web Spider Daemon");
+		logger = logManager.getLogger("Sniffing Daemon");
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {
