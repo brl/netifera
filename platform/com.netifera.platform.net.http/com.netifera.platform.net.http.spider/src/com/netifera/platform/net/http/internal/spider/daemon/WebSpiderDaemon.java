@@ -61,18 +61,19 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 		spider.setServices(logger, factory, resolver);
 		messages.setServices(logger, dispatcher.getServerDispatcher());
 		messages.registerHandlers();
+		for (IWebSpiderModule module: modules)
+			logger.debug("Registered module: "+module.getName());
 	}
 
 	protected void deactivate(ComponentContext ctx) { }
 
 	protected void registerModule(IWebSpiderModule module) {
 		modules.add(module);
-		logger.debug("Registered module: "+module.getName());
 	}
 
 	protected void unregisterModule(IWebSpiderModule module) {
 		modules.remove(module);
-		logger.debug("Unregistered module: "+module.getName());
+//		logger.debug("Unregistered module: "+module.getName());
 	}
 
 	protected void setProbeManager(IProbeManagerService manager) {
@@ -158,6 +159,8 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 	}
 
 	public void startSpider(IMessenger messenger, StartSpider msg) throws MessengerException {
+		System.out.println("start web spider");
+		logger.info("start web spider...");
 		if(isRunning()) {
 			messenger.respondError(msg, "Web Spider already running");
 			return;
@@ -175,6 +178,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 			}
 		});
 		spiderThread.start();
+		logger.info("Web spider started");
 	}
 
 	public void stopSpider(IMessenger messenger, StopSpider msg) throws MessengerException {
@@ -184,6 +188,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 		}
 		spiderThread.interrupt();
 		spiderThread = null;
+		logger.info("Web spider interrupted");
 	}
 
 	public void visitURL(IMessenger messenger, VisitURL msg) throws MessengerException {

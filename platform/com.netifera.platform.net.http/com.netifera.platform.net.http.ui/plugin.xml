@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="com.netifera.platform.net.http.internal.ui.PerspectiveFactory"
+            icon="icons/world.png"
+            id="com.netifera.platform.ui.perspectives.web"
+            name="Web">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="com.netifera.platform.net.http.internal.ui.Startup">
+      </startup>
+   </extension>
+</plugin>

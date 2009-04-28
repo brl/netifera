@@ -22,7 +22,8 @@ Import-Package: com.netifera.platform.api.daemon,
  org.osgi.service.component,
  org.osgi.util.tracker
 Require-Bundle: com.netifera.platform.net.http.service;bundle-version="1.0.0"
-Export-Package: com.netifera.platform.net.http.spider,
+Export-Package: com.netifera.platform.net.http.internal.spider.daemon.remote,
+ com.netifera.platform.net.http.spider,
  com.netifera.platform.net.http.spider.daemon,
  com.netifera.platform.net.http.spider.impl
 Service-Component: OSGI-INF/spider-daemon.xml,

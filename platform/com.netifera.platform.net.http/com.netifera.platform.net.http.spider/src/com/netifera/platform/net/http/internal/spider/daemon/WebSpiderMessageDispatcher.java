@@ -8,11 +8,14 @@ import com.netifera.platform.api.dispatcher.IMessenger;
 import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogger;
+import com.netifera.platform.net.http.internal.spider.daemon.remote.FetchURL;
+import com.netifera.platform.net.http.internal.spider.daemon.remote.GetAvailableModules;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.GetSpiderConfiguration;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.GetSpiderStatus;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.SetSpiderConfiguration;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.StartSpider;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.StopSpider;
+import com.netifera.platform.net.http.internal.spider.daemon.remote.VisitURL;
 
 public class WebSpiderMessageDispatcher {
 	
@@ -52,15 +55,20 @@ public class WebSpiderMessageDispatcher {
 			}
 		};
 		
+		dispatcher.registerMessageHandler(GetAvailableModules.ID, msgHandler);
 		dispatcher.registerMessageHandler(GetSpiderConfiguration.ID, msgHandler);
 		dispatcher.registerMessageHandler(SetSpiderConfiguration.ID, msgHandler);
 		dispatcher.registerMessageHandler(StartSpider.ID, msgHandler);
 		dispatcher.registerMessageHandler(StopSpider.ID, msgHandler);
 		dispatcher.registerMessageHandler(GetSpiderStatus.ID, msgHandler);
+		dispatcher.registerMessageHandler(VisitURL.ID, msgHandler);
+		dispatcher.registerMessageHandler(FetchURL.ID, msgHandler);
 	}
 	
 	private void dispatch(IMessenger messenger, IProbeMessage message) throws DispatchMismatchException, MessengerException {
-		if(message instanceof GetSpiderConfiguration) {
+		if(message instanceof GetAvailableModules) {
+			handler.getAvailableModules(messenger, (GetAvailableModules) message);
+		} else if(message instanceof GetSpiderConfiguration) {
 			handler.getSpiderConfiguration(messenger, (GetSpiderConfiguration) message);
 		} else if(message instanceof SetSpiderConfiguration) {
 			handler.setSpiderConfiguration(messenger, (SetSpiderConfiguration) message);
@@ -70,6 +78,10 @@ public class WebSpiderMessageDispatcher {
 			handler.stopSpider(messenger, (StopSpider) message);
 		} else if(message instanceof GetSpiderStatus) {
 			handler.getSpiderStatus(messenger, (GetSpiderStatus) message);
+		} else if(message instanceof VisitURL) {
+			handler.visitURL(messenger, (VisitURL) message);
+		} else if(message instanceof FetchURL) {
+			handler.fetchURL(messenger, (FetchURL) message);
 		}else {
 			throw new DispatchMismatchException(message);
 		}

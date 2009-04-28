@@ -71,7 +71,7 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 					return null;
 				}
 			}
-			
+
 			return configuration;
 		}
 	}
