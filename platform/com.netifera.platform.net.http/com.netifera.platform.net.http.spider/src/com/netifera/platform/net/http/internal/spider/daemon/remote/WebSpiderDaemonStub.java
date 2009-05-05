@@ -128,6 +128,12 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 		isRunning = true;
 		refreshStatus();
 	}
+	
+	public void stop() {
+		sendQueue.add(new StopSpider());
+		isRunning = false;
+		refreshStatus();		
+	}
 
 	public synchronized void fetch(URI url, String method, Map<String,String> headers, String content) {
 		sendQueue.add(new FetchURL(url, method, headers, content));
@@ -136,30 +142,30 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 	public synchronized void visit(URI url) {
 		sendQueue.add(new VisitURL(url));
 	}
-
-	public void stop() {
-		sendQueue.add(new StopSpider());
-		isRunning = false;
-		refreshStatus();		
-	}
 	
 	private String getLastError() {
 		return messengerError;
 	}
 	
 	private boolean sendMessage(IProbeMessage message) {
+		System.out.println("send "+message.getNamedType()+" "+message.getSequenceNumber());
 		try {
 			probe.getMessenger().sendMessage(message);
+			System.out.println("sent "+message.getNamedType()+" "+message.getSequenceNumber());
 			return true;
 		} catch (MessengerException e) {
+			System.out.println("not sent "+message.getNamedType()+" "+message.getSequenceNumber()+" error = "+e.getMessage());
+			e.printStackTrace();
 			messengerError = e.getMessage();
 			return false;
-		} 
+		}
 	}
 	
 	private IProbeMessage exchangeMessage(IProbeMessage message) {
 		try {
+			System.out.println("send "+message.getNamedType());
 			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
+			System.out.println("received "+response.getNamedType());
 			if(response instanceof StatusMessage) { 
 				return null;
 			} else {

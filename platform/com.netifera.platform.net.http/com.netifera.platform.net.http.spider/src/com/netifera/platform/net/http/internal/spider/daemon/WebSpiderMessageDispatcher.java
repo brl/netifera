@@ -42,7 +42,6 @@ public class WebSpiderMessageDispatcher {
 	public void registerHandlers() {
 		verifyInitialized();
 		IMessageHandler msgHandler = new IMessageHandler() {
-
 			public void call(IMessenger messenger, IProbeMessage message)
 					throws DispatchException {
 				try {
@@ -82,7 +81,7 @@ public class WebSpiderMessageDispatcher {
 			handler.visitURL(messenger, (VisitURL) message);
 		} else if(message instanceof FetchURL) {
 			handler.fetchURL(messenger, (FetchURL) message);
-		}else {
+		} else {
 			throw new DispatchMismatchException(message);
 		}
 	}

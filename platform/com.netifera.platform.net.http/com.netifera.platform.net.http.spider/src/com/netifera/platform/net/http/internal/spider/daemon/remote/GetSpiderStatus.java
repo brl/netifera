@@ -6,7 +6,7 @@ public class GetSpiderStatus extends ProbeMessage {
 
 	private static final long serialVersionUID = -456297618103640487L;
 
-	public final static String ID = "SpiderStatus";
+	public final static String ID = "GetSpiderStatus";
 
 	final boolean isRunning;
 	

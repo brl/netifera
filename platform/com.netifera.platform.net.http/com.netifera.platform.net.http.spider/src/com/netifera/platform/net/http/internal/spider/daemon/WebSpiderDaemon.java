@@ -152,6 +152,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 					spider.addModule(module);
 					break;
 				}
+		messenger.respondOk(msg);
 	}
 
 	public void getSpiderStatus(IMessenger messenger, GetSpiderStatus msg) throws MessengerException {
@@ -159,8 +160,6 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 	}
 
 	public void startSpider(IMessenger messenger, StartSpider msg) throws MessengerException {
-		System.out.println("start web spider");
-		logger.info("start web spider...");
 		if(isRunning()) {
 			messenger.respondError(msg, "Web Spider already running");
 			return;
@@ -171,32 +170,37 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 				try {
 					spider.run();
 				} catch (InterruptedException e) {
-					logger.debug("Spider interrupted", e);
+					logger.debug("Web Spider interrupted", e);
 				} catch (IOException e) {
-					logger.error("Spider error", e);
+					logger.error("Web Spider error", e);
 				}
 			}
 		});
 		spiderThread.start();
-		logger.info("Web spider started");
+		logger.info("Web Spider started");
+		messenger.respondOk(msg);
 	}
 
 	public void stopSpider(IMessenger messenger, StopSpider msg) throws MessengerException {
 		if (!isRunning()) {
+			logger.warning("Trying to stop the Web Spider but it is not currently running");
 			messenger.respondError(msg, "Web Spider is not running");
 			return;
 		}
 		spiderThread.interrupt();
 		spiderThread = null;
-		logger.info("Web spider interrupted");
+		logger.info("Web Spider stopped");
+		messenger.respondOk(msg);
 	}
 
 	public void visitURL(IMessenger messenger, VisitURL msg) throws MessengerException {
 		spider.visit(msg.url);
+		messenger.respondOk(msg);
 	}
 
 	public void fetchURL(IMessenger messenger, FetchURL msg) throws MessengerException {
 		spider.fetch(msg.url, msg.method, msg.headers, msg.content);
+		messenger.respondOk(msg);
 	}
 
 	private boolean isRunning() {
