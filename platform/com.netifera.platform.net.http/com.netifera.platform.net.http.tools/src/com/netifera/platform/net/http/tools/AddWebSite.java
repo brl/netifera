@@ -71,7 +71,6 @@ public class AddWebSite  implements ITool {
 			}
 			
 			for (InternetAddress address : addresses) {
-				System.err.println("5");
 				WebSiteEntity entity = Activator.getInstance().getWebEntityFactory().createWebSite(realm, context.getSpaceId(), new TCPSocketLocator(address, port), hostname);
 				entity.addTag("Target");
 				entity.update();
@@ -83,7 +82,6 @@ public class AddWebSite  implements ITool {
 		} finally {
 			context.done();
 		}
-		System.err.println("7");
 	}
 	
 	private void setupToolOptions() throws RequiredOptionMissingException {
