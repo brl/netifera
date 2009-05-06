@@ -51,6 +51,10 @@ public class WebPageEntity extends AbstractEntity {
 	public String getURL() {
 		return getWebSite().getRootURL()+(path.charAt(0) == '/' ? path.substring(1) : path);
 	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
 	
 	public String getContentType() {
 		return contentType;
@@ -78,11 +82,14 @@ public class WebPageEntity extends AbstractEntity {
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
 		WebPageEntity page = (WebPageEntity) masterEntity;
 		this.contentType = page.contentType;
-		this.authentication = page.authentication.createClone();
+		this.authentication = page.authentication == null ? null : page.authentication.createClone();
 		
-//		links.clear();
-		for (IEntityReference ref: ((WebPageEntity) masterEntity).links)
+//		links.clear(); // if we dont do this, we can just add links but not remove them, but it's faster
+/*		for (IEntityReference ref: ((WebPageEntity) masterEntity).links)
 			links.add(ref);
+*/
+		this.links = page.links; //FIXME, HACK for speed
+	
 	}
 	
 	@Override

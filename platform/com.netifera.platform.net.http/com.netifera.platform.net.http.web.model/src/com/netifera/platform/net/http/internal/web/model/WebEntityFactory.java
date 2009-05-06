@@ -95,6 +95,10 @@ public class WebEntityFactory implements IWebEntityFactory {
 		final String path = url.normalize().getPath();
 		WebPageEntity answer = (WebPageEntity) getWorkspace().findByKey(WebPageEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), path));
 		if (answer != null) {
+			if (!answer.getContentType().equals(contentType)) {
+				answer.setContentType(contentType);
+				answer.update();
+			}
 			answer.addToSpace(spaceId);
 			return answer;
 		}
