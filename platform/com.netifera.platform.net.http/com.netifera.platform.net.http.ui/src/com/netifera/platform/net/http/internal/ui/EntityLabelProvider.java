@@ -21,10 +21,11 @@ import com.netifera.platform.net.http.web.model.WebFormAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.model.HostEntity;
+import com.netifera.platform.ui.api.model.IEntityInformationProvider;
 import com.netifera.platform.ui.api.model.IEntityLabelProvider;
 import com.netifera.platform.ui.images.ImageCache;
 
-public class EntityLabelProvider implements IEntityLabelProvider {
+public class EntityLabelProvider implements IEntityLabelProvider, IEntityInformationProvider {
 	private final static String PLUGIN_ID = "com.netifera.platform.net.http.ui";
 
 	private ImageCache images = new ImageCache(PLUGIN_ID);
@@ -220,5 +221,24 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	
 	protected void unsetLogManager(ILogManager logManager) {
 		logger = null;
+	}
+
+	@Override
+	public String getInformation(IShadowEntity e) {
+		if (e instanceof WebPageEntity) {
+			WebPageEntity page = (WebPageEntity)e;
+			if (page.getContentType() != null) {
+				return "<p>Content-Type: "+escape(page.getContentType())+"</p>";
+			}
+		}
+		return null;
+	}
+	
+	private String escape(String data) {
+		data = data.replaceAll("&", "&amp;");
+		data = data.replaceAll("<", "&lt;");
+		data = data.replaceAll(">", "&gt;");
+		data = data.trim().replaceAll("[\\r\\n]+", "</p><p>");
+		return data.replaceAll("[^\\p{Print}\\p{Blank}]", "."); // non-printable chars
 	}
 }
