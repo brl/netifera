@@ -48,8 +48,8 @@ public class WebCrawler implements ITool {
 			spider.addTarget(http, base.getHost());
 			spider.visit(base);
 			
-			spider.addModule(new FaviconHarvesterModule());
-			spider.addModule(new EmailsHarvesterModule());
+//			spider.addModule(new FaviconHarvesterModule());
+//			spider.addModule(new EmailsHarvesterModule());
 			spider.addModule(new HTTPBasicAuthExtractorModule());
 			spider.addModule(new CrawlBackupFilesModule());
 			spider.addModule(new CrawlDefaultFilesModule());

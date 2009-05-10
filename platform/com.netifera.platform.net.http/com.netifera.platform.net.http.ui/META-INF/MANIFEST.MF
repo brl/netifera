@@ -16,6 +16,7 @@ Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.net.http.service,
  com.netifera.platform.net.http.spider,
  com.netifera.platform.net.http.spider.daemon,
+ com.netifera.platform.net.http.spider.impl,
  com.netifera.platform.net.http.tools,
  com.netifera.platform.net.http.web.model,
  com.netifera.platform.net.model,
@@ -47,5 +48,6 @@ Service-Component: OSGI-INF/label-provider.xml,
  OSGI-INF/inputbar-action-provider.xml,
  OSGI-INF/entity-action-provider.xml,
  OSGI-INF/tree-layer-provider.xml,
- OSGI-INF/edge-layer-provider.xml
+ OSGI-INF/web-links-layer-provider.xml,
+ OSGI-INF/content-type-layer-provider.xml
 Bundle-Activator: com.netifera.platform.net.http.internal.ui.Activator

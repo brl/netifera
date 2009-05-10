@@ -14,6 +14,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.log.ILogManager;
+import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
@@ -38,7 +39,7 @@ public class Activator extends AbstractUIPlugin {
 	private ServiceTracker spiderDaemonFactoryTracker;
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker logManagerTracker;
-//	private ServiceTracker systemServiceTracker;
+	private ServiceTracker modelServiceTracker;
 	
 	private WebSpiderActionManager spiderActionManager;
 	private ToolBarContributionItem toolbarItem;
@@ -66,8 +67,8 @@ public class Activator extends AbstractUIPlugin {
 		logManagerTracker = new ServiceTracker(context, ILogManager.class.getName(), null);
 		logManagerTracker.open();
 
-//		systemServiceTracker = new ServiceTracker(context,ISystemService.class.getName(),null);
-//		systemServiceTracker.open();
+		modelServiceTracker = new ServiceTracker(context,IModelService.class.getName(),null);
+		modelServiceTracker.open();
 	}
 
 	public IWebSpiderDaemonFactory getWebSpiderDaemonFactory() {
@@ -82,10 +83,6 @@ public class Activator extends AbstractUIPlugin {
 		return (ILogManager) logManagerTracker.getService();
 	}
 	
-/*	public ISystemService getSystemService() {
-		return (ISystemService) systemServiceTracker.getService();
-	}
-*/	
 	public IWebSpiderDaemon getWebSpiderDaemon() {
 		IProbe probe = getCurrentProbe();
 		if(probe == null)

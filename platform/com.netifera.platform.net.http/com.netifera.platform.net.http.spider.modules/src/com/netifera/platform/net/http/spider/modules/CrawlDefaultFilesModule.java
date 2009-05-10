@@ -1,5 +1,7 @@
 package com.netifera.platform.net.http.spider.modules;
 
+import java.net.URI;
+
 import com.netifera.platform.net.http.spider.HTTPRequest;
 import com.netifera.platform.net.http.spider.HTTPResponse;
 import com.netifera.platform.net.http.spider.IWebSpiderContext;
@@ -14,10 +16,11 @@ public class CrawlDefaultFilesModule implements IWebSpiderModule {
 	public void handle(IWebSpiderContext context, HTTPRequest request, HTTPResponse response) {
 		if (response.getContentType() != null) {
 			if (response.getStatusCode() == 200) {
-				context.getSpider().visit(request.getURL().resolve("web.config"));
-				context.getSpider().visit(request.getURL().resolve("machine.config"));
-				context.getSpider().visit(request.getURL().resolve("default.asp"));
-				context.getSpider().visit(request.getURL().resolve("default.aspx"));
+				URI base = context.getBaseURL().resolve(request.getURL());
+				context.getSpider().visit(base.resolve("web.config"));
+				context.getSpider().visit(base.resolve("machine.config"));
+				context.getSpider().visit(base.resolve("default.asp"));
+				context.getSpider().visit(base.resolve("default.aspx"));
 			}
 		}
 	}

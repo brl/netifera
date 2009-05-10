@@ -16,6 +16,7 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.dispatcher.StatusMessage;
 import com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemon;
+import com.netifera.platform.net.http.spider.impl.WebSite;
 
 public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 	private final IProbe probe;
@@ -94,7 +95,6 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 			
 			return configuration.modules.contains(moduleName);
 		}
-		
 	}
 
 	public void setEnabled(String moduleName, boolean enable) {
@@ -112,6 +112,43 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 				configuration.modules.add(moduleName);
 			else
 				configuration.modules.remove(moduleName);
+			
+			setConfiguration(configuration);
+		}
+		
+		refreshConfiguration();
+	}
+
+	public boolean isEnabled(WebSite site) {
+		synchronized(lock) {
+			while(configuration == null) {
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return false;
+				}
+			}
+			
+			return configuration.targets.contains(site);
+		}
+	}
+
+	public void setEnabled(WebSite site, boolean enable) {
+		synchronized(lock) {
+			while(configuration == null) {
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return;
+				}
+			}
+
+			if (enable)
+				configuration.targets.add(site);
+			else
+				configuration.targets.remove(site);
 			
 			setConfiguration(configuration);
 		}
@@ -148,13 +185,10 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 	}
 	
 	private boolean sendMessage(IProbeMessage message) {
-		System.out.println("send "+message.getNamedType()+" "+message.getSequenceNumber());
 		try {
 			probe.getMessenger().sendMessage(message);
-			System.out.println("sent "+message.getNamedType()+" "+message.getSequenceNumber());
 			return true;
 		} catch (MessengerException e) {
-			System.out.println("not sent "+message.getNamedType()+" "+message.getSequenceNumber()+" error = "+e.getMessage());
 			e.printStackTrace();
 			messengerError = e.getMessage();
 			return false;
@@ -163,9 +197,7 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 	
 	private IProbeMessage exchangeMessage(IProbeMessage message) {
 		try {
-			System.out.println("send "+message.getNamedType());
 			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
-			System.out.println("received "+response.getNamedType());
 			if(response instanceof StatusMessage) { 
 				return null;
 			} else {
@@ -185,7 +217,7 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 						IProbeMessage message = sendQueue.take();
 						
 						if(!sendMessage(message)) {
-							logger.error("failed to send message : " + messengerError);
+							logger.error("Failed to send message: " + messengerError);
 						}
 						synchronized (sendQueue) {
 							sendQueue.notifyAll();
@@ -235,7 +267,7 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 				waitForEmptySendQueue();
 				final GetAvailableModules response = (GetAvailableModules) exchangeMessage(new GetAvailableModules());
 				if(response == null) {
-					logger.warning("Failed to get module information: " + getLastError());
+					logger.warning("Failed to get available modules: " + getLastError());
 					return;
 				}
 				synchronized(lock) {

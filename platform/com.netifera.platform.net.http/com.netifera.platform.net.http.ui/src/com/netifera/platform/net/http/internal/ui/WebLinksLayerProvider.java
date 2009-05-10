@@ -9,7 +9,7 @@ import com.netifera.platform.api.model.layers.IEdge;
 import com.netifera.platform.api.model.layers.IEdgeLayerProvider;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 
-public class EdgeLayerProvider implements IEdgeLayerProvider {
+public class WebLinksLayerProvider implements IEdgeLayerProvider {
 
 	public List<IEdge> getEdges(final IEntity entity) {
 		if (entity instanceof WebPageEntity) {

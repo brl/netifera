@@ -26,6 +26,7 @@ import com.netifera.platform.net.http.internal.spider.daemon.remote.VisitURL;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.WebSpiderConfiguration;
 import com.netifera.platform.net.http.spider.IWebSpiderModule;
 import com.netifera.platform.net.http.spider.impl.WebSpider;
+import com.netifera.platform.net.http.spider.impl.WebSite;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 
 public class WebSpiderDaemon implements IWebSpiderMessageHandler {
@@ -110,7 +111,6 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 		this.resolver = null;
 	}
 
-	
 	/* Message Handlers */
 
 	public void getAvailableModules(IMessenger messenger, GetAvailableModules msg) throws MessengerException {
@@ -130,6 +130,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 		config.modules = new HashSet<String>();
 		for (IWebSpiderModule module: spider.getModules())
 			config.modules.add(module.getName());
+		config.targets = spider.getTargets();
 		messenger.emitMessage(msg.createResponse(config));
 	}
 
@@ -152,6 +153,16 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 					spider.addModule(module);
 					break;
 				}
+
+		List<WebSite> targetsToRemove = new ArrayList<WebSite>();
+		for (WebSite target: spider.getTargets())
+			if (! config.targets.contains(target))
+				targetsToRemove.add(target);
+		for (WebSite target: targetsToRemove)
+			spider.removeTarget(target);
+		for (WebSite target: config.targets)
+			spider.addTarget(target);
+
 		messenger.respondOk(msg);
 	}
 
@@ -164,7 +175,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 			messenger.respondError(msg, "Web Spider already running");
 			return;
 		}
-		spider.setSpaceId(msg.getSpaceId());
+		
 		spiderThread = new Thread(new Runnable() {
 			public void run() {
 				try {

@@ -1,5 +1,7 @@
 package com.netifera.platform.net.http.spider.modules;
 
+import java.net.URI;
+
 import com.netifera.platform.net.http.spider.HTTPRequest;
 import com.netifera.platform.net.http.spider.HTTPResponse;
 import com.netifera.platform.net.http.spider.IWebSpiderContext;
@@ -15,11 +17,12 @@ public class CrawlBackupFilesModule implements IWebSpiderModule {
 		if (response.getContentType() != null) {
 			if (response.getStatusCode() == 200) {
 				if (request.getURL().getPath().toLowerCase().matches(".*\\.(php|asp|aspx|jsp)$")) {
-					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath()+"~"));
-					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath()+".bak"));
-					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".bak")));
-					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath()+".old"));
-					context.getSpider().visit(request.getURL().resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".old")));
+					URI base = context.getBaseURL().resolve(request.getURL());
+					context.getSpider().visit(base.resolve(request.getURL().getPath()+"~"));
+					context.getSpider().visit(base.resolve(request.getURL().getPath()+".bak"));
+					context.getSpider().visit(base.resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".bak")));
+					context.getSpider().visit(base.resolve(request.getURL().getPath()+".old"));
+					context.getSpider().visit(base.resolve(request.getURL().getPath().replaceAll("\\.[^.]+$", ".old")));
 				}
 			}
 		}

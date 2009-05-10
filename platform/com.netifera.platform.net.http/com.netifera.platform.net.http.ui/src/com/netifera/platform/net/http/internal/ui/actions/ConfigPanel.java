@@ -18,9 +18,13 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
+import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.WebSpiderConfiguration;
 import com.netifera.platform.net.http.internal.ui.Activator;
+import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemon;
+import com.netifera.platform.net.http.spider.impl.WebSite;
+import com.netifera.platform.net.http.web.model.WebSiteEntity;
 
 public class ConfigPanel extends PopupDialog {
 
@@ -38,6 +42,7 @@ public class ConfigPanel extends PopupDialog {
 		setHeader();
 		addOptionsSection();
 		addModulesSection();
+		addTargetsSection();
 	}
 	
 	protected Point getInitialLocation(Point initialSize) {
@@ -117,7 +122,7 @@ public class ConfigPanel extends PopupDialog {
 		sectionClient.setLayout(new GridLayout());
 		section.setClient(sectionClient);
 		
-		for(String moduleName : daemon.getAvailableModules()) {
+		for(String moduleName: daemon.getAvailableModules()) {
 			addModule(moduleName, sectionClient);
 		}
 	}
@@ -132,7 +137,34 @@ public class ConfigPanel extends PopupDialog {
 			}
 		});
 	}
+
+	private void addTargetsSection() {
+		Section section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TITLE_BAR
+				| Section.TWISTIE | Section.EXPANDED);
+		section.setText("Web Spider Targets");
+		Composite sectionClient = toolkit.createComposite(section);
+		sectionClient.setLayout(new GridLayout());
+		section.setClient(sectionClient);
+		
+		for(IEntity e: Activator.getDefault().getCurrentSpace().getEntities()) {
+			if (e instanceof WebSiteEntity) {
+				WebSite site = new WebSite((HTTP)((WebSiteEntity) e).getHTTP().getAdapter(HTTP.class), ((WebSiteEntity) e).getHostName());
+				addTarget(site, sectionClient);
+			}
+		}
+	}
 	
+	private void addTarget(final WebSite site, Composite parent) {
+		final boolean enabled = daemon.isEnabled(site);
+		final Button b = toolkit.createButton(parent, site.toString(), SWT.CHECK);
+		b.setSelection(enabled);
+		b.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				daemon.setEnabled(site, b.getSelection());
+			}
+		});
+	}
+
 	protected void adjustBounds() {
 		getShell().pack();
 	}

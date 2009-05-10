@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.web-edge-provider">
-	<implementation class="com.netifera.platform.net.http.internal.ui.EdgeLayerProvider" />
+<component name="netifera.content-type-layer-provider">
+	<implementation class="com.netifera.platform.net.http.internal.ui.ContentTypeLayerProvider" />
 	<service>
 		<provide interface="com.netifera.platform.api.model.layers.ILayerProvider" />
 	</service>

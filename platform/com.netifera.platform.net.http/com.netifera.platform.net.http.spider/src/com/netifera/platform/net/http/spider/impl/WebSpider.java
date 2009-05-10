@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class WebSpider implements IWebSpider {
 	private long realm;
 	private long spaceId;
 
-	private final List<WebSpiderWorker> workers = new ArrayList<WebSpiderWorker>();
+	private final Map<WebSite, WebSpiderWorker> workers = new HashMap<WebSite, WebSpiderWorker>();
 
 	private volatile int successCount = 0;
 	private volatile int errorsCount = 0;
@@ -67,7 +68,7 @@ public class WebSpider implements IWebSpider {
 		private URI base;
 		
 		private final Queue<URI> queue = new LinkedList<URI>();
-		private final BloomFilter knownPaths = new BloomFilter(1024*1024); // 1M
+		private final BloomFilter knownPaths = new BloomFilter(1024*1024); // 1M per target in scope
 		
 		private AsynchronousHTTPClient client;
 
@@ -203,7 +204,7 @@ public class WebSpider implements IWebSpider {
 			URI url = nextURLOrNull();
 			if (url == null) {
 				logger.debug("No more requests to submit");
-				return null; // no new request to submit
+				return null;
 			}
 			
 			String page = url.getRawPath();
@@ -217,7 +218,6 @@ public class WebSpider implements IWebSpider {
 			
 			context.setAttribute("request", request);
 			context.setAttribute("url", url);
-//			context.setAttribute("referrer", link.referrer);
 			
 			return request;
 		}
@@ -248,23 +248,25 @@ public class WebSpider implements IWebSpider {
 				if (myResponse.getContentType() != null) {
 					WebPageEntity pageEntity = null;
 					
-					if (status == 200) {
+					if (status == 200)
 						pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
-/*						if (referrer != null) {
-							referrer.addLink(pageEntity);
-							referrer.update();
-						}
-*/					}
 
 					if (contentType.matches("(text/|application/x-javascript).*")) {
 						String content = new String(myResponse.getContent(bufferSize));
-//						WebPage page = new WebPage(url, content);
 						if (followLinks) {
 							for (URI link: getLinks(url, content)) {
 								if (interrupted) return;
-								follow(link, pageEntity);
+/*								if (pageEntity != null) {
+									// add links
+									WebPageEntity linkedPageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), link, null);
+									pageEntity.addLink(linkedPageEntity);
+								}
+*/								follow(link);
 							}
-						}
+							
+/*							if (pageEntity != null)
+								pageEntity.update();
+*/						}
 					}
 				}
 
@@ -286,8 +288,9 @@ public class WebSpider implements IWebSpider {
 						for (InternetAddress address : addresses) {
 							factory.createWebSite(realm, spaceId, new TCPSocketLocator(address, port), hostname);
 						}
-						if (followLinks)
-							follow(url.resolve(location), null);
+						if (followLinks) {
+							follow(url.resolve(location));
+						}
 					}
 				}
 				
@@ -296,8 +299,10 @@ public class WebSpider implements IWebSpider {
 					module.handle(getContext(), myRequest, myResponse);
 				}
 			} catch (IOException ex) {
+				ex.printStackTrace();
 				logger.error("I/O error when handling response: " + ex.getMessage(), ex);
 			} catch (Exception ex) {
+				ex.printStackTrace();
 				logger.error("Error when handling response: " + ex.getMessage(), ex);
 /*			} finally {
 				try {
@@ -346,6 +351,7 @@ public class WebSpider implements IWebSpider {
 	
 	public void setServices(ILogger logger, IWebEntityFactory factory, INameResolver resolver) {
 		this.logger = logger;
+		logger.enableDebug();
 		this.factory = factory;
 		this.resolver = resolver;
 	}
@@ -413,9 +419,16 @@ public class WebSpider implements IWebSpider {
 		return Collections.unmodifiableList(modules);
 	}
 
-	public synchronized void addTarget(HTTP http, String vhost) {
-		WebSpiderWorker worker = new WebSpiderWorker(http, vhost);
-		workers.add(worker);
+	public void addTarget(HTTP http, String vhost) {
+		addTarget(new WebSite(http, vhost));
+	}
+	
+	public synchronized void addTarget(WebSite target) {
+		if (workers.containsKey(target))
+			return;
+		
+		WebSpiderWorker worker = new WebSpiderWorker(target.http, target.vhost);
+		workers.put(target, worker);
 		
 		for (IWebSpiderModule module: modules) {
 			try {
@@ -426,8 +439,23 @@ public class WebSpider implements IWebSpider {
 		}
 	}
 
+	public synchronized void removeTarget(WebSite target) {
+		WebSpiderWorker worker = workers.remove(target);
+		if (worker != null)
+			try {
+				worker.shutdown();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+	public synchronized Set<WebSite> getTargets() {
+		return workers.keySet();
+	}
+	
 	private boolean hasNextURL() {
-		for (WebSpiderWorker worker: workers) {
+		for (WebSpiderWorker worker: workers.values()) {
 			if (worker.hasNextURL())
 				return true;
 		}
@@ -436,7 +464,7 @@ public class WebSpider implements IWebSpider {
 	
 	private int getConnectionsCount() {
 		int count = 0;
-		for (WebSpiderWorker worker: workers) {
+		for (WebSpiderWorker worker: workers.values()) {
 			count += worker.getConnectionsCount();
 		}
 		return count;
@@ -466,7 +494,7 @@ public class WebSpider implements IWebSpider {
 				// XXX gracefully handle filtered web sites
 				// for example blogspot or youtube or something from cn
 				
-				for (WebSpiderWorker worker: workers) {
+				for (WebSpiderWorker worker: workers.values()) {
 					if (worker.hasNextURL())
 						worker.connect();
 				}
@@ -474,7 +502,7 @@ public class WebSpider implements IWebSpider {
 				Thread.sleep(500);
 				
 				while (getConnectionsCount() >= maximumConnections && !isExceededErrorThreshold() && !Thread.currentThread().isInterrupted()) {
-					logger.debug("Waiting, currently already "+getConnectionsCount()+" connections");
+					logger.debug("Already "+getConnectionsCount()+" connections, sleeping...");
 					Thread.sleep(1000);
 				}
 				
@@ -495,7 +523,7 @@ public class WebSpider implements IWebSpider {
 			if (Thread.currentThread().isInterrupted())
 				interrupted = true;
 			
-			for (WebSpiderWorker worker: workers) {
+			for (WebSpiderWorker worker: workers.values()) {
 				worker.shutdown();
 			}
 		}
@@ -505,7 +533,7 @@ public class WebSpider implements IWebSpider {
 		return errorsCount > ((successCount + 1) * 5);
 	}
 	
-	private synchronized void follow(URI url, WebPageEntity referer) {
+	private synchronized void follow(URI url) {
 		fetch(url, "GET", null, null);
 	}
 
@@ -529,7 +557,7 @@ public class WebSpider implements IWebSpider {
 		if (!fetchImages && path.matches(".*(jpg|gif|png)$"))
 			return;
 
-		for (WebSpiderWorker worker: workers) {
+		for (WebSpiderWorker worker: workers.values()) {
 			int basePort = worker.base.getPort() == -1 ? 80 : worker.base.getPort();
 			int urlPort = url.getPort() == -1 ? 80 : url.getPort();
 			if (host.equals(worker.base.getHost()) && basePort == urlPort) {
