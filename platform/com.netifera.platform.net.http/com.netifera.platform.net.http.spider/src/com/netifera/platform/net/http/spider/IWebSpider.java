@@ -5,6 +5,6 @@ import java.util.Map;
 
 
 public interface IWebSpider {
-	void fetch(URI url, String method, Map<String,String> headers, String content);
-	void visit(URI url);
+	void fetch(URI url, String method, Map<String,String> headers, String content) throws OutOfScopeException;
+	void visit(URI url) throws OutOfScopeException;
 }

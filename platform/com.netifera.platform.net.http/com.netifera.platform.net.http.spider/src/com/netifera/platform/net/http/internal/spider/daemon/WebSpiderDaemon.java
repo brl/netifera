@@ -1,6 +1,7 @@
 package com.netifera.platform.net.http.internal.spider.daemon;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,10 +25,15 @@ import com.netifera.platform.net.http.internal.spider.daemon.remote.StartSpider;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.StopSpider;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.VisitURL;
 import com.netifera.platform.net.http.internal.spider.daemon.remote.WebSpiderConfiguration;
+import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.spider.IWebSpiderModule;
-import com.netifera.platform.net.http.spider.impl.WebSpider;
+import com.netifera.platform.net.http.spider.OutOfScopeException;
 import com.netifera.platform.net.http.spider.impl.WebSite;
+import com.netifera.platform.net.http.spider.impl.WebSpider;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 
@@ -36,7 +42,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 
 	/* OSGi Services */
 	private ILogger logger;
-//	private IProbeManagerService probeManager;
+	private IProbeManagerService probeManager;
 	private IMessageDispatcherService dispatcher;
 	private IWebEntityFactory factory;
 	private INameResolver resolver;
@@ -78,7 +84,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 	}
 
 	protected void setProbeManager(IProbeManagerService manager) {
-//		this.probeManager = manager;
+		this.probeManager = manager;
 	}
 
 	protected void unsetProbeManager(IProbeManagerService manager) {}
@@ -130,7 +136,8 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 		config.modules = new HashSet<String>();
 		for (IWebSpiderModule module: spider.getModules())
 			config.modules.add(module.getName());
-		config.targets = spider.getTargets();
+		config.targets = new HashSet<WebSite>();
+		config.targets.addAll(spider.getTargets());
 		messenger.emitMessage(msg.createResponse(config));
 	}
 
@@ -175,6 +182,9 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 			messenger.respondError(msg, "Web Spider already running");
 			return;
 		}
+
+		spider.setSpaceId(msg.getSpaceId());
+		spider.setRealm(probeManager.getLocalProbe().getEntity().getId()); // should be the same as the root of the space
 		
 		spiderThread = new Thread(new Runnable() {
 			public void run() {
@@ -204,17 +214,40 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 		messenger.respondOk(msg);
 	}
 
+	private boolean isRunning() {
+		return spiderThread != null && spiderThread.isAlive();
+	}
+
 	public void visitURL(IMessenger messenger, VisitURL msg) throws MessengerException {
-		spider.visit(msg.url);
+		URI url = msg.url;
+		try {
+			spider.visit(url);
+		} catch (OutOfScopeException e) {
+			int port = url.getPort() == -1 ? 80 : url.getPort();
+			String hostname = url.getHost();
+			List<InternetAddress> addresses;
+			if (InternetAddressMatcher.matches(hostname)) {
+				addresses = new ArrayList<InternetAddress>(1);
+				addresses.add(InternetAddress.fromString(hostname));
+			} else {
+				try {
+					addresses = resolver.getAddressesByName(hostname);
+					for (InternetAddress address : addresses) {
+						spider.addTarget(new HTTP(new TCPSocketLocator(address, port)), hostname);
+						spider.visit(url);
+						break;
+					}
+				} catch (IOException ex) {
+					// TODO Auto-generated catch block
+					ex.printStackTrace();
+				}
+			}
+		}
 		messenger.respondOk(msg);
 	}
 
 	public void fetchURL(IMessenger messenger, FetchURL msg) throws MessengerException {
 		spider.fetch(msg.url, msg.method, msg.headers, msg.content);
 		messenger.respondOk(msg);
-	}
-
-	private boolean isRunning() {
-		return spiderThread != null && spiderThread.isAlive();
 	}
 }

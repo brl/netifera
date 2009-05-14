@@ -144,7 +144,7 @@ public class WebSpiderDaemonStub implements IWebSpiderDaemon {
 					return;
 				}
 			}
-
+			
 			if (enable)
 				configuration.targets.add(site);
 			else

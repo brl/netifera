@@ -144,6 +144,7 @@ public class Activator extends AbstractUIPlugin {
 		toolbarItem = new ToolBarContributionItem(toolbar);
 		coolbar.add(toolbarItem);
 		spiderActionManager = new WebSpiderActionManager(toolbar);
+		
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				spiderActionManager.setState();

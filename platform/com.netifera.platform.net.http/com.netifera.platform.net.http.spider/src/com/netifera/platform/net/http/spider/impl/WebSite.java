@@ -25,6 +25,6 @@ public class WebSite {
 	
 	@Override
 	public String toString() {
-		return vhost;
+		return http.getURI(vhost)+" ("+http.getLocator().getAddress()+")";
 	}
 }

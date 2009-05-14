@@ -19,19 +19,21 @@ import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.net.http.internal.ui.Activator;
+import com.netifera.platform.net.http.internal.ui.inputbar.WebInputBar;
 import com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemon;
 
 public class WebSpiderActionManager {
 	private final RGB WARNING_COLOR = new RGB(0xF5, 0xA9, 0xA9);
 
-	private final StartSpiderAction startSpiderAction;
-	private final StopSpiderAction stopSpiderAction;
+	private final StopAction stopAction;
 	private final ConfigureAction configureAction;
 //	private final FetchAction fetchAction;
+	private final GoAction goAction;
 	
-	// The Model View toolbar contributions so we can add and remove them.
-	private final IContributionItem startSpiderItem;
-	private final IContributionItem stopSpiderItem;
+	// The toolbar contributions, so we can add and remove them.
+	private final IContributionItem stopItem;
+	private final WebInputBar inputBar;
+	private final ActionContributionItem goItem;
 	private final ActionContributionItem configItem;
 
 	private IToolBarManager toolbarManager;
@@ -39,22 +41,26 @@ public class WebSpiderActionManager {
 	private IWebSpiderDaemon currentWebSpiderDaemon;
 	private IEventHandler changeHandler;
 	
-	public WebSpiderActionManager(IToolBarManager manager) {
-		toolbarManager = manager;
+	public WebSpiderActionManager(IToolBarManager toolbarManager) {
+		this.toolbarManager = toolbarManager;
 		
 		configureAction = new ConfigureAction(this);
 		configItem = new ActionContributionItem(configureAction);
-		
-		startSpiderAction = new StartSpiderAction(this);
-		startSpiderItem = new ActionContributionItem(startSpiderAction);
-		
-		stopSpiderAction = new StopSpiderAction(this);
-		stopSpiderItem = new ActionContributionItem(stopSpiderAction);
-		
-		manager.add(stopSpiderItem);
-		manager.add(startSpiderItem);
-		manager.add(configItem);
 
+		inputBar = new WebInputBar(this);
+		
+		goAction = new GoAction(inputBar);
+		goItem = new ActionContributionItem(goAction);
+
+		stopAction = new StopAction(this);
+		stopItem = new ActionContributionItem(stopAction);
+		
+		toolbarManager.add(configItem);
+		
+		toolbarManager.add(stopItem);
+		toolbarManager.add(inputBar);
+		toolbarManager.add(goItem);
+		
 		changeHandler = new IEventHandler() {
 			public void handleEvent(IEvent event) {
 				setState();				
@@ -103,8 +109,7 @@ public class WebSpiderActionManager {
 			
 		};
 		
-		toolbarManager.insertAfter(StopSpiderAction.ID, spiderLabelItem);
-//		toolbarManager.insertAfter(FetchAction.ID, snifferLabelItem);
+		toolbarManager.insertAfter(GoAction.ID, spiderLabelItem);
 		toolbarManager.update(true);		
 	}
 	
@@ -137,7 +142,7 @@ public class WebSpiderActionManager {
 		final IWebSpiderDaemon daemon = Activator.getDefault().getWebSpiderDaemon();
 
 		if(daemon == null) {
-			failAll("No sniffing service found");
+			failAll("No web spider service found");
 			return;
 		}
 		
@@ -148,11 +153,8 @@ public class WebSpiderActionManager {
 			return;
 		}
 */		
-		if(daemon.isRunning()) {
-//			disableConfigAndCapture();
-			startSpiderAction.setEnabled(false);
-		}  else {
-			stopSpiderAction.setEnabled(false);
+		if(!daemon.isRunning()) {
+			stopAction.setEnabled(false);
 		}
 			
 	}
@@ -169,32 +171,16 @@ public class WebSpiderActionManager {
 		disableAll();
 	}
 	
-	private void failLive(String message) {
-		setFailed(message);
-		startSpiderAction.setEnabled(false);
-		stopSpiderAction.setEnabled(false);
-	}
-	
-/*	public void disableConfigAndCapture() {
-		captureAction.setEnabled(false);
-		configureAction.setEnabled(false);
-	}
-	
-	public void enableConfigAndCapture() {
-		captureAction.setEnabled(true);
-		configureAction.setEnabled(true);
-	}
-*/	
 	public void disableAll() {
-		stopSpiderAction.setEnabled(false);
-		startSpiderAction.setEnabled(false);
+		stopAction.setEnabled(false);
+//		inputBar.setEnabled(false);
 		configureAction.setEnabled(false);
 //		fetchAction.setEnabled(false);
 	}
 	
 	private void enableAll() {
-		stopSpiderAction.setEnabled(true);
-		startSpiderAction.setEnabled(true);
+		stopAction.setEnabled(true);
+//		inputBar.setEnabled(true);
 		configureAction.setEnabled(true);
 //		fetchAction.setEnabled(true);
 	}

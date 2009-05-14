@@ -7,12 +7,12 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import com.netifera.platform.net.http.internal.ui.Activator;
 import com.netifera.platform.net.http.spider.daemon.IWebSpiderDaemon;
 
-public class StopSpiderAction extends Action {
+public class StopAction extends Action {
 	public final static String ID = "stop-spider-action";
 
 	private final WebSpiderActionManager manager;
 	
-	public StopSpiderAction(WebSpiderActionManager manager) {
+	public StopAction(WebSpiderActionManager manager) {
 		setId(ID);
 		this.manager = manager;
 		setToolTipText("Stop Web Spider");

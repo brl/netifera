@@ -17,9 +17,4 @@ public interface IWebSpiderDaemon extends IDaemon, IWebSpider {
 	
 	boolean isEnabled(WebSite site);
 	void setEnabled(WebSite site, boolean enable);
-	
-	boolean isRunning();
-	
-	void start(long spaceId);
-	void stop();
 }

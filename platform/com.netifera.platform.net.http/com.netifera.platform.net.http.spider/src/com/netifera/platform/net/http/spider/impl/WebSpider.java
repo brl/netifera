@@ -32,8 +32,10 @@ import com.netifera.platform.net.http.spider.HTTPResponse;
 import com.netifera.platform.net.http.spider.IWebSpider;
 import com.netifera.platform.net.http.spider.IWebSpiderContext;
 import com.netifera.platform.net.http.spider.IWebSpiderModule;
+import com.netifera.platform.net.http.spider.OutOfScopeException;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
+import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
@@ -176,8 +178,10 @@ public class WebSpider implements IWebSpider {
 		}
 		
 		public synchronized void shutdown() throws IOException {
-			if (client != null)
+			if (client != null) {
 				client.shutdown();
+				client = null;
+			}
 		}
 		
 		public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -296,7 +300,11 @@ public class WebSpider implements IWebSpider {
 				
 				// now run all modules
 				for (IWebSpiderModule module: modules) {
-					module.handle(getContext(), myRequest, myResponse);
+					try {
+						module.handle(getContext(), myRequest, myResponse);
+					} catch (OutOfScopeException e) {
+						logger.debug("Ignoring "+e.getURL()+" (out of scope)");
+					}
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();
@@ -426,6 +434,10 @@ public class WebSpider implements IWebSpider {
 	public synchronized void addTarget(WebSite target) {
 		if (workers.containsKey(target))
 			return;
+
+		WebSiteEntity entity = factory.createWebSite(realm, 0, target.http.getLocator(), target.vhost);
+		entity.addTag("Target");
+		entity.addToSpace(spaceId);
 		
 		WebSpiderWorker worker = new WebSpiderWorker(target.http, target.vhost);
 		workers.put(target, worker);
@@ -451,7 +463,7 @@ public class WebSpider implements IWebSpider {
 	}
 
 	public synchronized Set<WebSite> getTargets() {
-		return workers.keySet();
+		return Collections.unmodifiableSet(workers.keySet());
 	}
 	
 	private boolean hasNextURL() {
@@ -534,15 +546,20 @@ public class WebSpider implements IWebSpider {
 	}
 	
 	private synchronized void follow(URI url) {
-		fetch(url, "GET", null, null);
+		try {
+			fetch(url, "GET", null, null);
+		} catch (OutOfScopeException e) {
+			logger.debug("Ignoring "+url+" (out of scope)");
+		}
 	}
 
-	public synchronized void fetch(URI url, String method, Map<String,String> headers, String content) {
+	public synchronized void fetch(URI url, String method, Map<String,String> headers, String content)
+			throws OutOfScopeException {
 		// TODO (now we just do a GET; method, headers and content are ignored)
 		visit(url);
 	}
 	
-	public synchronized void visit(URI url) {
+	public synchronized void visit(URI url) throws OutOfScopeException {
 		url = url.normalize();
 		String path = url.getPath();
 		if (path == null) {
@@ -561,10 +578,12 @@ public class WebSpider implements IWebSpider {
 			int basePort = worker.base.getPort() == -1 ? 80 : worker.base.getPort();
 			int urlPort = url.getPort() == -1 ? 80 : url.getPort();
 			if (host.equals(worker.base.getHost()) && basePort == urlPort) {
+				System.out.println("found web spider worker for "+url);
 				worker.addURL(url);
 				return;
 			}
 		}
-		logger.debug("Ignoring "+url+" (outside scope)");
+		System.out.println("not found web spider worker for "+url);
+		throw new OutOfScopeException(url);
 	}
 }
