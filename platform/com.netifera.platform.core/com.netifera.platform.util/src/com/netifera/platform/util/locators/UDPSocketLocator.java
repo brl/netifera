@@ -39,6 +39,18 @@ public class UDPSocketLocator implements ISocketLocator {
 	*/
 	
 	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof UDPSocketLocator))
+			return false;
+		return ((UDPSocketLocator)o).address.equals(address) && ((UDPSocketLocator)o).port == port; 
+	}
+	
+	@Override
+	public int hashCode() {
+		return address.hashCode()-port;
+	}
+	
+	@Override
 	public String toString() {
 		return address.toStringLiteral() + ":" + Integer.toString(port)
 			+ "/udp";
