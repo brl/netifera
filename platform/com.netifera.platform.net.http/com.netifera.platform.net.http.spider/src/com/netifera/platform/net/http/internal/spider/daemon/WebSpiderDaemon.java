@@ -219,6 +219,11 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 	}
 
 	public void visitURL(IMessenger messenger, VisitURL msg) throws MessengerException {
+		if (!isRunning()) {
+			logger.warning("Trying to visit a URL but the Web Spider but it is not currently running");
+			messenger.respondError(msg, "Web Spider is not running");
+			return;
+		}
 		URI url = msg.url;
 		try {
 			spider.visit(url);
