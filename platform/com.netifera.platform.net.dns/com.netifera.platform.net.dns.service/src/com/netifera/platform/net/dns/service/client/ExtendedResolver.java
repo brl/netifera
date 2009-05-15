@@ -134,6 +134,9 @@ public class ExtendedResolver implements Resolver {
 						try {
 							wait();
 						} catch (InterruptedException e) {
+							//HACK is this fine? used to not do anything, and never timed out and couldnt cancell tasks. len
+//							done = true;
+							throw new IOException("Interrupted", e);
 						}
 					}
 				}
