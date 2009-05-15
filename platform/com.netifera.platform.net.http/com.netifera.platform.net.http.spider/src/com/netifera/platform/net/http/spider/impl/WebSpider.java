@@ -435,9 +435,10 @@ public class WebSpider implements IWebSpider {
 		if (workers.containsKey(target))
 			return;
 
-		WebSiteEntity entity = factory.createWebSite(realm, 0, target.http.getLocator(), target.vhost);
+		WebSiteEntity entity = factory.createWebSite(realm, spaceId, target.http.getLocator(), target.vhost);
 		entity.addTag("Target");
 		entity.addToSpace(spaceId);
+		entity.update();
 		
 		WebSpiderWorker worker = new WebSpiderWorker(target.http, target.vhost);
 		workers.put(target, worker);
@@ -464,6 +465,10 @@ public class WebSpider implements IWebSpider {
 
 	public synchronized Set<WebSite> getTargets() {
 		return Collections.unmodifiableSet(workers.keySet());
+	}
+	
+	private synchronized void removeAllTargets() {
+		workers.clear();
 	}
 	
 	private boolean hasNextURL() {
@@ -538,6 +543,8 @@ public class WebSpider implements IWebSpider {
 			for (WebSpiderWorker worker: workers.values()) {
 				worker.shutdown();
 			}
+			
+			removeAllTargets();
 		}
 	}
 
