@@ -9,6 +9,7 @@ import prefuse.data.Tuple;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.ui.spaces.graphs.SpaceGraphContentProvider;
 
+@Deprecated
 public class EntityTuple implements Tuple {
 	private IEntity entity;
 

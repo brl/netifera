@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Display;
 
-import prefuse.data.Edge;
 import prefuse.data.Graph;
 import prefuse.data.Node;
 import prefuse.data.Schema;
@@ -38,9 +36,8 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 
 	private Graph graph;
 	private Map<IEntity, Node> nodeMap;
-//	private Map<String, Node> groupNodeMap;
-	private IGroupLayerProvider colorLayerProvider;
-	private IGroupLayerProvider shapeLayerProvider;
+	private volatile IGroupLayerProvider colorLayerProvider;
+	private volatile IGroupLayerProvider shapeLayerProvider;
 
 	static private Schema schema;
 	static public synchronized Schema getNodeSchema() {
@@ -51,7 +48,6 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 			schema.addColumn("realm", Long.class, null);
 			schema.addColumn("color", String.class, null);
 			schema.addColumn("shape", String.class, null);
-			schema.addColumn("aggregate", String.class, null);
 		}
 		return schema;
 	}
@@ -80,18 +76,21 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 
 	private void initializeGraph() {
 		nodeMap = new HashMap<IEntity,Node>();
-/*		groupNodeMap = new HashMap<String,Node>();*/
 		graph = new Graph(true); //directed
 		graph.getNodeTable().addColumns(getNodeSchema());
 	}
 
 	private void updateGraph() {
-		for (IEntity entity: space.getEntities())
-			try {
-				addEntity(entity);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
+		synchronized (viewer.getControl().getVisualization()) { //FIXME maybe this will lock too long time
+			for (IEntity entity: space.getEntities())
+				try {
+					addEntity(entity);
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+
+			viewer.update();
+		}
 	}
 
 	public void dispose() {
@@ -110,16 +109,16 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 		return new IEventHandler() {
 			public void handleEvent(IEvent event) {
 				if(event instanceof ISpaceContentChangeEvent) {
-					handleSpaceChange((ISpaceContentChangeEvent)event);
+					synchronized (viewer.getControl().getVisualization()) {
+						handleSpaceChange((ISpaceContentChangeEvent)event);
+					}
 				}
 			}			
 		};
 	}
 	
 	private synchronized void handleSpaceChange(final ISpaceContentChangeEvent event) {
-//		boolean animationEnabled = viewer.getControl().isAnimationEnabled();
 		try {
-//			viewer.getControl().setAnimationEnabled(false);
 			if(event.isCreationEvent()) {
 				addEntity(event.getEntity());
 			} else if(event.isUpdateEvent()) {
@@ -129,8 +128,6 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
-//		} finally {
-//			viewer.getControl().setAnimationEnabled(animationEnabled);
 		}
 	}
 
@@ -157,19 +154,17 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 					viewer.update();
 				}
 			}
-			if (layerProvider instanceof IGroupLayerProvider) {
+/*			if (layerProvider instanceof IGroupLayerProvider) {
 				IGroupLayerProvider groupLayerProvider = (IGroupLayerProvider)layerProvider;
 				Node node = null;
 				for (String each: groupLayerProvider.getGroups(entity)) {
 					if (node == null)
 						node = createNode(entity);
-/*					Node groupNode = createGroupNode(each, entity.getRealmId());
-					graph.addEdge(groupNode, node);
-*/					node.set("aggregate", each);
+					node.set("aggregate", each);
 					break;
 				}
 			}
-		}
+*/		}
 		
 		Node node = nodeMap.get(entity);
 		if (node != null) {
@@ -203,23 +198,17 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 	}
 	
 	private void addEdge(final IEdge edge) {
-		Display.getDefault().syncExec(new Runnable() {
-			public void run() {
-				Node srcNode = createNode(edge.getSource());
-				Node dstNode = createNode(edge.getTarget());
-				Edge edge = graph.addEdge(srcNode, dstNode);
-//				setChanged();
-//				notifyObservers(srcNode);
-			}
-		});
+		Node srcNode = createNode(edge.getSource());
+		Node dstNode = createNode(edge.getTarget());
+		
+		// dont add edges twice, otherwise the spring layout goes crazy and shaky
+		if (graph.getEdge(srcNode, dstNode) == null)
+			graph.addEdge(srcNode, dstNode);
 	}
 
+	//TODO remove edges when the relationship goes away
 	private void removeEdge(final IEntity src, final IEntity dst) {
-		Display.getDefault().syncExec(new Runnable() {
-			public void run() {
-				graph.removeEdge(graph.getEdge(nodeMap.get(src), nodeMap.get(dst)));
-			}
-		});
+		graph.removeEdge(graph.getEdge(nodeMap.get(src), nodeMap.get(dst)));
 	}
 
 	private Node createNode(IEntity entity) {
@@ -248,13 +237,13 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 		return layerProviders;
 	}
 	
-	public void addLayer(ILayerProvider layerProvider) {
+	public synchronized void addLayer(ILayerProvider layerProvider) {
 		layerProviders.add(layerProvider);
 		updateGraph();
 		viewer.update();
 	}
 	
-	public void removeLayer(ILayerProvider layerProvider) {
+	public synchronized void removeLayer(ILayerProvider layerProvider) {
 		layerProviders.remove(layerProvider);
 		initializeGraph();
 		updateGraph();
@@ -265,7 +254,7 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 		return colorLayerProvider;
 	}
 	
-	public void setColorLayer(IGroupLayerProvider layerProvider) {
+	public synchronized void setColorLayer(IGroupLayerProvider layerProvider) {
 		colorLayerProvider = layerProvider;
 		if (layerProvider == null)
 			initializeGraph();
@@ -277,7 +266,7 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 		return shapeLayerProvider;
 	}
 	
-	public void setShapeLayer(IGroupLayerProvider layerProvider) {
+	public synchronized void setShapeLayer(IGroupLayerProvider layerProvider) {
 		shapeLayerProvider = layerProvider;
 		if (layerProvider == null)
 			initializeGraph();
