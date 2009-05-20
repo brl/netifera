@@ -41,8 +41,9 @@ public interface ISystemService {
 	int syscall_setsockopt(int fd, int level, int optname, byte[] optdata, int optlen);
 	int syscall_recvfrom(int fd, byte[] buffer, int offset, int length, int flags, byte[] addr, int addrlen);
 	int syscall_poll(byte[] fds, int timeout);
-	
-	
+
+	int syscall_sendmsg(int fd, byte[] message, byte[] address);
+	int syscall_recvmsg(int fd, byte[] message, byte[] address);
 	/**
 	 * Calls the fork() system call and in the child process the binary at
 	 * <code>path</path> is executed after duplicating <code>fd</code> to

@@ -278,6 +278,12 @@ public class SystemNative implements ISystemNative {
 	public int native_write(int fd, byte[] buffer, int offset, int length) {
 		return fail("native_write");
 	}
+	public int native_recvmsg(int fd, byte[] message, byte[] address) {
+		return fail("native_recvmsg");
+	}
+	public int native_sendmsg(int fd, byte[] message, byte[] address) {
+		return fail("native_sendmsg");
+	}
 
 }
 

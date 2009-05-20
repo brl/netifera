@@ -20,6 +20,8 @@ public interface ISystemNative {
 	int native_socket(int domain, int type, int protocol);
 	int native_recvfrom(int fd, byte[] buffer, int offset, int length, int flags, byte[] addr, int addrlen);
 	int native_poll(byte[] fds, int timeout);
+	int native_sendmsg(int fd, byte[] message, byte[] address);
+	int native_recvmsg(int fd, byte[] message, byte[] address);
 	/* The master fd will be closed in the child */
 	int native_forkexec(String path, String argv[], String env[], int fd, int master);
 	SystemOS getOS();

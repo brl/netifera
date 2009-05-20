@@ -20,7 +20,8 @@ public class SystemNative implements ISystemNative {
 	public native int native_open(String path, int flags);
 	public native int native_read(int fd, byte[] buffer, int offset, int length);
 	public native int native_write(int fd, byte[] buffer, int offset, int length);
-	
+	public native int native_sendmsg(int fd, byte[] message, byte[] address);
+	public native int native_recvmsg(int fd, byte[] message, byte[] address);
 	static {
 		try {
 			System.loadLibrary("system");
@@ -317,5 +318,6 @@ public class SystemNative implements ISystemNative {
 	public int native_putbuffer(byte[] data, int length, byte[] address) {
 		return fail("native_putbuffer");
 	}
+	
 
 }

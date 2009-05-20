@@ -128,7 +128,14 @@ public class SystemService implements ISystemService {
 	public int syscall_poll(byte[] fds, int timeout) {
 		return syscall(sysNative.native_poll(fds, timeout));
 	}
+	public int syscall_recvmsg(int fd, byte[] message, byte[] address) {
+		return syscall(sysNative.native_recvmsg(fd, message, address));
+	}
 
+	public int syscall_sendmsg(int fd, byte[] message, byte[] address) {
+		return syscall(sysNative.native_sendmsg(fd, message, address));
+	}
+	
 	public int system_forkexec(String path, String argv[], String env[], int fd, int master) {
 		return syscall(sysNative.native_forkexec(path, argv, env, fd, master));
 	}
@@ -157,5 +164,6 @@ public class SystemService implements ISystemService {
 	protected void unsetLogManager(ILogManager logManager) {
 		
 	}
+
 
 }
