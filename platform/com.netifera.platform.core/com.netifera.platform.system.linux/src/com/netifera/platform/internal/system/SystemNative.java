@@ -18,6 +18,7 @@ public class SystemNative implements ISystemNative {
 	public native int native_poll(byte[] fds, int timeout);
 	public native int native_sendmsg(int fd, byte[] message, byte[] address);
 	public native int native_recvmsg(int fd, byte[] message, byte[] address);
+	public native int native_getpid();
 	
 	static {
 		try {

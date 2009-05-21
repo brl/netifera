@@ -22,6 +22,7 @@ public class SystemNative implements ISystemNative {
 	public native int native_write(int fd, byte[] buffer, int offset, int length);
 	public native int native_sendmsg(int fd, byte[] message, byte[] address);
 	public native int native_recvmsg(int fd, byte[] message, byte[] address);
+	public native int native_getpid();
 	static {
 		try {
 			System.loadLibrary("system");

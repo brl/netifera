@@ -594,3 +594,15 @@ JNIEXPORT jint JNICALL Java_com_netifera_platform_internal_system_SystemNative_n
 	(*env)->ReleaseByteArrayElements(env, address, paddress, 0);
 	return ret;
 }
+
+/*
+ * Class:     com_netifera_platform_internal_system_SystemNative
+ * Method:    native_getpid
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_netifera_platform_internal_system_SystemNative_native_1getpid
+  (JNIEnv *env, jobject klass)
+{
+	return getpid();
+}
+

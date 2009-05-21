@@ -284,6 +284,10 @@ public class SystemNative implements ISystemNative {
 	public int native_sendmsg(int fd, byte[] message, byte[] address) {
 		return fail("native_sendmsg");
 	}
+	
+	public int native_getpid() {
+		return fail("native_getpid");
+	}
 
 }
 

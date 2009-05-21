@@ -44,6 +44,7 @@ public interface ISystemService {
 
 	int syscall_sendmsg(int fd, byte[] message, byte[] address);
 	int syscall_recvmsg(int fd, byte[] message, byte[] address);
+	int syscall_getpid();
 	/**
 	 * Calls the fork() system call and in the child process the binary at
 	 * <code>path</path> is executed after duplicating <code>fd</code> to

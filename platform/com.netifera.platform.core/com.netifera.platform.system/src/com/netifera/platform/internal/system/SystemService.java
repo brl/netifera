@@ -136,6 +136,10 @@ public class SystemService implements ISystemService {
 		return syscall(sysNative.native_sendmsg(fd, message, address));
 	}
 	
+	public int syscall_getpid() {
+		return syscall(sysNative.native_getpid());
+		
+	}
 	public int system_forkexec(String path, String argv[], String env[], int fd, int master) {
 		return syscall(sysNative.native_forkexec(path, argv, env, fd, master));
 	}
