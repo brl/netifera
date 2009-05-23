@@ -1,5 +1,6 @@
 package com.netifera.platform.ui.tasks.list;
 
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -28,12 +29,15 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.netifera.platform.ui.internal.tasks.TasksPlugin;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.tasks.actions.TaskCancelAction;
+import com.netifera.platform.ui.tasks.output.TaskOutputView;
 import com.netifera.platform.ui.updater.StructuredViewerUpdater;
 import com.netifera.platform.ui.util.ColumnViewerFieldComparator;
 import com.netifera.platform.ui.util.FieldViewerComparator;
@@ -46,6 +50,7 @@ public class TasksView extends ViewPart {
 
 	private static String ACTIVE_ICON = "icons/lightbulb.png";
 	private static String INACTIVE_ICON = "icons/lightbulb_off.png";
+	private static String OUTPUT_ICON = "icons/log_16x16.png";
 	
 	private StructuredViewer viewer;
 
@@ -237,6 +242,18 @@ public class TasksView extends ViewPart {
 		if (tableMode)
 			toolbarManager.add(taskCancelAction);
 		toolbarManager.add(viewerRefreshAction);
+		Action openOutputView = new Action("Open Output",AbstractUIPlugin.imageDescriptorFromPlugin(TasksPlugin.PLUGIN_ID,OUTPUT_ICON)){
+			public void run() {
+				try {
+					TaskOutputView view = (TaskOutputView) TasksPlugin.getPlugin().getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
+							TaskOutputView.ID,TaskOutputView.ID, IWorkbenchPage.VIEW_ACTIVATE);
+					view.addSelectionListener();
+				} catch (PartInitException e) {
+				}
+				
+			}
+		};
+		toolbarManager.add(openOutputView);
 	}
 
 	/**
