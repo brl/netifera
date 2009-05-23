@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
-
+	
 /**
  * Viewer to show a collection of elements in a ScrolledComposite with any custom widget
  * to show each item. Extends StructuredViewer
@@ -39,19 +39,20 @@ import org.eclipse.ui.forms.widgets.ColumnLayout;
 public class ItemViewer extends StructuredViewer {
 	static String DARK_COLOR = "com.netifera.platform.ui.DARK_COLOR_LIST";
 	 static {
-		// Mac has different Gamma value
+		/* Calculate the dark color, for the list zebra stripes, shifting 
+		 * the list color. Mac OS X has different Gamma value */
 		int shift = "carbon".equals(SWT.getPlatform()) ? -25 : -10;//$NON-NLS-1$ 
 
 		final Color lightColor = PlatformUI.getWorkbench().getDisplay()
 				.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 
-		// Determine a dark color by shifting the list color
 		RGB darkRGB = new RGB(Math.max(0, lightColor.getRed() + shift), Math
 				.max(0, lightColor.getGreen() + shift), Math.max(0, lightColor
 				.getBlue()
 				+ shift));
+		
 		JFaceResources.getColorRegistry().put(DARK_COLOR, darkRGB);
-
+		
 	}
 
 	/* map between data elements and UI items widgets */
@@ -65,6 +66,9 @@ public class ItemViewer extends StructuredViewer {
 	private Composite control;
 	private ScrolledComposite scrolled;
 	private volatile boolean busy;
+
+	/* used with Control setData to restore the background color after unselecting selected items */
+	private static final String BACKGROUND_COLOR_PROPERTY = "bkgdColor";
 
 	/**
 	 * Create the composite
@@ -127,16 +131,22 @@ public class ItemViewer extends StructuredViewer {
 		/* call item provider to create the widget */
 		Widget item = itemProvider.getItem(element);
 
-		if(item == null) {
+		if(!(item instanceof Control)) {
 			return null;
 		}
 
-		final Object finalElement = element;
-		final Control itemControl = ((Control)item);		
+		addControlListeners((Control)item,element);
+				
+		/* add the new item to the map */
+		itemMap.put(element,item);
 		
-		/*add listener to set the selection when the widget is focused */
+		return item;
+	}
+	
+	private void addControlListeners(final Control itemControl, final Object finalElement) {
 		
-		((Control)item).addFocusListener(new FocusListener() {
+		/* add listener to set the selection when the widget is focused */
+		(itemControl).addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent e) {
 				if(e.widget.getData() != null) {
 					setSelection(new StructuredSelection(e.widget.getData()),true);
@@ -154,7 +164,12 @@ public class ItemViewer extends StructuredViewer {
 		/* set focus when the item is clicked, to trigger selection  */
 		MouseListener mouseListener = new MouseListener() {
 			public void mouseDown(MouseEvent e) {
-				itemControl.forceFocus();
+				if(e.widget.getData() != null) {
+					setSelection(new StructuredSelection(e.widget.getData()),true);
+				}
+				else {
+					setSelection(new StructuredSelection(finalElement),true);
+				}
 			}
 			public void mouseDoubleClick(MouseEvent e) {}
 			public void mouseUp(MouseEvent e) {	}
@@ -162,13 +177,8 @@ public class ItemViewer extends StructuredViewer {
 		};
 		
 		itemControl.addMouseListener(mouseListener);		
-		
-		/*add the new item to the map*/
-		itemMap.put(element,item);
-		
-		return item;
-	}
 
+	}
 	/**
 	 * Updates the UI item for the given element 
 	 * @param element not null
@@ -239,7 +249,10 @@ public class ItemViewer extends StructuredViewer {
 		int i = elements.length%2;
 		for(Object element : elements) {
 			Widget item = createItemWidget(element);
-			((Control)item).setBackground(getItemBackgroundColor(i));
+			Color bkgdColor = getItemBackgroundColor(i);
+			Control c = ((Control)item); 
+			c.setBackground(bkgdColor);
+			c.setData(BACKGROUND_COLOR_PROPERTY, bkgdColor);
 			i++;
 		}
 
@@ -252,6 +265,7 @@ public class ItemViewer extends StructuredViewer {
 		control.getParent().setRedraw(true);
 		setBusy(false);
 	}
+	
 	private Color getItemBackgroundColor(int i) {
 		if(i%2 == 0) {
 			return Display.getCurrent().getSystemColor(SWT.COLOR_LIST_BACKGROUND);			
@@ -319,25 +333,30 @@ public class ItemViewer extends StructuredViewer {
 	public void update(Object element, String[] properties) {
 		refresh(element);
 	}
-	
+		
 	/** Selection related methods */
 	private void setSelectionInternal(Object element, boolean reveal) {
 		if(element != null && itemMap.containsKey(element)) {
-			Widget item = itemMap.get(element);
-			if(reveal && item instanceof Control && !item.isDisposed()) {
-				((Control)item).setFocus();
-			}
-			selection.clear();
+			/* the selected elements List is updated here, parent class doesn't do it*/
 			selection.add(element);
+			Widget item = itemMap.get(element);
+			if(item instanceof Control && !item.isDisposed()) {
+				Control control = (Control)item;
+				control.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_LIST_SELECTION));
+				if(reveal) {
+					control.setFocus();
+				}
+			}
 		}
 	}
+	
 
 	/**
 	 * Searches for the specified data object and scroll the list to show it if necessary
 	 * @param element data object to search and show.
 	 */
 	public void reveal(Object element) {
-		setSelectionInternal(element,true);
+		//TODO with focusItem?
 	}
 
 	@SuppressWarnings("unchecked")
@@ -347,11 +366,20 @@ public class ItemViewer extends StructuredViewer {
 
 	@SuppressWarnings("unchecked")
 	protected void setSelectionToWidget(List list, boolean reveal) {
-		if(list.isEmpty()) {
-			return;
+
+		/* restore unselected background colors  */
+		for(Object elm : selection) {
+			if(!list.contains(elm)) {
+			Control c = (Control)itemMap.get(elm);
+			c.setBackground((Color)c.getData(BACKGROUND_COLOR_PROPERTY));
+			}
 		}
+
+		selection.clear();
+		if(!(list == null || list.isEmpty())) {
 		//TODO change this code to allow multiple selection
-		setSelectionInternal(list.get(0),reveal);
+			setSelectionInternal(list.get(0),reveal);
+		}
 	}
 
 	protected Widget doFindInputItem(Object element) {
