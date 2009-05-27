@@ -31,6 +31,16 @@
                relative="org.eclipse.ui.editorss">
          </view>
          <viewShortcut id="com.netifera.platform.ui.views.Tasks"/>
+         <showInPart
+               id="com.netifera.platform.ui.views.TaskOutput">
+         </showInPart>
+         <view
+               id="com.netifera.platform.ui.views.TaskOutput"
+               ratio="0.55"
+               relationship="bottom"
+               relative="com.netifera.platform.ui.views.Tasks"
+               visible="false">
+         </view>
 	      </perspectiveExtension>
    </extension>
 
