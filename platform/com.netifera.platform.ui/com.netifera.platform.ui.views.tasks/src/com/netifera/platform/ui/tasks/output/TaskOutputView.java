@@ -1,6 +1,7 @@
 package com.netifera.platform.ui.tasks.output;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -9,12 +10,14 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.IShowInTarget;
+import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.part.ViewPart;
 
 import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.ui.util.ViewerRefreshAction;
 
-public class TaskOutputView extends ViewPart {
+public class TaskOutputView extends ViewPart implements IShowInTarget {
 	private static final String TASK_VIEW = "com.netifera.platform.ui.views.Tasks";
 	public static final String ID = "com.netifera.platform.ui.views.TaskOutput";
 	private TaskOutputTableViewer viewer;
@@ -41,7 +44,7 @@ public class TaskOutputView extends ViewPart {
 
 	public void dipose() {
 		super.dispose();
-		viewer = null;
+		removeSelectionListener();
 	}
 
 	private void initializeToolBar() {
@@ -94,5 +97,21 @@ public class TaskOutputView extends ViewPart {
 		long taskId = record.getTaskId();
 		memento.putString("probeId", ""+probeId);
 		memento.putString("taskId", ""+taskId);
+	}
+
+	public boolean show(ShowInContext context) {
+
+		if (viewer == null || context == null) {
+			return false;
+		}
+
+		ISelection sel = context.getSelection();
+		if(sel instanceof IStructuredSelection && !sel.isEmpty()) {
+			Object o = ((IStructuredSelection)sel).getFirstElement();
+			setInput(o);
+			return true;
+		}
+
+		return false;
 	}
 }

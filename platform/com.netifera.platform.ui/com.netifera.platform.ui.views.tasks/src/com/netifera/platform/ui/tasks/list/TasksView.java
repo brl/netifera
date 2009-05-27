@@ -31,6 +31,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.IShowInSource;
+import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -44,7 +46,7 @@ import com.netifera.platform.ui.util.FieldViewerComparator;
 import com.netifera.platform.ui.util.SelectionProviderProxy;
 import com.netifera.platform.ui.util.ViewerRefreshAction;
 
-public class TasksView extends ViewPart {
+public class TasksView extends ViewPart implements IShowInSource{
 
 	public static final String ID = "com.netifera.platform.ui.views.Tasks"; //$NON-NLS-1$
 
@@ -147,7 +149,6 @@ public class TasksView extends ViewPart {
 
 		menuMgr.add(taskCancelAction);
 		menuMgr.add(new ViewerRefreshAction(viewer));
-
 		/* create element filtering configuration menu */
 		MenuManager filterMgr = new MenuManager("Show", "filter");
 		filterMgr.setRemoveAllWhenShown(true);
@@ -242,17 +243,28 @@ public class TasksView extends ViewPart {
 		if (tableMode)
 			toolbarManager.add(taskCancelAction);
 		toolbarManager.add(viewerRefreshAction);
-		Action openOutputView = new Action("Open Output",AbstractUIPlugin.imageDescriptorFromPlugin(TasksPlugin.PLUGIN_ID,OUTPUT_ICON)){
+		/* open task output push button */
+		Action openOutputView = new Action("Show Output",Action.AS_CHECK_BOX){
+			private TaskOutputView view;
+
 			public void run() {
 				try {
-					TaskOutputView view = (TaskOutputView) TasksPlugin.getPlugin().getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
-							TaskOutputView.ID,TaskOutputView.ID, IWorkbenchPage.VIEW_ACTIVATE);
-					view.addSelectionListener();
+					if(view != null && !isChecked()) {
+						TasksPlugin.getPlugin().getWorkbench().getActiveWorkbenchWindow().
+						getActivePage().hideView(view);
+					}
+					else {
+						view = (TaskOutputView) TasksPlugin.getPlugin().getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage().showView(
+								TaskOutputView.ID,null, IWorkbenchPage.VIEW_ACTIVATE);
+						view.addSelectionListener();
+					}
 				} catch (PartInitException e) {
 				}
-				
+
 			}
 		};
+		openOutputView.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(TasksPlugin.PLUGIN_ID,OUTPUT_ICON));
 		toolbarManager.add(openOutputView);
 	}
 
@@ -441,5 +453,9 @@ public class TasksView extends ViewPart {
 		} else {
 			setTitleImage(TasksPlugin.getPlugin().getImageCache().get(INACTIVE_ICON));
 		}
+	}
+
+	public ShowInContext getShowInContext() {
+		return new ShowInContext(viewer.getInput(),null);
 	}
 }
