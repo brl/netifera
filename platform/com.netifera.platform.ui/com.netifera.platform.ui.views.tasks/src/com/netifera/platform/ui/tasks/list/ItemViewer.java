@@ -17,6 +17,8 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
@@ -26,6 +28,8 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
@@ -67,7 +71,9 @@ public class ItemViewer extends StructuredViewer {
 	private ScrolledComposite scrolled;
 	private volatile boolean busy;
 
-	/* used with Control setData to restore the background color after unselecting selected items */
+	private KeyListener keyListener;
+
+	/* used with Control setData to restore the background color of selected items */
 	private static final String BACKGROUND_COLOR_PROPERTY = "bkgdColor";
 
 	/**
@@ -82,6 +88,7 @@ public class ItemViewer extends StructuredViewer {
 		control = new Composite(scrolled, SWT.NONE);
 		control.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		scrolled.setContent(control);
+		scrolled.setMinWidth(60);
 		ColumnLayout columnLayout = new ColumnLayout();
 		/* number of columns in the form, set to one to avoid composites side by side  */
 		columnLayout.maxNumColumns = 1;
@@ -93,16 +100,22 @@ public class ItemViewer extends StructuredViewer {
 		columnLayout.topMargin = 0;
 		columnLayout.bottomMargin = 0;
 		control.setLayout(columnLayout);
-//		toolkit.paintBordersFor(control);
 
 	    scrolled.addControlListener(new ControlAdapter() {
 	      public void controlResized(ControlEvent e) {
 	        Rectangle r = scrolled.getClientArea();
-	        scrolled.setMinSize(control.computeSize(r.width,
+	       scrolled.setMinSize(control.computeSize(r.width,
 	            SWT.DEFAULT));
 	      }
 	    });
-	    
+	    /* key listener necessary to get focus on items */
+	    keyListener = new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+			}
+			public void keyReleased(KeyEvent e) {
+			}
+	    };
+
 		scrolled.getVerticalBar().setIncrement(height * 2);		
 		scrolled.setExpandHorizontal(true);	
 		scrolled.setExpandVertical(true);
@@ -161,7 +174,7 @@ public class ItemViewer extends StructuredViewer {
 		});
 		
 		
-		/* set focus when the item is clicked, to trigger selection  */
+		/* add listener to set the selection when the item is clicked  */
 		MouseListener mouseListener = new MouseListener() {
 			public void mouseDown(MouseEvent e) {
 				if(e.widget.getData() != null) {
@@ -178,6 +191,16 @@ public class ItemViewer extends StructuredViewer {
 		
 		itemControl.addMouseListener(mouseListener);		
 
+		itemControl.addListener(SWT.Traverse, new Listener() {
+			public void handleEvent(Event event) {
+				int detail = event.detail;
+				if (detail == SWT.TRAVERSE_ARROW_NEXT ||detail == SWT.TRAVERSE_ARROW_PREVIOUS
+						|| detail == SWT.TRAVERSE_TAB_NEXT || detail == SWT.TRAVERSE_TAB_PREVIOUS) 
+					event.doit=true;
+			}
+
+		});
+		itemControl.addKeyListener(keyListener);
 	}
 	/**
 	 * Updates the UI item for the given element 
@@ -206,17 +229,14 @@ public class ItemViewer extends StructuredViewer {
 				itemMap.remove(element);
 			}
 		} else 
-			/* new element, create item and set it as new selection*/
+			/* new element: create item and set it as new selection */
 		{
 			/* if the items are sorted we have to create all the widgets again */
 			//TODO: is possible to avoid it?
 			if(this.getComparator() != null) {
 				internalRefreshAll();
 			} else {
-				/*TODO itemProvider could return a hint if layout again is necessary or not */
-				Widget item  = createItemWidget(element);
-				((Control)item).setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
-//				control.layout(true);
+				createItemWidget(element);
 			}
 			setSelection(new StructuredSelection(element),true);
 		}
@@ -313,7 +333,6 @@ public class ItemViewer extends StructuredViewer {
 		}
 		
 		/* empty selection */
-		selection.clear();
 		setSelection(StructuredSelection.EMPTY);
 		
 		/* dispose current item widgets */		
@@ -337,26 +356,18 @@ public class ItemViewer extends StructuredViewer {
 	/** Selection related methods */
 	private void setSelectionInternal(Object element, boolean reveal) {
 		if(element != null && itemMap.containsKey(element)) {
-			/* the selected elements List is updated here, parent class doesn't do it*/
+			/* the selected elements List is updated here, parent class doesn't do it */
 			selection.add(element);
 			Widget item = itemMap.get(element);
 			if(item instanceof Control && !item.isDisposed()) {
 				Control control = (Control)item;
 				control.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_LIST_SELECTION));
 				if(reveal) {
-					control.setFocus();
+					reveal(element);
 				}
+				control.setFocus();
 			}
 		}
-	}
-	
-
-	/**
-	 * Searches for the specified data object and scroll the list to show it if necessary
-	 * @param element data object to search and show.
-	 */
-	public void reveal(Object element) {
-		//TODO with focusItem?
 	}
 
 	@SuppressWarnings("unchecked")
@@ -382,6 +393,18 @@ public class ItemViewer extends StructuredViewer {
 		}
 	}
 
+	public void reveal(Object element) {
+		if(element != null && !itemMap.containsKey(element)) {
+			return;
+		}
+
+		Widget item = itemMap.get(element);
+		if(item != null && !item.isDisposed()) {
+			scrolled.showControl((Control)item);
+		}
+
+	}
+
 	protected Widget doFindInputItem(Object element) {
 		return null;
 	}
@@ -392,17 +415,7 @@ public class ItemViewer extends StructuredViewer {
 
 	protected void doUpdateItem(Widget item, Object element, boolean fullMap) {
 		itemProvider.updateItem(item, element);
-		control.layout(true,true);
-/*		control.layout(new Control[]{(Control)item});
-		
-		//TODO: check if item size changed and update scrollable height, does the following computeSize code work?
-		Control ci = (Control)item;
-		Point s1 = ci.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		itemProvider.updateItem(item, element);
-		Point s2 = ci.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		if(!s1.equals(s2)) {
-//			control.layout(new Control[]{(Control)item});
-			control.layout(true);
-		}
-*/	}
+		control.layout(true,true);	
+	}
+
 }
