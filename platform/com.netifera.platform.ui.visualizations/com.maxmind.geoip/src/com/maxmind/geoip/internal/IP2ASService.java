@@ -25,6 +25,9 @@ public class IP2ASService implements IIP2ASService {
 	private Pattern asnumPattern = Pattern.compile("AS([\\d]+)[^\\d]*");
 	
 	public synchronized AS getAS(InternetAddress address) {
+		if (lookupService == null)
+			return null; // initialization failed, for example the db file was not found
+		
 		final String as = lookupService.getOrg(address.toInetAddress());
 		if (as == null)
 			return null;
@@ -49,9 +52,7 @@ public class IP2ASService implements IIP2ASService {
 				verifyDBPath(path);
 				lookupService = new LookupService(path, LookupService.GEOIP_MEMORY_CACHE);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-				throw new RuntimeException(e);
 			}
 	}
 	

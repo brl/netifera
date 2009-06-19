@@ -22,6 +22,9 @@ public class GeoIPService implements IGeoIPService {
 	private ILogger logger;
 
 	public synchronized ILocation getLocation(InternetAddress address) {
+		if (lookupService == null)
+			return null; // initialization failed, for example the db file was not found
+		
 		final Location location = lookupService.getLocation(address.toInetAddress());
 		if (location == null)
 			return null;
@@ -53,7 +56,6 @@ public class GeoIPService implements IGeoIPService {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				throw new RuntimeException(e);
 			}
 	}
 
