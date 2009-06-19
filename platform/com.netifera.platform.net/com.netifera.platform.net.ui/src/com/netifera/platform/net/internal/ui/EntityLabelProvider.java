@@ -583,7 +583,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 	
 	private boolean parentIsHost(IShadowEntity e) {
-		if (e.getStructureContext() instanceof TreeStructureContext)
+		if (e.getRealEntity() != e && e.getStructureContext() instanceof TreeStructureContext)
 			return ((TreeStructureContext)e.getStructureContext()).getParent() instanceof HostEntity;
 		return false;
 	}

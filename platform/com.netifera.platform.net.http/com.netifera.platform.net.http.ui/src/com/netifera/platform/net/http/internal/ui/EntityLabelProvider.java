@@ -60,7 +60,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	public String getText(IShadowEntity e) {
 		if (e instanceof WebSiteEntity) {
 			WebSiteEntity site = (WebSiteEntity) e;
-			if (site.getStructureContext() instanceof TreeStructureContext) {
+			if (site.getRealEntity() != site && site.getStructureContext() instanceof TreeStructureContext) {
 				if (!(((TreeStructureContext)site.getStructureContext()).getParent() instanceof HostEntity)) {
 					return ((WebSiteEntity) e).getRootURL() + "  ("+site.getHTTP().getAddress().getAddressString()+")";
 				}
