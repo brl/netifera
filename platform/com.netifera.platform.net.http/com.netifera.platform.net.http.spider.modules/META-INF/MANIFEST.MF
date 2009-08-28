@@ -19,4 +19,5 @@ Service-Component: OSGI-INF/favicon-harvester.xml,
  OSGI-INF/emails-harvester.xml,
  OSGI-INF/webapp-detector.xml,
  OSGI-INF/crawl-backup-files.xml,
- OSGI-INF/crawl-default-files.xml
+ OSGI-INF/crawl-default-files.xml,
+ OSGI-INF/basic-auth-extractor.xml

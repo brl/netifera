@@ -29,3 +29,4 @@ Export-Package: com.netifera.platform.net.http.internal.spider.daemon.remote,
  com.netifera.platform.net.http.spider.impl
 Service-Component: OSGI-INF/spider-daemon.xml,
  OSGI-INF/spider-daemon-factory.xml
+Bundle-Activator: com.netifera.platform.net.http.internal.spider.Activator

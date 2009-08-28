@@ -39,7 +39,7 @@ public class WebApplicationScanner implements ITool {
 			if (context.getConfiguration().get("bufferSize") != null)
 				spider.setBufferSize((Integer)context.getConfiguration().get("bufferSize"));
 			
-			spider.addModule(new WebApplicationDetectorModule());
+			spider.addModule(WebApplicationDetectorModule.class.getName());
 			spider.run();
 		} catch (IOException e) {
 			context.exception("I/O error: " + e.getMessage(), e);

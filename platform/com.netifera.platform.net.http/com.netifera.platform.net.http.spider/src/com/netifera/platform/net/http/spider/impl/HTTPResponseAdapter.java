@@ -44,6 +44,8 @@ public class HTTPResponseAdapter implements HTTPResponse {
 	}
 
 	public String getContentType() {
+		if (entity.getContentType() == null)
+			return null;
 		return entity.getContentType().getValue();
 	}
 

@@ -47,12 +47,12 @@ public class WebCrawler implements ITool {
 			spider.setSpaceId(context.getSpaceId());
 			spider.addTarget(http, base.getHost());
 			spider.visit(base);
-			
-//			spider.addModule(new FaviconHarvesterModule());
-//			spider.addModule(new EmailsHarvesterModule());
-			spider.addModule(new HTTPBasicAuthExtractorModule());
-			spider.addModule(new CrawlBackupFilesModule());
-			spider.addModule(new CrawlDefaultFilesModule());
+
+			spider.addModule(FaviconHarvesterModule.class.getName());
+			spider.addModule(EmailsHarvesterModule.class.getName());
+			spider.addModule(HTTPBasicAuthExtractorModule.class.getName());
+			spider.addModule(CrawlBackupFilesModule.class.getName());
+			spider.addModule(CrawlDefaultFilesModule.class.getName());
 			
 			if (context.getConfiguration().get("followLinks") != null)
 				spider.setFollowLinks((Boolean)context.getConfiguration().get("followLinks"));
@@ -60,7 +60,7 @@ public class WebCrawler implements ITool {
 				spider.setFetchImages((Boolean)context.getConfiguration().get("fetchImages"));
 			if (context.getConfiguration().get("scanWebApplications") != null)
 				if ((Boolean)context.getConfiguration().get("scanWebApplications"))
-					spider.addModule(new WebApplicationDetectorModule());
+					spider.addModule(WebApplicationDetectorModule.class.getName());
 			if (context.getConfiguration().get("maximumConnections") != null)
 				spider.setMaximumConnections((Integer)context.getConfiguration().get("maximumConnections"));
 			if (context.getConfiguration().get("bufferSize") != null)

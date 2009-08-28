@@ -25,6 +25,7 @@ import org.apache.http.protocol.HttpContext;
 
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
+import com.netifera.platform.net.http.internal.spider.Activator;
 import com.netifera.platform.net.http.service.AsynchronousHTTPClient;
 import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.spider.HTTPRequest;
@@ -249,7 +250,7 @@ public class WebSpider implements IWebSpider {
 				}
 				
 				String contentType = myResponse.getContentType();
-				if (myResponse.getContentType() != null) {
+				if (contentType != null) {
 					WebPageEntity pageEntity = null;
 					
 					if (status == 200)
@@ -419,6 +420,16 @@ public class WebSpider implements IWebSpider {
 		modules.add(module);
 	}
 
+	public void addModule(String className) {
+		for (IWebSpiderModule module: Activator.getInstance().getWebSpiderModules()) {
+			if (module.getClass().getName().equals(className)) {
+				addModule(module);
+				return;
+			}
+		}
+		logger.error("Module not found: "+className);
+	}
+	
 	public synchronized void removeModule(IWebSpiderModule module) {
 		modules.remove(module);
 	}
