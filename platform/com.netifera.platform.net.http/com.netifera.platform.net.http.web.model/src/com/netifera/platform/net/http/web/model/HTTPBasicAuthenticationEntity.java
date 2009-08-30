@@ -14,23 +14,23 @@ public class HTTPBasicAuthenticationEntity extends AbstractEntity {
 
 	final public static String ENTITY_TYPE = "web.auth.basic";
 
-	private final IEntityReference http;
+	private final IEntityReference site;
 	private final String authenticationRealm;
 	
-	public HTTPBasicAuthenticationEntity(IWorkspace workspace, long realm, IEntityReference http, String authenticationRealm) {
+	public HTTPBasicAuthenticationEntity(IWorkspace workspace, long realm, IEntityReference site, String authenticationRealm) {
 		super(ENTITY_TYPE, workspace, realm);
 		
-		this.http = http;
+		this.site = site;
 		this.authenticationRealm = authenticationRealm;
 	}
 
 	HTTPBasicAuthenticationEntity() {
-		http = null;
+		site = null;
 		authenticationRealm = null;
 	}
 	
-	public ServiceEntity getHTTP() {
-		return (ServiceEntity) referenceToEntity(http);
+	public WebSiteEntity getWebSite() {
+		return (WebSiteEntity) referenceToEntity(site);
 	}
 	
 	public String getAuthenticationRealm() {
@@ -43,14 +43,15 @@ public class HTTPBasicAuthenticationEntity extends AbstractEntity {
 		return this;
 	}
 	
-	public static String createQueryKey(long realmId, InternetAddress address, int port, String authenticationRealm) {
-		return ENTITY_TYPE + ":" + realmId + ":" + HexaEncoding.bytes2hex(address.toBytes()) + ":" + port + ":" + authenticationRealm;
+	public static String createQueryKey(long realmId, InternetAddress address, int port, String vhost, String authenticationRealm) {
+		return ENTITY_TYPE + ":" + realmId + ":" + HexaEncoding.bytes2hex(address.toBytes()) + ":" + port + ":" + vhost + ":" + authenticationRealm;
 	}
 	
 	@Override
 	protected String generateQueryKey() {
-		ServiceEntity http = getHTTP();
-		return createQueryKey(getRealmId(), http.getAddress().getAddress(), http.getPort(), authenticationRealm);
+		WebSiteEntity site = getWebSite();
+		ServiceEntity http = site.getHTTP();
+		return createQueryKey(getRealmId(), http.getAddress().getAddress(), http.getPort(), site.getHostName(), authenticationRealm);
 	}
 
 }

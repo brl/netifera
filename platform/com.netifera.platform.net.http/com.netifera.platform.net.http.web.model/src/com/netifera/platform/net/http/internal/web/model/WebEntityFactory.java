@@ -140,13 +140,15 @@ public class WebEntityFactory implements IWebEntityFactory {
 	public synchronized HTTPBasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
 			TCPSocketLocator http, URI url, final String authenticationRealm) {
 		
-		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
-		
-		HTTPBasicAuthenticationEntity answer = (HTTPBasicAuthenticationEntity) getWorkspace().findByKey(HTTPBasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), authenticationRealm));
+//		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
+
+		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
+
+		HTTPBasicAuthenticationEntity answer = (HTTPBasicAuthenticationEntity) getWorkspace().findByKey(HTTPBasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
 		if (answer != null) {
 			answer.addToSpace(spaceId);
 		} else {
-			answer = new HTTPBasicAuthenticationEntity(getWorkspace(), realm, service.createReference(), authenticationRealm);
+			answer = new HTTPBasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
 			answer.save();
 			answer.addToSpace(spaceId);
 		}
