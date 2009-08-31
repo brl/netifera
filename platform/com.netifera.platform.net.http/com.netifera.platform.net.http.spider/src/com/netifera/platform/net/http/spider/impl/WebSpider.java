@@ -331,7 +331,7 @@ public class WebSpider implements IWebSpider {
 //		String pathPattern = "[-a-z0-9_:\\@&?=+,.!/~*'%\\$]*";
 		String pathPattern = "[-a-z0-9_:\\@&?=+,.!/~*%\\$]*";
 		String linkPattern = "("+protocolPattern+")?("+hostPattern+")?"+pathPattern;
-		Pattern links = Pattern.compile("(href|src|action)=[\"'\\\\]*("+linkPattern+")[\"'\\\\]*", Pattern.CASE_INSENSITIVE);
+		Pattern links = Pattern.compile("(href|src|action|url)=[\"'\\\\]*("+linkPattern+")[\"'\\\\]*", Pattern.CASE_INSENSITIVE);
 		Pattern otherURLs = Pattern.compile("("+protocolPattern+"("+hostPattern+")?"+pathPattern+")", Pattern.CASE_INSENSITIVE);
 		
 		Matcher matcher = links.matcher(content);
