@@ -276,7 +276,7 @@ public class WebSpider implements IWebSpider {
 				}
 
 				// redirect
-				if (status >= 300) {
+				if (status >= 300 && status < 400) {
 					Header locationHeader = response.getFirstHeader("Location");
 					if (locationHeader != null) {
 						URI location = URI.create(locationHeader.getValue());
