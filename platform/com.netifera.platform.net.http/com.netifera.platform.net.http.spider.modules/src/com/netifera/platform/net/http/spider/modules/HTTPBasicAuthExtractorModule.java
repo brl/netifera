@@ -22,7 +22,7 @@ public class HTTPBasicAuthExtractorModule implements IWebSpiderModule {
 				if (method.toLowerCase().equals("basic")) {
 					String authRealm = header.split("\"")[1];
 					context.getLogger().info("Basic authentication realm \""+authRealm+"\" at "+request.getURL());
-					factory.createBasicAuthentication(context.getRealm(), context.getSpaceId(), context.getSocketLocator(), request.getURL(), authRealm);
+					factory.createBasicAuthentication(context.getRealm(), context.getSpaceId(), context.getSocketLocator(), context.getBaseURL().resolve(request.getURL()), authRealm);
 				}
 			}
 		}
