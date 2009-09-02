@@ -253,11 +253,12 @@ public class WebSpider implements IWebSpider {
 				if (contentType != null) {
 					WebPageEntity pageEntity = null;
 					
-					if (status == 200)
-						pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
-
 					if (contentType.matches("(text/|application/x-javascript).*")) {
 						String content = new String(myResponse.getContent(bufferSize));
+
+						if (status == 200 && !isPageNotFound(content))
+							pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
+						
 						if (followLinks) {
 							for (URI link: getLinks(url, content)) {
 								if (interrupted) return;
@@ -272,6 +273,9 @@ public class WebSpider implements IWebSpider {
 /*							if (pageEntity != null)
 								pageEntity.update();
 */						}
+					} else {
+						if (status == 200)
+							pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
 					}
 				}
 
@@ -323,6 +327,11 @@ public class WebSpider implements IWebSpider {
 		}
 	}
 
+	private boolean isPageNotFound(String content) {
+		// TODO improve heuristics to detect "page not found"
+		return content.matches("(?i)(?s).*<title>[^<]*404.*");
+	}
+	
 	private Set<URI> getLinks(URI sourceURL, String content) {
 		Set<URI> answer = new HashSet<URI>();
 //		String protocolPattern = "[-a-z0-9]+://";
@@ -418,6 +427,7 @@ public class WebSpider implements IWebSpider {
 	
 	public synchronized void addModule(IWebSpiderModule module) {
 		modules.add(module);
+		logger.info("Enabled module: "+module.getName());
 	}
 
 	public void addModule(String className) {
