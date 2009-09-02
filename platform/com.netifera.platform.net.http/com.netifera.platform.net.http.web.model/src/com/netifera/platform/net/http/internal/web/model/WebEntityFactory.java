@@ -84,6 +84,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 	//XXX space not used? should notify?
 	public synchronized void setFavicon(long realm, long space, TCPSocketLocator http,
 			URI url, byte[] faviconBytes) {
+		url = url.normalize();
 		WebSiteEntity webSite = createWebSite(realm, space, http, url.getHost());
 		webSite.setFavicon(faviconBytes);
 		webSite.update();
@@ -91,8 +92,11 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 	public synchronized WebPageEntity createWebPage(final long realm, long spaceId, TCPSocketLocator http,
 			URI url, String contentType) {
+		url = url.normalize();
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
-		final String path = url.normalize().getPath();
+		String path = url.getPath();
+		if (path.length() == 0)
+			path = "/";
 		WebPageEntity answer = (WebPageEntity) getWorkspace().findByKey(WebPageEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), path));
 		if (answer != null) {
 			if (contentType != null && !contentType.equals(answer.getContentType())) {
@@ -111,6 +115,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 	public synchronized WebApplicationEntity createWebApplication(final long realm, long spaceId, TCPSocketLocator http,
 			URI url, Map<String, String> info) {
+		url = url.normalize();
 		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
 		final String urlString = url.toString();
 		List<WebApplicationEntity> results = getWorkspace().findByPredicate(WebApplicationEntity.class,
@@ -139,7 +144,8 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 	public synchronized HTTPBasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
 			TCPSocketLocator http, URI url, final String authenticationRealm) {
-		
+
+		url = url.normalize();
 //		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
 
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
