@@ -3,12 +3,6 @@
 <plugin>
    <extension
          point="org.eclipse.ui.perspectives">
-      <perspective
-            class="com.netifera.platform.net.http.internal.ui.PerspectiveFactory"
-            icon="icons/world.png"
-            id="com.netifera.platform.ui.perspectives.web"
-            name="Web">
-      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.startup">
