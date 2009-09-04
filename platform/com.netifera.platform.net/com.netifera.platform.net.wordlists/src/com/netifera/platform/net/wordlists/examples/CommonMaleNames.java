@@ -15,7 +15,7 @@ public class CommonMaleNames implements IWordList {
 
 	public FiniteIterable<String> getWords() {
 		List<String> words = new ArrayList<String>();
-		for (String word: "david michael john james robert mark william richard thomas steven kenneth jeffrey kevin joseph christopher brian jason scott matthew daniel joshua andrew justin".split(" "))
+		for (String word: "david michael john james robert mark william richard rick thomas tom steven kenneth jeffrey jeff kevin joseph christopher chris brian jason scott matthew matt daniel danny dan joshua andrew andy justin".split(" "))
 			words.add(word);
 		return new ListIndexedIterable<String>(words);
 	}
