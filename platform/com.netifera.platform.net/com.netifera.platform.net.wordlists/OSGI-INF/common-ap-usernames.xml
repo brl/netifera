@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.wordlist.common-ap-usernames">
+    <implementation class="com.netifera.platform.net.wordlists.examples.CommonAPUsernames" />
+    <service>
+        <provide interface="com.netifera.platform.net.wordlists.IWordList" />
+    </service>
+</component>

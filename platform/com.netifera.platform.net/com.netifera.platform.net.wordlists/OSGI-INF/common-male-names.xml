@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.wordlist.common-male-names">
+    <implementation class="com.netifera.platform.net.wordlists.examples.CommonMaleNames" />
+    <service>
+        <provide interface="com.netifera.platform.net.wordlists.IWordList" />
+    </service>
+</component>
