@@ -1,11 +1,8 @@
 package com.netifera.platform.net.http.tools;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.netifera.platform.api.iterables.IndexedIterable;
-import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
@@ -15,16 +12,16 @@ import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.LineChannel;
 import com.netifera.platform.net.sockets.TCPChannel;
-import com.netifera.platform.net.tools.auth.AuthenticationBruteforcer;
+import com.netifera.platform.net.tools.auth.UsernameAndPasswordBruteforcer;
 import com.netifera.platform.util.Base64;
 
-public class HTTPBasicAuthBruteforcer extends AuthenticationBruteforcer {
+public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private HTTP target;
 	private String hostname;
 	private String path;
 	private String method;
 	
-	@Override
+/*	@Override
 	public IndexedIterable<Credential> defaultCredentials() {
 		ArrayList<Credential> list = new ArrayList<Credential>();
 		list.add(new UsernameAndPassword("root","toor")); // XXX for testing with slackserver vmware
@@ -34,7 +31,7 @@ public class HTTPBasicAuthBruteforcer extends AuthenticationBruteforcer {
 		}
 		return new ListIndexedIterable<Credential>(list);
 	}
-
+*/
 	@Override
 	protected void setupToolOptions() {
 		super.setupToolOptions();
@@ -55,7 +52,7 @@ public class HTTPBasicAuthBruteforcer extends AuthenticationBruteforcer {
 	
 	@Override
 	public CredentialsVerifier createCredentialsVerifier() {
-		return new TCPCredentialsVerifier(target.getLocator()) {
+		TCPCredentialsVerifier verifier = new TCPCredentialsVerifier(target.getLocator()) {
 			@Override
 			protected void authenticate(final TCPChannel channel, final Credential credential,
 					final long timeout, final TimeUnit unit,
@@ -106,5 +103,8 @@ public class HTTPBasicAuthBruteforcer extends AuthenticationBruteforcer {
 				return Base64.encodeBytes(userAndPassString.getBytes());
 			}
 		};
+		
+		verifier.setMaximumConnections((Integer) context.getConfiguration().get("maximumConnections"));
+		return verifier;
 	}
 }

@@ -13,9 +13,14 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 	final private TCPSocketLocator locator;
 	final private AtomicInteger connectionsCount = new AtomicInteger(0);
+	private int maximumConnections = 10;
 
 	public TCPCredentialsVerifier(TCPSocketLocator locator) {
 		this.locator = locator;
+	}
+
+	public void setMaximumConnections(int maximumConnections) {
+		this.maximumConnections = maximumConnections;
 	}
 	
 	protected abstract void authenticate(TCPChannel channel, Credential credential, long timeout, TimeUnit unit, CompletionHandler<Boolean,Credential> handler);
@@ -93,7 +98,7 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 		this.listener = listener;
 		
 		while (hasNextCredential() || connectionsCount.get() > 0) {
-			while (connectionsCount.get()>10)
+			while (connectionsCount.get() >= maximumConnections)
 				Thread.sleep(500);
 			if (hasNextCredential() && !Thread.currentThread().isInterrupted()) spawnConnection();
 		}

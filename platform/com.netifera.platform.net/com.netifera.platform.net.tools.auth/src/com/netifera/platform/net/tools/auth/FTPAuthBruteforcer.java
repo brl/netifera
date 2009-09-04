@@ -1,11 +1,8 @@
 package com.netifera.platform.net.tools.auth;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.netifera.platform.api.iterables.IndexedIterable;
-import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.net.internal.tools.auth.Activator;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
@@ -16,23 +13,23 @@ import com.netifera.platform.net.sockets.LineChannel;
 import com.netifera.platform.net.sockets.TCPChannel;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
-public class FTPAuthBruteforcer extends AuthenticationBruteforcer {
+public class FTPAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
 	
-	public IndexedIterable<Credential> defaultCredentials() {
+/*	public IndexedIterable<Credential> defaultCredentials() {
 		ArrayList<Credential> list = new ArrayList<Credential>();
 		list.add(new UsernameAndPassword("root","toor")); // XXX for testing with slackserver vmware
 		list.add(new UsernameAndPassword("test","test"));
 		list.add(new UsernameAndPassword("ftp","ftp")); // or anonymous
 		return new ListIndexedIterable<Credential>(list);
 	}
-
+*/
 	protected void setupToolOptions() {
 		super.setupToolOptions();
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
 		context.setTitle("Bruteforce authentication on FTP @ "+target);
 	}
-
+	
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
@@ -42,8 +39,8 @@ public class FTPAuthBruteforcer extends AuthenticationBruteforcer {
 		super.authenticationSucceeded(credential);
 	}
 	
-	public CredentialsVerifier createCredentialsVerifier() {
-		return new TCPCredentialsVerifier(target) {
+	protected CredentialsVerifier createCredentialsVerifier() {
+		TCPCredentialsVerifier verifier = new TCPCredentialsVerifier(target) {
 			private void command(final LineChannel channel, final String cmd, final long timeout, final TimeUnit unit, final CompletionHandler<Integer,Void> handler) {
 				channel.writeLine(cmd, timeout, unit, null, new CompletionHandler<Void,Void>() {
 					public void completed(Void result, Void attachment) {
@@ -107,5 +104,8 @@ public class FTPAuthBruteforcer extends AuthenticationBruteforcer {
 				});
 			}
 		};
+		
+		verifier.setMaximumConnections((Integer) context.getConfiguration().get("maximumConnections"));
+		return verifier;
 	}
 }

@@ -1,11 +1,8 @@
 package com.netifera.platform.net.tools.auth;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.netifera.platform.api.iterables.IndexedIterable;
-import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.net.internal.tools.auth.Activator;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
@@ -16,17 +13,17 @@ import com.netifera.platform.net.sockets.LineChannel;
 import com.netifera.platform.net.sockets.TCPChannel;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
-public class POP3AuthBruteforcer extends AuthenticationBruteforcer {
+public class POP3AuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
 	
-	@Override
+/*	@Override
 	public IndexedIterable<Credential> defaultCredentials() {
 		ArrayList<Credential> list = new ArrayList<Credential>();
 		list.add(new UsernameAndPassword("root","toor")); // XXX for testing with slackserver vmware
 		list.add(new UsernameAndPassword("test","test"));
 		return new ListIndexedIterable<Credential>(list);
 	}
-
+*/
 	@Override
 	protected void setupToolOptions() {
 		super.setupToolOptions();
@@ -43,7 +40,7 @@ public class POP3AuthBruteforcer extends AuthenticationBruteforcer {
 	
 	@Override
 	public CredentialsVerifier createCredentialsVerifier() {
-		return new TCPCredentialsVerifier(target) {
+		TCPCredentialsVerifier verifier = new TCPCredentialsVerifier(target) {
 			@Override
 			protected void authenticate(TCPChannel channel, final Credential credential,
 					final long timeout, final TimeUnit unit,
@@ -120,5 +117,8 @@ public class POP3AuthBruteforcer extends AuthenticationBruteforcer {
 				});
 			}
 		};
+		
+		verifier.setMaximumConnections((Integer) context.getConfiguration().get("maximumConnections"));
+		return verifier;
 	}
 }

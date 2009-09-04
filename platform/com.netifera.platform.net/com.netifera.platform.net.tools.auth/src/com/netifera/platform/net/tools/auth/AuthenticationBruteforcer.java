@@ -3,7 +3,7 @@ package com.netifera.platform.net.tools.auth;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.netifera.platform.api.iterables.IndexedIterable;
+import com.netifera.platform.api.iterables.FiniteIterable;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
@@ -14,7 +14,7 @@ import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 
 public abstract class AuthenticationBruteforcer implements ITool, AuthenticationListener {
-	private IndexedIterable<Credential> credentials;
+	private FiniteIterable<Credential> credentials;
 	private Iterator<Credential> credentialsIterator;
 	private CredentialsVerifier verifier;
 
@@ -22,8 +22,7 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	protected long realm;
 
 	protected abstract CredentialsVerifier createCredentialsVerifier();
-	public abstract IndexedIterable<Credential> defaultCredentials();
-//	public abstract boolean isAuthenticableWith(Credential credential);
+	protected abstract FiniteIterable<Credential> createCredentials();
 
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
@@ -51,11 +50,11 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	protected void setupToolOptions() {
-		credentials = (IndexedIterable<Credential>) context.getConfiguration().get("credentials");
-		if (credentials == null)
-			credentials = defaultCredentials();
+//		credentials = (IndexedIterable<Credential>) context.getConfiguration().get("credentials");
+//		if (credentials == null)
+			credentials = createCredentials();
 		credentialsIterator = credentials.iterator();
 	}
 

@@ -91,27 +91,48 @@ public class EntityActionProvider implements IEntityActionProvider {
 		
 		FTP ftp = (FTP) entity.getAdapter(FTP.class);
 		if (ftp != null) {
-			ToolAction ftpAuthBruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
-//			ftpAuthBruteforcer.setSummary("Try credentials on FTP service.");
-			ftpAuthBruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
-			ftpAuthBruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			answer.add(ftpAuthBruteforcer);
+			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
+//			bruteforcer.setSummary("Try credentials on FTP service.");
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
+//			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
+//			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", ...));
+//			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", ...));
+			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			answer.add(bruteforcer);
 		}
 		
 		POP3 pop3 = (POP3) entity.getAdapter(POP3.class);
 		if (pop3 != null) {
-			ToolAction pop3AuthBruteforcer = new ToolAction("Bruteforce authentication", POP3AuthBruteforcer.class.getName());
-			pop3AuthBruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target POP3 service", pop3.getLocator()));
-			pop3AuthBruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			answer.add(pop3AuthBruteforcer);
+			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", POP3AuthBruteforcer.class.getName());
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target POP3 service", pop3.getLocator()));
+//			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
+//			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", ...));
+//			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", ...));
+			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			answer.add(bruteforcer);
 		}
 
 		IMAP imap = (IMAP) entity.getAdapter(IMAP.class);
 		if (imap != null) {
-			ToolAction imapAuthBruteforcer = new ToolAction("Bruteforce authentication", IMAPAuthBruteforcer.class.getName());
-			imapAuthBruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target IMAP service", imap.getLocator()));
-			imapAuthBruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			answer.add(imapAuthBruteforcer);
+			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", IMAPAuthBruteforcer.class.getName());
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target IMAP service", imap.getLocator()));
+//			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
+//			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", ...));
+//			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", ...));
+			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			answer.add(bruteforcer);
 		}
 
 		addNetblockActions(entity, answer);

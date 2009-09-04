@@ -15,11 +15,9 @@ import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.model.ServiceEntity;
-import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
-import com.netifera.platform.tools.options.IterableOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
@@ -58,7 +56,14 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addOption(new StringOption("hostname", "Host name", "Host name for the web site", page.getWebSite().getHostName()));
 				bruteforcer.addOption(new StringOption("path", "Path", "Path that requires authentication", page.getPath()));
 				bruteforcer.addOption(new StringOption("method", "Method", "GET/POST", "GET"));
-				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+//				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
+				bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
+//				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", ...));
+//				bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", ...));
+				bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
 				answer.add(bruteforcer);
 			}
 		} else if (entity instanceof WebSiteEntity) {
