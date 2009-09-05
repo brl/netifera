@@ -7,10 +7,10 @@ import com.netifera.platform.api.iterables.FiniteIterable;
 import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.net.wordlists.IWordList;
 
-public class Top100LastNames implements IWordList {
+public class CommonLastNames implements IWordList {
 
 	public String getName() {
-		return "Top 100 Last Names in USA";
+		return "Common Last Names in USA";
 	}
 
 	public FiniteIterable<String> getWords() {
