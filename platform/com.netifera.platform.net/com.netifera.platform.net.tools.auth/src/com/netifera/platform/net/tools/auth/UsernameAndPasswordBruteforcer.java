@@ -16,20 +16,20 @@ public abstract class UsernameAndPasswordBruteforcer extends AuthenticationBrute
 		List<String> passwords = Arrays.asList(((String)context.getConfiguration().get("passwords")).split("[\\s,]+"));
 
 		if ((Boolean) context.getConfiguration().get("tryUsernameAsPassword")) {
-			UsernameUsernameIterable useruser = new UsernameUsernameIterable();
+			UsernameUsernameGenerator useruser = new UsernameUsernameGenerator();
 			useruser.addUsernameList(usernames);
 			credentials.add(useruser);
 		}
 		
 		if ((Boolean) context.getConfiguration().get("tryNullPassword")) {
-			UsernameAndPasswordIterable userpass = new UsernameAndPasswordIterable();
+			UsernameAndPasswordGenerator userpass = new UsernameAndPasswordGenerator();
 			userpass.addUsernameList(usernames);
 			userpass.addPasswordList(Arrays.asList(new String[] {""}));
 			credentials.add(userpass);
 		}
 
 		if (passwords.size() > 0) {
-			UsernameAndPasswordIterable userpass = new UsernameAndPasswordIterable();
+			UsernameAndPasswordGenerator userpass = new UsernameAndPasswordGenerator();
 			userpass.addUsernameList(usernames);
 			userpass.addPasswordList(passwords);
 			credentials.add(userpass);

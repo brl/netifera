@@ -8,7 +8,7 @@ import com.netifera.platform.api.iterables.IterableComposite;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.Password;
 
-public class PasswordIterable implements FiniteIterable<Credential> {
+public class PasswordGenerator implements FiniteIterable<Credential> {
 
 	private IterableComposite<String> passwords = new IterableComposite<String>();
 
