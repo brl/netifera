@@ -32,9 +32,13 @@ public class PasswordIterable implements FiniteIterable<Credential> {
 			}
 
 			public Password next() {
-				String passwordString = iterator.next();
-				if (passwordString == null) return null;
-				return new Password(passwordString);
+				String password = iterator.next();
+				if (password == null) return null;
+				if (password.equals("%null%"))
+					password = "";
+				if (password.contains("%username%"))
+					password.replace("%username%", "");
+				return new Password(password);
 			}
 
 			public void remove() {

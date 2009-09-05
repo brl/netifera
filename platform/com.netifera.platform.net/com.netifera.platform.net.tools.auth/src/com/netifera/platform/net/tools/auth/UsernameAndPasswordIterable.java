@@ -48,7 +48,14 @@ public class UsernameAndPasswordIterable implements FiniteIterable<Credential> {
 					currentUsername = usernamesIterator.next();
 					passwordsIterator = passwords.iterator();
 				}
-				return new UsernameAndPassword(currentUsername, passwordsIterator.next());
+				
+				String password = passwordsIterator.next();
+				if (password.equals("%null%"))
+					password = "";
+				if (password.contains("%username%"))
+					password.replace("%username%", currentUsername);
+
+				return new UsernameAndPassword(currentUsername, password);
 			}
 
 			public void remove() {
