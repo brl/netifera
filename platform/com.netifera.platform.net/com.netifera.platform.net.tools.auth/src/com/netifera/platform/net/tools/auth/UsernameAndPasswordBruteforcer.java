@@ -1,5 +1,6 @@
 package com.netifera.platform.net.tools.auth;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,16 +16,23 @@ public abstract class UsernameAndPasswordBruteforcer extends AuthenticationBrute
 		List<String> usernames = Arrays.asList(((String)context.getConfiguration().get("usernames")).split("[\\s,]+"));
 		List<String> passwords = Arrays.asList(((String)context.getConfiguration().get("passwords")).split("[\\s,]+"));
 
-		if ((Boolean) context.getConfiguration().get("tryUsernameAsPassword")) {
-			UsernameUsernameGenerator useruser = new UsernameUsernameGenerator();
-			useruser.addUsernameList(usernames);
-			credentials.add(useruser);
-		}
+		Boolean tryNullPassword = (Boolean) context.getConfiguration().get("tryNullPassword");
+		if (tryNullPassword == null)
+			tryNullPassword = false;
 		
-		if ((Boolean) context.getConfiguration().get("tryNullPassword")) {
+		Boolean tryUsernameAsPassword = (Boolean) context.getConfiguration().get("tryUsernameAsPassword");
+		if (tryUsernameAsPassword == null)
+			tryUsernameAsPassword = false;
+		
+		if (tryNullPassword || tryUsernameAsPassword) {
 			UsernameAndPasswordGenerator userpass = new UsernameAndPasswordGenerator();
 			userpass.addUsernameList(usernames);
-			userpass.addPasswordList(Arrays.asList(new String[] {""}));
+			List<String> patterns = new ArrayList<String>();
+			if (tryUsernameAsPassword)
+				patterns.add("%username%");
+			if (tryNullPassword)
+				patterns.add("%null%");
+			userpass.addPasswordList(patterns);
 			credentials.add(userpass);
 		}
 
