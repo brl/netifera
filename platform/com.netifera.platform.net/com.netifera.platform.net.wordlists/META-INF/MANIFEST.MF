@@ -9,7 +9,8 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.iterables,
  org.osgi.framework;version="1.3.0"
 Export-Package: com.netifera.platform.net.wordlists
-Service-Component: OSGI-INF/top-10-passwords.xml,
+Service-Component: OSGI-INF/common-passwords,
+ OSGI-INF/top-10-passwords.xml,
  OSGI-INF/common-unix-username.xml,
  OSGI-INF/common-ap-usernames.xml,
  OSGI-INF/common-ap-passwords.xml,
