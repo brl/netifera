@@ -10,7 +10,11 @@ import com.netifera.platform.net.wordlists.IWordList;
 public class CommonPasswords implements IWordList {
 
 	public String getName() {
-		return "Common Passwords (including username variations)";
+		return "Common Passwords (20, including username variations)";
+	}
+
+	public String getCategory() {
+		return IWordList.CATEGORY_PASSWORDS;
 	}
 
 	public FiniteIterable<String> getWords() {

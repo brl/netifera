@@ -10,7 +10,11 @@ import com.netifera.platform.net.wordlists.IWordList;
 public class CommonLastNames implements IWordList {
 
 	public String getName() {
-		return "Common Last Names in USA";
+		return "Last Names in USA";
+	}
+
+	public String getCategory() {
+		return IWordList.CATEGORY_NAMES;
 	}
 
 	public FiniteIterable<String> getWords() {

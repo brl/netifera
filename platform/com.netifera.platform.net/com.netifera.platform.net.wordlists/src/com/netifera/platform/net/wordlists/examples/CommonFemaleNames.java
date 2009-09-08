@@ -10,7 +10,11 @@ import com.netifera.platform.net.wordlists.IWordList;
 public class CommonFemaleNames implements IWordList {
 
 	public String getName() {
-		return "Common Female Names in USA";
+		return "Female Names in USA (27)";
+	}
+
+	public String getCategory() {
+		return IWordList.CATEGORY_NAMES;
 	}
 
 	public FiniteIterable<String> getWords() {

@@ -13,6 +13,10 @@ public class CommonUnixUsernames implements IWordList {
 		return "Common Unix Usernames";
 	}
 
+	public String getCategory() {
+		return IWordList.CATEGORY_USERNAMES;
+	}
+
 	public FiniteIterable<String> getWords() {
 		List<String> words = new ArrayList<String>();
 		for (String word: "root admin test guest user ftp web webmaster www mysql oracle postgres db apache tomcat backup postmaster mail video audio remote shop sales".split(" "))

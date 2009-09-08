@@ -13,6 +13,10 @@ public class Top10Passwords implements IWordList {
 		return "Top 10 Passwords";
 	}
 
+	public String getCategory() {
+		return IWordList.CATEGORY_PASSWORDS;
+	}
+
 	public FiniteIterable<String> getWords() {
 		List<String> words = new ArrayList<String>();
 //		for (String word: "123 password liverpool letmein 123456 qwerty charlie monkey arsenal thomas".split(" "))

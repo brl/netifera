@@ -12,6 +12,10 @@ public class CommonAPPasswords implements IWordList {
 	public String getName() {
 		return "Common AP Passwords";
 	}
+	
+	public String getCategory() {
+		return IWordList.CATEGORY_PASSWORDS;
+	}
 
 	public FiniteIterable<String> getWords() {
 		List<String> words = new ArrayList<String>();
