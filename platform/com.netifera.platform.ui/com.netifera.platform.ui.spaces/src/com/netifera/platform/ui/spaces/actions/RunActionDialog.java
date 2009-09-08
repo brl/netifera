@@ -28,6 +28,7 @@ import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.IterableOption;
+import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.Option;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
@@ -36,6 +37,7 @@ import com.netifera.platform.ui.spaces.actions.options.BooleanOptionWidget;
 import com.netifera.platform.ui.spaces.actions.options.GenericOptionWidget;
 import com.netifera.platform.ui.spaces.actions.options.IntegerOptionWidget;
 import com.netifera.platform.ui.spaces.actions.options.IterableOptionWidget;
+import com.netifera.platform.ui.spaces.actions.options.MultipleStringOptionWidget;
 import com.netifera.platform.ui.spaces.actions.options.OptionWidget;
 import com.netifera.platform.ui.spaces.actions.options.StringOptionWidget;
 
@@ -144,6 +146,8 @@ public class RunActionDialog extends PopupDialog {
 				widgets.add(new GenericOptionWidget(body, toolkit, (GenericOption)op, action.getSpace()));
 			} else if(op instanceof IterableOption) {
 				widgets.add(new IterableOptionWidget(body, toolkit, (IterableOption)op));
+			} else if(op instanceof MultipleStringOption) {
+				widgets.add(new MultipleStringOptionWidget(body, toolkit, (MultipleStringOption)op));
 			} else {
 				//FIXME
 				System.err.println("UI cannot handle option "+op);
