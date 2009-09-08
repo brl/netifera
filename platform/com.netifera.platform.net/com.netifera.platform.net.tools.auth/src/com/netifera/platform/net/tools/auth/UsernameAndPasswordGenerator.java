@@ -55,7 +55,7 @@ public class UsernameAndPasswordGenerator implements FiniteIterable<Credential> 
 				if (password.contains("%username%"))
 					password.replace("%username%", currentUsername);
 
-				return new UsernameAndPassword(currentUsername, password);
+				return new UsernameAndPassword(currentUsername.equals("%null%") ? "" : currentUsername, password);
 			}
 
 			public void remove() {
