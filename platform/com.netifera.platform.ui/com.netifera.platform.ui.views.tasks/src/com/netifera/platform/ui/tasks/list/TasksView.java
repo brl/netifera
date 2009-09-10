@@ -1,5 +1,6 @@
 package com.netifera.platform.ui.tasks.list;
 
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -28,24 +29,30 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.IShowInSource;
+import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.netifera.platform.ui.internal.tasks.TasksPlugin;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.tasks.actions.TaskCancelAction;
+import com.netifera.platform.ui.tasks.output.TaskOutputView;
 import com.netifera.platform.ui.updater.StructuredViewerUpdater;
 import com.netifera.platform.ui.util.ColumnViewerFieldComparator;
 import com.netifera.platform.ui.util.FieldViewerComparator;
 import com.netifera.platform.ui.util.SelectionProviderProxy;
 import com.netifera.platform.ui.util.ViewerRefreshAction;
 
-public class TasksView extends ViewPart {
+public class TasksView extends ViewPart implements IShowInSource{
 
 	public static final String ID = "com.netifera.platform.ui.views.Tasks"; //$NON-NLS-1$
 
 	private static String ACTIVE_ICON = "icons/lightbulb.png";
 	private static String INACTIVE_ICON = "icons/lightbulb_off.png";
+	private static String OUTPUT_ICON = "icons/log_16x16.png";
 	
 	private StructuredViewer viewer;
 
@@ -142,7 +149,6 @@ public class TasksView extends ViewPart {
 
 		menuMgr.add(taskCancelAction);
 		menuMgr.add(new ViewerRefreshAction(viewer));
-
 		/* create element filtering configuration menu */
 		MenuManager filterMgr = new MenuManager("Show", "filter");
 		filterMgr.setRemoveAllWhenShown(true);
@@ -237,6 +243,29 @@ public class TasksView extends ViewPart {
 		if (tableMode)
 			toolbarManager.add(taskCancelAction);
 		toolbarManager.add(viewerRefreshAction);
+		/* open task output push button */
+		Action openOutputView = new Action("Show Output",Action.AS_CHECK_BOX){
+			private TaskOutputView view;
+
+			public void run() {
+				try {
+					if(view != null && !isChecked()) {
+						TasksPlugin.getPlugin().getWorkbench().getActiveWorkbenchWindow().
+						getActivePage().hideView(view);
+					}
+					else {
+						view = (TaskOutputView) TasksPlugin.getPlugin().getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage().showView(
+								TaskOutputView.ID,null, IWorkbenchPage.VIEW_ACTIVATE);
+						view.addSelectionListener();
+					}
+				} catch (PartInitException e) {
+				}
+
+			}
+		};
+		openOutputView.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(TasksPlugin.PLUGIN_ID,OUTPUT_ICON));
+		toolbarManager.add(openOutputView);
 	}
 
 	/**
@@ -424,5 +453,9 @@ public class TasksView extends ViewPart {
 		} else {
 			setTitleImage(TasksPlugin.getPlugin().getImageCache().get(INACTIVE_ICON));
 		}
+	}
+
+	public ShowInContext getShowInContext() {
+		return new ShowInContext(viewer.getInput(),null);
 	}
 }
