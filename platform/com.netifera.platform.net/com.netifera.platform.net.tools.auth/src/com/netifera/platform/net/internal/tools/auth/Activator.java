@@ -8,6 +8,7 @@ import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.sockets.ISocketEngineService;
+import com.netifera.platform.net.wordlists.IWordList;
 
 public class Activator implements BundleActivator {
 
@@ -15,6 +16,7 @@ public class Activator implements BundleActivator {
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker socketEngineTracker;
 	private ServiceTracker networkEntityFactoryTracker;
+	private ServiceTracker wordlistsTracker;
 	
 	private static Activator instance;
 	
@@ -35,6 +37,9 @@ public class Activator implements BundleActivator {
 		
 		networkEntityFactoryTracker = new ServiceTracker(context, INetworkEntityFactory.class.getName(), null);
 		networkEntityFactoryTracker.open();
+
+		wordlistsTracker = new ServiceTracker(context, IWordList.class.getName(), null);
+		wordlistsTracker.open();
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -56,5 +61,13 @@ public class Activator implements BundleActivator {
 	
 	public INetworkEntityFactory getNetworkEntityFactory() {
 		return (INetworkEntityFactory) networkEntityFactoryTracker.getService();
+	}
+	
+	public IWordList getWordList(String name) {
+		for (Object wordlist: wordlistsTracker.getServices()) {
+			if (name.equals(((IWordList)wordlist).getName()))
+					return (IWordList) wordlist;
+		}
+		return null;
 	}
 }

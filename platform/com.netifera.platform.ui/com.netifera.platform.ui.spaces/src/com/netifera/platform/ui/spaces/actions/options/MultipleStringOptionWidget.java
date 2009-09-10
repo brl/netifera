@@ -96,9 +96,7 @@ public class MultipleStringOptionWidget extends OptionWidget {
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				System.out.println(sel.size() + " items selected, " +
-						viewer.getCheckedElements().length + " items checked");
-				
+//				System.out.println(sel.size() + " items selected, " + viewer.getCheckedElements().length + " items checked");
 				setOptionValue();
 				modified();
 			}

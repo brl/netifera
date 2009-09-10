@@ -52,10 +52,14 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	
 //	@SuppressWarnings("unchecked")
 	protected void setupToolOptions() {
+		try {
 //		credentials = (IndexedIterable<Credential>) context.getConfiguration().get("credentials");
 //		if (credentials == null)
 			credentials = createCredentials();
 		credentialsIterator = credentials.iterator();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void authenticationError(Credential credential, Throwable e) {

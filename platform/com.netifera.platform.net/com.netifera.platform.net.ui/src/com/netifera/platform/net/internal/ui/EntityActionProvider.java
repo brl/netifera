@@ -95,9 +95,9 @@ public class EntityActionProvider implements IEntityActionProvider {
 			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
 			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null, true));
 			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
-			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null, true));
 			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
 			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
 			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
@@ -110,9 +110,9 @@ public class EntityActionProvider implements IEntityActionProvider {
 			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", POP3AuthBruteforcer.class.getName());
 			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target POP3 service", pop3.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null, true));
 			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
-			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null, true));
 			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
 			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
 			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
@@ -125,9 +125,9 @@ public class EntityActionProvider implements IEntityActionProvider {
 			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", IMAPAuthBruteforcer.class.getName());
 			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target IMAP service", imap.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null, true));
 			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
-			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null, true));
 			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
 			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
 			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
