@@ -8,10 +8,10 @@ import org.osgi.service.component.ComponentContext;
 import com.netifera.platform.net.services.detection.INetworkServiceDetector;
 import com.netifera.platform.net.services.detection.INetworkServiceDetectorProvider;
 import com.netifera.platform.net.services.detection.INetworkServiceTrigger;
-import com.netifera.platform.net.services.detection.PatternsLoaderXML;
-import com.netifera.platform.net.services.detection.TriggersLoaderXML;
+import com.netifera.platform.net.services.detection.XMLPatternsLoader;
+import com.netifera.platform.net.services.detection.XMLTriggersLoader;
 
-public class DetectorsProvider implements INetworkServiceDetectorProvider {
+public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 	private List<INetworkServiceDetector> clientDetectors;
 	private List<INetworkServiceDetector> serverDetectors;
 	private List<INetworkServiceTrigger> serviceTriggers;
@@ -21,7 +21,7 @@ public class DetectorsProvider implements INetworkServiceDetectorProvider {
 		System.out.println("********** activating...");
 		try {
 			stream = context.getBundleContext().getBundle().getEntry("ServerPatterns.xml").openStream();
-			PatternsLoaderXML reader = new PatternsLoaderXML(stream);
+			XMLPatternsLoader reader = new XMLPatternsLoader(stream);
 			serverDetectors = reader.getDetectors();
 			System.out.println("************ server detectors count: "+serverDetectors.size());
 			stream.close();
@@ -31,7 +31,7 @@ public class DetectorsProvider implements INetworkServiceDetectorProvider {
 
 		try {
 			stream = context.getBundleContext().getBundle().getEntry("ClientPatterns.xml").openStream();
-			PatternsLoaderXML reader = new PatternsLoaderXML(stream);
+			XMLPatternsLoader reader = new XMLPatternsLoader(stream);
 			clientDetectors = reader.getDetectors();
 			System.out.println("************ client detectors count: "+clientDetectors.size());
 			stream.close();
@@ -40,7 +40,7 @@ public class DetectorsProvider implements INetworkServiceDetectorProvider {
 		}
 		try {
 			stream = context.getBundleContext().getBundle().getEntry("Triggers.xml").openStream();
-			TriggersLoaderXML  reader = new TriggersLoaderXML(stream);
+			XMLTriggersLoader  reader = new XMLTriggersLoader(stream);
 			serviceTriggers = reader.getTriggers();
 			System.out.println("************ service triggers count: "+ serviceTriggers.size());
 			stream.close();

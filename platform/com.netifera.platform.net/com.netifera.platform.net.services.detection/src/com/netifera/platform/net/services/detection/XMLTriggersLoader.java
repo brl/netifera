@@ -17,7 +17,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import com.netifera.platform.util.HexaEncoding;
 import com.netifera.platform.util.PortSet;
 
-public class TriggersLoaderXML {
+public class XMLTriggersLoader {
 	List<INetworkServiceTrigger>answer =  new ArrayList<INetworkServiceTrigger>();
 
 	/*SAX Parser Handler. No error checking, assumes validated file.*/
@@ -66,7 +66,7 @@ public class TriggersLoaderXML {
 		}
 	};
 
-	public TriggersLoaderXML(InputStream stream) {
+	public XMLTriggersLoader(InputStream stream) {
 		XMLReader xmlReader;
 		try {
 			xmlReader = XMLReaderFactory.createXMLReader();

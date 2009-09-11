@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.basic-detector-provider">
-	<implementation class="com.netifera.platform.net.internal.services.detection.basic.DetectorsProvider" />
+<component name="netifera.xml-detector-provider">
+	<implementation class="com.netifera.platform.net.internal.services.detection.basic.XMLDetectorProvider" />
 	<service>
 		<provide interface="com.netifera.platform.net.services.detection.INetworkServiceDetectorProvider" />
 	</service>

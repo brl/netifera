@@ -20,12 +20,12 @@ import com.netifera.platform.util.patternmatching.ISessionPattern;
 import com.netifera.platform.util.patternmatching.Regex;
 import com.netifera.platform.util.patternmatching.SessionPattern;
 
-public class PatternsLoaderXML {
+public class XMLPatternsLoader {
 	List<INetworkServiceDetector> answer = new ArrayList<INetworkServiceDetector>();
 
 	/*SAX Parser Handler. No error checking, assumes validated file.*/
 	private class SAXPatternHandler extends DefaultHandler {
-		private static final String PATTERN_TAG = "ServerPattern";
+		private static final String PATTERN_TAG = "ServicePattern";
 		private static final String PATTERN_TAG_ATT_REGEX = "regex";
 		private static final String SERVICE_TAG  = "service";
 		private static final String REGEX_GROUP_PREFIX  = "$regex-group-";
@@ -83,7 +83,7 @@ public class PatternsLoaderXML {
 		}
 	};
 
-	public PatternsLoaderXML(InputStream stream) {
+	public XMLPatternsLoader(InputStream stream) {
 		XMLReader xmlReader;
 		try {
 			xmlReader = XMLReaderFactory.createXMLReader();
