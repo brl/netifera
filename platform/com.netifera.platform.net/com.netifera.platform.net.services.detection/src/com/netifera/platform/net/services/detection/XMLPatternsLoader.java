@@ -32,7 +32,6 @@ public class XMLPatternsLoader {
 
 		Regex pattern;
 		String service;
-		String fieldName;
 		String value;
 
 		public void startElement(String uri, String localName, String qName,
@@ -49,6 +48,7 @@ public class XMLPatternsLoader {
 		throws SAXException {
 			String name = uri.equals("") ? qName : localName;
 			if(name.equals(PATTERN_TAG)) {
+				System.out.println(pattern);
 				INetworkServiceDetector newDetector = newDetector(service, new SessionPattern(new Regex(".*"),pattern));
 				answer.add(newDetector);
 				pattern = null;
@@ -60,9 +60,9 @@ public class XMLPatternsLoader {
 				/*pattern fields tag ends (ex: os,version,service) */
 				if(value.startsWith(REGEX_GROUP_PREFIX)) {
 					Integer groupIndex = Integer.valueOf(value.substring(REGEX_GROUP_PREFIX.length()));
-					pattern.add(groupIndex, fieldName);
+					pattern.add(groupIndex, name);
 				} else if (pattern != null) {
-					pattern.add(fieldName, value);
+					pattern.add(name, value);
 				}
 			}
 		}
