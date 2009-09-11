@@ -48,7 +48,6 @@ public class XMLPatternsLoader {
 		throws SAXException {
 			String name = uri.equals("") ? qName : localName;
 			if(name.equals(PATTERN_TAG)) {
-				System.out.println(pattern);
 				INetworkServiceDetector newDetector = newDetector(service, new SessionPattern(new Regex(".*"),pattern));
 				answer.add(newDetector);
 				pattern = null;

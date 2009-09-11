@@ -2,16 +2,13 @@
 <netifera:Patterns xmlns:netifera="http://netifera.com/ServicePatterns"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://netifera.com/ServicePatterns ServicePatterns.xsd ">
-	<ServicePattern regex="^GET http[s]?://.* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
+	<ServicePattern regex="(?i)^GET http[s]?://.* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
 		<service>HTTP Proxy</service>
 		<product>$regex-group-1</product>
 	</ServicePattern>
-	<ServicePattern regex="^GET .* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
+	<ServicePattern regex="(?i)^GET .* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
 		<service>HTTP</service>
 		<product>$regex-group-1</product>
-	</ServicePattern>
-	<ServicePattern regex="^USER .*">
-		<service>FTP</service>
 	</ServicePattern>
 	<ServicePattern regex="^SSH-.*OpenSSH_([\w.]+)\s+([^\x00\r\n]*).*">
 		<service>SSH</service>
@@ -22,9 +19,6 @@
 	<ServicePattern regex="^SSH-\d\.\d-([^\r\n\x00]*)">
 		<service>SSH</service>
 		<product>$regex-group-1</product>
-	</ServicePattern>
-	<ServicePattern regex="^USER .*">
-		<service>POP3</service>
 	</ServicePattern>
 	<ServicePattern regex="^VER \d+ MSN.*CVR \d+ [^ ]* (.*) (MSN[^ ]*) ([\d.]*) .*USR \d+ [^ ]* . ([^\r\n]+)[\r\n].*">
 		<service>MSN</service>

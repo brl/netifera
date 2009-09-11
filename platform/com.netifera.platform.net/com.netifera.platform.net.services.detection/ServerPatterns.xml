@@ -169,10 +169,10 @@
 		<os>AS/400</os>
 		<product>FTP</product>
 	</ServicePattern>
-	<ServicePattern regex="^220.*n(331|530).*">
+	<ServicePattern regex="(?md)^220.*\n(331|530).*">
 		<service>FTP</service>
 	</ServicePattern>
-	<ServicePattern regex="^220.*FTP.*">
+	<ServicePattern regex="(?imd)^220.*FTP.*">
 		<service>FTP</service>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK [-.\w]+ IMAP4rev1 MDaemon (\d[-.\w]+) .*">
@@ -235,9 +235,6 @@
 	<ServicePattern regex="^\* OK.*">
 		<service>IMAP</service>
 	</ServicePattern>
-	<ServicePattern regex="^HTTP/1\.0 200 OK.*application/octet[_\-]stream.*">
-		<service>TOR</service>
-	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.0 503 Directory busy, try again later.*">
 		<service>TOR</service>
 	</ServicePattern>
@@ -247,7 +244,7 @@
 	<ServicePattern regex="^HTTP/1\.[01](200|503).*">
 		<service>HTTP Proxy</service>
 	</ServicePattern>
-	<ServicePattern regex="^HTTP/1\.[01].*Proxy-Agent: ([^\r\n]*)[\r\n].*">
+	<ServicePattern regex="(?i)^HTTP/1\.[01].*Proxy-Agent: ([^\r\n]*)[\r\n].*">
 		<service>HTTP Proxy</service>
 		<product>$regex-group-1</product>
 	</ServicePattern>
@@ -387,24 +384,18 @@
 		<product>WASD</product>
 		<version>$regex-group-1</version>
 	</ServicePattern>
-	<ServicePattern regex="^HTTP/1\.[01].*\r\nServer: (HP.Chai\w+)\/([\d.]+)\r\n.*">
+	<ServicePattern regex="(?i)^HTTP/1\.[01].*\r\nServer: (HP.Chai\w+)\/([\d.]+)\r\n.*">
 		<service>HTTP</service>
 		<os>HP Printer</os>
 		<product>$regex-group-1</product>
 		<version>$regex-group-2</version>
 	</ServicePattern>
-	<ServicePattern regex="^HTTP/1\.[01].*\r\nServer: (HP.Chai\w+)\/([\d.]+)\r\n.*">
-		<service>HTTP</service>
-		<os>HP Printer</os>
-		<product>$regex-group-1</product>
-		<version>$regex-group-2</version>
-	</ServicePattern>
-	<ServicePattern regex="^HTTP/1\.[01].*\r?\n[Ss]erver: ([^\/ \t\r\n]+)\/([^ \/\t\r\n]+).*\r?\n.*">
+	<ServicePattern regex="(?i)^HTTP/1\.[01].*\r?\nServer: ([^\/ \t\r\n]+)\/([^ \/\t\r\n]+).*\r?\n.*">
 		<service>HTTP</service>
 		<product>$regex-group-1</product>
 		<version>$regex-group-2</version>
 	</ServicePattern>
-	<ServicePattern regex="^HTTP/1\.[01].*\r?\n[Ss]erver: +([^\/\t\r\n ][^\/\t\r\n]*)(:?\/.*)?\r?\n.*">
+	<ServicePattern regex="(?i)^HTTP/1\.[01].*\r?\nServer: +([^\/\t\r\n ][^\/\t\r\n]*)(:?\/.*)?\r?\n.*">
 		<service>HTTP</service>
 		<product>$regex-group-1</product>
 	</ServicePattern>
@@ -415,14 +406,14 @@
 		<service>HTTPS</service>
 		<product>Apache</product>
 	</ServicePattern>
-	<ServicePattern regex="^RTSP/1\.0.*\r\nServer: QTSS\/([\d.]+) \(.*Build\/([^;]+);.*Platform\/([^;]+).*\)\r\n.*">
+	<ServicePattern regex="(?i)^RTSP/1\.0.*\r\nServer: QTSS\/([\d.]+) \(.*Build\/([^;]+);.*Platform\/([^;]+).*\)\r\n.*">
 		<service>RTSP</service>
 		<os>$regex-group-3</os>
 		<product>QuickTime Streaming Server</product>
 		<version>$regex-group-1</version>
 		<build>$regex-group-2</build>
 	</ServicePattern>
-	<ServicePattern regex="^RTSP/1\.0.*\r\nServer: DSS\/([\d.]+) \(.*Build\/([^;]+);.*Platform\/([^;]+).*\)\r\n.*">
+	<ServicePattern regex="(?i)^RTSP/1\.0.*\r\nServer: DSS\/([\d.]+) \(.*Build\/([^;]+);.*Platform\/([^;]+).*\)\r\n.*">
 		<service>RTSP</service>
 		<os>$regex-group-3</os>
 		<product>Darwin Streaming Server</product>
@@ -656,7 +647,7 @@
 		<service>SMTP</service>
 		<hostname>$regex-group-1</hostname>
 	</ServicePattern>
-	<ServicePattern regex="^(220.*n250|220.*SMTP|412 .*smtp|554.*mail|554.*smtp|220 .*mail).*">
+	<ServicePattern regex="(?idm)^(220.*\n250|220.*SMTP|412 .*smtp|554.*mail|554.*smtp|220 .*mail).*">
 		<service>SMTP</service>
 	</ServicePattern>
 	<ServicePattern regex="^220.*">
