@@ -701,9 +701,6 @@
 		<service>mDNS</service>
 		<os>$regex-group-1</os>
 	</ServicePattern>
-	<ServicePattern regex="^.{4}[\x00\x84].{8}.*">
-		<service>mDNS</service>
-	</ServicePattern>
 	<ServicePattern regex=".*public.*\x2b\x06\x01\x02\x01\x01\x01...(.*)">
 		<service>SNMPv1</service>
 		<password>public</password>

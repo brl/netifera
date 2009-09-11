@@ -100,22 +100,22 @@ public class XMLPatternsLoader {
 
 	private static INetworkServiceDetector newDetector(final String service, final ISessionPattern pattern) {
 		//XXX replace by service protocol and ports or endpoints
-		final String protocol = "tcp";
-		final PortSet ports = new PortSet("1-65535");
+//		final String protocol = "tcp";
+//		final PortSet ports = new PortSet("1-65535");
 		return new INetworkServiceDetector() {
 			public Map<String, String> detect(String clientData,
 					String serverData) {
 				return pattern.match(clientData, serverData);
 			}
 			public PortSet getPorts() {
-				return ports;
+				return null;
 			}
 			public String getProtocol() {
-				return protocol;
+				return null;
 			}
 			@Override
 			public String toString() {
-				return ports.toString() + "/" + protocol + "\n" + pattern.toString();
+				return /*ports.toString() + "/" + protocol + "\n" +*/ pattern.toString();
 			}
 		};
 	}
