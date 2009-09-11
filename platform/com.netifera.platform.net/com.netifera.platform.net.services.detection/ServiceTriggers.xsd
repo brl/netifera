@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://netifera.com/ServiceTrigger" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:netifera="http://netifera.com/ServiceTrigger">
+
+    <complexType name="Enpdoint">
+    	<simpleContent>
+    		<extension base="string">
+    			<attribute name="protocol" use="required">
+    				<annotation>
+    					<documentation>
+    						The value of this element for the protocol
+    						types TCP,UDP and SSL is a port range
+    					</documentation>
+    				</annotation>
+    				<simpleType>
+    					<restriction base="string">
+    						<enumeration value="udp"></enumeration>
+    						<enumeration value="tcp"></enumeration>
+    						<enumeration value="ssl"></enumeration>
+    					</restriction>
+    				</simpleType>
+    			</attribute>
+
+    		</extension>
+    	</simpleContent>
+    </complexType>
+
+    <complexType name="ServiceTrigger">
+        <sequence>
+    		<element name="Endpoint" type="netifera:Enpdoint" maxOccurs="unbounded" minOccurs="1">
+    		</element>
+    	</sequence>
+    	<attribute name="name" type="string" use="required">
+    		<annotation>
+    			<documentation>Descriptive name of the test</documentation>
+    		</annotation></attribute>
+    	<attribute name="data" type="hexBinary" use="optional">
+    		<annotation>
+    			<documentation>The data that is actually sent</documentation>
+    		</annotation></attribute>
+    	<attribute name="timeout" type="integer" use="optional">
+    		<annotation>
+    			<documentation>Timeout in milliseconds</documentation>
+    		</annotation></attribute>
+    </complexType>
+
+    <complexType name="ServiceTriggers">
+    	<sequence>
+    		<element name="ServiceTrigger" type="netifera:ServiceTrigger" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+        <attribute name="name" type="string"></attribute>
+        <attribute name="date" type="dateTime"></attribute>
+    </complexType>
+    
+    <element name="ServiceTriggers" type="netifera:ServiceTriggers"></element>
+</schema>

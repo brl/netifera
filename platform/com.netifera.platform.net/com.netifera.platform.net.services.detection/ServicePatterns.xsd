@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://netifera.com/ServicePatterns" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:netifera="http://netifera.com/ServicePatterns">
+
+    <complexType name="ServicePattern">
+        <all>
+        	<element name="service" type="string" maxOccurs="1"
+        		minOccurs="1">
+        	</element>
+        	<element name="product" type="string" maxOccurs="1"
+        		minOccurs="0">
+        	</element>
+        	<element name="version" type="string" minOccurs="0"
+        		maxOccurs="1">
+        	</element>
+        	
+        	<element name="build" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	
+        	<element name="hostname" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	
+        	<element name="os" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+
+        	<element name="distribution" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	
+        	<element name="arch" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	
+        	<element name="lang" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	
+        	<element name="username" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	
+        	<element name="password" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        </all>
+        <attribute name="regex" type="string" use="optional"></attribute>
+    </complexType>
+
+    <complexType name="Patterns">
+    	<sequence>
+    		<element name="ServicePattern" type="netifera:ServicePattern"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    	</sequence>
+        <attribute name="name" type="string"></attribute>
+        <attribute name="date" type="dateTime"></attribute>
+    </complexType>
+
+    <element name="Patterns" type="netifera:Patterns"></element>
+</schema>
