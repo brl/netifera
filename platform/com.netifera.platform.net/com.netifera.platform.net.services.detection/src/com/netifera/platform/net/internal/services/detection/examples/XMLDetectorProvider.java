@@ -1,4 +1,4 @@
-package com.netifera.platform.net.internal.services.detection.basic;
+package com.netifera.platform.net.internal.services.detection.examples;
 
 import java.io.InputStream;
 import java.util.List;

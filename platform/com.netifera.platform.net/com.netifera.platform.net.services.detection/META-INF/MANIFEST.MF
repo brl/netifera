@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0
 Bundle-Vendor: netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: com.netifera.platform.net.internal.services.detection;x-internal:=true,
- com.netifera.platform.net.internal.services.detection.basic;x-internal:=true,
+ com.netifera.platform.net.internal.services.detection.examples;x-internal:=true,
  com.netifera.platform.net.services.detection
 Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.util,
@@ -15,4 +15,5 @@ Import-Package: com.netifera.platform.api.iterables,
  org.osgi.framework
 Service-Component: OSGI-INF/server-detector.xml,
  OSGI-INF/client-detector.xml,
- OSGI-INF/xml-detector-provider.xml
+ OSGI-INF/xml-detector-provider.xml,
+ OSGI-INF/extra-detector-provider.xml
