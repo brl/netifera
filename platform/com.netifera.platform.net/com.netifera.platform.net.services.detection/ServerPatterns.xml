@@ -175,9 +175,6 @@
 	<ServicePattern regex="^220.*FTP.*">
 		<service>FTP</service>
 	</ServicePattern>
-	<ServicePattern regex="^220.*">
-		<service>FTP</service>
-	</ServicePattern>
 	<ServicePattern regex="^\* OK [-.\w]+ IMAP4rev1 MDaemon (\d[-.\w]+) .*">
 		<service>IMAP</service>
 		<os>Windows</os>
