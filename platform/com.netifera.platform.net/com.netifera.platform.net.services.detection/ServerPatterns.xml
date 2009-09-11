@@ -785,7 +785,7 @@
 	</ServicePattern>
 	<ServicePattern regex="^(?:\xff[\xfb\xfd\xfe].)+.*(\r\n){2}User Access Verification(\r\n){2}(Username|Password): .*">
 		<service>Telnet</service>
-		<os>Cisco</os>
+		<os>Cisco IOS</os>
 	</ServicePattern>
 	<ServicePattern regex="^(?:\xff[\xfb\xfd\xfe].)+.*">
 		<service>Telnet</service>
@@ -825,5 +825,8 @@
 	</ServicePattern>
 	<ServicePattern regex="^.{16}.\x10.{10}.*">
 		<service>ISAKMP</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x00\x10\x00\x01\x1a\+&lt;M\x00\x05\x00\x00\x00\x00\x00\x01$">
+		<service>PPTP</service>
 	</ServicePattern>
 </netifera:Patterns>
