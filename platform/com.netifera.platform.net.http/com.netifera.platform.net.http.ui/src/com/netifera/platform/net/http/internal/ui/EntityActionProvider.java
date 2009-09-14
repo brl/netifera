@@ -15,14 +15,18 @@ import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.model.ServiceEntity;
+import com.netifera.platform.net.wordlists.IWordList;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
+import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 
 public class EntityActionProvider implements IEntityActionProvider {
+
+	private List<IWordList> wordlists = new ArrayList<IWordList>();
 
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
@@ -57,10 +61,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addOption(new StringOption("path", "Path", "Path that requires authentication", page.getPath()));
 				bruteforcer.addOption(new StringOption("method", "Method", "GET/POST", "GET"));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null));
-				bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null));
-//				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", ...));
-//				bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", ...));
+				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", null, true));
+				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
+				bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", null, true));
+				bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
 				bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
 				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
 				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
@@ -102,5 +106,26 @@ public class EntityActionProvider implements IEntityActionProvider {
 	public List<IAction> getQuickActions(IShadowEntity shadow) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private String[] getAvailableWordLists(String[] categories) {
+		List<String> names = new ArrayList<String>();
+		for (IWordList wordlist: wordlists) {
+			for (String category: categories) {
+				if (wordlist.getCategory().equals(category)) {
+					names.add(wordlist.getName());
+					break;
+				}
+			}
+		}
+		return names.toArray(new String[names.size()]);
+	}
+	
+	protected void registerWordList(IWordList wordlist) {
+		this.wordlists.add(wordlist);
+	}
+	
+	protected void unregisterWordList(IWordList wordlist) {
+		this.wordlists.remove(wordlist);
 	}
 }
