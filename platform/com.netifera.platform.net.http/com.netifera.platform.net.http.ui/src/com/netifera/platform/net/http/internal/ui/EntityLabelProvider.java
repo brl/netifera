@@ -223,7 +223,6 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 		logger = null;
 	}
 
-	@Override
 	public String getInformation(IShadowEntity e) {
 		if (e instanceof WebPageEntity) {
 			WebPageEntity page = (WebPageEntity)e;
