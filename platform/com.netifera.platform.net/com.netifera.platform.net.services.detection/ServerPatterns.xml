@@ -655,6 +655,12 @@
 		<arch>i386</arch>
 		<product>Symantec Mail Security for Microsoft Exchange</product>
 	</ServicePattern>
+	<ServicePattern regex="^220 ([-.\w]+) ESMTP Merak ([\d.]+);.*">
+		<service>SMTP</service>
+		<hostname>$regex-group-1</hostname>
+		<product>Merak</product>
+		<version>$regex-group-2</version>
+	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) E?SMTP.*">
 		<service>SMTP</service>
 		<hostname>$regex-group-1</hostname>
