@@ -830,9 +830,9 @@
 		<service>PPTP</service>
 	</ServicePattern>
 	<ServicePattern regex=".*Invalid packet length.*">
-		<service>Postgres</service>
+		<service>PostgreSQL</service>
 	</ServicePattern>
 	<ServicePattern regex="^EFATAL.*">
-		<service>Postgres</service>
+		<service>PostgreSQL</service>
 	</ServicePattern>
 </netifera:Patterns>
