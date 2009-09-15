@@ -196,21 +196,21 @@
 		<service>IMAP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
-		<product>Microsoft Exchange IMAP4rev1 server</product>
+		<product>Microsoft Exchange IMAP4rev1</product>
 		<version>$regex-group-1</version>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK Microsoft Exchange 2000 IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n.*">
 		<service>IMAP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
-		<product>Microsoft Exchange 2000 IMAP4rev1 server</product>
+		<product>Microsoft Exchange 2000 IMAP4rev1</product>
 		<version>$regex-group-1</version>
 	</ServicePattern>
-	<ServicePattern regex="^\* OK Microsoft Exchange .*">
+	<ServicePattern regex="^\* OK .* Microsoft Exchange .*">
 		<service>IMAP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
-		<product>Microsoft Exchange IMAP server</product>
+		<product>Microsoft Exchange IMAP</product>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d\d:\d\d:\d\d \r\n.*">
 		<service>IMAP</service>
@@ -517,6 +517,12 @@
 		<service>POP3</service>
 		<os>Unix</os>
 		<product>Dovecot</product>
+	</ServicePattern>
+	<ServicePattern regex="^\+OK ([-.\w]+) Merak ([\d.]+) POP3.*">
+		<service>POP3</service>
+		<hostname>$regex-group-1</hostname>
+		<product>Merak</product>
+		<version>$regex-group-2</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK &lt;.*@([-.\w]+)&gt;.*">
 		<service>POP3</service>
