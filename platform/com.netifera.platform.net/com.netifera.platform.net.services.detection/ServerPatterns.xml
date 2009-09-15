@@ -829,4 +829,10 @@
 	<ServicePattern regex="^\x00\x10\x00\x01\x1a\+&lt;M\x00\x05\x00\x00\x00\x00\x00\x01$">
 		<service>PPTP</service>
 	</ServicePattern>
+	<ServicePattern regex=".*Invalid packet length.*">
+		<service>Postgres</service>
+	</ServicePattern>
+	<ServicePattern regex="^EFATAL.*">
+		<service>Postgres</service>
+	</ServicePattern>
 </netifera:Patterns>
