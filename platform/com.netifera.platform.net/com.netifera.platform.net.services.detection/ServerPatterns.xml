@@ -829,6 +829,12 @@
 	<ServicePattern regex="^\x00\x10\x00\x01\x1a\+&lt;M\x00\x05\x00\x00\x00\x00\x00\x01$">
 		<service>PPTP</service>
 	</ServicePattern>
+	<ServicePattern regex="^\x00*@.*">
+		<service>OpenVPN</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x00\x0e@.*">
+		<service>OpenVPN</service>
+	</ServicePattern>
 	<ServicePattern regex=".*Invalid packet length.*">
 		<service>PostgreSQL</service>
 	</ServicePattern>
