@@ -60,6 +60,9 @@
 <ServiceTrigger timeout="6000" name="Telnet" data="fffb03">
 <Endpoint protocol="tcp">23</Endpoint>
 </ServiceTrigger>
+<ServiceTrigger timeout="6000" name="LDAP" data="300c020101600702010204008000">
+<Endpoint protocol="tcp">389</Endpoint>
+</ServiceTrigger>
 <ServiceTrigger timeout="6000" name="Wait" data="">
 <Endpoint protocol="tcp">79,119</Endpoint>
 </ServiceTrigger>
