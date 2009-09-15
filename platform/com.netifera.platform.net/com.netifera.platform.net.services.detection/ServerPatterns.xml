@@ -475,14 +475,14 @@
 		<service>POP3</service>
 		<os>Windows</os>
 		<arch>i386</arch>
-		<product>Microsoft Exchange POP3D</product>
+		<product>Microsoft Exchange</product>
 		<version>$regex-group-1</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK.*Exchange.*POP3.*">
 		<service>POP3</service>
 		<os>Windows</os>
 		<arch>i386</arch>
-		<product>Microsoft Exchange POP3</product>
+		<product>Microsoft Exchange</product>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK ([-.\w]+) POP MDaemon (\S+) ready &lt;MDAEMON.*">
 		<service>POP3</service>
@@ -577,6 +577,12 @@
 		<os>Windows</os>
 		<product>Microsoft Exchange</product>
 		<version>$regex-group-2</version>
+		<hostname>$regex-group-1</hostname>
+	</ServicePattern>
+	<ServicePattern regex="^220[ -]([-.\w]+) Microsoft E?SMTP MAIL Service ready.*">
+		<service>SMTP</service>
+		<os>Windows</os>
+		<product>Microsoft Exchange</product>
 		<hostname>$regex-group-1</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) Mercury/32 v([-.\w]+) ESMTP server ready.*">
