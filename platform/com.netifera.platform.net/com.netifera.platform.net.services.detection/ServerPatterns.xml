@@ -829,6 +829,12 @@
 		<service>SSL</service>
 		<version>SSLv3</version>
 	</ServicePattern>
+	<ServicePattern regex="^[\x15\x16]\x03.*">
+		<service>SSL</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x82\xad.*">
+		<service>SSL</service>
+	</ServicePattern>
 	<ServicePattern regex="^0\x84\x00\x00\x00\x10\x02\x01\x01a\x84\x00\x00\x00\x07\n\x01\x00\x04\x00\x04\x00$">
 		<service>LDAP</service>
 		<product>Microsoft LDAP Server</product>

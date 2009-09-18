@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <netifera:ServiceTriggers xmlns:netifera="http://netifera.com/ServiceTrigger" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://netifera.com/ServiceTrigger ServiceTriggers.xsd ">
+<ServiceTrigger timeout="6000" name="SSL" data="808001030100570000002000001600001300000a0700c000006600000700000500000405008003008001008008008000006500006400006300006200006100006000001500001200000906004000001400001100000800000600000304008002008063b9b919c02bae90744c73eb8bcfd855ead069821bef23c3399b8eb2493c5a79">
+<Endpoint protocol="tcp">443</Endpoint>
+</ServiceTrigger>
 <ServiceTrigger timeout="6000" name="FtpUser" data="55534552206674700d0a">
 <Endpoint protocol="tcp">21,990</Endpoint>
 </ServiceTrigger>
