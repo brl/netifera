@@ -821,9 +821,6 @@
 	<ServicePattern regex="^NOTICE AND TERMS OF USE: You are not authorized to access or query our WHOIS\ndatabase.*">
 		<service>Whois</service>
 	</ServicePattern>
-	<ServicePattern regex="^\nquery: .*\n\n# KOREAN\n\n.*">
-		<service>Whois</service>
-	</ServicePattern>
 	<ServicePattern regex="^\x16\x03\x01..\x02...\x03\x01.*">
 		<service>SSL</service>
 		<version>TLSv1</version>
