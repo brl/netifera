@@ -11,6 +11,8 @@
 
    <content>
       <plugins>
+         <plugin id="com.netifera.probebuild"/>
+         <plugin id="com.netifera.probebuild.deployable.linuxi386"/>
          <plugin id="org.apache.commons.net"/>
          <plugin id="org.apache.commons.net.source"/>
          <plugin id="org.apache.oro"/>
@@ -33,16 +35,16 @@
    </content>
 
    <implicitDependencies>
-      <plugin id="org.eclipse.tm.terminal.telnet"/>
-      <plugin id="org.eclipse.equinox.ds"/>
       <plugin id="db4o_osgi"/>
+      <plugin id="org.eclipse.tm.terminal.telnet"/>
       <plugin id="org.apache.oro"/>
-      <plugin id="org.eclipse.equinox.util"/>
-      <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.equinox.log"/>
-      <plugin id="org.eclipse.tm.terminal"/>
-      <plugin id="org.eclipse.ui.forms"/>
+      <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.apache.commons.net"/>
+      <plugin id="org.eclipse.equinox.util"/>
+      <plugin id="org.eclipse.equinox.ds"/>
+      <plugin id="org.eclipse.ui.forms"/>
+      <plugin id="org.eclipse.tm.terminal"/>
    </implicitDependencies>
 
 </target>
