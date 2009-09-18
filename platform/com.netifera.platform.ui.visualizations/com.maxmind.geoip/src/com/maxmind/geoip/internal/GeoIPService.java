@@ -117,7 +117,8 @@ public class GeoIPService implements IGeoIPService {
 	}
 	
 	private String getBasePathForEclipse() {
-		final String configArea = System.getProperty("osgi.configuration.area");
+		return System.getProperty("user.home", System.getenv("HOME")) + File.separator + ".netifera" + File.separator + "data" + File.separator;
+/*		final String configArea = System.getProperty("osgi.configuration.area");
 		if(configArea == null || !configArea.startsWith("file:")) {
 			return null;
 		}
@@ -126,7 +127,7 @@ public class GeoIPService implements IGeoIPService {
 		if(metadataIndex == -1)
 			return null;
 		return trimmedPath.substring(0, metadataIndex);
-	}
+*/	}
 	
 	private boolean isRunningInEclipse() {
 		return System.getProperty("osgi.dev") != null;

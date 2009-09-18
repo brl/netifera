@@ -193,7 +193,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return Activator.getInstance().getImageCache().get(CONTROLLED);
 		
 		//TODO optimise, maybe this is too slow:
-		String overlayKeys[] = new String[5];
+/*		String overlayKeys[] = new String[5];
 		IStructureContext context = e.getStructureContext();
 		if (context instanceof TreeStructureContext) {
 			for (IShadowEntity child: ((TreeStructureContext) context).getChildren()) {
@@ -206,6 +206,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			}
 		}
 		return Activator.getInstance().getImageCache().getDecorated(FOLDER, overlayKeys);
+*/
+		return Activator.getInstance().getImageCache().get(FOLDER);
 	}
 	
 	private Image getHostImage(HostEntity e) {

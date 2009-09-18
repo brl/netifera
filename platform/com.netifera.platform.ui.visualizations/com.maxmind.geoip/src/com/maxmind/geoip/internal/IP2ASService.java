@@ -114,15 +114,7 @@ public class IP2ASService implements IIP2ASService {
 	}
 	
 	private String getBasePathForEclipse() {
-		final String configArea = System.getProperty("osgi.configuration.area");
-		if(configArea == null || !configArea.startsWith("file:")) {
-			return null;
-		}
-		final String trimmedPath = configArea.substring(5);
-		int metadataIndex = trimmedPath.indexOf(".metadata");
-		if(metadataIndex == -1)
-			return null;
-		return trimmedPath.substring(0, metadataIndex);
+		return System.getProperty("user.home", System.getenv("HOME")) + File.separator + ".netifera" + File.separator + "data" + File.separator;
 	}
 	
 	private boolean isRunningInEclipse() {
