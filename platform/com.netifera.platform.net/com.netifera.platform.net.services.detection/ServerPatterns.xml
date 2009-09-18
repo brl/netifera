@@ -746,6 +746,7 @@
 	</ServicePattern>
 	<ServicePattern regex="^SIP/2.0 200 OK[\r\n].*Server: (.*)[\r\n]">
 		<service>SIP</service>
+		<product>$regex-group-1</product>
 	</ServicePattern>
 	<ServicePattern regex="^SIP/.*">
 		<service>SIP</service>
