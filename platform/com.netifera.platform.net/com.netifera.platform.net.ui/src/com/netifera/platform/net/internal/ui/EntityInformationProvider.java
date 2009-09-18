@@ -13,6 +13,7 @@ import com.netifera.platform.net.geoip.ILocation;
 import com.netifera.platform.net.model.ClientEntity;
 import com.netifera.platform.net.model.ClientServiceConnectionEntity;
 import com.netifera.platform.net.model.HostEntity;
+import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.NetworkAddressEntity;
 import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
@@ -46,6 +47,8 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 	public String getInformation(IShadowEntity e) {
 		if(e instanceof HostEntity) {
 			return getHostInformation((HostEntity)e);
+		} else if (e instanceof NetblockEntity) {
+			return getNetblockInformation((NetblockEntity)e);
 		} else if (e instanceof ServiceEntity) {
 			return getServiceInformation((ServiceEntity)e);
 		} else if (e instanceof ClientEntity) {
@@ -121,6 +124,27 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 						buffer.append(", ");
 				}
 				buffer.append("</p>");
+			}
+		}
+		return buffer.toString();
+	}
+
+	private String getNetblockInformation(NetblockEntity e) {
+		StringBuffer buffer = new StringBuffer();
+		if (e.getNetblock().getCIDR() >= 24) {
+			if (geoipService != null) {
+				ILocation location = geoipService.getLocation(e.getNetblock().getNetworkAddress());
+				if (location != null) {
+					buffer.append("<p>Location: ");
+					if (location.getCity() != null) {
+						buffer.append(escape(location.getCity()+", "+location.getCountry()));
+					} else if (location.getCountry() != null) {
+						buffer.append(escape(location.getCountry()));
+					} else {
+						buffer.append(location.getPosition()[0]+" "+location.getPosition()[1]);
+					}
+					buffer.append("</p>");
+				}
 			}
 		}
 		return buffer.toString();
