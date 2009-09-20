@@ -11,7 +11,7 @@ import java.io.FileNotFoundException;
 public interface IProbeConfiguration
 {
 	/**
-	 * Get this Configuration's directory where all data is stored.
+	 * Get this Configuration's directory (where data is stored).
 	 */
 	public String getConfigurationDirectory();
 
@@ -20,99 +20,132 @@ public interface IProbeConfiguration
 	 * Add a new resource into this Probe Configuration.
 	 * Notice that a reference to the resource is added, the actual
 	 * resource should exist when a Deployable Probe is about to be built.
-	 * @param path Path to the resource to add.
-	 * @see getResrouceList()
+	 * @param name Name assigned to the resource (this name should be used when
+	 * referencing the resource from within the Deployable Probe);
+	 * @param path Path to the resource in the local file system.
+	 * @see getResourceList()
 	 */
-	public void addResource(String path);
+	public void addResource(String name, String path);
 
 
 	/**
 	 * Add a new bundle into this Probe Configuration.
 	 * Notice that a reference to the bundle is added, the actual
 	 * bundle should exist when a Deployable Probe is about to be built.
-	 * @param bundleName Name of the bundle to add;
+	 * @param name Name assigned to the bundle (this name should be used when
+	 * referencing the bundle from within the deployable probe);
+	 * @param path Path to the bundle in the local file system;
 	 * @param initLevel Installation level (if <code>0</code>
 	 * the bundle should not be installed);
 	 * @param startLevel Starting level (if <code>0</code>
 	 * the bundle should not be started).
 	 * @see getBundleList()
 	 */
-	public void addBundle(String bundleName, int initLevel, int startLevel);
+	public void addBundle(String name, String path, int initLevel, int startLevel);
 
 
 	/**
-	 * Set the command line for this Probe Configuration.
-	 * The command line options are the same received by a common jvm
-	 * with subtle differences:
+	 * Set the command line options for this Probe Configuration.
+	 * The command line options are the same used with a common jvm
+	 * with subtle differences.
+	 * For example, a normal jvm will accept the following options:
 	 * <p>
-	 * For example, a normal jvm will accept the following command line:
-	 * <br>
 	 * <code>-Xmx512 -Dport=12345 -jar osgiFramework.jar -some_java_param</code>
-	 * </p>
+	 * </p><p>
 	 * On the other hand, a Deployable Probe embeds an osgi framework that
-	 * should not be specified in the command line:<br>
+	 * should not be specified in the command line:
+	 * </p><p>
 	 * <code>-Xmx512 -Dport=12345 -- -some_java_param</code>
-	 * </p>
+	 * </p><p>
 	 * Notice that in this case the <code>--</code> string is used as a
-	 * separator between the command line options sent to the jvm and the
-	 * options for the main class.
-	 * There is no need to add this separator when no options are passed
-	 * to the main class.
-	 * <p>
+	 * separator between the options for the jvm and those intended for the
+	 * main class. This separator is not needed when the main class does not
+	 * receive arguments.
+	 * </p><p>
 	 * It is possible to avoid the execution of the embedded osgi framework
-	 * specifing a custom jar file (that should be embedded into the
-	 * Deployable Probe as a resource), for example:<br>
+	 * specifying a custom jar file (that should be embedded into the
+	 * Deployable Probe as a resource), for example:
+	 * </p><p>
 	 * <code>-Xmx512 -Dport=12345 -jar myCustomApplication.jar -some_java_param</code>
 	 * </p>
-	 * The above is very useful for testing purposes.
+	 * <p>The above is very useful for testing purposes.</p>
 	 * @param line Command line to set.
+	 * @see addResource(String, String)
 	 * @see getCommandLine()
 	 */
 	public void setCommandLine(String line);
 
 
 	/**
-	 * Get the list of resources inside this Probe Configuration.
-	 * @see addResource(String)
+	 * Get the list of names assigned to the resources into this Probe Configuration.
+	 * @return A string array containing the names assigned to the resources.
+	 * @see addResource(String, String)
+	 * @see getResourcePath(String)
 	 */
 	public String[] getResourceList();
 
 
 	/**
-	 * Get the list of bundles inside this Probe Configuration.
-	 * @see addBundle(String, int, int)
-	 * @see getBundleInitLevel(String)
+	 * Get the local path to the specified resource.
+	 * @param name Name assigned to the resource.
+	 * @return The path.
+	 * @throws FileNotFoundException if the specified resources is not included
+	 * into this Probe Configuration.
+	 * @see addResource(String, String)
+	 * @see getResourceList()
+	 */
+	public String getResourcePath(String name) throws FileNotFoundException;
+
+
+	/**
+	 * Get the list of bundle names into this Probe Configuration.
+	 * @return A string array containing all bundle names.
+	 * @see addBundle(String, String, int, int)
+	 * @see getBundleInstallLevel(String)
+	 * @see getBundlePath(String)
 	 * @see getBundleStartLevel(String)
 	 */
 	public String[] getBundleList();
 
 
 	/**
-	 * Get the init level of a specified bundle.
-	 * @param bundleName Name of the bundle.
-	 * @return The init level.
-	 * @exception FileNotFoundException if the bundle is not included
+	 * Get the path of a specified bundle.
+	 * @param name bundle's name.
+	 * @return Path to the bundle in the local file system.
+	 * @throws FileNotFoundException if the specified bundle is not included
 	 * into this Probe Configuration.
-	 * @see addBundle(String, int, int)
+	 * @see addBundle(String, String, int, int)
+	 * @see getBundleList();
+	 */
+	public String getBundlePath(String name) throws FileNotFoundException;
+
+
+	/**
+	 * Get the install level of a specified bundle.
+	 * @param name Bundle's name.
+	 * @return The install level.
+	 * @exception FileNotFoundException if the specified bundle is not included
+	 * into this Probe Configuration.
+	 * @see addBundle(String, String, int, int)
 	 * @see getBundleList()
 	 */
-	public int getBundleInitLevel(String bundleName) throws FileNotFoundException;
+	public int getBundleInstallLevel(String name) throws FileNotFoundException;
 
 
 	/**
 	 * Get the start level of a specified bundle.
-	 * @param bundleName Name of the bundle.
+	 * @param name Bundle's name.
 	 * @return The start level.
-	 * @exception FileNotFoundException if the bundle is not included
+	 * @exception FileNotFoundException if the specified bundle is not included
 	 * into this Probe Configuration.
 	 * @see addBundle(String, int, int)
 	 * @see getBundleList()
 	 */
-	public int getBundleStartLevel(String bundleName) throws FileNotFoundException;
+	public int getBundleStartLevel(String name) throws FileNotFoundException;
 
 
 	/**
-	 * Get the commnd line inside this Probe Configuration.
+	 * Get the command line inside this Probe Configuration.
 	 * @see setCommandLine(String)
 	 */
 	public String getCommandLine();
@@ -140,8 +173,8 @@ public interface IProbeConfiguration
 
 	/**
 	 * Resolve bundle dependencies.
-	 * A new Probe Configuration objet is generated containing also the new
-	 * dependency bundles with correct init and start levels.
+	 * A new Probe Configuration object is generated containing also the new
+	 * dependency bundles with correct install and start levels.
 	 * The generated configuration cannot be saved.
 	 * @return A new Probe Configuration object with all dependencies resolved.
 	 * @see addBundle(String, int, int)
@@ -150,5 +183,4 @@ public interface IProbeConfiguration
 	public IProbeConfiguration resolveDependencies();
 
 }
-
 

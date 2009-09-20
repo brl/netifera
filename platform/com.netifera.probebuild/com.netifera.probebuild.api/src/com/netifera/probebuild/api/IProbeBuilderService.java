@@ -51,7 +51,7 @@ public interface IProbeBuilderService
 	/**
 	 * Get the list of all registered Deployable Probes.
 	 * @return An array of strings containing the names
-	 * of all registered Deployabe Probes.
+	 * of all registered Deployable Probes.
 	 */
 	public String[] listDeployableProbes();
 
