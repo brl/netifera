@@ -92,7 +92,7 @@ public class Workspace implements IWorkspaceEx {
 	private void registerActivationCallback() {
 		/* inject a reference to the workspace in each newly instantiated entity */
 		EventRegistry registry = EventRegistryFactory.forObjectContainer(database);
-		registry.activating().addListener(new EventListener4() {
+		registry.activated().addListener(new EventListener4() {
 
 			public void onEvent(Event4 event, EventArgs args) {
 				if (args instanceof ObjectEventArgs) {
