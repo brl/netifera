@@ -18,12 +18,10 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 
 	protected void activate(ComponentContext context) {
 		InputStream stream;
-		System.out.println("********** activating...");
 		try {
 			stream = context.getBundleContext().getBundle().getEntry("ServerPatterns.xml").openStream();
 			XMLPatternsLoader reader = new XMLPatternsLoader(stream);
 			serverDetectors = reader.getDetectors();
-			System.out.println("************ server detectors count: "+serverDetectors.size());
 			stream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -33,7 +31,6 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 			stream = context.getBundleContext().getBundle().getEntry("ClientPatterns.xml").openStream();
 			XMLPatternsLoader reader = new XMLPatternsLoader(stream);
 			clientDetectors = reader.getDetectors();
-			System.out.println("************ client detectors count: "+clientDetectors.size());
 			stream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -42,7 +39,6 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 			stream = context.getBundleContext().getBundle().getEntry("Triggers.xml").openStream();
 			XMLTriggersLoader  reader = new XMLTriggersLoader(stream);
 			serviceTriggers = reader.getTriggers();
-			System.out.println("************ service triggers count: "+ serviceTriggers.size());
 			stream.close();
 		}	catch(Exception e) {
 			e.printStackTrace();
