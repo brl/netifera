@@ -715,6 +715,9 @@
 	<ServicePattern regex="^..\x81\x85\x00{8}.*">
 		<service>DNS</service>
 	</ServicePattern>
+	<ServicePattern regex="^..\x80\x80\x00{9}$">
+		<service>DNS</service>
+	</ServicePattern>
 	<ServicePattern regex="^.{4}[\x00\x84].{8}.*(i[pP]hone|i[tT]ouch).*">
 		<service>mDNS</service>
 		<os>$regex-group-1</os>
