@@ -50,10 +50,10 @@ public class AddHostByName implements ITool {
 				HostEntity entity = null;
 				if (address instanceof IPv6Address) {
 					AAAARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), name.toString(), (IPv6Address)address);
-					entity = recordEntity.getAddressEntity().getHost();
+					entity = recordEntity.getAddress().getHost();
 				} else {
 					ARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), name.toString(), (IPv4Address)address);
-					entity = recordEntity.getAddressEntity().getHost();
+					entity = recordEntity.getAddress().getHost();
 				}
 				entity.addTag("Target");
 				entity.update();

@@ -185,14 +185,16 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 	}
 	
 	private synchronized DNSRecordEntity createAddressRecord(long realm, long spaceId, String fqdm, InternetAddress address) {
-		final String finalName = normalized(fqdm);
-		final String addressString = address.toString();
+		fqdm = normalized(fqdm);
+		int dotIndex = fqdm.indexOf('.');
+		String domain = new String(fqdm.substring(dotIndex+1));
+		String hostname = new String(fqdm.substring(0, dotIndex));
 
 		DNSRecordEntity record;
 		if (address instanceof IPv4Address) {
-			record = (ARecordEntity) getWorkspace().findByKey(ARecordEntity.createQueryKey(realm, addressString, finalName));
+			record = (ARecordEntity) getWorkspace().findByKey(ARecordEntity.createQueryKey(realm, address.toString(), fqdm));
 		} else {
-			record = (AAAARecordEntity) getWorkspace().findByKey(AAAARecordEntity.createQueryKey(realm, addressString, finalName));
+			record = (AAAARecordEntity) getWorkspace().findByKey(AAAARecordEntity.createQueryKey(realm, address.toString(), fqdm));
 		}
 		if(record != null) {
 			record.addToSpace(spaceId);
@@ -201,32 +203,31 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 
 		// use spaceId=0 to avoid commiting to the space yet, we'll commit once the entity is tagged
 		InternetAddressEntity addressEntity = networkEntityFactory.createAddress(realm, 0, address);
-		addressEntity.addName(finalName);
+		addressEntity.addName(fqdm);
 		addressEntity.save();
 		HostEntity hostEntity = addressEntity.getHost();
 		if (hostEntity.getLabel() == null) { //just set the first name discovered
-			hostEntity.setLabel(finalName+" ("+address+")");
+			hostEntity.setLabel(fqdm+" ("+address+")");
 		}
 		
-		DomainEntity domainEntity = findDomain(realm, finalName); // XXX eh? look for .name?
+		DomainEntity domainEntity = findDomain(realm, domain);
 		if (domainEntity == null) {
-			String domain = finalName.substring(finalName.indexOf('.')+1);
 			domainEntity = createDomain(realm, spaceId, domain);
 		}
 		
 		if (!domainEntity.isTLD()) {
 			hostEntity.addTag(domainEntity.getLevel(2).getFQDM());
 		} else {
-			hostEntity.addTag(finalName);
+			hostEntity.addTag(fqdm);
 		}
 		
 		hostEntity.update();
 		hostEntity.addToSpace(spaceId);
 		
 		if (address instanceof IPv4Address) {
-			record = new ARecordEntity(getWorkspace(), realm, domainEntity.createReference(), finalName, addressEntity.createReference());
+			record = new ARecordEntity(getWorkspace(), realm, domainEntity.createReference(), hostname, addressEntity.createReference());
 		} else {
-			record = new AAAARecordEntity(getWorkspace(), realm, domainEntity.createReference(), finalName, addressEntity.createReference());
+			record = new AAAARecordEntity(getWorkspace(), realm, domainEntity.createReference(), hostname, addressEntity.createReference());
 		}
 		record.save();
 		record.addToSpace(spaceId);
@@ -235,6 +236,10 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 	
 	public synchronized PTRRecordEntity createPTRRecord(long realm, long spaceId, InternetAddress address, String fqdm) {
 		fqdm = normalized(fqdm);;
+		int dotIndex = fqdm.indexOf('.');
+		String domain = new String(fqdm.substring(dotIndex+1));
+		String hostname = new String(fqdm.substring(0, dotIndex));
+		
 		if (fqdm.endsWith(".arpa")) { // invalid PTR entry (mostly error in bind zone
 			return null;
 		}
@@ -253,9 +258,8 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 		if (hostEntity.getLabel() == null) { //just set the first name discovered
 			hostEntity.setLabel(fqdm+" ("+address+")");
 		}
-		DomainEntity domainEntity = findDomain(realm, fqdm);
+		DomainEntity domainEntity = findDomain(realm, domain);
 		if (domainEntity == null) {
-			String domain = fqdm.substring(fqdm.indexOf(".")+1);
 			domainEntity = createDomain(realm, spaceId, domain);
 		}
 
@@ -267,7 +271,7 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 		hostEntity.update();
 		hostEntity.addToSpace(spaceId);
 		
-		ptr = new PTRRecordEntity(getWorkspace(), realm, domainEntity.createReference(), addressEntity.createReference(), fqdm);
+		ptr = new PTRRecordEntity(getWorkspace(), realm, domainEntity.createReference(), addressEntity.createReference(), hostname);
 		ptr.save();
 		ptr.addToSpace(spaceId);
 		return ptr;
