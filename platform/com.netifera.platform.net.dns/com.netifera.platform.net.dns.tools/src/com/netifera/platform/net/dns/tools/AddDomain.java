@@ -125,6 +125,7 @@ public class AddDomain implements ITool {
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the NS record entity
 			}
 			entity.save();
+			entity.update();
 		} catch (UnknownHostException e) {
 			context.warning("Could not resolve NS record target "+ns.getTarget());
 		} catch (TextParseException e) {
@@ -147,6 +148,7 @@ public class AddDomain implements ITool {
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the MX record entity
 			}
 			entity.save();
+			entity.update();
 		} catch (UnknownHostException e) {
 			context.warning("Could not resolve MX record target "+mx.getTarget());
 		} catch (TextParseException e) {
