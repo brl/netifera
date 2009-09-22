@@ -50,14 +50,14 @@ public class HTTPSniffer implements ITCPBlockSniffer {
 		String userAgent = null;
 		for (String header: requestLines) {
 			if (header.startsWith("User-Agent: ")) {
-				userAgent = header.substring(12);
+				userAgent = new String(header.substring(12));
 				break;
 			}
 		}
 		String contentType = null;
 		for (String header: responseLines) {
 			if (header.startsWith("Content-Type: ")) {
-				contentType = header.substring(14);
+				contentType = new String(header.substring(14));
 				break;
 			}
 		}

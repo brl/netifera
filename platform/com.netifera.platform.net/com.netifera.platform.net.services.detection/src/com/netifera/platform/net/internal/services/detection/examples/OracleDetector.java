@@ -52,7 +52,7 @@ public class OracleDetector implements INetworkServiceDetector {
 		
 		int listenerDescriptionIndex = response.indexOf("TNSLSNR");
 		if (listenerDescriptionIndex != -1) {
-			answer.put("banner", response.substring(listenerDescriptionIndex)
+			answer.put("banner", new String(response.substring(listenerDescriptionIndex))
 					.split("[^\\p{Print}\\p{Blank}]")[0]);
 		}
 		
