@@ -79,8 +79,11 @@ public class Task implements Runnable, ITaskProgress, ITaskPrompter, ITaskMessen
 			status.setFailed();
 			output.changed();
 		} catch (Exception e) {
-			logger.warning("Unhandled exception in task running tool: " + this, e);
-			error("Unexpected error, please contact technical support.\n" + e);
+			StringWriter stringWriter = new StringWriter();
+			e.printStackTrace(new PrintWriter(stringWriter));
+			String stackTrace = stringWriter.getBuffer().toString();
+			logger.error("Unhandled exception in task running tool: " + this, e);
+			error("Unexpected error: "+stackTrace);
 			status.setFailed();
 			output.changed();
 		}
