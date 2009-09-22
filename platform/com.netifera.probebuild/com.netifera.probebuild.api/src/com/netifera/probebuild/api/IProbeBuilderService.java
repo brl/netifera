@@ -42,7 +42,7 @@ public interface IProbeBuilderService
 	 * Get a registered Deployable Probe.
 	 * @param name Name of the Deployable Probe;
 	 * @return The Deployable Probe object.
-	 * @see enumerateDeployableProbes()
+	 * @see listDeployableProbes()
 	 * @see IProbeDeployable
 	 */
 	public IProbeDeployable getProbeDeployable(String name);
