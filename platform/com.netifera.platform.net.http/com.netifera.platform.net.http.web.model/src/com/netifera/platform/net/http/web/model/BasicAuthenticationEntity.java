@@ -8,7 +8,7 @@ import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.util.HexaEncoding;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
-public class HTTPBasicAuthenticationEntity extends AbstractEntity {
+public class BasicAuthenticationEntity extends AbstractEntity {
 	
 	private static final long serialVersionUID = -8225385855212258380L;
 
@@ -17,14 +17,14 @@ public class HTTPBasicAuthenticationEntity extends AbstractEntity {
 	private final IEntityReference site;
 	private final String authenticationRealm;
 	
-	public HTTPBasicAuthenticationEntity(IWorkspace workspace, long realm, IEntityReference site, String authenticationRealm) {
+	public BasicAuthenticationEntity(IWorkspace workspace, long realm, IEntityReference site, String authenticationRealm) {
 		super(ENTITY_TYPE, workspace, realm);
 		
 		this.site = site;
 		this.authenticationRealm = authenticationRealm;
 	}
 
-	HTTPBasicAuthenticationEntity() {
+	BasicAuthenticationEntity() {
 		site = null;
 		authenticationRealm = null;
 	}

@@ -9,7 +9,7 @@ import java.util.Map;
 import com.netifera.platform.api.model.IModelPredicate;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.model.IWorkspace;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.HTTPResponseEntity;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
@@ -142,7 +142,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 		return answer;
 	}
 
-	public synchronized HTTPBasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
+	public synchronized WebPageEntity createWebPageWithBasicAuthentication(final long realm, long spaceId,
 			TCPSocketLocator http, URI url, final String authenticationRealm) {
 
 		url = url.normalize();
@@ -150,17 +150,33 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
 
-		HTTPBasicAuthenticationEntity answer = (HTTPBasicAuthenticationEntity) getWorkspace().findByKey(HTTPBasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
 		if (answer != null) {
 			answer.addToSpace(spaceId);
 		} else {
-			answer = new HTTPBasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
+			answer = new BasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
 			answer.save();
 			answer.addToSpace(spaceId);
 		}
 		WebPageEntity page = createWebPage(realm, spaceId, http, url, null);
 		page.setAuthentication(answer);
 		page.update();
+		return page;
+	}
+
+	public synchronized BasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
+			TCPSocketLocator http, String hostname, final String authenticationRealm) {
+
+		final WebSiteEntity site = createWebSite(realm, spaceId, http, hostname);
+
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
+		if (answer != null) {
+			answer.addToSpace(spaceId);
+		} else {
+			answer = new BasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
+			answer.save();
+			answer.addToSpace(spaceId);
+		}
 		return answer;
 	}
 

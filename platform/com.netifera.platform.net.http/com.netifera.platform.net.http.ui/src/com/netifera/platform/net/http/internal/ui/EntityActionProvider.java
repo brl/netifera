@@ -11,7 +11,7 @@ import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.tools.HTTPBasicAuthBruteforcer;
 import com.netifera.platform.net.http.tools.WebApplicationScanner;
 import com.netifera.platform.net.http.tools.WebCrawler;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.model.ServiceEntity;
@@ -53,7 +53,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 			addWebCrawler("Crawl web site starting at "+page.getPath(), answer, http, page.getURL());
 			
-			if (page.getAuthentication() instanceof HTTPBasicAuthenticationEntity) {
+			if (page.getAuthentication() instanceof BasicAuthenticationEntity) {
 //				HTTPBasicAuthenticationEntity auth = (HTTPBasicAuthenticationEntity) page.getAuthentication();
 				ToolAction bruteforcer = new ToolAction("Bruteforce authentication", HTTPBasicAuthBruteforcer.class.getName());
 				bruteforcer.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));

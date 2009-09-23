@@ -13,7 +13,7 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.model.TreeStructureContext;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.HTTPResponseEntity;
 import com.netifera.platform.net.http.web.model.WebApplicationEntity;
@@ -69,11 +69,11 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 			return ((WebSiteEntity) e).getRootURL();
 		} else if (e instanceof WebPageEntity) {
 			WebPageEntity page = (WebPageEntity)e;
-			if (page.getAuthentication() instanceof HTTPBasicAuthenticationEntity)
-				return page.getPath()+" ["+((HTTPBasicAuthenticationEntity)page.getAuthentication()).getAuthenticationRealm()+"]";
+			if (page.getAuthentication() instanceof BasicAuthenticationEntity)
+				return page.getPath()+" ["+((BasicAuthenticationEntity)page.getAuthentication()).getAuthenticationRealm()+"]";
 			return page.getPath();
-		} else if (e instanceof HTTPBasicAuthenticationEntity) {
-			HTTPBasicAuthenticationEntity auth = (HTTPBasicAuthenticationEntity)e;
+		} else if (e instanceof BasicAuthenticationEntity) {
+			BasicAuthenticationEntity auth = (BasicAuthenticationEntity)e;
 			return "WWW-Authenticate: Basic realm=\""+auth.getAuthenticationRealm()+"\"";
 		} else if (e instanceof WebFormAuthenticationEntity) {
 			WebFormAuthenticationEntity auth = (WebFormAuthenticationEntity)e;
@@ -115,7 +115,7 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 			return getMIMEImage(page.getContentType());
 		} else if (e instanceof WebApplicationEntity) {
 			return images.get(WEBAPP);
-		} else if (e instanceof HTTPBasicAuthenticationEntity) {
+		} else if (e instanceof BasicAuthenticationEntity) {
 			return images.get(AUTH);
 		} else if (e instanceof WebFormAuthenticationEntity) {
 			return images.get(AUTH);
