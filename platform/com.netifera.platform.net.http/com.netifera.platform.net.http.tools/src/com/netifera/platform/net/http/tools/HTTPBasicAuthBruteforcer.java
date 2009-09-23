@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
+import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
@@ -45,8 +46,8 @@ public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	@Override
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		//TODO put the credential in the proper authenticable
-		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target.getLocator(), up.getUsernameString(), up.getPasswordString());
+		WebSiteEntity webSiteEntity = Activator.getInstance().getWebEntityFactory().createWebSite(realm, context.getSpaceId(), target.getLocator(), hostname);
+		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), webSiteEntity, up.getUsernameString(), up.getPasswordString());
 		super.authenticationSucceeded(credential);
 	}
 	

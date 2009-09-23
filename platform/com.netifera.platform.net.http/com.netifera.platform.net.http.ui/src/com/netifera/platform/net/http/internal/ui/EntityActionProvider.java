@@ -54,10 +54,9 @@ public class EntityActionProvider implements IEntityActionProvider {
 			addWebCrawler("Crawl web site starting at "+page.getPath(), answer, http, page.getURL());
 			
 			if (page.getAuthentication() instanceof BasicAuthenticationEntity) {
-//				HTTPBasicAuthenticationEntity auth = (HTTPBasicAuthenticationEntity) page.getAuthentication();
 				ToolAction bruteforcer = new ToolAction("Bruteforce authentication", HTTPBasicAuthBruteforcer.class.getName());
 				bruteforcer.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
-				bruteforcer.addOption(new StringOption("hostname", "Host name", "Host name for the web site", page.getWebSite().getHostName()));
+				bruteforcer.addOption(new StringOption("hostname", "Host name", "Host name for the web site", page.getWebSite().getVirtualHostName()));
 				bruteforcer.addOption(new StringOption("path", "Path", "Path that requires authentication", page.getPath()));
 				bruteforcer.addOption(new StringOption("method", "Method", "GET/POST", "GET"));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
@@ -74,7 +73,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			WebSiteEntity site = (WebSiteEntity) entity;
 			http = (HTTP) site.getHTTP().getAdapter(HTTP.class);
 			addWebCrawler("Crawl web site", answer, http, site.getRootURL());
-			addWebApplicationScanner("Scan for web applications", answer, http, site.getHostName());
+			addWebApplicationScanner("Scan for web applications", answer, http, site.getVirtualHostName());
 		}
 		
 		return answer;
