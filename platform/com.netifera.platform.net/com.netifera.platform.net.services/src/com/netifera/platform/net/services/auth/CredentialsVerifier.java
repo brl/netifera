@@ -5,19 +5,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-
 import com.netifera.platform.net.services.credentials.Credential;
 
 public abstract class CredentialsVerifier {
 	protected Iterator<Credential> credentials;
 	private final Queue<Credential> retryCredentials = new LinkedList<Credential>();
 	protected AuthenticationListener listener;
+	private boolean canceled = false;
 
 	protected boolean hasNextCredential() {
-		return credentials.hasNext() || !retryCredentials.isEmpty();
+		return !canceled && (credentials.hasNext() || !retryCredentials.isEmpty());
 	}
 	
 	protected Credential nextCredentialOrNull() {
+		if (canceled) return null;
 		synchronized(credentials) {
 			synchronized(retryCredentials) {
 				Credential retry = retryCredentials.poll();
@@ -35,4 +36,8 @@ public abstract class CredentialsVerifier {
 	}
 
 	public abstract void tryCredentials(Iterator<Credential> credentials, AuthenticationListener listener) throws IOException, InterruptedException;
+	
+	public void cancel() {
+		canceled = true;
+	}
 }

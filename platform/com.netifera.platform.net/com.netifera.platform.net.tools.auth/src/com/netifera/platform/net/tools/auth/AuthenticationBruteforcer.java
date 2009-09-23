@@ -17,13 +17,15 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	private FiniteIterable<Credential> credentials;
 	private Iterator<Credential> credentialsIterator;
 	private CredentialsVerifier verifier;
+	
+	private boolean singleMode = false;
 
 	protected IToolContext context;
 	protected long realm;
 
 	protected abstract CredentialsVerifier createCredentialsVerifier();
 	protected abstract FiniteIterable<Credential> createCredentials();
-
+	
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
 
@@ -52,15 +54,15 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	
 //	@SuppressWarnings("unchecked")
 	protected void setupToolOptions() {
-		try {
 //		credentials = (IndexedIterable<Credential>) context.getConfiguration().get("credentials");
 //		if (credentials == null)
 			credentials = createCredentials();
 		credentialsIterator = credentials.iterator();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+
+		Boolean singleMode = (Boolean) context.getConfiguration().get("singleMode");
+		if (singleMode != null)
+			this.singleMode = singleMode;
+}
 
 	public void authenticationError(Credential credential, Throwable e) {
 		String msg = e.getLocalizedMessage();
@@ -78,5 +80,8 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	public void authenticationSucceeded(Credential credential) {
 		context.info("Found valid credential: "+credential);
 		context.worked(1);
+		
+		if (singleMode)
+			verifier.cancel();
 	}
 }

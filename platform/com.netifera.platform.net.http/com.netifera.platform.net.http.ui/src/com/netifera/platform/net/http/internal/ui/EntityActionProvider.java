@@ -66,6 +66,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
 				bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
 				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+				bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", true));
 				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
 				answer.add(bruteforcer);
 			}
