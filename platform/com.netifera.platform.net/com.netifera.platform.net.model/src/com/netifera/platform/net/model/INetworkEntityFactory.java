@@ -2,6 +2,7 @@ package com.netifera.platform.net.model;
 
 import java.util.Map;
 
+import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetNetblock;
@@ -22,7 +23,9 @@ public interface INetworkEntityFactory {
 	void setOperatingSystem(long realm, long space, InternetAddress address, String os);
 
 	UserEntity createUser(long realm, long space, InternetAddress address, String username);
-	
+
+	PasswordEntity createPassword(long realm, long space, IEntity authenticable, String password);
 	PasswordEntity createPassword(long realm, long space, ISocketLocator service, String password);
+	UsernameAndPasswordEntity createUsernameAndPassword(long realm, long space, IEntity authenticable, String username, String password);
 	UsernameAndPasswordEntity createUsernameAndPassword(long realm, long space, ISocketLocator service, String username, String password);
 }
