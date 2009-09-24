@@ -34,28 +34,28 @@ public class UsernameAndPasswordGenerator implements FiniteIterable<Credential> 
 	}
 
 	public Iterator<Credential> iterator() {
-		final Iterator<String> usernamesIterator = usernames.iterator();
+		final Iterator<String> passwordsIterator = passwords.iterator();
 		return new Iterator<Credential>() {
-			private String currentUsername = usernamesIterator.next();
-			private Iterator<String> passwordsIterator = passwords.iterator();
+			private String password = passwordsIterator.next();
+			private Iterator<String> usernamesIterator = usernames.iterator();
 			
 			public boolean hasNext() {
 				return usernamesIterator.hasNext() || passwordsIterator.hasNext();
 			}
 
 			public UsernameAndPassword next() {
-				if (!passwordsIterator.hasNext()) {
-					currentUsername = usernamesIterator.next();
-					passwordsIterator = passwords.iterator();
+				if (!usernamesIterator.hasNext()) {
+					password = passwordsIterator.next();
+					if (password.equals("%null%"))
+						password = "";
+					usernamesIterator = usernames.iterator();
 				}
 				
-				String password = passwordsIterator.next();
-				if (password.equals("%null%"))
-					password = "";
-				else if (password.contains("%username%"))
-					password = password.replace("%username%", currentUsername);
+				String username = usernamesIterator.next();
+				if (username.equals("%null%"))
+					username = "";
 
-				return new UsernameAndPassword(currentUsername.equals("%null%") ? "" : currentUsername, password);
+				return new UsernameAndPassword(username, password.contains("%username%") ? password.replaceAll("%username%", username) : password);
 			}
 
 			public void remove() {
