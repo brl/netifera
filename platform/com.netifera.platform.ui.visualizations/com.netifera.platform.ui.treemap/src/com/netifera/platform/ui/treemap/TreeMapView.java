@@ -1,12 +1,14 @@
 package com.netifera.platform.ui.treemap;
 
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -30,6 +32,7 @@ import com.netifera.platform.api.model.layers.ILayerProvider;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.actions.ChooseLayerAction;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
@@ -37,7 +40,6 @@ public class TreeMapView extends ViewPart {
 
 	public static final String ID = "com.netifera.platform.views.treemap";
 
-	private List<ILayerProvider> layerProviders = new ArrayList<ILayerProvider>();
 	private IGroupLayerProvider colorLayerProvider;
 
 	private ISpace space;
@@ -45,51 +47,6 @@ public class TreeMapView extends ViewPart {
 
 	private TreeMapWidget treeMapWidget;
 	
-	static private final Color[] palette = new Color[] {
-		new Color(255, 255, 150, 192),
-		new Color(202, 62, 94, 192),
-		new Color(255, 152, 213, 192),
-		new Color(83, 140, 208, 192),
-		new Color(178, 220, 205, 192),
-		new Color(146, 248, 70, 192),
-		
-		new Color(255,255,0, 192),
-		new Color(255,200,47, 192),
-		new Color(255,118,0, 192),
-		new Color(255,0,0, 192),
-		new Color(175,13,102, 192),
-		new Color(121,33,135, 192)
-		
-/*		new Color(0xff, 0xc8, 0x00, 0xc0),
-		new Color(0xff, 0x00, 0xc8, 0xc0),
-		new Color(0xc8, 0x00, 0xff, 0xc0),
-		new Color(0x00, 0xc8, 0xff, 0xc0),
-		new Color(0xc8, 0xff, 0x00, 0xc0),
-		new Color(0x00, 0xff, 0xc8, 0xc0),
-
-/*		Color.RED,
-		Color.GREEN,
-		Color.BLUE,
-		Color.YELLOW,
-		Color.MAGENTA,
-		Color.ORANGE,
-		Color.CYAN,
-		Color.PINK
-*/	};
-
-	
-	public TreeMapView() {
-/*		for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-			if (layerProvider.isDefaultEnabled() &&
-					(layerProvider instanceof IGeographicalLayerProvider || layerProvider instanceof IEdgeLayerProvider))
-				layerProviders.add(layerProvider);
-		}
-*/	}
-
-	/**
-	 * This is a callback that will allow us to create the viewer and initialize
-	 * it.
-	 */
 	@Override
 	public void createPartControl(final Composite parent) {
 		
@@ -157,37 +114,13 @@ public class TreeMapView extends ViewPart {
 	}
 
 	private void initializeToolBar() {
-/*		IToolBarManager toolbarManager = getViewSite().getActionBars()
-				.getToolBarManager();
-		toolbarManager.add(new SelectLayersAction() {
-			@Override
-			protected void disableLayer(ILayerProvider provider) {
-				removeLayer(provider);
-			}
-			@Override
-			protected void enableLayer(ILayerProvider provider) {
-				addLayer(provider);
-			}
-			@Override
-			protected List<ILayerProvider> getActiveLayers() {
-				return WorldView.this.getLayers();
-			}
-			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGeographicalLayerProvider || layerProvider instanceof IEdgeLayerProvider)
-						answer.add(layerProvider);
-				}
-				return answer;
-			}
-		});
+		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 		
-		toolbarManager.add(new ChooseLayerAction("Set Color", Activator.getDefault().getImageCache().getDescriptor("icons/colors.png")) {
+		toolbarManager.add(new ChooseLayerAction("Set Color", Activator.getInstance().getImageCache().getDescriptor("icons/colors.png")) {
 			@Override
 			protected List<ILayerProvider> getLayers() {
 				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
+				for (ILayerProvider layerProvider: Activator.getInstance().getModel().getLayerProviders()) {
 					if (layerProvider instanceof IGroupLayerProvider)
 						answer.add(layerProvider);
 				}
@@ -202,12 +135,7 @@ public class TreeMapView extends ViewPart {
 				setColorLayer((IGroupLayerProvider)provider);
 			}
 		});
-		
-		toolbarManager.add(new ToggleOverviewAction(this));
-		toolbarManager.add(new ToggleLabelsAction(this));
-		toolbarManager.add(new TogglePlaceNamesAction(this));
-		toolbarManager.add(new ToggleFollowNewEntitiesAction(this));
-*/	}
+	}
 
 	@Override
 	public void setFocus() {
@@ -273,27 +201,31 @@ public class TreeMapView extends ViewPart {
 	private synchronized void removeEntity(IEntity entity) {
 	}
 
-	public void addLayer(ILayerProvider layerProvider) {
-		layerProviders.add(layerProvider);
-		setSpace(space);//to repopulate
-	}
-	
-	public void removeLayer(ILayerProvider layerProvider) {
-		layerProviders.remove(layerProvider);
-		setSpace(space);//to repopulate
-	}
-
-	public List<ILayerProvider> getLayers() {
-		return layerProviders;
-	}
-	
 	public IGroupLayerProvider getColorLayer() {
 		return colorLayerProvider;
 	}
 	
 	public void setColorLayer(IGroupLayerProvider layerProvider) {
 		colorLayerProvider = layerProvider;
+		treeMapWidget.setColorProvider(new IColorProvider() {
+			Color[] palette = {Display.getDefault().getSystemColor(SWT.COLOR_BLUE),
+					Display.getDefault().getSystemColor(SWT.COLOR_GREEN),
+					Display.getDefault().getSystemColor(SWT.COLOR_YELLOW),
+					Display.getDefault().getSystemColor(SWT.COLOR_RED)};
+			
+			public Color getBackground(Object element) {
+				return getForeground(element);
+			}
+
+			public Color getForeground(Object element) {
+				for (String group: colorLayerProvider.getGroups((IEntity)element)) {
+					int v = group.hashCode();
+					if (v < 0) v = -v;
+					return palette[v % palette.length];
+				}
+				return Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+			}
+		});
 		setSpace(space);//to repopulate
 	}
-
 }
