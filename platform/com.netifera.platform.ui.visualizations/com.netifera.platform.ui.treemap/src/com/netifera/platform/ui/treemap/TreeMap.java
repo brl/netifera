@@ -6,8 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Display;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
@@ -115,8 +118,20 @@ public class TreeMap implements Iterable<IEntity> {
 			gc.setBackground(color);
 			gc.fillRectangle(x, y, extent, extent+1);
 		}
+
+		if (netblock.getCIDR() > 0) {
+			String label = ""+(netblock.getNetworkAddress().toBytes()[netblock.getCIDR()/8-1] & 0xff);
+			Point labelExtent = gc.stringExtent(label);
+			if (extent >= Math.max(labelExtent.x, labelExtent.y)+4) {
+				gc.setAlpha(100);
+				gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+				gc.drawString(label, x+2, y+2, true);
+			}
+		} else {
+			//TODO draw top level labels
+		}
 		
-		if (extent >= 0) {
+		if (extent > 0) {//XXX
 			for (int i=0; i<16; i++) {
 				for (int j=0; j<16; j++) {
 					TreeMap submap = submaps[i*16+j];
