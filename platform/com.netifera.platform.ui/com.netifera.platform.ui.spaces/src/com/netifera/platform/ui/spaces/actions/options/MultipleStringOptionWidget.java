@@ -5,7 +5,6 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
@@ -17,7 +16,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.netifera.platform.tools.options.MultipleStringOption;
@@ -46,7 +44,7 @@ public class MultipleStringOptionWidget extends OptionWidget {
 		table.setLayoutData(gd);
 		table.setToolTipText(option.getDescription());
 
-		TableColumn col1 = new TableColumn(table, SWT.NONE);
+//		TableColumn col1 = new TableColumn(table, SWT.NONE);
 //		col1.setText("Name");
 //		TableColumn col2 = new TableColumn(table, SWT.NONE);
 //		col2.setText("Size");
@@ -95,7 +93,7 @@ public class MultipleStringOptionWidget extends OptionWidget {
 		
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+//				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
 //				System.out.println(sel.size() + " items selected, " + viewer.getCheckedElements().length + " items checked");
 				setOptionValue();
 				modified();

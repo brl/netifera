@@ -18,11 +18,16 @@ public class MultipleStringOption extends Option implements IParsableOption {
 		this.defaultSelection = values;
 		setToDefault();
 	}
-	
+
 	public MultipleStringOption(String name, String label, String description, String[] possibleValues) {
 		this(name, label, description, new String[0], possibleValues);
 	}
-	
+
+	public MultipleStringOption(String name, String label, String description, String section, String[] possibleValues) {
+		this(name, label, description, possibleValues);
+		setSection(section);
+	}
+
 	public String[] getValue() {
 		return values;
 	}

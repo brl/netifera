@@ -1,7 +1,9 @@
 package com.netifera.platform.ui.spaces.actions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -17,11 +19,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.HyperlinkSettings;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
-import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ImageHyperlink;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.Section;
 
 import com.netifera.platform.api.tools.IOption;
 import com.netifera.platform.tools.options.BooleanOption;
@@ -41,10 +46,10 @@ import com.netifera.platform.ui.spaces.actions.options.MultipleStringOptionWidge
 import com.netifera.platform.ui.spaces.actions.options.OptionWidget;
 import com.netifera.platform.ui.spaces.actions.options.StringOptionWidget;
 
-public class RunActionDialog extends PopupDialog {
+public class RunActionHover extends PopupDialog {
 	
 	private FormToolkit toolkit;
-	private Form form;
+	private ScrolledForm form;
 	private Composite body;
 
 	private final ISpaceAction action;
@@ -55,7 +60,7 @@ public class RunActionDialog extends PopupDialog {
 	private ImageHyperlink runLink;
 	
 	
-	public RunActionDialog(Shell parent, Point location, ISpaceAction action) {
+	public RunActionHover(Shell parent, Point location, ISpaceAction action) {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP, true, false, false, false, false, /*action.getText()*/ null, "Press ESC to exit");
 		this.action = action;
 		
@@ -73,7 +78,7 @@ public class RunActionDialog extends PopupDialog {
 		composite.setLayout(new FillLayout());
 		
 		toolkit = new FormToolkit(composite.getDisplay());
-		form = toolkit.createForm(composite);
+		form = toolkit.createScrolledForm(composite);
 		
 		FormColors colors = toolkit.getColors();
 		colors.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
@@ -85,10 +90,12 @@ public class RunActionDialog extends PopupDialog {
 		toolkit.getHyperlinkGroup().setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		
 		body = form.getBody();
-		body.setLayout(new GridLayout());
+		GridLayout bodyLayout = new GridLayout();
+//		bodyLayout.verticalSpacing = 5;
+		body.setLayout(bodyLayout);
 //		body.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		toolkit.paintBordersFor(body);
-
+		
 		return composite;
 	}
 
@@ -100,9 +107,9 @@ public class RunActionDialog extends PopupDialog {
 		
 		form.setText(action.getText());
 		
-		form.setSeparatorVisible(true);
+//		form.setSeparatorVisible(true);
 		
-		toolkit.decorateFormHeading(form);
+//		toolkit.decorateFormHeading(form);
 	}
 
 	private void updateRunButton() {
@@ -116,42 +123,74 @@ public class RunActionDialog extends PopupDialog {
 		runLink.setVisible(true);
 	}
 	
+	private void addOption(Composite parent, IOption option) {
+		if(option instanceof StringOption) {
+			StringOptionWidget widget = new StringOptionWidget(parent, toolkit, (StringOption)option) {
+				protected void accept() {
+					safeRun();
+				}
+				protected void modified() {
+					updateRunButton();
+				}
+			};
+			widgets.add(widget);
+		} else if(option instanceof IntegerOption) {
+			IntegerOptionWidget widget = new IntegerOptionWidget(parent, toolkit, (IntegerOption)option) {
+				protected void accept() {
+					safeRun();
+				}
+				protected void modified() {
+					updateRunButton();
+				}
+			};
+			widgets.add(widget);
+		} else if(option instanceof BooleanOption) {
+			widgets.add(new BooleanOptionWidget(parent, toolkit, (BooleanOption)option));
+		} else if(option instanceof GenericOption) {
+			widgets.add(new GenericOptionWidget(parent, toolkit, (GenericOption)option, action.getSpace()));
+		} else if(option instanceof IterableOption) {
+			widgets.add(new IterableOptionWidget(parent, toolkit, (IterableOption)option));
+		} else if(option instanceof MultipleStringOption) {
+			widgets.add(new MultipleStringOptionWidget(parent, toolkit, (MultipleStringOption)option));
+		} else {
+			//FIXME
+			System.err.println("UI cannot handle option "+option);
+		}
+	}
+	
 	private void addOptions() {
-		for(IOption op : action.getConfiguration().getOptions()) {
-			if(op instanceof Option && ((Option)op).isFixed())
-				continue;
-			if(op instanceof StringOption) {
-				StringOptionWidget widget = new StringOptionWidget(body, toolkit, (StringOption)op) {
-					protected void accept() {
-						safeRun();
+		Map<String, Composite> sections = new HashMap<String, Composite>();
+		
+		for(IOption option : action.getConfiguration().getOptions()) {
+			Composite parent = body;
+			if (option instanceof Option) {
+				if (((Option)option).isFixed())
+					continue;
+				String sectionName = ((Option)option).getSection();
+				if (sectionName != null) {
+					parent = sections.get(sectionName);
+					if (parent == null) {
+						Section section = toolkit.createSection(body, Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
+//						TableWrapData td = new TableWrapData(TableWrapData.FILL);
+//						td.colspan = 2;
+//						section.setLayoutData(td);
+						section.setExpanded(false);
+						section.addExpansionListener(new ExpansionAdapter() {
+							public void expansionStateChanged(ExpansionEvent e) {
+								form.reflow(true);
+							}
+						});
+						section.setText(sectionName);
+//						section.setDescription("This is the description that goes below the title");
+						Composite sectionClient = toolkit.createComposite(section);
+						sectionClient.setLayout(new GridLayout());
+						section.setClient(sectionClient);
+						sections.put(sectionName, sectionClient);
+						parent = sectionClient;
 					}
-					protected void modified() {
-						updateRunButton();
-					}
-				};
-				widgets.add(widget);
-			} else if(op instanceof IntegerOption) {
-				IntegerOptionWidget widget = new IntegerOptionWidget(body, toolkit, (IntegerOption)op) {
-					protected void accept() {
-						safeRun();
-					}
-					protected void modified() {
-						updateRunButton();
-					}
-				};
-				widgets.add(widget);
-			} else if(op instanceof BooleanOption) {
-				widgets.add(new BooleanOptionWidget(body, toolkit, (BooleanOption)op));
-			} else if(op instanceof GenericOption) {
-				widgets.add(new GenericOptionWidget(body, toolkit, (GenericOption)op, action.getSpace()));
-			} else if(op instanceof IterableOption) {
-				widgets.add(new IterableOptionWidget(body, toolkit, (IterableOption)op));
-			} else if(op instanceof MultipleStringOption) {
-				widgets.add(new MultipleStringOptionWidget(body, toolkit, (MultipleStringOption)op));
-			} else {
-				//FIXME
-				System.err.println("UI cannot handle option "+op);
+				}
 			}
+			addOption(parent, option);
 		}
 
 		runLink = toolkit.createImageHyperlink(body, SWT.NONE);

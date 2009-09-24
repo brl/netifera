@@ -9,15 +9,25 @@ public class StringOption extends Option implements IParsableOption {
 	String defaultValue;
 	boolean allowEmpty;
 
-	public StringOption(final String name, final String label, final String description, final String value) {
+	public StringOption(String name, String label, String description, String value) {
 		this(name, label, description, value, false);
 	}
 
-	public StringOption(final String name, final String label, final String description, final String value, final boolean allowEmpty) {
+	public StringOption(String name, String label, String description, String section, String value) {
+		this(name, label, description, value);
+		setSection(section);
+	}
+
+	public StringOption(String name, String label, String description, String value, boolean allowEmpty) {
 		super(name, label, description);
 		this.value = value;
 		this.defaultValue = value;
 		this.allowEmpty = allowEmpty;
+	}
+	
+	public StringOption(String name, String label, String description, String section, String value, boolean allowEmpty) {
+		this(name, label, description, value, allowEmpty);
+		setSection(section);
 	}
 	
 	public String getValue() {

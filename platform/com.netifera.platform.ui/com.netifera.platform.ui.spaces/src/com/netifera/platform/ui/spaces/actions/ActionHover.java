@@ -123,7 +123,9 @@ public class ActionHover extends PopupDialog {
 		toolkit.getHyperlinkGroup().setBackground(background);
 
 		body = form.getBody();
-		body.setLayout(new GridLayout());
+		GridLayout bodyLayout = new GridLayout();
+//		bodyLayout.verticalSpacing = 5;
+		body.setLayout(bodyLayout);
 		toolkit.paintBordersFor(body);
 
 		return composite;
@@ -298,7 +300,7 @@ public class ActionHover extends PopupDialog {
 					if (((ToolConfiguration) spaceAction.getConfiguration()).isFixed()) {
 						spaceAction.run();
 					} else {
-						RunActionDialog runActionDialog = new RunActionDialog(getParentShell(), getShell().getLocation(), spaceAction);
+						RunActionHover runActionDialog = new RunActionHover(getParentShell(), getShell().getLocation(), spaceAction);
 						runActionDialog.open();
 					}
 				} else {
