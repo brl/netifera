@@ -13,27 +13,34 @@ import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
+import com.netifera.platform.net.ssh.deploy.SSHProbeDeployer;
 import com.netifera.platform.net.ssh.filesystem.SFTPFileSystem;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.SpaceAction;
+import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public class EntityActionProvider implements IEntityActionProvider {
 	
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
-		
 		SSH ssh = (SSH) entity.getAdapter(SSH.class);
 		if (ssh != null) {
-//			ToolAction sshAuthBruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
-//			ftpAuthBruteforcer.setSummary("Try credentials on FTP service.");
-//			ftpAuthBruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
-//			ftpAuthBruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-//			answer.add(ftpAuthBruteforcer);
+//			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
+//			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
+//			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+//			answer.add(bruteforcer);
+			
+			ToolAction deployer = new ToolAction("Deploy Probe", SSHProbeDeployer.class.getName());
+			deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
+			deployer.addOption(new StringOption("username", "Username", "", "root", true));
+			deployer.addOption(new StringOption("password", "Password", "", "", true));
+			deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "", "Default"));
+			answer.add(deployer);
 		}
-		
 		return answer;
 	}
 
