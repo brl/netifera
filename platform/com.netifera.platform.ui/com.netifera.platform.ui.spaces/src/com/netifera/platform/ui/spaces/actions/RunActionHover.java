@@ -170,7 +170,7 @@ public class RunActionHover extends PopupDialog {
 				if (sectionName != null) {
 					parent = sections.get(sectionName);
 					if (parent == null) {
-						Section section = toolkit.createSection(body, Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
+						Section section = toolkit.createSection(body, Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
 //						TableWrapData td = new TableWrapData(TableWrapData.FILL);
 //						td.colspan = 2;
 //						section.setLayoutData(td);
