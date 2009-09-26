@@ -41,7 +41,7 @@ public class ProbeActionProvider implements IEntityActionProvider {
 			actions.add(new OpenSpaceAction(probe, logger));
 		}
 		
-		if(probe.getConnectState() == ConnectState.DISCONNECTED) {
+		if(probe.getConnectState() != ConnectState.CONNECTED) {
 			ISpaceAction connectAction = new SpaceAction("Connect Probe") {
 				public void run() {
 					probe.connect();
@@ -67,5 +67,4 @@ public class ProbeActionProvider implements IEntityActionProvider {
 	protected void unsetLogManager(ILogManager logManager) {
 		
 	}
-
 }
