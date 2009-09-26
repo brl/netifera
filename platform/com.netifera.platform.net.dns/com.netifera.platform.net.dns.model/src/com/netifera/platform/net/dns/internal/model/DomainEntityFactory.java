@@ -6,6 +6,7 @@ import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.model.IWorkspaceEx;
 import com.netifera.platform.net.dns.model.AAAARecordEntity;
 import com.netifera.platform.net.dns.model.ARecordEntity;
+import com.netifera.platform.net.dns.model.AddressRecordEntity;
 import com.netifera.platform.net.dns.model.DNSRecordEntity;
 import com.netifera.platform.net.dns.model.DomainEntity;
 import com.netifera.platform.net.dns.model.EmailAddressEntity;
@@ -190,13 +191,14 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 		String domain = new String(fqdm.substring(dotIndex+1));
 		String hostname = new String(fqdm.substring(0, dotIndex));
 
-		DNSRecordEntity record;
+		AddressRecordEntity record;
 		if (address instanceof IPv4Address) {
 			record = (ARecordEntity) getWorkspace().findByKey(ARecordEntity.createQueryKey(realm, address.toString(), fqdm));
 		} else {
 			record = (AAAARecordEntity) getWorkspace().findByKey(AAAARecordEntity.createQueryKey(realm, address.toString(), fqdm));
 		}
 		if(record != null) {
+			record.getAddress().getHost().addToSpace(spaceId);
 			record.addToSpace(spaceId);
 			return record;
 		}
@@ -247,6 +249,7 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 
 		PTRRecordEntity ptr = (PTRRecordEntity) getWorkspace().findByKey(PTRRecordEntity.createQueryKey(realm, addressString, fqdm));
 		if(ptr != null) {
+			ptr.getAddress().getHost().addToSpace(spaceId);
 			ptr.addToSpace(spaceId);
 			return ptr;
 		}
@@ -283,5 +286,4 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 		}
 		return (IWorkspaceEx) model.getCurrentWorkspace();
 	}
-	
 }

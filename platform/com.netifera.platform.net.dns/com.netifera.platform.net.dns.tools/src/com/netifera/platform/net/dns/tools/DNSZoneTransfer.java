@@ -92,7 +92,7 @@ public class DNSZoneTransfer implements ITool {
 				NSRecord ns = (NSRecord) o;
 				Activator.getInstance().getDomainEntityFactory().createNSRecord(realm, context.getSpaceId(), domain.toString(), ns.getTarget().toString());
 			} else {
-				context.warning("Unhandled DNS record: "+o);
+				context.warning("Unhandled record: "+o);
 			}
 			if (Thread.currentThread().isInterrupted()) {
 				context.warning("Interrupted");

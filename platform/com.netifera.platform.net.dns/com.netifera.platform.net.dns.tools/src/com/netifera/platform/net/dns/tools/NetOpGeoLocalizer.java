@@ -107,7 +107,7 @@ public class NetOpGeoLocalizer implements ITool {
 						}
 					}
 				} else {
-					context.warning("Unhandled DNS record: " + record);
+					context.warning("Unhandled record: " + record);
 				}
 			}
 		}

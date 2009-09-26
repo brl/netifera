@@ -5,7 +5,7 @@ import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.net.model.InternetAddressEntity;
 
 /* for A and AAAA records */
-abstract class AddressRecordEntity extends DNSRecordEntity {
+public abstract class AddressRecordEntity extends DNSRecordEntity {
 	
 	private static final long serialVersionUID = 3566339986137902420L;
 	

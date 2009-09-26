@@ -100,13 +100,13 @@ public class AddDomain implements ITool {
 		} else if (o instanceof PTRRecord) {
 			PTRRecord ptr = (PTRRecord) o;
 //			Activator.getInstance().getDomainEntityFactory().createARecord(realm, a.getName().toString(), InternetAddress.fromInetAddress(o..getAddress()));
-			context.warning("unhandled record: "+ptr);
+			context.warning("Unhandled record: "+ptr);
 		} else if (o instanceof MXRecord) {
 			processMXRecord((MXRecord) o);
 		} else if (o instanceof NSRecord) {
 			processNSRecord((NSRecord) o);
 		} else {
-			context.warning("Unhandled DNS record: "+o);
+			context.warning("Unhandled record: "+o);
 		}
 	}
 	
