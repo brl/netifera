@@ -21,7 +21,8 @@ public class ProbeEntityLabelProvider implements IEntityLabelProvider {
 
 	public String getText(IShadowEntity e) {
 		if (e instanceof ProbeEntity) {
-			return "Remote Probe";
+			String name = ((ProbeEntity)e).getName();
+			return name != null ? name : "Remote Probe";
 		}
 		return null;
 	}
