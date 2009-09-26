@@ -10,6 +10,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -28,17 +29,20 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tasks.ITaskClient;
 import com.netifera.platform.api.tasks.ITaskOutput;
 import com.netifera.platform.api.tasks.ITaskRecord;
-import com.netifera.platform.tasks.TaskConsoleOutput;
-import com.netifera.platform.tasks.TaskLogOutput;
 import com.netifera.platform.ui.internal.tasks.TasksPlugin;
 import com.netifera.platform.ui.internal.tasks.util.ProgressBarStack;
+import com.netifera.platform.ui.tasks.output.TaskOutputTableLabelProvider;
 import com.netifera.platform.ui.tasks.output.TaskOutputView;
 
 public class TaskItem extends Composite {
 
 	private static final String STOP_TASK_IMAGE = "icons/stop_task.png";
-	private static final String STOP_TASK_GRAY_IMAGE = "icons/stop_task_gray.png";
-
+//	private static final String STOP_TASK_GRAY_IMAGE = "icons/stop_task_gray.png";
+	private static final String TASK_ERROR_IMAGE = "icons/task_error.png";
+	private static final String TASK_FINISHED_IMAGE = "icons/task_finished.png";
+	private static final String TASK_RUNNING_IMAGE = "icons/task_running.png";
+	private static final String TASK_WAITING_IMAGE = "icons/task_waiting.png";
+		
 	private Composite titleComposite;
 	private Label titleImage;
 	private Label titleLabel;
@@ -51,11 +55,11 @@ public class TaskItem extends Composite {
 //	private ImageHyperlink messageLink;
 
 	private Composite statusComposite;
+	private ImageHyperlink outputLink; // is also the status image
 	private Label statusLabel;
-	private ImageHyperlink outputLink;
 	
 	private TaskLabelProvider labelProvider = new TaskLabelProvider();
-//	private TaskOutputTableLabelProvider outputLabelProvider = new TaskOutputTableLabelProvider();
+	private TaskOutputTableLabelProvider outputLabelProvider = new TaskOutputTableLabelProvider();
 	
 	public TaskItem(final Composite parent, int style, FormToolkit toolkit) {
 		super(parent, style);
@@ -173,16 +177,11 @@ public class TaskItem extends Composite {
 		layout.makeColumnsEqualWidth = false;
 		layout.leftMargin = layout.rightMargin = layout.topMargin = layout.bottomMargin = 0;
 		statusComposite.setLayout(layout);
-		
-		statusLabel = toolkit.createLabel(statusComposite, "Unknown status");
-		statusLabel.setFont(JFaceResources.getDialogFont());
-		layoutData = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.TOP);
-		statusLabel.setLayoutData(layoutData);
-		
+
 		outputLink = toolkit.createImageHyperlink(statusComposite, SWT.NONE);
 //		outputSection.setFont(titleLabel.getFont());
 		outputLink.setFont(JFaceResources.getDialogFont());
-		outputLink.setText("details..");
+//		outputLink.setText("details..");
 		layoutData = new TableWrapData(TableWrapData.FILL, TableWrapData.TOP);
 		outputLink.setLayoutData(layoutData);
 
@@ -191,6 +190,11 @@ public class TaskItem extends Composite {
 				doOpenOutput();
 			}
 		});
+
+		statusLabel = toolkit.createLabel(statusComposite, "Unknown status");
+		statusLabel.setFont(JFaceResources.getDialogFont());
+		layoutData = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.TOP);
+		statusLabel.setLayoutData(layoutData);
 	}
 	
 	@Override
@@ -206,26 +210,35 @@ public class TaskItem extends Composite {
 			titleImage.setImage(labelProvider.getImage(taskRecord));
 		
 			String status = taskRecord.getStatus();
+			Image statusImage = null;
 			if (status == null) {
 				List<ITaskOutput> output = taskRecord.getTaskOutput();
 				if (output != null && output.size()>0) {
 					ITaskOutput lastOutput = output.get(output.size()-1);
-					if (lastOutput instanceof TaskLogOutput) {
+					status = outputLabelProvider.getText(lastOutput);
+					statusImage = outputLabelProvider.getImage(lastOutput);
+/*					if (lastOutput instanceof TaskLogOutput) {
 						status = ((TaskLogOutput)lastOutput).getMessage();
 					}
 					if (lastOutput instanceof TaskConsoleOutput) {
 						status = ((TaskConsoleOutput)lastOutput).getMessage();
 					}
+*/
 					if (status != null && status.length() > 50)
 						status = status.subSequence(0, 50)+"...";
 				}
 				if (status == null)
 					status = taskRecord.getStateDescription();
 			}
-			if (taskRecord.isFinished())
+			if (taskRecord.isFinished()) {
 				status = "Completed";
+				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_FINISHED_IMAGE);
+			}
 			if (taskRecord.isFinished() || taskRecord.isFailed()) {
 				status = status+" ("+labelProvider.getElapsedTime(taskRecord)+")";
+				
+				if (taskRecord.isFailed())
+					statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_ERROR_IMAGE);
 				
 /*				List<ITaskOutput> output = taskRecord.getTaskOutput();
 				for (int i=output.size()-1; i>=0; i--) {
@@ -236,9 +249,16 @@ public class TaskItem extends Composite {
 					}
 				}
 */			}
+//			if (taskRecord.isWaiting())
+//				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_WAITING_IMAGE);
+			if (taskRecord.isRunning() && statusImage == null)
+				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_RUNNING_IMAGE);
 			
-			if (!statusLabel.isDisposed()) {
+			if (!statusLabel.isDisposed())
 				statusLabel.setText(status);
+			if (!outputLink.isDisposed()) {
+				outputLink.setImage(statusImage);
+				outputLink.redraw();
 			}
 			
 /*			if(taskRecord.isRunning()) {

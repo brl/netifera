@@ -56,11 +56,13 @@ public class TaskOutputTableLabelProvider extends LabelProvider implements
 	 * Return a icon image (if any) for the indicated column in the table.
 	 */
 	public Image getColumnImage(Object element, int columnIndex) {
+		if (columnIndex == 1)
+			return getImage(element);
 
-		if (columnIndex != 1) {
-			return null;
-		}
+		return null;
+	}
 
+	public Image getImage(Object element) {
 		if (element instanceof TaskLogOutput) {
 		    int level = ((TaskLogOutput) element).getLogLevel();
 		    if (imageMap.containsKey(level)) {
@@ -70,7 +72,7 @@ public class TaskOutputTableLabelProvider extends LabelProvider implements
 		}
 		return modelChangeImage;
 	}
-
+	
 	/**
 	 * Return text string to display for given element in the indicated column
 	 */
