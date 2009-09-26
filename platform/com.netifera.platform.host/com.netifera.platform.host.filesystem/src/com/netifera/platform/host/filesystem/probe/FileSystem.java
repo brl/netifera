@@ -12,42 +12,41 @@ import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.host.filesystem.LocalFileSystem;
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
+import com.netifera.platform.host.filesystem.LocalFileSystem;
 
 public class FileSystem {
-	private final static String PELUDO_ESCAPE_PATH = "/peludo/osfs/./";
 	private ILogger logger;
 	private IFileSystem fileSystem;
 	private final String rootPrefix;
+	
 	public FileSystem() {
 		fileSystem = new LocalFileSystem();
-		if(System.getProperty("com.netifera.peludofs") != null) {
-			rootPrefix = PELUDO_ESCAPE_PATH;
+		if(System.getProperty("com.netifera.filesystemprefix") != null) {
+			rootPrefix = System.getProperty("com.netifera.filesystemprefix");
 		} else {
 			rootPrefix = "";
 		}
 	}
 	
 	private void getDirectoryListing(IMessenger messenger, GetDirectoryListing message) {
-		
 		try {
 			File[] files = fileSystem.getDirectoryList(rootPrefix + message.getDirectoryPath());
 			for(File f : files) {
-				if(f.getAbsolutePath().startsWith(PELUDO_ESCAPE_PATH)) {
-					String realPath = f.getAbsolutePath().substring(14);
+				if(rootPrefix.length()>0 && f.getAbsolutePath().startsWith(rootPrefix)) {
+					String realPath = f.getAbsolutePath().substring(rootPrefix.length());
 					f.setPath(realPath);
 				}
 			}
 			messenger.emitMessage(message.createResponse(files));
 		} catch(IOException e) {
+			logger.warning("Error sending message response: " + e.getMessage());
 			e.printStackTrace();
 		} catch (MessengerException e) {
-			// TODO Auto-generated catch block
+			logger.warning("Error sending message response: " + e.getMessage());
 			e.printStackTrace();
 		}
-		
 	}
 	
 	private void getRoots(IMessenger messenger, GetRoots message) {
@@ -55,6 +54,7 @@ public class FileSystem {
 			File[] files = fileSystem.getRoots();
 			messenger.emitMessage(message.createResponse(files));
 		} catch(MessengerException e) {
+			logger.warning("Error sending message response: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -67,15 +67,13 @@ public class FileSystem {
 				try {
 					dispatch(messenger, message);
 				} catch(MessengerException e) {
-					logger.warning("Error sending message response " + e.getMessage());
+					logger.warning("Error sending message response: " + e.getMessage());
 				}
 			}
 		};
 		
 		dispatcher.registerMessageHandler(GetDirectoryListing.ID, handler);
 		dispatcher.registerMessageHandler(GetRoots.ID, handler);
-
-		
 	}
 	
 	private void dispatch(IMessenger messenger, IProbeMessage message) throws DispatchMismatchException, MessengerException {
@@ -91,7 +89,6 @@ public class FileSystem {
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {
-		
 	}
 	
 	protected void setDispatcher(IMessageDispatcherService dispatcher) {
@@ -99,9 +96,5 @@ public class FileSystem {
 	}
 	
 	protected void unsetDispatcher(IMessageDispatcherService dispatcher) {
-		
 	}
-	
-	
-
 }
