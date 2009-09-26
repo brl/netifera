@@ -1,5 +1,7 @@
 package com.netifera.platform.ui.tasks.list;
 
+import java.util.List;
+
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -24,7 +26,10 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tasks.ITaskClient;
+import com.netifera.platform.api.tasks.ITaskOutput;
 import com.netifera.platform.api.tasks.ITaskRecord;
+import com.netifera.platform.tasks.TaskConsoleOutput;
+import com.netifera.platform.tasks.TaskLogOutput;
 import com.netifera.platform.ui.internal.tasks.TasksPlugin;
 import com.netifera.platform.ui.internal.tasks.util.ProgressBarStack;
 import com.netifera.platform.ui.tasks.output.TaskOutputView;
@@ -201,8 +206,22 @@ public class TaskItem extends Composite {
 			titleImage.setImage(labelProvider.getImage(taskRecord));
 		
 			String status = taskRecord.getStatus();
-			if (status == null)
-				status = taskRecord.getStateDescription();
+			if (status == null) {
+				List<ITaskOutput> output = taskRecord.getTaskOutput();
+				if (output != null && output.size()>0) {
+					ITaskOutput lastOutput = output.get(output.size()-1);
+					if (lastOutput instanceof TaskLogOutput) {
+						status = ((TaskLogOutput)lastOutput).getMessage();
+					}
+					if (lastOutput instanceof TaskConsoleOutput) {
+						status = ((TaskConsoleOutput)lastOutput).getMessage();
+					}
+					if (status != null && status.length() > 50)
+						status = status.subSequence(0, 50)+"...";
+				}
+				if (status == null)
+					status = taskRecord.getStateDescription();
+			}
 			if (taskRecord.isFinished())
 				status = "Completed";
 			if (taskRecord.isFinished() || taskRecord.isFailed()) {
