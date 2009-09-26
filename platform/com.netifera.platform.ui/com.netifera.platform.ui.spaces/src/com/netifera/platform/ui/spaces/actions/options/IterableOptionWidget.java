@@ -36,7 +36,7 @@ public class IterableOptionWidget extends OptionWidget {
 		Label label = toolkit.createLabel(area, option.getLabel());
 		label.setToolTipText(option.getDescription());
 
-		combo = new CCombo(area, SWT.NONE);
+		combo = new CCombo(area, SWT.BORDER);
 		combo.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
 		GridData gd = new GridData(SWT.BEGINNING, SWT.FILL, true, false);
 		gd.widthHint = 200;
