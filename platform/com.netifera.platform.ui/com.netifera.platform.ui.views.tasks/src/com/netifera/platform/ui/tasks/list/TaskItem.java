@@ -233,12 +233,17 @@ public class TaskItem extends Composite {
 			if (taskRecord.isFinished()) {
 				status = "Completed";
 				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_FINISHED_IMAGE);
+			} else if (taskRecord.isWaiting()) {
+				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_WAITING_IMAGE);
+			} else if (taskRecord.isRunning() && statusImage == null) {
+				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_RUNNING_IMAGE);
 			}
+
+			if (taskRecord.isFailed())
+				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_ERROR_IMAGE);
+
 			if (taskRecord.isFinished() || taskRecord.isFailed()) {
 				status = status+" ("+labelProvider.getElapsedTime(taskRecord)+")";
-				
-				if (taskRecord.isFailed())
-					statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_ERROR_IMAGE);
 				
 /*				List<ITaskOutput> output = taskRecord.getTaskOutput();
 				for (int i=output.size()-1; i>=0; i--) {
@@ -249,11 +254,7 @@ public class TaskItem extends Composite {
 					}
 				}
 */			}
-//			if (taskRecord.isWaiting())
-//				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_WAITING_IMAGE);
-			if (taskRecord.isRunning() && statusImage == null)
-				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_RUNNING_IMAGE);
-			
+
 			if (!statusLabel.isDisposed())
 				statusLabel.setText(status);
 			if (!outputLink.isDisposed()) {
