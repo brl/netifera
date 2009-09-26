@@ -4,4 +4,11 @@
 	<service>
 		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProvider" />
 	</service>
+	
+	<reference 
+		name="PROBE_BUILDER"
+		interface="com.netifera.probebuild.api.IProbeBuilderService"
+		bind="setProbeBuilder"
+		unbind="unsetProbeBuilder"
+	/>
 </component>

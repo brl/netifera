@@ -7,12 +7,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.netifera.platform.api.probe.IProbeManagerService;
+import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.probebuild.api.IProbeBuilderService;
 
 public class Activator implements BundleActivator {
 
 	private ServiceTracker probeBuilderTracker;
 	private ServiceTracker probeManagerTracker;
+	private ServiceTracker networkEntityFactoryTracker;
 
 	private static Activator instance;
 	
@@ -34,6 +36,9 @@ public class Activator implements BundleActivator {
 
 		probeManagerTracker = new ServiceTracker(context, IProbeManagerService.class.getName(), null);
 		probeManagerTracker.open();
+		
+		networkEntityFactoryTracker = new ServiceTracker(context, INetworkEntityFactory.class.getName(), null);
+		networkEntityFactoryTracker.open();
 	}
 
 	/*
@@ -49,5 +54,9 @@ public class Activator implements BundleActivator {
 
 	public IProbeManagerService getProbeManager() {
 		return (IProbeManagerService) probeManagerTracker.getService();
+	}
+
+	public INetworkEntityFactory getNetworkEntityFactory() {
+		return (INetworkEntityFactory) networkEntityFactoryTracker.getService();
 	}
 }

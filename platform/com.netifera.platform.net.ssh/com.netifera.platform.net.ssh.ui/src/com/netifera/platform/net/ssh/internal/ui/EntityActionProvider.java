@@ -22,8 +22,10 @@ import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.probebuild.api.IProbeBuilderService;
 
 public class EntityActionProvider implements IEntityActionProvider {
+	private IProbeBuilderService probeBuilder;
 	
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
@@ -36,9 +38,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 			
 			ToolAction deployer = new ToolAction("Deploy Probe", SSHProbeDeployer.class.getName());
 			deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
-			deployer.addOption(new StringOption("username", "Username", "", "root", true));
-			deployer.addOption(new StringOption("password", "Password", "", "", true));
-			deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "", "Default"));
+			deployer.addOption(new StringOption("username", "Username", "Username to login to SSH", "root", true));
+			deployer.addOption(new StringOption("password", "Password", "Password to login to SSH", "", true));
+			deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", probeBuilder.listProbeConfigurations()));
+			deployer.addOption(new StringOption("probeName", "Probe Name", "Name to use as label of the probe that will be deployed", "", true));
 			answer.add(deployer);
 		}
 		return answer;
@@ -73,5 +76,13 @@ public class EntityActionProvider implements IEntityActionProvider {
 			}
 		}
 		return answer;
+	}
+	
+	protected void setProbeBuilder(IProbeBuilderService probeBuilder) {
+		this.probeBuilder = probeBuilder;
+	}
+	
+	protected void unsetProbeBuilder(IProbeBuilderService probeBuilder) {
+		this.probeBuilder = null;
 	}
 }
