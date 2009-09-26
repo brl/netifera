@@ -171,9 +171,7 @@ public class RunActionHover extends PopupDialog {
 					parent = sections.get(sectionName);
 					if (parent == null) {
 						Section section = toolkit.createSection(body, Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
-//						TableWrapData td = new TableWrapData(TableWrapData.FILL);
-//						td.colspan = 2;
-//						section.setLayoutData(td);
+						section.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 						section.setExpanded(false);
 						section.addExpansionListener(new ExpansionAdapter() {
 							public void expansionStateChanged(ExpansionEvent e) {

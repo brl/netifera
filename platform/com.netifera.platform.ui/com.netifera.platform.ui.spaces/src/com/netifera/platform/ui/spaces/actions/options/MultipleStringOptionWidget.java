@@ -28,10 +28,12 @@ public class MultipleStringOptionWidget extends OptionWidget {
 		super(parent, toolkit, option);
 		
 		Composite area = toolkit.createComposite(parent);
+		area.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		area.setLayout(new GridLayout(1,false));
 		area.setToolTipText(option.getDescription());
 		
 		Label label = toolkit.createLabel(area, option.getLabel());
+		label.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false));
 		label.setToolTipText(option.getDescription());
 
 		Table table = new Table(area, SWT.CHECK | SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
@@ -39,9 +41,7 @@ public class MultipleStringOptionWidget extends OptionWidget {
 		table.setLinesVisible(true);
 
 		table.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
-		GridData gd = new GridData(SWT.BEGINNING, SWT.FILL, true, false);
-		gd.widthHint = 200;
-		table.setLayoutData(gd);
+		table.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		table.setToolTipText(option.getDescription());
 
 //		TableColumn col1 = new TableColumn(table, SWT.NONE);
