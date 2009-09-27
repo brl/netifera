@@ -101,14 +101,9 @@ public class RunActionHover extends PopupDialog {
 
 	private void setHeader() {
 		form.setFont(JFaceResources.getDialogFont());
-		
-//		Image icon = action.getImageDescriptor()...;
-//		form.setImage(icon);
-		
+		form.setImage(ActionHover.getActionImage(action));
 		form.setText(action.getText());
-		
 //		form.setSeparatorVisible(true);
-		
 //		toolkit.decorateFormHeading(form);
 	}
 
