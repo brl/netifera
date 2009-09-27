@@ -40,9 +40,8 @@ public class TaskItem extends Composite {
 //	private static final String STOP_TASK_GRAY_IMAGE = "icons/stop_task_gray.png";
 	private static final String TASK_ERROR_IMAGE = "icons/task_error.png";
 	private static final String TASK_FINISHED_IMAGE = "icons/task_finished.png";
-	private static final String TASK_RUNNING_IMAGE = "icons/task_running.png";
-	private static final String TASK_WAITING_IMAGE = "icons/task_waiting.png";
-		
+	private static final String STATUS_INFO_IMAGE = "icons/lognfo.png";
+	
 	private Composite titleComposite;
 	private Label titleImage;
 	private Label titleLabel;
@@ -234,9 +233,9 @@ public class TaskItem extends Composite {
 				status = "Completed";
 				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_FINISHED_IMAGE);
 			} else if (taskRecord.isWaiting()) {
-				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_WAITING_IMAGE);
+				statusImage = null;
 			} else if (taskRecord.isRunning() && statusImage == null) {
-				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_RUNNING_IMAGE);
+				statusImage = TasksPlugin.getPlugin().getImageCache().get(STATUS_INFO_IMAGE);
 			}
 
 			if (taskRecord.isFailed())
