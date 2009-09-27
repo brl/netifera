@@ -83,13 +83,13 @@ import com.netifera.platform.host.terminal.ui.actions.ScrollLockAction;
 import com.netifera.platform.host.terminal.ui.actions.SelectTerminalAction;
 import com.netifera.platform.host.terminal.ui.actions.TerminalViewAction;
 import com.netifera.platform.host.terminal.ui.actions.ToggleCommandInputFieldAction;
+import com.netifera.platform.host.terminal.ui.preferences.PageBook;
+import com.netifera.platform.host.terminal.ui.preferences.SettingStorePrefixDecorator;
+import com.netifera.platform.host.terminal.ui.preferences.SettingsStore;
+import com.netifera.platform.host.terminal.ui.preferences.TerminalPreferencePage;
+import com.netifera.platform.host.terminal.ui.preferences.TerminalSettingsDialog;
 import com.netifera.platform.host.terminal.ui.view.ITerminalViewConnectionManager.ITerminalViewConnectionFactory;
 import com.netifera.platform.host.terminal.ui.view.ITerminalViewConnectionManager.ITerminalViewConnectionListener;
-import com.netifera.platform.host.terminal.ui.view.internal.PageBook;
-import com.netifera.platform.host.terminal.ui.view.internal.SettingStorePrefixDecorator;
-import com.netifera.platform.host.terminal.ui.view.internal.SettingsStore;
-import com.netifera.platform.host.terminal.ui.view.internal.TerminalPreferencePage;
-import com.netifera.platform.host.terminal.ui.view.internal.TerminalSettingsDialog;
 
 public class TerminalView extends ViewPart implements ITerminalView, ITerminalViewConnectionListener {
     private static final String PREF_CONNECTORS = "Connectors."; //$NON-NLS-1$

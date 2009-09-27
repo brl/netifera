@@ -19,7 +19,7 @@
  * Michael Scharf (Wind River) - [240023] Get rid of the terminal's "Pin" button
  * Martin Oberhuber (Wind River) - [206917] Add validation for Terminal Settings
  *******************************************************************************/
-package com.netifera.platform.host.terminal.ui.view.internal;
+package com.netifera.platform.host.terminal.ui.preferences;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -8,7 +8,7 @@
  * Contributors:
  * Michael Scharf (Wind River) - simplified implementation
  *******************************************************************************/
-package com.netifera.platform.host.terminal.ui.view.internal;
+package com.netifera.platform.host.terminal.ui.preferences;
 
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;

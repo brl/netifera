@@ -8,7 +8,7 @@
  * Contributors:
  * Michael Scharf (Wind River) - initial API and implementation
  *******************************************************************************/
-package com.netifera.platform.host.terminal.ui.view.internal;
+package com.netifera.platform.host.terminal.ui.preferences;
 
 import java.util.Arrays;
 import java.util.HashMap;
