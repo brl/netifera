@@ -8,7 +8,7 @@ import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.ui.images.ImageCache;
 
 public class TasksPlugin extends AbstractUIPlugin {
-	public final static String PLUGIN_ID = "com.netifera.platform.ui.views.tasks";
+	public final static String PLUGIN_ID = "com.netifera.platform.ui.tasks";
 	
 	private static TasksPlugin plugin;
 	public static TasksPlugin getPlugin() {

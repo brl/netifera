@@ -71,7 +71,6 @@ public class Task implements Runnable, ITaskProgress, ITaskPrompter, ITaskMessen
 			
 			status.setFinished();
 			output.changed();
-		
 		} catch(TaskException e) {
 			String message = e.getMessage();
 			if (message == null) message = e.toString();
@@ -79,6 +78,7 @@ public class Task implements Runnable, ITaskProgress, ITaskPrompter, ITaskMessen
 			status.setFailed();
 			output.changed();
 		} catch (Exception e) {
+			e.printStackTrace();
 			StringWriter stringWriter = new StringWriter();
 			e.printStackTrace(new PrintWriter(stringWriter));
 			String stackTrace = stringWriter.getBuffer().toString();

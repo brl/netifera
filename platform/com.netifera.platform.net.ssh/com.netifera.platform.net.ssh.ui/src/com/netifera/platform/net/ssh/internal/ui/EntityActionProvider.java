@@ -13,10 +13,14 @@ import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
-import com.netifera.platform.net.ssh.deploy.SSHProbeDeployer;
 import com.netifera.platform.net.ssh.filesystem.SFTPFileSystem;
+import com.netifera.platform.net.ssh.tools.SSHAuthBruteforcer;
+import com.netifera.platform.net.ssh.tools.SSHProbeDeployer;
+import com.netifera.platform.net.wordlists.IWordList;
+import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
+import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
@@ -26,15 +30,24 @@ import com.netifera.probebuild.api.IProbeBuilderService;
 
 public class EntityActionProvider implements IEntityActionProvider {
 	private IProbeBuilderService probeBuilder;
+	private List<IWordList> wordlists = new ArrayList<IWordList>();
 	
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
 		SSH ssh = (SSH) entity.getAdapter(SSH.class);
 		if (ssh != null) {
-//			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
-//			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
+			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", SSHAuthBruteforcer.class.getName());
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-//			answer.add(bruteforcer);
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
+			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", "Passwords", "", true));
+			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", "Passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+			bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			answer.add(bruteforcer);
 			
 			ToolAction deployer = new ToolAction("Deploy Probe", SSHProbeDeployer.class.getName());
 			deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
@@ -44,6 +57,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			deployer.addOption(new StringOption("probeName", "Probe Name", "Name to use as label of the probe that will be deployed", "", true));
 			answer.add(deployer);
 		}
+
 		return answer;
 	}
 
@@ -77,7 +91,28 @@ public class EntityActionProvider implements IEntityActionProvider {
 		}
 		return answer;
 	}
+
+	private String[] getAvailableWordLists(String[] categories) {
+		List<String> names = new ArrayList<String>();
+		for (IWordList wordlist: wordlists) {
+			for (String category: categories) {
+				if (wordlist.getCategory().equals(category)) {
+					names.add(wordlist.getName());
+					break;
+				}
+			}
+		}
+		return names.toArray(new String[names.size()]);
+	}
 	
+	protected void registerWordList(IWordList wordlist) {
+		this.wordlists.add(wordlist);
+	}
+	
+	protected void unregisterWordList(IWordList wordlist) {
+		this.wordlists.remove(wordlist);
+	}
+
 	protected void setProbeBuilder(IProbeBuilderService probeBuilder) {
 		this.probeBuilder = probeBuilder;
 	}

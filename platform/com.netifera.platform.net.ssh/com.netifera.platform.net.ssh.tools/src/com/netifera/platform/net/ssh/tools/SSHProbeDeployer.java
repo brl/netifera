@@ -1,4 +1,4 @@
-package com.netifera.platform.net.ssh.deploy;
+package com.netifera.platform.net.ssh.tools;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,7 +13,7 @@ import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
-import com.netifera.platform.net.ssh.internal.deploy.Activator;
+import com.netifera.platform.net.ssh.internal.tools.Activator;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.probebuild.api.IProbeConfiguration;
 import com.netifera.probebuild.api.IProbeDeployable;

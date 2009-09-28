@@ -1,7 +1,6 @@
 package com.netifera.platform.net.services.auth;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,7 +21,7 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 	public void setMaximumConnections(int maximumConnections) {
 		this.maximumConnections = maximumConnections;
 	}
-	
+
 	protected abstract void authenticate(TCPChannel channel, Credential credential, long timeout, TimeUnit unit, CompletionHandler<Boolean,Credential> handler);
 
 	private void spawnConnection() throws IOException, InterruptedException {
@@ -93,10 +92,7 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 	}
 	
 	@Override
-	public void tryCredentials(Iterator<Credential> credentials, AuthenticationListener listener) throws IOException, InterruptedException {
-		this.credentials = credentials;
-		this.listener = listener;
-		
+	public void run() throws IOException, InterruptedException {
 		while (hasNextCredential() || connectionsCount.get() > 0) {
 			while (connectionsCount.get() >= maximumConnections)
 				Thread.sleep(500);

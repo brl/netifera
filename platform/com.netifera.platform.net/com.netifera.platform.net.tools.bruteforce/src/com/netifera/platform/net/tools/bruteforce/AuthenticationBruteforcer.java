@@ -40,7 +40,9 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 		
 		try {
 			verifier = createCredentialsVerifier();
-			verifier.tryCredentials(credentialsIterator, this);
+			verifier.setCredentials(credentialsIterator);
+			verifier.setListener(this);
+			verifier.run();
 		} catch (IOException e) {
 			context.exception("I/O Error", e);
 		} catch (InterruptedException e) {

@@ -8,11 +8,19 @@ import java.util.Queue;
 import com.netifera.platform.net.services.credentials.Credential;
 
 public abstract class CredentialsVerifier {
-	protected Iterator<Credential> credentials;
+	private Iterator<Credential> credentials;
 	private final Queue<Credential> retryCredentials = new LinkedList<Credential>();
 	protected AuthenticationListener listener;
 	private boolean canceled = false;
 
+	public void setCredentials(Iterator<Credential> credentials) {
+		this.credentials = credentials;
+	}
+	
+	public void setListener(AuthenticationListener listener) {
+		this.listener = listener;
+	}
+	
 	protected boolean hasNextCredential() {
 		return !canceled && (credentials.hasNext() || !retryCredentials.isEmpty());
 	}
@@ -35,9 +43,9 @@ public abstract class CredentialsVerifier {
 		}
 	}
 
-	public abstract void tryCredentials(Iterator<Credential> credentials, AuthenticationListener listener) throws IOException, InterruptedException;
-	
 	public void cancel() {
 		canceled = true;
 	}
+
+	public abstract void run() throws IOException, InterruptedException;
 }

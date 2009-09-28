@@ -1,4 +1,4 @@
-package com.netifera.platform.net.ssh.internal.deploy;
+package com.netifera.platform.net.ssh.internal.tools;
 
 import java.io.File;
 
