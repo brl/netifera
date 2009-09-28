@@ -1,4 +1,4 @@
-package com.netifera.platform.net.tools.auth;
+package com.netifera.platform.net.tools.bruteforce;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.netifera.platform.api.iterables.FiniteIterable;
 import com.netifera.platform.api.iterables.IterableComposite;
-import com.netifera.platform.net.internal.tools.auth.Activator;
+import com.netifera.platform.net.internal.tools.bruteforce.Activator;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.wordlists.IWordList;
 

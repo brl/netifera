@@ -1,4 +1,4 @@
-package com.netifera.platform.net.internal.tools.auth;
+package com.netifera.platform.net.internal.tools.bruteforce;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

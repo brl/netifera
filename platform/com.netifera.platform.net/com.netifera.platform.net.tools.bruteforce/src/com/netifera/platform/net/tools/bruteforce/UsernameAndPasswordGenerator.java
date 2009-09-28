@@ -1,4 +1,4 @@
-package com.netifera.platform.net.tools.auth;
+package com.netifera.platform.net.tools.bruteforce;
 
 import java.util.Collection;
 import java.util.Iterator;

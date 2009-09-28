@@ -1,10 +1,10 @@
-package com.netifera.platform.net.internal.tools.auth;
+package com.netifera.platform.net.internal.tools.bruteforce;
 
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolProvider;
-import com.netifera.platform.net.tools.auth.FTPAuthBruteforcer;
-import com.netifera.platform.net.tools.auth.IMAPAuthBruteforcer;
-import com.netifera.platform.net.tools.auth.POP3AuthBruteforcer;
+import com.netifera.platform.net.tools.bruteforce.FTPAuthBruteforcer;
+import com.netifera.platform.net.tools.bruteforce.IMAPAuthBruteforcer;
+import com.netifera.platform.net.tools.bruteforce.POP3AuthBruteforcer;
 
 public class ToolProvider implements IToolProvider {
 

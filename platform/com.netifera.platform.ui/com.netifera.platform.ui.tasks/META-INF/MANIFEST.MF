@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tasks UI Plug-in
-Bundle-SymbolicName: com.netifera.platform.ui.views.tasks;singleton:=true
+Bundle-SymbolicName: com.netifera.platform.ui.tasks;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.netifera.platform.ui.internal.tasks.TasksPlugin

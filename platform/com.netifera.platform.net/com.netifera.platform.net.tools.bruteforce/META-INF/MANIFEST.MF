@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Auth Bruteforcer Plug-in
-Bundle-SymbolicName: com.netifera.platform.net.tools.auth
+Bundle-SymbolicName: com.netifera.platform.net.tools.bruteforce
 Bundle-Version: 1.0.0
-Bundle-Activator: com.netifera.platform.net.internal.tools.auth.Activator
+Bundle-Activator: com.netifera.platform.net.internal.tools.bruteforce.Activator
 Bundle-Vendor: netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.iterables,
@@ -24,4 +24,4 @@ Import-Package: com.netifera.platform.api.iterables,
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.netifera.platform.net.services
 Service-Component: OSGI-INF/tool-provider.xml
-Export-Package: com.netifera.platform.net.tools.auth
+Export-Package: com.netifera.platform.net.tools.bruteforce

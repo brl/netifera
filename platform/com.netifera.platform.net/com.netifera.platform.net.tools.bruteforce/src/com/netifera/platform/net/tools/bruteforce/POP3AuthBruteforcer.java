@@ -1,9 +1,9 @@
-package com.netifera.platform.net.tools.auth;
+package com.netifera.platform.net.tools.bruteforce;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import com.netifera.platform.net.internal.tools.auth.Activator;
+import com.netifera.platform.net.internal.tools.bruteforce.Activator;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
