@@ -36,14 +36,14 @@ public class EntityActionProvider implements IEntityActionProvider {
 			if (entity instanceof ServiceEntity) {
 				Set<String> names = ((ServiceEntity)entity).getAddress().getNames();
 				if (names.isEmpty()) {
-					addWebCrawler("Crawl web site", answer, http, http.getURI());
-					addWebApplicationScanner("Scan for web applications", answer, http, null);
+					addWebCrawler("Crawl Web Site", answer, http, http.getURI());
+					addWebApplicationScanner("Scan Web Applications", answer, http, null);
 				} else {
 					for (String vhost: names) {
 						addWebCrawler("Crawl web site " + vhost, answer, http, http.getURI(vhost));
 					}
 					for (String vhost: names) {
-						addWebApplicationScanner("Scan for web applications at " + vhost, answer, http, vhost);
+						addWebApplicationScanner("Scan Web Applications at " + vhost, answer, http, vhost);
 					}
 				}
 			}
@@ -51,10 +51,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 			WebPageEntity page = (WebPageEntity) entity;
 			http = (HTTP) page.getWebSite().getHTTP().getAdapter(HTTP.class);
 
-			addWebCrawler("Crawl web site starting at "+page.getPath(), answer, http, page.getURL());
+			addWebCrawler("Crawl Web Site Starting at "+page.getPath(), answer, http, page.getURL());
 			
 			if (page.getAuthentication() instanceof BasicAuthenticationEntity) {
-				ToolAction bruteforcer = new ToolAction("Bruteforce authentication", HTTPBasicAuthBruteforcer.class.getName());
+				ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", HTTPBasicAuthBruteforcer.class.getName());
 				bruteforcer.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
 				bruteforcer.addOption(new StringOption("hostname", "Host name", "Host name for the web site", page.getWebSite().getVirtualHostName()));
 				bruteforcer.addOption(new StringOption("path", "Path", "Path that requires authentication", page.getPath()));
@@ -73,8 +73,8 @@ public class EntityActionProvider implements IEntityActionProvider {
 		} else if (entity instanceof WebSiteEntity) {
 			WebSiteEntity site = (WebSiteEntity) entity;
 			http = (HTTP) site.getHTTP().getAdapter(HTTP.class);
-			addWebCrawler("Crawl web site", answer, http, site.getRootURL());
-			addWebApplicationScanner("Scan for web applications", answer, http, site.getVirtualHostName());
+			addWebCrawler("Crawl Web Site", answer, http, site.getRootURL());
+			addWebApplicationScanner("Scan Web Applications", answer, http, site.getVirtualHostName());
 		}
 		
 		return answer;

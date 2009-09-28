@@ -92,7 +92,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		
 		FTP ftp = (FTP) entity.getAdapter(FTP.class);
 		if (ftp != null) {
-			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
+			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", FTPAuthBruteforcer.class.getName());
 			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
@@ -108,7 +108,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		
 		POP3 pop3 = (POP3) entity.getAdapter(POP3.class);
 		if (pop3 != null) {
-			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", POP3AuthBruteforcer.class.getName());
+			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", POP3AuthBruteforcer.class.getName());
 			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target POP3 service", pop3.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
@@ -124,7 +124,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 		IMAP imap = (IMAP) entity.getAdapter(IMAP.class);
 		if (imap != null) {
-			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", IMAPAuthBruteforcer.class.getName());
+			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", IMAPAuthBruteforcer.class.getName());
 			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target IMAP service", imap.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
