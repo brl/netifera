@@ -22,17 +22,6 @@ public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private String path;
 	private String method;
 	
-/*	@Override
-	public IndexedIterable<Credential> defaultCredentials() {
-		ArrayList<Credential> list = new ArrayList<Credential>();
-		list.add(new UsernameAndPassword("root","toor")); // XXX for testing with slackserver vmware
-		for (String user: new String[] {"","admin","administrator", "root", "manager", "test"}) {
-			for (String password: new String[] {"","admin","administrator","password","test","1234","123456","root","manager"})
-				list.add(new UsernameAndPassword(user,password));
-		}
-		return new ListIndexedIterable<Credential>(list);
-	}
-*/
 	@Override
 	protected void setupToolOptions() {
 		super.setupToolOptions();
