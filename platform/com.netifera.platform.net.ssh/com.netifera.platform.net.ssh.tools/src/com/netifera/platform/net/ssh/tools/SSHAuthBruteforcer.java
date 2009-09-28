@@ -28,6 +28,7 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
+		Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), up.getUsernameString());
 		super.authenticationSucceeded(credential);
 	}
 	
