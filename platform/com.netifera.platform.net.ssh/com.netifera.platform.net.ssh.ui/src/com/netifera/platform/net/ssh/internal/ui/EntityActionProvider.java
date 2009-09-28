@@ -11,6 +11,7 @@ import com.netifera.platform.host.filesystem.IFileSystem;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
 import com.netifera.platform.net.model.ServiceEntity;
+import com.netifera.platform.net.model.UsernameAndPasswordEntity;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.net.ssh.filesystem.SFTPFileSystem;
@@ -36,7 +37,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		List<IAction> answer = new ArrayList<IAction>();
 		SSH ssh = (SSH) entity.getAdapter(SSH.class);
 		if (ssh != null) {
-			ToolAction bruteforcer = new ToolAction("Bruteforce authentication", SSHAuthBruteforcer.class.getName());
+			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", SSHAuthBruteforcer.class.getName());
 			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
@@ -58,6 +59,20 @@ public class EntityActionProvider implements IEntityActionProvider {
 			answer.add(deployer);
 		}
 
+		if (entity instanceof UsernameAndPasswordEntity) {
+			UsernameAndPasswordEntity credentialEntity = (UsernameAndPasswordEntity) entity;
+			
+			ssh = (SSH) credentialEntity.getAuthenticable().getAdapter(SSH.class);
+			if (ssh != null) {
+				ToolAction deployer = new ToolAction("Deploy Probe", SSHProbeDeployer.class.getName());
+				deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
+				deployer.addFixedOption(new StringOption("username", "Username", "Username to login to SSH", credentialEntity.getUsername(), true));
+				deployer.addFixedOption(new StringOption("password", "Password", "Password to login to SSH", credentialEntity.getPassword(), true));
+				deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", probeBuilder.listProbeConfigurations()));
+				deployer.addOption(new StringOption("probeName", "Probe Name", "Name to use as label of the probe that will be deployed", "", true));
+				answer.add(deployer);
+			}
+		}
 		return answer;
 	}
 
