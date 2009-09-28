@@ -1,8 +1,6 @@
 package com.netifera.platform.net.ssh.tools;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
@@ -15,7 +13,6 @@ import com.trilead.ssh2.Connection;
 
 public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
-	private Set<String> foundUsers = new HashSet<String>();
 	
 	@Override
 	protected void setupToolOptions() {
@@ -41,29 +38,24 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 				SSH ssh = new SSH(target);
 				Connection connection = ssh.createConnection();
 				while (hasNextCredential()) {
-					UsernameAndPassword credential = null;
-					do {
-						credential = (UsernameAndPassword) nextCredentialOrNull();
-					} while (credential != null && foundUsers.contains(credential.getUsernameString()));
-
+					UsernameAndPassword credential = (UsernameAndPassword) nextCredentialOrNull();
 					if (credential == null)
 						return;
-					
+
 					try {
 						boolean success = connection.authenticateWithPassword(credential.getUsernameString(), credential.getPasswordString());
 						if (success) {
-							listener.authenticationSucceeded(credential);
-							foundUsers.add(credential.getUsernameString());
+							authenticationSucceeded(credential);
 							connection.close();
 							if (hasNextCredential()) {
 								Thread.sleep(2000);
 								connection = ssh.createConnection();
 							}
 						} else {
-							listener.authenticationFailed(credential);
+							authenticationFailed(credential);
 						}
 					} catch (IOException e) {
-						listener.authenticationError(credential, e);
+						authenticationError(credential, e);
 						connection.close();
 						if (hasNextCredential()) {
 							Thread.sleep(2000);

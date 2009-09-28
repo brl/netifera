@@ -51,12 +51,12 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 					public void completed(Boolean result,
 							Credential attachment) {
 						if (result) {
-							listener.authenticationSucceeded(attachment);
+							authenticationSucceeded(attachment);
 							
 							// close because now we're logged in, cannot login again with other credential in this connection
 							closeChannel();
 						} else {
-							listener.authenticationFailed(attachment);
+							authenticationFailed(attachment);
 
 							// HACK to deal with socket engine not notifying back when some sockets are closed
 							// once this is fixed, we could reuse connections and try to authenticate again with the next credential
@@ -77,16 +77,14 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 					public void failed(Throwable exc,
 							Credential attachment) {
 						closeChannel();
-						listener.authenticationError(attachment, exc);
-//						retryCredential(attachment);
+						authenticationError(attachment, exc);
 					}
 				});
 			}
 
 			public void failed(Throwable exc, Credential attachment) {
 				closeChannel();
-				listener.authenticationError(attachment, exc);
-//				retryCredential(attachment);
+				authenticationError(attachment, exc);
 			}
 		});					
 	}

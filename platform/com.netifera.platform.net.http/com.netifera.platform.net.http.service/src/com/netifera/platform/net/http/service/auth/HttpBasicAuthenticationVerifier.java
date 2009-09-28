@@ -56,9 +56,9 @@ public class HttpBasicAuthenticationVerifier extends CredentialsVerifier {
 			Credential credential = (Credential) context.getAttribute("credential");
 //			System.out.println(credential+" response: "+response.getStatusLine());
 			if (response.getStatusLine().getStatusCode() == 401) {
-				listener.authenticationFailed(credential);
+				authenticationFailed(credential);
 			} else {
-				listener.authenticationSucceeded(credential);
+				authenticationSucceeded(credential);
 			}
 		}
 	}
