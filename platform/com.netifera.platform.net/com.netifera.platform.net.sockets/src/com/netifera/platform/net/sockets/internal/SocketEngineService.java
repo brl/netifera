@@ -17,9 +17,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,7 +65,9 @@ public class SocketEngineService implements ISocketEngineService {
 	 * We use a cached thread pool because the thread resources are bound by the
 	 * maximum open socket count.
 	 */
-	private final ExecutorService executor = Executors.newCachedThreadPool();
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(200, 200,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
 
 	
 	public int getMaxConnectingSockets() {
@@ -391,8 +393,9 @@ public class SocketEngineService implements ISocketEngineService {
 				logger.debug("SocketEngineService clean");
 				timeout = 0;
 			} else {
-//				System.out.println("active contexts: "+contextMap.size()+" selection keys: "+selector.keys().size());
-//				System.out.println("open sockets: "+currentlyOpenSockets.get()+" connecting sockets: "+currentlyConnectingSockets.get());
+				//XXX remove
+//				logger.debug("active contexts: "+contextMap.size()+" selection keys: "+selector.keys().size());
+//				logger.debug("open sockets: "+currentlyOpenSockets.get()+" connecting sockets: "+currentlyConnectingSockets.get());
 				timeout = Math.max(timeout, 500); // XXX
 			}
 
@@ -416,7 +419,8 @@ public class SocketEngineService implements ISocketEngineService {
 					context.testKey(key);
 				} catch (CancelledKeyException e) {
 					// a selected key is cancelled
-					//logger.warning("Cancelled selector key (on selected key)", e);
+					// XXX remove
+//					logger.warning("Cancelled selector key (on selected key)", e);
 					// do something about it
 					context.close();
 				}
@@ -429,7 +433,8 @@ public class SocketEngineService implements ISocketEngineService {
 				try {
 					timeout = Math.min(timeout, context.testTimeOut(key, now));
 				} catch (CancelledKeyException e) {
-					//logger.warning("Cancelled selector key (when testing timeout of unselected key)", e);
+					//XXX remove
+//					logger.warning("Cancelled selector key (when testing timeout of unselected key)", e);
 					// do something about it. should close?
 				}
 			}
@@ -478,6 +483,7 @@ public class SocketEngineService implements ISocketEngineService {
 
 	protected void setLogManager(ILogManager logManager) {
 		logger = logManager.getLogger("Socket Engine");
+		logger.enableDebug();
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {
