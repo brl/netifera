@@ -54,7 +54,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 		DNS dns = (DNS) entity.getAdapter(DNS.class);
 		if (dns != null) {
-			ToolAction zoneTransfer = new ToolAction("Request Zone Transfer", DNSZoneTransfer.class.getName());
+			ToolAction zoneTransfer = new ToolAction("Zone Transfer", DNSZoneTransfer.class.getName());
 			zoneTransfer.addOption(new StringOption("domain", "Domain", "Target domain", ""));
 			zoneTransfer.addFixedOption(new GenericOption(DNS.class,"dns", "Name Server", "Target Name Server", dns));
 			answer.add(zoneTransfer);
@@ -64,10 +64,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 			ServiceEntity service = ((NSRecordEntity)entity).getService();
 			if (service != null) {
 				dns = (DNS) service.getAdapter(DNS.class);
-				ToolAction zoneTransfer = new ToolAction("Request Zone Transfer", DNSZoneTransfer.class.getName());
+				ToolAction zoneTransfer = new ToolAction("Zone Transfer", DNSZoneTransfer.class.getName());
 				zoneTransfer.addOption(new StringOption("domain", "Domain", "Target domain", ((NSRecordEntity)entity).getDomain().getFQDM()));
 				zoneTransfer.addFixedOption(new GenericOption(DNS.class,"dns", "Name Server", "Target Name Server", dns));
-				answer.add(zoneTransfer);			
+				answer.add(zoneTransfer);
 			}
 		}
 		

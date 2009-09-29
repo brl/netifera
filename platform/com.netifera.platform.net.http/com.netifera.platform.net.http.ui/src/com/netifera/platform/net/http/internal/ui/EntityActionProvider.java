@@ -68,6 +68,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
 				bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", true));
 				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+				bruteforcer.addOption(new IntegerOption("keepAlive", "Keep alive", "Keep alive time in seconds to send in the header of our HTTP requests, to try to reuse connections", 300));
 				answer.add(bruteforcer);
 			}
 		} else if (entity instanceof WebSiteEntity) {
