@@ -58,7 +58,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
 				bruteforcer.addOption(new StringOption("hostname", "Host name", "Host name for the web site", page.getWebSite().getVirtualHostName()));
 				bruteforcer.addOption(new StringOption("path", "Path", "Path that requires authentication", page.getPath()));
-				bruteforcer.addOption(new StringOption("method", "Method", "GET/POST", "GET"));
+				bruteforcer.addOption(new StringOption("method", "Method", "HTTP method to use in the requests", new String[] {"GET","POST"}));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
