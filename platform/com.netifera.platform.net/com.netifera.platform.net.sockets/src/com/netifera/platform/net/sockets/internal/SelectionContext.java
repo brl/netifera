@@ -134,7 +134,7 @@ class SelectionContext {
 
 	private void handleOperation(SelectionFuture<?,?> future) {
 		if (future != null && !future.isCancelled() && !future.isDone())
-			engine.getExecutor().execute(future);
+			future.run();
 	}
 
 	/**

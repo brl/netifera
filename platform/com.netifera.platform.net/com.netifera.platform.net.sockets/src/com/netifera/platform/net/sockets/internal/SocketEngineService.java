@@ -16,10 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,14 +59,6 @@ public class SocketEngineService implements ISocketEngineService {
 	
 	private ILogger logger;
 	
-	/**
-	 * We use a cached thread pool because the thread resources are bound by the
-	 * maximum open socket count.
-	 */
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(200, 200,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
-
 	
 	public int getMaxConnectingSockets() {
 		return maxConnectingSockets;
@@ -403,12 +393,14 @@ public class SocketEngineService implements ISocketEngineService {
 				selector.select(timeout);
 				assert selector != null;
 				if (selector.isOpen() == false) {
+					logger.error("Selector closed");
 					return;
 				}
 			} catch (IOException e) {
 				assert logger != null;
 				logger.error("I/O error in Selector#select()", e);
-				return;
+				continue;//XXX
+//				return;
 			}
 			
 			registerPending();
@@ -456,7 +448,6 @@ public class SocketEngineService implements ISocketEngineService {
 		} catch (IOException e) {
 			logger.error("I/O error closing selector", e);
 		}
-		executor.shutdownNow();
 	}
 
 	private synchronized void registerChannel(AsynchronousSelectableChannel channel, SelectionContext context) {
@@ -477,10 +468,6 @@ public class SocketEngineService implements ISocketEngineService {
 		return selector;
 	}
 	
-	public ExecutorService getExecutor() {
-		return executor;
-	}
-
 	protected void setLogManager(ILogManager logManager) {
 		logger = logManager.getLogger("Socket Engine");
 		logger.enableDebug();
