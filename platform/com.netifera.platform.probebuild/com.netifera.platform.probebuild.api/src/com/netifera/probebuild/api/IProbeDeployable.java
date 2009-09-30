@@ -28,6 +28,10 @@ public interface IProbeDeployable
 	 */
 	public String getName();
 
+	/**
+	 * Get the size of this Deployable Probe in number of bytes.
+	 */
+	public int getSize();
 }
 
 
