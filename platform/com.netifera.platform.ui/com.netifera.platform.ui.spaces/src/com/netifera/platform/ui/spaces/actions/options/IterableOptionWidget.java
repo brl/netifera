@@ -30,17 +30,17 @@ public class IterableOptionWidget extends OptionWidget {
 		super(parent, toolkit, option);
 		
 		Composite area = toolkit.createComposite(parent);
+		area.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		area.setLayout(new GridLayout(2,false));
 		area.setToolTipText(option.getDescription());
 		
 		Label label = toolkit.createLabel(area, option.getLabel());
+		label.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false));
 		label.setToolTipText(option.getDescription());
 
-		combo = new CCombo(area, SWT.NONE);
+		combo = new CCombo(area, SWT.BORDER|SWT.READ_ONLY);
 		combo.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
-		GridData gd = new GridData(SWT.BEGINNING, SWT.FILL, true, false);
-		gd.widthHint = 200;
-		combo.setLayoutData(gd);
+		combo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		combo.setEditable(false);
 		combo.setToolTipText(option.getDescription());
 		

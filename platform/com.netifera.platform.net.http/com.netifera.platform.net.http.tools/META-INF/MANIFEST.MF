@@ -14,6 +14,8 @@ Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.net.dns.model,
  com.netifera.platform.net.dns.service.client,
  com.netifera.platform.net.dns.service.nameresolver,
+ com.netifera.platform.net.http.spider.impl,
+ com.netifera.platform.net.http.spider.modules,
  com.netifera.platform.net.http.web.applications,
  com.netifera.platform.net.http.web.model,
  com.netifera.platform.net.model,
@@ -21,7 +23,7 @@ Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.net.services.auth,
  com.netifera.platform.net.services.credentials,
  com.netifera.platform.net.sockets,
- com.netifera.platform.net.tools.auth,
+ com.netifera.platform.net.tools.bruteforce,
  com.netifera.platform.tools,
  com.netifera.platform.tools.options,
  com.netifera.platform.util,
@@ -32,6 +34,7 @@ Import-Package: com.netifera.platform.api.iterables,
  org.osgi.util.tracker;version="1.3.0",
  org.xbill.DNS
 Bundle-ActivationPolicy: lazy
-Require-Bundle: com.netifera.platform.net.http.service;bundle-version="1.0.0"
+Require-Bundle: com.netifera.platform.net.http.service;bundle-version="1.0.0",
+ com.netifera.platform.net.http.spider;bundle-version="1.0.0"
 Export-Package: com.netifera.platform.net.http.tools
 Service-Component: OSGI-INF/tool-provider.xml

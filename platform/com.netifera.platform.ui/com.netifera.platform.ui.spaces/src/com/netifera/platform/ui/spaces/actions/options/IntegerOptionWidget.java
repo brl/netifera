@@ -34,17 +34,17 @@ public class IntegerOptionWidget extends OptionWidget {
 		}
 		
 		Composite area = toolkit.createComposite(parent);
+		area.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		area.setLayout(new GridLayout(2,false));
 		area.setToolTipText(option.getDescription());
 		
 		Label label = toolkit.createLabel(area, option.getLabel());
+		label.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false));
 		label.setToolTipText(option.getDescription());
 
 		text = toolkit.createText(area, option.getValue().toString(), SWT.BORDER);
-		GridData gd = new GridData(SWT.BEGINNING, SWT.FILL, true, false);
 		text.setTextLimit(8);
-		gd.widthHint = 100;
-		text.setLayoutData(gd);
+		text.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		text.setToolTipText(option.getDescription());
 
 		text.addVerifyListener(new VerifyListener() {

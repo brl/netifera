@@ -1,7 +1,6 @@
 package com.netifera.platform.net.services.auth;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,11 +12,16 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 	final private TCPSocketLocator locator;
 	final private AtomicInteger connectionsCount = new AtomicInteger(0);
+	private int maximumConnections = 10;
 
 	public TCPCredentialsVerifier(TCPSocketLocator locator) {
 		this.locator = locator;
 	}
-	
+
+	public void setMaximumConnections(int maximumConnections) {
+		this.maximumConnections = maximumConnections;
+	}
+
 	protected abstract void authenticate(TCPChannel channel, Credential credential, long timeout, TimeUnit unit, CompletionHandler<Boolean,Credential> handler);
 
 	private void spawnConnection() throws IOException, InterruptedException {
@@ -47,12 +51,12 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 					public void completed(Boolean result,
 							Credential attachment) {
 						if (result) {
-							listener.authenticationSucceeded(attachment);
+							authenticationSucceeded(attachment);
 							
 							// close because now we're logged in, cannot login again with other credential in this connection
 							closeChannel();
 						} else {
-							listener.authenticationFailed(attachment);
+							authenticationFailed(attachment);
 
 							// HACK to deal with socket engine not notifying back when some sockets are closed
 							// once this is fixed, we could reuse connections and try to authenticate again with the next credential
@@ -73,27 +77,22 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 					public void failed(Throwable exc,
 							Credential attachment) {
 						closeChannel();
-						listener.authenticationError(attachment, exc);
-//						retryCredential(attachment);
+						authenticationError(attachment, exc);
 					}
 				});
 			}
 
 			public void failed(Throwable exc, Credential attachment) {
 				closeChannel();
-				listener.authenticationError(attachment, exc);
-//				retryCredential(attachment);
+				authenticationError(attachment, exc);
 			}
 		});					
 	}
 	
 	@Override
-	public void tryCredentials(Iterator<Credential> credentials, AuthenticationListener listener) throws IOException, InterruptedException {
-		this.credentials = credentials;
-		this.listener = listener;
-		
+	public void run() throws IOException, InterruptedException {
 		while (hasNextCredential() || connectionsCount.get() > 0) {
-			while (connectionsCount.get()>10)
+			while (connectionsCount.get() >= maximumConnections)
 				Thread.sleep(500);
 			if (hasNextCredential() && !Thread.currentThread().isInterrupted()) spawnConnection();
 		}

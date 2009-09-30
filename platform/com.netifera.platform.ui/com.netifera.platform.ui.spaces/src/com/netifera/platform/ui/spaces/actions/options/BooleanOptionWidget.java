@@ -3,6 +3,7 @@ package com.netifera.platform.ui.spaces.actions.options;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -18,6 +19,7 @@ public class BooleanOptionWidget extends OptionWidget {
 		super(parent, toolkit, option);
 		
 		Composite area = toolkit.createComposite(parent);
+		area.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		area.setLayout(new GridLayout(2,false));
 		area.setToolTipText(option.getDescription());
 		

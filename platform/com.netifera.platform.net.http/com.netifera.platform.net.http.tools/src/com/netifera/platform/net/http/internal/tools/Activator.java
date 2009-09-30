@@ -8,7 +8,7 @@ import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.net.dns.model.IDomainEntityFactory;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
-import com.netifera.platform.net.http.web.applications.IWebApplicationDetector;
+import com.netifera.platform.net.http.spider.IWebSpiderModule;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.sockets.ISocketEngineService;
@@ -21,8 +21,8 @@ public class Activator implements BundleActivator {
 	private ServiceTracker networkEntityFactoryTracker;
 	private ServiceTracker domainEntityFactoryTracker;
 	private ServiceTracker webEntityFactoryTracker;
-	private ServiceTracker webApplicationDetectorTracker;
 	private ServiceTracker nameResolverTracker;
+	private ServiceTracker webSpiderModulesTracker;
 
 	private static Activator instance;
 	
@@ -51,11 +51,11 @@ public class Activator implements BundleActivator {
 		webEntityFactoryTracker = new ServiceTracker(context, IWebEntityFactory.class.getName(), null);
 		webEntityFactoryTracker.open();
 
-		webApplicationDetectorTracker = new ServiceTracker(context, IWebApplicationDetector.class.getName(), null);
-		webApplicationDetectorTracker.open();
-		
 		nameResolverTracker = new ServiceTracker(context, INameResolver.class.getName(), null);
 		nameResolverTracker.open();
+
+		webSpiderModulesTracker = new ServiceTracker(context, IWebSpiderModule.class.getName(), null);
+		webSpiderModulesTracker.open();
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -87,11 +87,11 @@ public class Activator implements BundleActivator {
 		return (IWebEntityFactory) webEntityFactoryTracker.getService();
 	}
 
-	public IWebApplicationDetector getWebApplicationDetector() {
-		return (IWebApplicationDetector) webApplicationDetectorTracker.getService();
-	}
-	
 	public INameResolver getNameResolver() {
 		return (INameResolver) nameResolverTracker.getService();
+	}
+
+	public IWebSpiderModule[] getWebSpiderModules() {
+		return (IWebSpiderModule[]) webSpiderModulesTracker.getServices();
 	}
 }

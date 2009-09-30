@@ -9,7 +9,7 @@ import java.util.Map;
 import com.netifera.platform.api.model.IModelPredicate;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.model.IWorkspace;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.HTTPResponseEntity;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
@@ -84,6 +84,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 	//XXX space not used? should notify?
 	public synchronized void setFavicon(long realm, long space, TCPSocketLocator http,
 			URI url, byte[] faviconBytes) {
+		url = url.normalize();
 		WebSiteEntity webSite = createWebSite(realm, space, http, url.getHost());
 		webSite.setFavicon(faviconBytes);
 		webSite.update();
@@ -91,10 +92,17 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 	public synchronized WebPageEntity createWebPage(final long realm, long spaceId, TCPSocketLocator http,
 			URI url, String contentType) {
+		url = url.normalize();
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
-		final String path = url.normalize().getPath();
+		String path = url.getPath();
+		if (path.length() == 0)
+			path = "/";
 		WebPageEntity answer = (WebPageEntity) getWorkspace().findByKey(WebPageEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), path));
 		if (answer != null) {
+			if (contentType != null && !contentType.equals(answer.getContentType())) {
+				answer.setContentType(contentType);
+				answer.update();
+			}
 			answer.addToSpace(spaceId);
 			return answer;
 		}
@@ -107,6 +115,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 	public synchronized WebApplicationEntity createWebApplication(final long realm, long spaceId, TCPSocketLocator http,
 			URI url, Map<String, String> info) {
+		url = url.normalize();
 		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
 		final String urlString = url.toString();
 		List<WebApplicationEntity> results = getWorkspace().findByPredicate(WebApplicationEntity.class,
@@ -133,22 +142,41 @@ public class WebEntityFactory implements IWebEntityFactory {
 		return answer;
 	}
 
-	public synchronized HTTPBasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
+	public synchronized WebPageEntity createWebPageWithBasicAuthentication(final long realm, long spaceId,
 			TCPSocketLocator http, URI url, final String authenticationRealm) {
-		
-		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
-		
-		HTTPBasicAuthenticationEntity answer = (HTTPBasicAuthenticationEntity) getWorkspace().findByKey(HTTPBasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), authenticationRealm));
+
+		url = url.normalize();
+//		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
+
+		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
+
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
 		if (answer != null) {
 			answer.addToSpace(spaceId);
 		} else {
-			answer = new HTTPBasicAuthenticationEntity(getWorkspace(), realm, service.createReference(), authenticationRealm);
+			answer = new BasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
 			answer.save();
 			answer.addToSpace(spaceId);
 		}
 		WebPageEntity page = createWebPage(realm, spaceId, http, url, null);
 		page.setAuthentication(answer);
 		page.update();
+		return page;
+	}
+
+	public synchronized BasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
+			TCPSocketLocator http, String hostname, final String authenticationRealm) {
+
+		final WebSiteEntity site = createWebSite(realm, spaceId, http, hostname);
+
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
+		if (answer != null) {
+			answer.addToSpace(spaceId);
+		} else {
+			answer = new BasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
+			answer.save();
+			answer.addToSpace(spaceId);
+		}
 		return answer;
 	}
 

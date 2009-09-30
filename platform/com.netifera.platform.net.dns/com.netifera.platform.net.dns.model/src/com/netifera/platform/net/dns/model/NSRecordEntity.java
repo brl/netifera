@@ -30,6 +30,7 @@ public class NSRecordEntity extends DNSRecordEntity {
 		target = null;
 		service = null;
 	}
+	
 	public String getTarget() {
 		return target;
 	}

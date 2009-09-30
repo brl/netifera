@@ -368,33 +368,37 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		return answer;
 	}
 	
-	public synchronized PasswordEntity createPassword(long realm, long spaceId, ISocketLocator service, String password) {
-		IEntity serviceEntity = findService(realm, service);
-		
-		PasswordEntity pw = (PasswordEntity) getWorkspace().findByKey(PasswordEntity.createQueryKey(realm, serviceEntity.getId(), password));
+	public synchronized PasswordEntity createPassword(long realm, long spaceId, IEntity authenticable, String password) {
+		PasswordEntity pw = (PasswordEntity) getWorkspace().findByKey(PasswordEntity.createQueryKey(realm, authenticable.getId(), password));
 		if(pw != null) {
 			pw.addToSpace(spaceId);
 			return pw;
 		}
 	
-		PasswordEntity answer = new PasswordEntity(getWorkspace(), serviceEntity, password);
+		PasswordEntity answer = new PasswordEntity(getWorkspace(), authenticable, password);
 		answer.save();
 		answer.addToSpace(spaceId);
 		return answer;
 	}
-	
-	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, ISocketLocator service, String username, String password) {
-		IEntity serviceEntity = findService(realm, service);
-		
-		UsernameAndPasswordEntity unp = (UsernameAndPasswordEntity) getWorkspace().findByKey(UsernameAndPasswordEntity.createQueryKey(realm, serviceEntity.getId(), username, password));
+
+	public synchronized PasswordEntity createPassword(long realm, long spaceId, ISocketLocator service, String password) {
+		return createPassword(realm, spaceId, findService(realm, service), password);
+	}
+
+	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, IEntity authenticable, String username, String password) {
+		UsernameAndPasswordEntity unp = (UsernameAndPasswordEntity) getWorkspace().findByKey(UsernameAndPasswordEntity.createQueryKey(realm, authenticable.getId(), username, password));
 		if(unp != null) {
 			unp.addToSpace(spaceId);
 			return unp;
 		}
 		
-		UsernameAndPasswordEntity answer = new UsernameAndPasswordEntity(getWorkspace(), serviceEntity, username, password);
+		UsernameAndPasswordEntity answer = new UsernameAndPasswordEntity(getWorkspace(), authenticable, username, password);
 		answer.save();
 		answer.addToSpace(spaceId);
 		return answer;
+	}
+
+	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, ISocketLocator service, String username, String password) {
+		return createUsernameAndPassword(realm, spaceId, findService(realm, service), username, password);
 	}
 }

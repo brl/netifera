@@ -22,10 +22,34 @@ public class Regex implements IPattern {
 	public Regex(final Pattern pattern) {
 		this.pattern = pattern;
 	}
+
+	private String escape(String string) {
+		return string.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+	}
+	
+	private String escape(Pattern regex) {
+		return escape(regex.toString().replaceAll("\r", "\\r").replaceAll("\n", "\\n"));
+	}
 	
 	@Override
 	public String toString() {
-		return pattern.toString();
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append("\t<ServicePattern regex=\""+escape(escape(pattern))+"\">\n");
+		buffer.append("\t\t<service>"+escape(defaults.get("serviceType"))+"</service>\n");
+		for (String name: new String[] {"os", "distribution", "arch", "product", "version", "build", "hostname", "username", "password"}) {
+			if (defaults.containsKey(name))
+				buffer.append("\t\t<"+name+">"+escape(defaults.get(name))+"</"+name+">\n");
+			else if (groupNames.containsValue(name)) {
+				for (Integer group: groupNames.keySet())
+					if (groupNames.get(group).equals(name)) {
+						buffer.append("\t\t<"+name+">$regex-group-"+group+"</"+name+">\n");
+						break;
+					}
+			}
+		}
+		buffer.append("\t</ServicePattern>");
+		return buffer.toString();
 	}
 	
 	public void add(final Integer index, final String name) {
@@ -34,11 +58,12 @@ public class Regex implements IPattern {
 	
 	public void add(final Integer index, final String name, final String defaultValue) {
 		add(index, name);
-		defaults.put(name, defaultValue);
+		add(name, defaultValue);
 	}
 	
 	public void add(final String name, final String defaultValue) {
-		defaults.put(name, defaultValue);
+		if (defaultValue != null)
+			defaults.put(name, defaultValue);
 	}
 	
 	public boolean match(final Map<String, String> answer, final String data) {

@@ -24,15 +24,17 @@ import com.netifera.platform.net.services.basic.Telnet;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.detection.IServerDetectorService;
 import com.netifera.platform.net.services.examples.IMAP;
-import com.netifera.platform.net.tools.auth.FTPAuthBruteforcer;
-import com.netifera.platform.net.tools.auth.IMAPAuthBruteforcer;
-import com.netifera.platform.net.tools.auth.POP3AuthBruteforcer;
+import com.netifera.platform.net.tools.bruteforce.FTPAuthBruteforcer;
+import com.netifera.platform.net.tools.bruteforce.IMAPAuthBruteforcer;
+import com.netifera.platform.net.tools.bruteforce.POP3AuthBruteforcer;
 import com.netifera.platform.net.tools.portscanning.TCPConnectScanner;
 import com.netifera.platform.net.tools.portscanning.UDPScanner;
+import com.netifera.platform.net.wordlists.IWordList;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.IterableOption;
+import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
@@ -49,6 +51,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 	private IServerDetectorService serverDetector;
 	private INetworkEntityFactory entityFactory;
+	private List<IWordList> wordlists = new ArrayList<IWordList>();
 	
 	@SuppressWarnings("unchecked")
 	private IndexedIterable<InternetAddress> getInternetAddressIndexedIterable(IEntity entity) {
@@ -58,7 +61,6 @@ public class EntityActionProvider implements IEntityActionProvider {
 	private ToolAction createTCPScanner(IndexedIterable<InternetAddress> addresses) {
 		assert addresses.itemAt(0).isUniCast();
 		ToolAction tcpConnectScanner = new ToolAction("Discover TCP Services", TCPConnectScanner.class.getName());
-//		tcpConnectScanner.setSummary("Scan target for listening TCP ports by making many connections in parallel.");
 		tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 		PortSet portset = serverDetector.getTriggerablePorts("tcp");
 		assert portset.itemCount() > 0;
@@ -68,7 +70,6 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 	private ToolAction createUDPScanner(IndexedIterable<InternetAddress> addresses) {
 		ToolAction udpScanner = new ToolAction("Discover UDP Services", UDPScanner.class.getName());
-//		udpScanner.setSummary("Scan target for UDP services");
 		udpScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 		PortSet portset = serverDetector.getTriggerablePorts("udp");
 		assert portset.itemCount() > 0;
@@ -91,27 +92,50 @@ public class EntityActionProvider implements IEntityActionProvider {
 		
 		FTP ftp = (FTP) entity.getAdapter(FTP.class);
 		if (ftp != null) {
-			ToolAction ftpAuthBruteforcer = new ToolAction("Bruteforce authentication", FTPAuthBruteforcer.class.getName());
-//			ftpAuthBruteforcer.setSummary("Try credentials on FTP service.");
-			ftpAuthBruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
-			ftpAuthBruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			answer.add(ftpAuthBruteforcer);
+			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", FTPAuthBruteforcer.class.getName());
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
+//			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
+			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", "Passwords", "", true));
+			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", "Passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+			bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			answer.add(bruteforcer);
 		}
 		
 		POP3 pop3 = (POP3) entity.getAdapter(POP3.class);
 		if (pop3 != null) {
-			ToolAction pop3AuthBruteforcer = new ToolAction("Bruteforce authentication", POP3AuthBruteforcer.class.getName());
-			pop3AuthBruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target POP3 service", pop3.getLocator()));
-			pop3AuthBruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			answer.add(pop3AuthBruteforcer);
+			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", POP3AuthBruteforcer.class.getName());
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target POP3 service", pop3.getLocator()));
+//			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
+			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", "Passwords", "", true));
+			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", "Passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+			bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			answer.add(bruteforcer);
 		}
 
 		IMAP imap = (IMAP) entity.getAdapter(IMAP.class);
 		if (imap != null) {
-			ToolAction imapAuthBruteforcer = new ToolAction("Bruteforce authentication", IMAPAuthBruteforcer.class.getName());
-			imapAuthBruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target IMAP service", imap.getLocator()));
-			imapAuthBruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
-			answer.add(imapAuthBruteforcer);
+			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", IMAPAuthBruteforcer.class.getName());
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target IMAP service", imap.getLocator()));
+//			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
+			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", "Passwords", "", true));
+			bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", "Passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
+			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+			bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			answer.add(bruteforcer);
 		}
 
 		addNetblockActions(entity, answer);
@@ -274,6 +298,19 @@ public class EntityActionProvider implements IEntityActionProvider {
 		return answer;
 	}
 
+	private String[] getAvailableWordLists(String[] categories) {
+		List<String> names = new ArrayList<String>();
+		for (IWordList wordlist: wordlists) {
+			for (String category: categories) {
+				if (wordlist.getCategory().equals(category)) {
+					names.add(wordlist.getName());
+					break;
+				}
+			}
+		}
+		return names.toArray(new String[names.size()]);
+	}
+	
 	protected void setServerDetector(IServerDetectorService serverDetector) {
 		this.serverDetector = serverDetector;
 	}
@@ -288,5 +325,13 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 	protected void unsetEntityFactory(INetworkEntityFactory entityFactory) {
 		this.entityFactory = null;
+	}
+	
+	protected void registerWordList(IWordList wordlist) {
+		this.wordlists.add(wordlist);
+	}
+	
+	protected void unregisterWordList(IWordList wordlist) {
+		this.wordlists.remove(wordlist);
 	}
 }

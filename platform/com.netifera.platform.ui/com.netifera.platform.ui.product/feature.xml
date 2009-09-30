@@ -20,14 +20,15 @@
    <includes
          id="com.netifera.platform.core.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.core.source"
          version="0.0.0"/>
 
-
    <includes
          id="com.netifera.platform.ui.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.ui.source"
          version="0.0.0"/>
@@ -35,6 +36,7 @@
    <includes
          id="com.netifera.platform.host.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.host.source"
          version="0.0.0"/>
@@ -43,6 +45,7 @@
          id="com.netifera.platform.net.feature"
          version="0.0.0"
          optional="true"/>
+
    <includes
          id="com.netifera.platform.net.source"
          version="0.0.0"
@@ -51,6 +54,7 @@
    <includes
          id="com.netifera.platform.net.packets.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.net.packets.source"
          version="0.0.0"/>
@@ -58,6 +62,7 @@
    <includes
          id="com.netifera.platform.net.dns.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.net.dns.source"
          version="0.0.0"/>
@@ -66,10 +71,10 @@
          id="org.eclipse.rcp"
          version="0.0.0"/>
 
-
    <includes
          id="com.netifera.platform.net.http.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.net.http.source"
          version="0.0.0"/>
@@ -77,11 +82,11 @@
    <includes
          id="com.netifera.platform.net.ui.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.net.ui.source"
          version="0.0.0"/>
 
- 
    <includes
          id="com.netifera.platform.net.ssh.feature"
          version="0.0.0"/>
@@ -89,10 +94,14 @@
    <includes
          id="com.netifera.platform.ui.visualizations.feature"
          version="0.0.0"/>
+
    <includes
          id="com.netifera.platform.demo.feature"
          version="0.0.0"/>
-         
+
+   <includes
+         id="com.netifera.platform.probebuild.feature"
+         version="0.0.0"/>
 
    <requires>
       <import feature="com.netifera.platform.ui.feature" version="1.0.0"/>

@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 
-import com.netifera.platform.host.terminal.ui.view.internal.SettingStorePrefixDecorator;
+import com.netifera.platform.host.terminal.ui.preferences.SettingStorePrefixDecorator;
 
 public class TerminalViewConnectionManager implements ITerminalViewConnectionManager {
 	private static final String STORE_CONNECTION_PREFIX = "connection"; //$NON-NLS-1$

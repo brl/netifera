@@ -1,5 +1,6 @@
 package com.netifera.platform.tools.internal;
 
+import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.tasks.ITask;
 import com.netifera.platform.api.tasks.ITaskMessenger;
 import com.netifera.platform.api.tasks.ITaskOutput;
@@ -93,5 +94,9 @@ public class ToolContext implements IToolContext, ITaskRunnable, ITaskMessenger 
 
 	public String getClassName() {
 		return toolInstance.getClass().getName();
+	}
+	
+	public ILogger getLogger() {
+		return new ToolLogger(this);
 	}
 }

@@ -56,6 +56,14 @@ public class ActionHover extends PopupDialog {
 	private Hyperlink firstActionLink;
 	private Point location;
 
+	public static Image getActionImage(IAction action) {
+		if (action.getImageDescriptor() != null) {
+			return Activator.getDefault().getImageCache().get(action.getImageDescriptor());
+		} else {
+			return Activator.getDefault().getImageCache().get("icons/action.png");
+		}
+	}
+	
 	public ActionHover(Shell parent, Point location, Object input, Object item) {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP , false, false, false, false, false, 
 				/*ModelPlugin.getPlugin().getLabelProvider().getText(entity.getRealEntity())*/ null, null);
@@ -123,14 +131,17 @@ public class ActionHover extends PopupDialog {
 		toolkit.getHyperlinkGroup().setBackground(background);
 
 		body = form.getBody();
-		body.setLayout(new GridLayout());
+		GridLayout bodyLayout = new GridLayout();
+//		bodyLayout.verticalSpacing = 5;
+		body.setLayout(bodyLayout);
 		toolkit.paintBordersFor(body);
 
 		return composite;
 	}
 
 	private void setHeader() {
-		form.setFont(JFaceResources.getDefaultFont());
+//		form.setFont(JFaceResources.getDefaultFont());
+		form.setFont(JFaceResources.getDialogFont());
 		
 		Image icon = Activator.getDefault().getLabelProvider().getImage(entity);
 		form.setImage(icon);
@@ -139,7 +150,6 @@ public class ActionHover extends PopupDialog {
 		form.setText(text);
 		
 		form.setSeparatorVisible(true);
-		
 		toolkit.decorateFormHeading(form);
 	}
 
@@ -279,11 +289,8 @@ public class ActionHover extends PopupDialog {
 
 	private void addAction(final IAction action, Composite parent, boolean isQuick) {
 		final ImageHyperlink link = toolkit.createImageHyperlink(parent, SWT.NONE);
-		if (action.getImageDescriptor() != null) {
-			link.setImage(action.getImageDescriptor().createImage());
-		} else {
-			link.setImage(Activator.getDefault().getImageCache().get("icons/action.png"));
-		}
+		
+		link.setImage(getActionImage(action));
 
 		if (isQuick)
 			link.setToolTipText(action.getText());
@@ -298,7 +305,7 @@ public class ActionHover extends PopupDialog {
 					if (((ToolConfiguration) spaceAction.getConfiguration()).isFixed()) {
 						spaceAction.run();
 					} else {
-						RunActionDialog runActionDialog = new RunActionDialog(getParentShell(), getShell().getLocation(), spaceAction);
+						RunActionHover runActionDialog = new RunActionHover(getParentShell(), getShell().getLocation(), spaceAction);
 						runActionDialog.open();
 					}
 				} else {

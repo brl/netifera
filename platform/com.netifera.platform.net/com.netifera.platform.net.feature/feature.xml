@@ -61,13 +61,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.netifera.platform.net.tools.auth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.netifera.platform.net.services.sniffing"
          download-size="0"
          install-size="0"
@@ -118,6 +111,20 @@
 
    <plugin
          id="com.netifera.platform.net.routes"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.wordlists"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.tools.bruteforce"
          download-size="0"
          install-size="0"
          version="0.0.0"

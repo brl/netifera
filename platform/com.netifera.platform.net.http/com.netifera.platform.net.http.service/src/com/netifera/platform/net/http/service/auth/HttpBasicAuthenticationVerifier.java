@@ -2,7 +2,6 @@ package com.netifera.platform.net.http.service.auth;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Iterator;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -14,7 +13,6 @@ import org.apache.http.protocol.HttpContext;
 
 import com.netifera.platform.net.http.service.AsynchronousHTTPClient;
 import com.netifera.platform.net.http.service.HTTP;
-import com.netifera.platform.net.services.auth.AuthenticationListener;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
@@ -58,21 +56,16 @@ public class HttpBasicAuthenticationVerifier extends CredentialsVerifier {
 			Credential credential = (Credential) context.getAttribute("credential");
 //			System.out.println(credential+" response: "+response.getStatusLine());
 			if (response.getStatusLine().getStatusCode() == 401) {
-				listener.authenticationFailed(credential);
+				authenticationFailed(credential);
 			} else {
-				listener.authenticationSucceeded(credential);
+				authenticationSucceeded(credential);
 			}
 		}
 	}
 	
 	@Override
-	public void tryCredentials(Iterator<Credential> credentials,
-			AuthenticationListener listener) throws IOException,
-			InterruptedException {
+	public void run() throws IOException, InterruptedException {
 
-		this.credentials = credentials;
-		this.listener = listener;
-		
 		AsynchronousHTTPClient client = service.createAsynchronousClient(new CredentialsTester());
 		client.connect(new SessionRequestCallback() {
 			// XXX never return on error

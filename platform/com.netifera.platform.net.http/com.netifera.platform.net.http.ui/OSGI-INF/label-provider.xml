@@ -4,6 +4,7 @@
 	<implementation class="com.netifera.platform.net.http.internal.ui.EntityLabelProvider" />
 	<service>
 		<provide interface="com.netifera.platform.ui.api.model.IEntityLabelProvider" />
+		<provide interface="com.netifera.platform.ui.api.model.IEntityInformationProvider" />
 	</service>
 	<reference
     	name="LOG_MANAGER"

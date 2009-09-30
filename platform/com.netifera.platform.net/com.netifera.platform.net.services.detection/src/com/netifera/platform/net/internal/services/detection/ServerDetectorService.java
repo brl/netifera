@@ -1,7 +1,6 @@
 package com.netifera.platform.net.internal.services.detection;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.netifera.platform.net.services.detection.INetworkServiceDetector;
@@ -23,8 +22,17 @@ public class ServerDetectorService extends NetworkServiceDetectorService impleme
 		return new byte[0];
 	}
 	
-	private final static PortSet DEFAULT_TCP_PORTSET = new PortSet("21-23,25,80,110,111,143,443,445,1433,1521,3306,8000,8080,8081,8888");
-	private final static PortSet DEFAULT_UDP_PORTSET = new PortSet("53,111,137,139,161,5060");
+	/*
+	 * 1723 pptp
+	 * 5432 postgresql
+	 */
+	private final static PortSet DEFAULT_TCP_PORTSET = new PortSet("21-23,25,80,110,111,135,143,389,443,445,1433,1521,1723,3306,3389,5432,8000,8080,8081,8888");
+	
+	/*
+	 * 1194 new openvpn
+	 * 5000 old openvpn
+	 */
+	private final static PortSet DEFAULT_UDP_PORTSET = new PortSet("53,111,135,137,139,161,1194,5000,5060");
 	
 	// Returns the PortSet of (pre-registered) triggerable ports for a given protocol
 	public PortSet getTriggerablePorts(String protocol) {
@@ -61,10 +69,8 @@ public class ServerDetectorService extends NetworkServiceDetectorService impleme
 	
 	public Map<String,String> detect(String protocol, int port,
 			String trigger, String response) {
-		List<INetworkServiceDetector> detectors = this.detectors.get(protocol);
-		if (detectors == null)
-			return null;
 		for (INetworkServiceDetector each: detectors) {
+			if (each.getProtocol() != null && !each.getProtocol().equals(protocol)) continue;
 			if (each.getPorts() != null && !each.getPorts().contains(port)) continue;
 			Map<String,String> result = each.detect(trigger, response);
 			if (result != null) {

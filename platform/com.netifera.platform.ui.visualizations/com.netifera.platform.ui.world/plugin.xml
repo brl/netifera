@@ -21,7 +21,7 @@
                id="com.netifera.platform.views.world"
                minimized="false"
                ratio="0.55"
-               relationship="bottom"
+               relationship="fast"
                relative="com.netifera.platform.ui.views.Tasks">
          </view>
       </perspectiveExtension>

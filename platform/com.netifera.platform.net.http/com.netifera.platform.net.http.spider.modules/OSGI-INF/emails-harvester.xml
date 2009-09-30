@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.spider.emails-harvester">
+	<implementation class="com.netifera.platform.net.http.spider.modules.EmailsHarvesterModule" />
+	<service>
+		<provide interface="com.netifera.platform.net.http.spider.IWebSpiderModule" />
+	</service>
+	
+	<reference
+		name="FACTORY"
+		interface="com.netifera.platform.net.dns.model.IDomainEntityFactory"
+		bind="setFactory"
+		unbind="unsetFactory"
+	/>
+	
+</component>

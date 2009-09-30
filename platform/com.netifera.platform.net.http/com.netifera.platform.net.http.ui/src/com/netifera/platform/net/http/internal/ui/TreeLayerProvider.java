@@ -2,7 +2,7 @@ package com.netifera.platform.net.http.internal.ui;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.layers.ITreeLayerProvider;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.WebApplicationEntity;
 import com.netifera.platform.net.http.web.model.WebFormAuthenticationEntity;
@@ -18,8 +18,8 @@ public class TreeLayerProvider implements ITreeLayerProvider {
 			return new IEntity[] {((WebPageEntity) entity).getWebSite()};
 		} else if(entity instanceof WebApplicationEntity) {
 			return new IEntity[] {((WebApplicationEntity) entity).getHTTP()};
-		} else if(entity instanceof HTTPBasicAuthenticationEntity) {
-			return new IEntity[] {((HTTPBasicAuthenticationEntity) entity).getHTTP()};
+		} else if(entity instanceof BasicAuthenticationEntity) {
+			return new IEntity[] {((BasicAuthenticationEntity) entity).getWebSite()};
 		} else if(entity instanceof WebFormAuthenticationEntity) {
 			return new IEntity[] {((WebFormAuthenticationEntity) entity).getWebSite()};
 		} else if(entity instanceof HTTPRequestEntity) {

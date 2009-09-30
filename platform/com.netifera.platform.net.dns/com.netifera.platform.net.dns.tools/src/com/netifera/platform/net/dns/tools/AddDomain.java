@@ -100,13 +100,13 @@ public class AddDomain implements ITool {
 		} else if (o instanceof PTRRecord) {
 			PTRRecord ptr = (PTRRecord) o;
 //			Activator.getInstance().getDomainEntityFactory().createARecord(realm, a.getName().toString(), InternetAddress.fromInetAddress(o..getAddress()));
-			context.warning("unhandled record: "+ptr);
+			context.warning("Unhandled record: "+ptr);
 		} else if (o instanceof MXRecord) {
 			processMXRecord((MXRecord) o);
 		} else if (o instanceof NSRecord) {
 			processNSRecord((NSRecord) o);
 		} else {
-			context.warning("Unhandled DNS record: "+o);
+			context.warning("Unhandled record: "+o);
 		}
 	}
 	
@@ -125,6 +125,7 @@ public class AddDomain implements ITool {
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the NS record entity
 			}
 			entity.save();
+			entity.update();
 		} catch (UnknownHostException e) {
 			context.warning("Could not resolve NS record target "+ns.getTarget());
 		} catch (TextParseException e) {
@@ -147,6 +148,7 @@ public class AddDomain implements ITool {
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the MX record entity
 			}
 			entity.save();
+			entity.update();
 		} catch (UnknownHostException e) {
 			context.warning("Could not resolve MX record target "+mx.getTarget());
 		} catch (TextParseException e) {

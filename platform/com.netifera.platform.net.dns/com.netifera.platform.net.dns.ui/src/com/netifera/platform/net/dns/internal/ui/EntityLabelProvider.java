@@ -43,15 +43,15 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 				return email.getAddress();
 		} else if (e instanceof ARecordEntity) {
 			ARecordEntity hostname = (ARecordEntity) e;
-			return hostname.getHostName() + "  A  "
-					+ hostname.getAddressEntity().getAddress();
+			return hostname.getName() + "  A  "
+					+ hostname.getAddress().getAddress();
 		} else if (e instanceof AAAARecordEntity) {
 			AAAARecordEntity hostname = (AAAARecordEntity) e;
-			return hostname.getHostName() + "  AAAA  "
-					+ hostname.getAddressEntity().getAddress();
+			return hostname.getName() + "  AAAA  "
+					+ hostname.getAddress().getAddress();
 		} else if (e instanceof PTRRecordEntity) {
 			PTRRecordEntity ptr = (PTRRecordEntity) e;
-			return ptr.getAddressEntity().getAddress() + "  PTR  "
+			return ptr.getAddress().getAddress() + "  PTR  "
 					+ ptr.getName();
 		} else if (e instanceof NSRecordEntity) {
 			NSRecordEntity ns = (NSRecordEntity) e;

@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class FirstPage extends WizardPage {
-	private final static String[] CHANNEL_TYPES = {"TCP Socket Connect Channel"};
+	private final static String[] CHANNEL_TYPES = {"TCP Listen Channel"};
 	private Text probeNameText;
 	@SuppressWarnings("unused")
 	private Button[] radioButtons;

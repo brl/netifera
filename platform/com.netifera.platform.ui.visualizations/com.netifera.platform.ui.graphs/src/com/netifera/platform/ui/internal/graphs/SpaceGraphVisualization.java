@@ -172,8 +172,7 @@ public class SpaceGraphVisualization implements ISpaceVisualization {
 			protected List<ILayerProvider> getLayers() {
 				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
 				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IEdgeLayerProvider
-						|| layerProvider instanceof IGroupLayerProvider)
+					if (layerProvider instanceof IEdgeLayerProvider)
 						answer.add(layerProvider);
 				}
 				return answer;

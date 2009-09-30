@@ -10,6 +10,7 @@ public abstract class Option implements Serializable, IOption {
 	private String name;
 	private String label;
 	private String description;
+	private String section;
 	
 	boolean fixed = false;
 	
@@ -31,6 +32,14 @@ public abstract class Option implements Serializable, IOption {
 
 	public String getDescription() {
 		return description;
+	}
+	
+	public String getSection() {
+		return section;
+	}
+	
+	public void setSection(String section) {
+		this.section = section;
 	}
 	
 	public boolean isFixed() {

@@ -95,7 +95,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		} else if(e instanceof HostEntity) {
 			return getHostText((HostEntity) e);
 		} else if(e instanceof UserEntity) {
-			return ((UserEntity)e).getName();
+			return ((UserEntity)e).getName() + (parentIsHost(e) ? "" : "@" + getHostName(((UserEntity)e).getHost()));
 //		} else if(e instanceof LocalNetworkEntity) {
 //			return ((LocalNetworkEntity)e).getName();
 		} else if(e instanceof FolderEntity) {
@@ -193,7 +193,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return Activator.getInstance().getImageCache().get(CONTROLLED);
 		
 		//TODO optimise, maybe this is too slow:
-		String overlayKeys[] = new String[5];
+/*		String overlayKeys[] = new String[5];
 		IStructureContext context = e.getStructureContext();
 		if (context instanceof TreeStructureContext) {
 			for (IShadowEntity child: ((TreeStructureContext) context).getChildren()) {
@@ -206,6 +206,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			}
 		}
 		return Activator.getInstance().getImageCache().getDecorated(FOLDER, overlayKeys);
+*/
+		return Activator.getInstance().getImageCache().get(FOLDER);
 	}
 	
 	private Image getHostImage(HostEntity e) {
@@ -378,7 +380,18 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		
 		return host.getLabel() == null ? host.getDefaultAddress().getAddressString() : host.getLabel();
 	}
-	
+
+	private String getHostName(HostEntity host) {
+		for (NetworkAddressEntity address: host.getAddresses()) {
+			if (address instanceof InternetAddressEntity) {
+				for (String name: ((InternetAddressEntity)address).getNames()) {
+					return name;
+				}
+			}
+		}
+		return host.getLabel() == null ? host.getDefaultAddress().getAddressString() : host.getLabel();
+	}
+
 	private String getAddressText(NetworkAddressEntity e) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(e.getAddress());
@@ -412,8 +425,11 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			}
 			label.append("]");
 		}
-		
-		return label.toString();
+
+		if (parentIsHost(e))
+			return label.toString();
+		else
+			return label.toString()+" @ "+getHostName(e.getHost());
 	}
 	
 	private String getServiceText(ServiceEntity e) {
@@ -435,8 +451,11 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		} else if (e.getVersion() != null && e.getVersion().length()>0) {
 			label.append(" ["+e.getVersion()+"]");
 		}
-		
-		return label.toString();
+
+		if (parentIsHost(e))
+			return label.toString();
+		else
+			return getHostName(e.getAddress().getHost())+":"+label.toString();
 	}
 
 	private String getServiceConnectionText(ClientServiceConnectionEntity e) {
@@ -563,5 +582,11 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 
 		return null;
 //		return tag1.compareToIgnoreCase(tag2);
+	}
+	
+	private boolean parentIsHost(IShadowEntity e) {
+		if (e.getRealEntity() != e && e.getStructureContext() instanceof TreeStructureContext)
+			return ((TreeStructureContext)e.getStructureContext()).getParent() instanceof HostEntity;
+		return false;
 	}
 }

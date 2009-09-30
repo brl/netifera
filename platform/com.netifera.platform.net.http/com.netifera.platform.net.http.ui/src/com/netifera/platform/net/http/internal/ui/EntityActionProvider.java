@@ -11,20 +11,22 @@ import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.tools.HTTPBasicAuthBruteforcer;
 import com.netifera.platform.net.http.tools.WebApplicationScanner;
 import com.netifera.platform.net.http.tools.WebCrawler;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.model.ServiceEntity;
-import com.netifera.platform.net.services.credentials.UsernameAndPassword;
+import com.netifera.platform.net.wordlists.IWordList;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
-import com.netifera.platform.tools.options.IterableOption;
+import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 
 public class EntityActionProvider implements IEntityActionProvider {
+
+	private List<IWordList> wordlists = new ArrayList<IWordList>();
 
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
@@ -34,14 +36,14 @@ public class EntityActionProvider implements IEntityActionProvider {
 			if (entity instanceof ServiceEntity) {
 				Set<String> names = ((ServiceEntity)entity).getAddress().getNames();
 				if (names.isEmpty()) {
-					addWebCrawler("Crawl web site", answer, http, http.getURI());
-					addWebApplicationScanner("Scan for web applications", answer, http, null);
+					addWebCrawler("Crawl Web Site", answer, http, http.getURI());
+					addWebApplicationScanner("Scan Web Applications", answer, http, null);
 				} else {
 					for (String vhost: names) {
 						addWebCrawler("Crawl web site " + vhost, answer, http, http.getURI(vhost));
 					}
 					for (String vhost: names) {
-						addWebApplicationScanner("Scan for web applications at " + vhost, answer, http, vhost);
+						addWebApplicationScanner("Scan Web Applications at " + vhost, answer, http, vhost);
 					}
 				}
 			}
@@ -49,23 +51,31 @@ public class EntityActionProvider implements IEntityActionProvider {
 			WebPageEntity page = (WebPageEntity) entity;
 			http = (HTTP) page.getWebSite().getHTTP().getAdapter(HTTP.class);
 
-			addWebCrawler("Crawl web site starting at "+page.getPath(), answer, http, page.getURL());
+			addWebCrawler("Crawl Web Site Starting at "+page.getPath(), answer, http, page.getURL());
 			
-			if (page.getAuthentication() instanceof HTTPBasicAuthenticationEntity) {
-//				HTTPBasicAuthenticationEntity auth = (HTTPBasicAuthenticationEntity) page.getAuthentication();
-				ToolAction bruteforcer = new ToolAction("Bruteforce authentication", HTTPBasicAuthBruteforcer.class.getName());
+			if (page.getAuthentication() instanceof BasicAuthenticationEntity) {
+				ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", HTTPBasicAuthBruteforcer.class.getName());
 				bruteforcer.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
-				bruteforcer.addOption(new StringOption("hostname", "Host name", "Host name for the web site", page.getWebSite().getHostName()));
+				bruteforcer.addOption(new StringOption("hostname", "Host name", "Host name for the web site", page.getWebSite().getVirtualHostName()));
 				bruteforcer.addOption(new StringOption("path", "Path", "Path that requires authentication", page.getPath()));
-				bruteforcer.addOption(new StringOption("method", "Method", "GET/POST", "GET"));
-				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+				bruteforcer.addOption(new StringOption("method", "Method", "HTTP method to use in the requests", new String[] {"GET","POST"}));
+//				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
+				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
+				bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", "Passwords", "", true));
+				bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", "Passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
+				bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+				bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", true));
+				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+				bruteforcer.addOption(new IntegerOption("keepAlive", "Keep alive", "Keep alive time in seconds to send in the header of our HTTP requests, to try to reuse connections", 300));
 				answer.add(bruteforcer);
 			}
 		} else if (entity instanceof WebSiteEntity) {
 			WebSiteEntity site = (WebSiteEntity) entity;
 			http = (HTTP) site.getHTTP().getAdapter(HTTP.class);
-			addWebCrawler("Crawl web site", answer, http, site.getRootURL());
-			addWebApplicationScanner("Scan for web applications", answer, http, site.getHostName());
+			addWebCrawler("Crawl Web Site", answer, http, site.getRootURL());
+			addWebApplicationScanner("Scan Web Applications", answer, http, site.getVirtualHostName());
 		}
 		
 		return answer;
@@ -80,6 +90,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		webCrawler.addOption(new BooleanOption("fetchImages", "Fetch images", "Fetch images following <img> tags?", false));
 		webCrawler.addOption(new BooleanOption("scanWebApplications", "Scan common web applications", "Try common URLs for known web applications?", false));
 		webCrawler.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+		webCrawler.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
 		answer.add(webCrawler);
 	}
 	
@@ -89,11 +100,33 @@ public class EntityActionProvider implements IEntityActionProvider {
 		webApplicationScanner.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
 		webApplicationScanner.addOption(new StringOption("hostname", "Host name", "Host name for the web site", hostname != null ? hostname : http.getURIHost()));
 		webApplicationScanner.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+		webApplicationScanner.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
 		answer.add(webApplicationScanner);
 	}
 
 	public List<IAction> getQuickActions(IShadowEntity shadow) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private String[] getAvailableWordLists(String[] categories) {
+		List<String> names = new ArrayList<String>();
+		for (IWordList wordlist: wordlists) {
+			for (String category: categories) {
+				if (wordlist.getCategory().equals(category)) {
+					names.add(wordlist.getName());
+					break;
+				}
+			}
+		}
+		return names.toArray(new String[names.size()]);
+	}
+	
+	protected void registerWordList(IWordList wordlist) {
+		this.wordlists.add(wordlist);
+	}
+	
+	protected void unregisterWordList(IWordList wordlist) {
+		this.wordlists.remove(wordlist);
 	}
 }

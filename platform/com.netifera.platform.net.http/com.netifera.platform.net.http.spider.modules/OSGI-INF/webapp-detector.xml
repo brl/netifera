@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.spider.webapp-detector">
+	<implementation class="com.netifera.platform.net.http.spider.modules.WebApplicationDetectorModule" />
+	<service>
+		<provide interface="com.netifera.platform.net.http.spider.IWebSpiderModule" />
+	</service>
+	
+	<reference
+		name="FACTORY"
+		interface="com.netifera.platform.net.http.web.model.IWebEntityFactory"
+		bind="setFactory"
+		unbind="unsetFactory"
+	/>
+
+	<reference
+		name="DETECTOR"
+		interface="com.netifera.platform.net.http.web.services.IWebApplicationDetector"
+		bind="setDetector"
+		unbind="unsetDetector"
+	/>
+	
+</component>

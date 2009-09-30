@@ -40,6 +40,18 @@ public class TCPSocketLocator implements ISocketLocator {
 	*/
 	
 	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof TCPSocketLocator))
+			return false;
+		return ((TCPSocketLocator)o).address.equals(address) && ((TCPSocketLocator)o).port == port; 
+	}
+	
+	@Override
+	public int hashCode() {
+		return address.hashCode()+port;
+	}
+	
+	@Override
 	public String toString() {
 		return address.toStringLiteral() + ':' + Integer.toString(port)
 			+ '/' + getProtocol();
