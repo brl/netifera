@@ -2,11 +2,9 @@ package com.netifera.platform.net.http.internal.web.model;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.netifera.platform.api.model.IModelPredicate;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
@@ -115,7 +113,28 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 	public synchronized WebApplicationEntity createWebApplication(final long realm, long spaceId, TCPSocketLocator http,
 			URI url, Map<String, String> info) {
-		url = url.normalize();
+		String serviceType = info.get("serviceType");
+		WebPageEntity page = createWebPage(realm, spaceId, http, url, null);
+		WebApplicationEntity answer = (WebApplicationEntity) getWorkspace().findByKey(WebApplicationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), page.getWebSite().getHostName(), page.getPath(), serviceType));
+		if (answer != null) {
+			if (info.get("version") != null) {
+				answer.setVersion(info.get("version"));
+				answer.save();
+				answer.update();
+			}
+			answer.addToSpace(spaceId);
+			return answer;
+		}
+		
+		answer = new WebApplicationEntity(getWorkspace(), realm, page.createReference(), serviceType);
+		if (info.get("version") != null)
+			answer.setVersion(info.get("version"));
+		answer.save();
+		answer.update();
+		answer.addToSpace(spaceId);
+		return answer;
+		
+/*		url = url.normalize();
 		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
 		final String urlString = url.toString();
 		List<WebApplicationEntity> results = getWorkspace().findByPredicate(WebApplicationEntity.class,
@@ -140,7 +159,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 		answer.save();
 		answer.addToSpace(spaceId);
 		return answer;
-	}
+*/	}
 
 	public synchronized WebPageEntity createWebPageWithBasicAuthentication(final long realm, long spaceId,
 			TCPSocketLocator http, URI url, final String authenticationRealm) {

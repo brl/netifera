@@ -17,7 +17,7 @@ public class TreeLayerProvider implements ITreeLayerProvider {
 		} else if(entity instanceof WebPageEntity) {
 			return new IEntity[] {((WebPageEntity) entity).getWebSite()};
 		} else if(entity instanceof WebApplicationEntity) {
-			return new IEntity[] {((WebApplicationEntity) entity).getHTTP()};
+			return new IEntity[] {((WebApplicationEntity) entity).getWebPage().getWebSite()};
 		} else if(entity instanceof BasicAuthenticationEntity) {
 			return new IEntity[] {((BasicAuthenticationEntity) entity).getWebSite()};
 		} else if(entity instanceof WebFormAuthenticationEntity) {
