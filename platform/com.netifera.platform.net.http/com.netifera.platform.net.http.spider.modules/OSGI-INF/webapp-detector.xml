@@ -14,7 +14,7 @@
 
 	<reference
 		name="DETECTOR"
-		interface="com.netifera.platform.net.http.web.services.IWebApplicationDetector"
+		interface="com.netifera.platform.net.http.web.applications.IWebApplicationDetector"
 		bind="setDetector"
 		unbind="unsetDetector"
 	/>
