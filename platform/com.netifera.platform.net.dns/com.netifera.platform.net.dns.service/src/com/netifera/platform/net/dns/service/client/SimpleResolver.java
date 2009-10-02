@@ -53,13 +53,14 @@ public class SimpleResolver implements Resolver {
 
 	class ResponseContext {
 		final ResolverListener listener;
-		
+		final Message query;
 		final long deadline;
 //		long nextTryTime;
 		
-		ResponseContext(ResolverListener listener, long deadline) {
+		ResponseContext(Message query, ResolverListener listener, long deadline) {
 			this.listener = listener;
 			this.deadline = deadline;
+			this.query = query;
 		}
 	}
 	
@@ -102,7 +103,6 @@ public class SimpleResolver implements Resolver {
 		channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
 			public void cancelled(Void attachment) {
 				// TODO Auto-generated method stub
-//				System.err.println("SimpleResolver read cancelled "+locator);
 			}
 
 			public void completed(Integer result, Void attachment) {
@@ -112,12 +112,13 @@ public class SimpleResolver implements Resolver {
 				dst.get(in);
 
 				dst.clear();
+				
 				channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, attachment, this);
 			
 				try {
 					handleResponse(in);
 				} catch (WireParseException e) {
-					error("reading response", e);
+					error("Parsing exception while processing response", e);
 				}
 			}
 
@@ -126,7 +127,8 @@ public class SimpleResolver implements Resolver {
 					checkTimeOut();
 					channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, attachment, this);
 				} else {
-					error("Unexpected error in SimpleResolver read", e);
+					channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, attachment, this);
+					error("Unexpected exception in SimpleResolver while reading responses", e);
 				}
 			}
 		});
@@ -157,7 +159,7 @@ public class SimpleResolver implements Resolver {
 				//TODO
 //				System.out.println("Question: "+response.getQuestion());
 //				System.out.println("Response: "+response);
-//				verifyTSIG(query, response, in, tsig);
+				verifyTSIG(context.query, response, in, tsig);
 /*				if (!tcp && !ignoreTruncation && response.getHeader().getFlag(Flags.TC)) {
 					tcp = true;
 					continue;
@@ -166,7 +168,7 @@ public class SimpleResolver implements Resolver {
 				context.listener.receiveMessage(id, response);
 			} catch(Exception e) {
 				context.listener.handleException(id, e);
-				error("handling response", e);
+				error("Exception while handling response", e);
 			}
 		}
 	}
@@ -239,14 +241,9 @@ public class SimpleResolver implements Resolver {
 	private void verifyTSIG(Message query, Message response, byte[] b, TSIG tsig) {
 		if (tsig == null)
 			return;
-		// HACK
-/*		int error = tsig.verify(response, b, query.getTSIG());
-		if (error == Rcode.NOERROR)
-			response.setVerified();
-		else
-			response.setFailed();
-		if (Options.check("verbose"))
-			System.err.println("TSIG verify: " + Rcode.string(error));*/
+		int error = tsig.verify(response, b, query.getTSIG());
+//		if (Options.check("verbose"))
+//			System.err.println("TSIG verify: " + Rcode.string(error));*/
 	}
 
 	private void applyEDNS(Message query) {
@@ -271,12 +268,13 @@ public class SimpleResolver implements Resolver {
 	 *             An error occurred while sending or receiving.
 	 */
 	public Message send(Message query) throws IOException {
-		if (Options.check("verbose"))
-//			System.err.println("Sending "+query);
-//			System.err.println("Sending to "
-//					+ address.getAddress().getHostAddress() + ":"
-//					+ address.getPort());
-
+		if (Options.check("verbose")) {
+			System.err.println("Sending "+query);
+/*			System.err.println("Sending to "
+					+ address.getAddress().getHostAddress() + ":"
+					+ address.getPort());
+*/		}
+		
 		if (query.getHeader().getOpcode() == Opcode.QUERY) {
 			Record question = query.getQuestion();
 			if (question != null && question.getType() == Type.AXFR)
@@ -298,9 +296,11 @@ public class SimpleResolver implements Resolver {
 				return lazyResponse.message;
 			}
 		} catch (InterruptedException e) {
-			error("sending query", e);
+			//FIXME
+			error("Interrupted while sending query", e);
+//			throw new InterruptedIOException("asdfadsF");
+			return null;
 		}
-		return null;
 	}
 
 	/**
@@ -321,7 +321,7 @@ public class SimpleResolver implements Resolver {
 		if(id == -1) {
 			listener.handleException(null, new RuntimeException("Could not find valid DNS message ID"));
 		} else {
-			contexts.put(id, new ResponseContext(listener, deadline));
+			contexts.put(id, new ResponseContext(query, listener, deadline));
 		}
 //		Record question = query.getQuestion();
 

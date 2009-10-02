@@ -10,6 +10,7 @@ import java.net.SocketException;
 import java.util.StringTokenizer;
 
 import org.osgi.service.component.ComponentContext;
+import org.xbill.DNS.Lookup;
 
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
@@ -96,6 +97,7 @@ public class NameResolverService extends NameResolver {
 	
 	protected void activate(ComponentContext context) {
 		resolver = new ExtendedResolver();
+		Lookup.setDefaultResolver(resolver);
 		
 		//FIXME Unix only
 		activateUnix();
