@@ -56,7 +56,7 @@ public class SocketEngineService implements ISocketEngineService {
 	final private BlockingQueue<SelectionContext> registrationQueue = new LinkedBlockingQueue<SelectionContext>();
 
 	final private Map<AsynchronousSelectableChannel, SelectionContext> contextMap = Collections.synchronizedMap(new HashMap<AsynchronousSelectableChannel, SelectionContext>());
-	
+
 	private ILogger logger;
 	
 	
@@ -120,22 +120,18 @@ public class SocketEngineService implements ISocketEngineService {
 		 * Wrap the handler in another completion handler that performs outstanding connection accounting.
 		 */
 		final CompletionHandler<Void, A> connectCompletion = new CompletionHandler<Void, A>() {
-
 			public void cancelled(A a) {
 				handler.cancelled(a);
 				countConnectFinished();				
 			}
-
 			public void completed(Void result, A a) {
 				handler.completed(result, a);
 				countConnectFinished();
 			}
-
 			public void failed(Throwable exc, A a) {
 				handler.failed(exc, a);
 				countConnectFinished();
 			}
-			
 		};
 		
 		long deadline = System.currentTimeMillis() + unit.toMillis(timeout);
@@ -176,7 +172,10 @@ public class SocketEngineService implements ISocketEngineService {
 		SelectionFuture<Integer,A> future = new SelectionFuture<Integer,A>(handler, attachment, deadline, logger, new Callable<Integer>() {
 			public Integer call() throws Exception {
 				Integer count = ((ReadableByteChannel)channel.getWrappedChannel()).read(dst);
-				if (count <= 0) throw new ClosedChannelException();
+				if (count <= 0) {
+					logger.debug("Channel is closed: read() returned "+count);
+					throw new ClosedChannelException();
+				}
 				return count;
 			}
 		});
@@ -187,7 +186,6 @@ public class SocketEngineService implements ISocketEngineService {
 			handler.cancelled(attachment);
 			return null;
 		}
-//		if (context.reader != null) throw new PendingReadException();
 		context.enqueueRead(future);
 		registrationQueue.add(context);
 		selector.wakeup();
@@ -199,12 +197,14 @@ public class SocketEngineService implements ISocketEngineService {
 			final ByteBuffer src,
 			long timeout, TimeUnit unit,
 			final A attachment, final CompletionHandler<Integer,? super A> handler) {
-
 		long deadline = System.currentTimeMillis() + unit.toMillis(timeout);
 		SelectionFuture<Integer,A> future = new SelectionFuture<Integer,A>(handler, attachment, deadline, logger, new Callable<Integer>() {
 			public Integer call() throws Exception {
 				Integer count = ((WritableByteChannel)channel.getWrappedChannel()).write(src);
-				if (count <= 0) throw new ClosedChannelException();
+				if (count <= 0) {
+					logger.debug("Channel is closed: write() returned "+count);
+					throw new ClosedChannelException();
+				}
 				return count;
 			}
 		});
@@ -215,7 +215,6 @@ public class SocketEngineService implements ISocketEngineService {
 			handler.cancelled(attachment);
 			return null;
 		}
-//		if (context.reader != null) throw new PendingReadException();
 		context.enqueueWrite(future);
 		registrationQueue.add(context);
 		selector.wakeup();
@@ -341,24 +340,22 @@ public class SocketEngineService implements ISocketEngineService {
 		}
 
 		selectThread = new Thread(new Runnable() {
-
 			public void run() {
-
-				selectLoop();
-
 				try {
+					selectLoop();
 					selector.close();
 				} catch (IOException e) {
 					assert logger != null;
 					logger.error("I/O error closing selector", e);
+				} finally {
+					selector = null;
+					logger.debug("Selector thread terminated");
 				}
-				selector = null;
 			}
-
 		});
 
 		selectThread.setDaemon(true);
-		selectThread.setName("Socket Connect Engine Selector thread");
+		selectThread.setName("Socket Engine Selector thread");
 		selectThread.start();
 	}
 
@@ -373,14 +370,10 @@ public class SocketEngineService implements ISocketEngineService {
 	 * detects completed connections and expired connection timeout values.
 	 */
 	private void selectLoop() {
-		long timeout = 0; // wait indefinitely
-	
-		registerPending();
-	
+		long timeout = 0; // wait indifinitely
+
 		while (!Thread.interrupted()) {
 			if (contextMap.isEmpty() && currentlyOpenSockets.get() == 0 && currentlyConnectingSockets.get() == 0) {
-				assert logger != null;
-				logger.debug("SocketEngineService clean");
 				timeout = 0;
 			} else {
 				//XXX remove
@@ -390,31 +383,31 @@ public class SocketEngineService implements ISocketEngineService {
 			}
 
 			try {
+				selector.selectNow(); // to unregister cancelled keys
+				registerPending();
+				
 				selector.select(timeout);
-				assert selector != null;
-				if (selector.isOpen() == false) {
+				
+				registerPending();//XXX
+
+				if (!selector.isOpen()) {
 					logger.error("Selector closed");
 					return;
 				}
 			} catch (IOException e) {
-				assert logger != null;
 				logger.error("I/O error in Selector#select()", e);
 				continue;//XXX
 //				return;
 			}
-			
-			registerPending();
 
 			for (SelectionKey key : selector.selectedKeys()) {
 				SelectionContext context = (SelectionContext)key.attachment();
 				try {
 					context.testKey(key);
 				} catch (CancelledKeyException e) {
-					// a selected key is cancelled
-					// XXX remove
 //					logger.warning("Cancelled selector key (on selected key)", e);
-					// do something about it
-					context.close();
+					// do something about it?
+//					context.close();
 				}
 			}
 
