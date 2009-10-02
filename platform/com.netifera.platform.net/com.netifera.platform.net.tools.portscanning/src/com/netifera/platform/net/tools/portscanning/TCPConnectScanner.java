@@ -95,15 +95,18 @@ public class TCPConnectScanner extends AbstractPortscanner {
 		}
 		
 		synchronized void readBanner() {
+//			context.debug("read banner "+locator);
 			// if we wont send a trigger, wait longer for a banner
 			byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("tcp",locator.getPort());
 			int timeout = trigger.length > 0 ? 100 : 4000;
 			future = channel.read(readBuffer, timeout, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
 				public void cancelled(Void attachment) {
+//					context.debug("read banner cancelled "+locator);
 					checkUnrecognized();
 					done();
 				}
 				public void completed(Integer result, Void attachment) {
+//					context.debug("read banner completed "+locator+" "+result);
 					if (result > 0) {
 						ByteBuffer tempBuffer = readBuffer.duplicate();
 						tempBuffer.flip();
@@ -147,9 +150,11 @@ public class TCPConnectScanner extends AbstractPortscanner {
 
 			future = channel.write(writeBuffer, 5000, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
 				public void cancelled(Void attachment) {
+//					context.debug("write trigger cancelled "+locator);
 					done();
 				}
 				public void completed(Integer result, Void attachment) {
+//					context.debug("write trigger completed "+locator+" "+result);
 					readResponse();
 				}
 				public void failed(Throwable e, Void attachment) {
@@ -196,9 +201,9 @@ public class TCPConnectScanner extends AbstractPortscanner {
 						});
 					} else {
 						if (result == -1) {
-							context.debug(locator + " disconnected");
+//							context.debug(locator + " disconnected");
 						} else {
-							context.debug(locator + " 0 read after trigger");
+//							context.debug(locator + " 0 read after trigger");
 						}
 						checkUnrecognized();
 						done();
@@ -206,7 +211,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 				}
 				public void failed(Throwable e, Void attachment) {
 					if (e instanceof SocketTimeoutException) {
-						context.debug(locator + " trigger timeout");
+//						context.debug(locator + " trigger timeout");
 					} else if (! (e instanceof ClosedChannelException)) {
 						context.exception("Unexpected error when reading response: " + locator, e);
 					}
@@ -281,7 +286,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			context.exception("Exception", e);
 		}
 		while (outstandingConnects.get() != 0) {
-			context.debug("Outstanding connects "+outstandingConnects.get());
+//			context.debug("Outstanding connects "+outstandingConnects.get());
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
@@ -312,8 +317,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 					}
 				});
 			} catch (IOException e) {
-				context.debug("Connecting to " + locator + " failed with error "
-						+ e);
+//				context.debug("Connecting to " + locator + " failed with error " + e);
 				errorCount++;
 				if (errorCount >= errorThreshold) {
 					context.error("Too many errors, aborting.");
