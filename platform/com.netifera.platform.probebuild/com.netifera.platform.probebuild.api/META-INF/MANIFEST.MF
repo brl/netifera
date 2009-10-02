@@ -3,6 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Netifera Probe Builder API
 Bundle-SymbolicName: com.netifera.platform.probebuild.api
 Bundle-Version: 1.0.0
-Export-Package: com.netifera.probebuild.api
+Export-Package: com.netifera.platform.probebuild.api
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Netifera

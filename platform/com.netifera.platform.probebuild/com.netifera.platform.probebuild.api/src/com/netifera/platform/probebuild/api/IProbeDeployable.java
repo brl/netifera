@@ -1,5 +1,5 @@
 
-package com.netifera.probebuild.api;
+package com.netifera.platform.probebuild.api;
 
 import java.io.InputStream;
 
@@ -30,8 +30,10 @@ public interface IProbeDeployable
 
 	/**
 	 * Get the size of this Deployable Probe in number of bytes.
+	 * @param config Configuration object.
+	 * @see IProbeConfiguration
 	 */
-	public int getSize();
+	public int getSize(IProbeConfiguration config);
 }
 
 

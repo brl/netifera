@@ -1,5 +1,5 @@
 
-package com.netifera.probebuild.api;
+package com.netifera.platform.probebuild.api;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;

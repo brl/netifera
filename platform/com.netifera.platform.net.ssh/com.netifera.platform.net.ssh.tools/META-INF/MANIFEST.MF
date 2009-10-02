@@ -15,7 +15,7 @@ Import-Package: com.netifera.platform.api.model,
  com.netifera.platform.net.services.ssh,
  com.netifera.platform.net.tools.bruteforce,
  com.netifera.platform.util.locators,
- com.netifera.probebuild.api,
+ com.netifera.platform.probebuild.api,
  com.trilead.ssh2,
  org.osgi.framework;version="1.3.0",
  org.osgi.util.tracker

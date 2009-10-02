@@ -27,7 +27,7 @@ import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.probebuild.api.IProbeBuilderService;
+import com.netifera.platform.probebuild.api.IProbeBuilderService;
 
 public class EntityActionProvider implements IEntityActionProvider {
 	private IProbeBuilderService probeBuilder;

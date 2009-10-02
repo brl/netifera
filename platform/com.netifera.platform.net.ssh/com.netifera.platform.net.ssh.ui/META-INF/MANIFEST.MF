@@ -26,4 +26,4 @@ Import-Package: com.netifera.platform.api.model,
  com.netifera.platform.util.addresses,
  com.netifera.platform.util.addresses.inet,
  com.netifera.platform.util.locators,
- com.netifera.probebuild.api
+ com.netifera.platform.probebuild.api

@@ -18,14 +18,14 @@
    </license>
 
    <plugin
-         id="com.netifera.probebuild"
+         id="com.netifera.platform.probebuild"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.netifera.probebuild.deployable.linuxi386"
+         id="com.netifera.platform.probebuild.deployable.linuxi386"
          download-size="0"
          install-size="0"
          version="0.0.0"

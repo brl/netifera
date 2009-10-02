@@ -8,7 +8,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.net.model.INetworkEntityFactory;
-import com.netifera.probebuild.api.IProbeBuilderService;
+import com.netifera.platform.probebuild.api.IProbeBuilderService;
 
 public class Activator implements BundleActivator {
 
@@ -29,7 +29,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		instance = this;
 		
-		System.setProperty("com.netifera.probebuild.basedir", System.getProperty("user.home", System.getenv("HOME")) + File.separator + ".netifera" + File.separator + "probebuild" + File.separator);
+		System.setProperty("com.netifera.platform.probebuild.basedir", System.getProperty("user.home", System.getenv("HOME")) + File.separator + ".netifera" + File.separator + "probebuild" + File.separator);
 		
 		probeBuilderTracker = new ServiceTracker(context, IProbeBuilderService.class.getName(), null);
 		probeBuilderTracker.open();

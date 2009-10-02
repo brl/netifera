@@ -16,7 +16,7 @@
 	
 	<reference 
 		name="PROBE_BUILDER"
-		interface="com.netifera.probebuild.api.IProbeBuilderService"
+		interface="com.netifera.platform.probebuild.api.IProbeBuilderService"
 		bind="setProbeBuilder"
 		unbind="unsetProbeBuilder"
 	/>

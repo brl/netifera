@@ -11,8 +11,8 @@
 
    <content>
       <plugins>
-         <plugin id="com.netifera.probebuild"/>
-         <plugin id="com.netifera.probebuild.deployable.linuxi386"/>
+         <plugin id="com.netifera.platform.probebuild"/>
+         <plugin id="com.netifera.platform.probebuild.deployable.linuxi386"/>
          <plugin id="org.apache.commons.net"/>
          <plugin id="org.apache.commons.net.source"/>
          <plugin id="org.apache.oro"/>
