@@ -11,7 +11,7 @@ function jar2jar0
                         ( jar2jar0 $tmpdir/$i $tmpdir/$i.0 && mv $i.0 $i ) ||
                         ( echo "$0: ERROR"; exit 1 )
                 done
-		jar cM0fm $jar0 META-INF/MANIFEST.MF . &&
+		jar cM0fm $jar0 META-INF/MANIFEST.MF * &&
                         cd - >/dev/null 2>&1 && rm -rf $tmpdir && return 0
         }
 	return 1
