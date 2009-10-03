@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
@@ -23,8 +24,7 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	protected void setupToolOptions() {
 		super.setupToolOptions();
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
-		maximumConnections = (Integer) context.getConfiguration().get(
-				"maximumConnections");
+		maximumConnections = (Integer) context.getConfiguration().get("maximumConnections");
 
 		context.setTitle("Bruteforce authentication on SSH @ " + target);
 	}
@@ -32,12 +32,10 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	@Override
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		Activator.getInstance().getNetworkEntityFactory()
-				.createUsernameAndPassword(realm, context.getSpaceId(), target,
-						up.getUsernameString(), up.getPasswordString());
-		Activator.getInstance().getNetworkEntityFactory().createUser(realm,
-				context.getSpaceId(), target.getAddress(),
-				up.getUsernameString());
+		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
+		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), up.getUsernameString());
+		user.setPassword(up.getPasswordString());
+		user.update();
 		super.authenticationSucceeded(credential);
 	}
 
@@ -50,8 +48,7 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 
 			@Override
 			public void run() throws IOException, InterruptedException {
-				ExecutorService executor = Executors
-						.newFixedThreadPool(maximumConnections);
+				ExecutorService executor = Executors.newFixedThreadPool(maximumConnections);
 
 				try {
 					final SSH ssh = new SSH(target);

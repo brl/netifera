@@ -25,6 +25,7 @@ public class UserEntity extends AbstractEntity {
 		this.host = null;
 		this.name = null;
 	}
+	
 	public HostEntity getHost() {
 		return (HostEntity) referenceToEntity(host);
 	}
@@ -33,6 +34,35 @@ public class UserEntity extends AbstractEntity {
 		return name;
 	}
 
+	public void setPassword(String password) {
+		setNamedAttribute("password", password);
+	}
+
+	public String getPassword() {
+		return getNamedAttribute("password");
+	}
+
+	public void setHash(String hashType, String hash) {
+		setNamedAttribute("hashType", hashType);
+		setNamedAttribute("hash", hash);
+	}
+
+	public String getHashType() {
+		return getNamedAttribute("hashType");
+	}
+
+	public String getHash() {
+		return getNamedAttribute("hash");
+	}
+
+	public void setHome(String home) {
+		setNamedAttribute("home", home);
+	}
+
+	public String getHome() {
+		return getNamedAttribute("home");
+	}
+	
 	@Override
 	protected IEntity cloneEntity() {
 		return new UserEntity(getWorkspace(), getHost(), getName());
