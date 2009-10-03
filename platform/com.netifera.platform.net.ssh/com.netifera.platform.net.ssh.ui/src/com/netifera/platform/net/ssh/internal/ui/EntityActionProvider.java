@@ -47,7 +47,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
 			bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
 			bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
-			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+			bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 5));
 			answer.add(bruteforcer);
 			
 			ToolAction deployer = new ToolAction("Deploy Probe", SSHProbeDeployer.class.getName());
