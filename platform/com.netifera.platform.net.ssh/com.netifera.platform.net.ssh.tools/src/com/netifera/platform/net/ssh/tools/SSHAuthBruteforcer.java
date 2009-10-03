@@ -62,9 +62,9 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 						connectionsCount.incrementAndGet();
 						executor.submit(new Runnable() {
 							public void run() {
+								Connection connection = null;
 								try {
-									Connection connection = ssh
-											.createConnection();
+									connection = ssh.createConnection();
 									while (hasNextCredential()) {
 										UsernameAndPassword credential = (UsernameAndPassword) nextCredentialOrNull();
 										if (credential == null)
@@ -73,18 +73,15 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 										try {
 											boolean success = connection
 													.authenticateWithPassword(
-															credential
-																	.getUsernameString(),
-															credential
-																	.getPasswordString());
+															credential.getUsernameString(),
+															credential.getPasswordString());
 											successCount = successCount + 1;
 											if (success) {
 												authenticationSucceeded(credential);
 												connection.close();
 												if (hasNextCredential()) {
 													Thread.sleep(2000);
-													connection = ssh
-															.createConnection();
+													connection = ssh.createConnection();
 												}
 											} else {
 												authenticationFailed(credential);
@@ -94,36 +91,26 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 											errorCount = errorCount + 1;
 											authenticationError(credential, e);
 											connection.close();
-											if (errorCount / (successCount + 1) > 2) {
-												context
-														.error("Too many errors, aborting.");
+											if (errorCount / (successCount + 1) > 3) {
+												context.error("Too many errors, aborting.");
 												cancel();
 												return;
 											}
 											if (hasNextCredential()) {
 												Thread.sleep(1000);
-												connection = ssh
-														.createConnection();
+												connection = ssh.createConnection();
 											}
-
 										}
 									}
 								} catch (IOException e) {
 									// e.printStackTrace();
 									errorCount = errorCount + 1;
 									if (errorCount / (successCount + 1) > 2) {
-										context
-												.error("Too many errors, aborting.");
+										context.error("Too many errors, aborting.");
 										cancel();
-									} else if (maximumConnections > 5) { // dont
-																			// decrease
-																			// it
-																			// too
-																			// much
+									} else if (maximumConnections > 5) { // dont decrease it too much
 										maximumConnections = maximumConnections - 1;
-										context
-												.error("Connection error, decreasing maximum parallel connections to "
-														+ maximumConnections);
+										context.error("Connection error, decreasing maximum parallel connections to " + maximumConnections);
 									}
 									return;
 								} catch (InterruptedException e) {
@@ -133,6 +120,8 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 									Thread.interrupted();
 								} finally {
 									connectionsCount.decrementAndGet();
+									if (connection != null)
+										connection.close();
 								}
 							}
 						});
