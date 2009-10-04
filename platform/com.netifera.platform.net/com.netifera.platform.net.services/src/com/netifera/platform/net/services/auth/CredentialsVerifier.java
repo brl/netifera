@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 
@@ -41,7 +42,11 @@ public abstract class CredentialsVerifier {
 			}
 			Credential credential = null;
 			do {
-				credential = credentials.next();
+				try {
+					credential = credentials.next();
+				} catch (NoSuchElementException e) {
+					return null;
+				}
 			} while (credential != null && isRepeated(credential));
 			return credential;
 		}
