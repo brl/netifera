@@ -17,6 +17,7 @@ import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.NetworkAddressEntity;
 import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
+import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.routes.AS;
 import com.netifera.platform.net.routes.IIP2ASService;
 import com.netifera.platform.ui.api.model.IEntityInformationProvider;
@@ -57,6 +58,8 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 			return getServiceInformation(((ClientServiceConnectionEntity)e).getService());
 		} else if (e instanceof PortSetEntity) {
 			return getPortsetInformation((PortSetEntity)e);
+		} else if (e instanceof UserEntity) {
+			return getUserInformation((UserEntity)e);
 		}
 		return null;
 	}
@@ -220,5 +223,27 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 		if(remaining.length() > 0) 
 			lines.add(remaining);
 		return lines;
+	}
+	
+	private String getUserInformation(UserEntity e) {
+		StringBuffer buffer = new StringBuffer();
+		if (e.getPassword() != null) {
+			buffer.append("<p>Password: ");
+			buffer.append(e.getPassword().length() > 0 ? e.getPassword() : "<no password>");
+			buffer.append("</p>");
+		}
+		for (String hashType: e.getHashTypes()) {
+			buffer.append("<p>Hash: ");
+			buffer.append(e.getHash(hashType));
+			buffer.append(" (");
+			buffer.append(hashType);
+			buffer.append(")</p>");
+		}
+		if (e.getHome() != null) {
+			buffer.append("<p>Home: ");
+			buffer.append(e.getHome());
+			buffer.append("</p>");
+		}
+		return buffer.toString();
 	}
 }

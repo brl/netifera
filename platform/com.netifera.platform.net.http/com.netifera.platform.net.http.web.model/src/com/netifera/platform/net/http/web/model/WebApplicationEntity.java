@@ -1,13 +1,12 @@
 package com.netifera.platform.net.http.web.model;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
 import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.net.model.ServiceEntity;
+import com.netifera.platform.util.HexaEncoding;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class WebApplicationEntity extends AbstractEntity {
 	
@@ -15,37 +14,23 @@ public class WebApplicationEntity extends AbstractEntity {
 
 	final public static String ENTITY_TYPE = "web.app";
 
-	private final IEntityReference http;
-	private String url;
+	private final IEntityReference page;
 	private final String serviceType;
 	
-	public WebApplicationEntity(IWorkspace workspace, long realm, IEntityReference http, String url, String serviceType) {
+	public WebApplicationEntity(IWorkspace workspace, long realm, IEntityReference page, String serviceType) {
 		super(ENTITY_TYPE, workspace, realm);
-		
-		try {
-			this.url = new URI(url).normalize().toASCIIString();
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(e.getMessage(), e);
-		}
-		this.http = http;
+
+		this.page = page;
 		this.serviceType = serviceType;
 	}
 	
 	WebApplicationEntity() {
-		http = null;
+		page = null;
 		serviceType = null;
 	}
 	
-	public ServiceEntity getHTTP() {
-		return (ServiceEntity) referenceToEntity(http);
-	}
-	
-	public void setURL(String url) {
-		this.url = url;
-	}
-	
-	public String getURL() {
-		return url;
+	public WebPageEntity getWebPage() {
+		return (WebPageEntity) referenceToEntity(page);
 	}
 	
 	public String getServiceType() {
@@ -60,14 +45,28 @@ public class WebApplicationEntity extends AbstractEntity {
 		return getNamedAttribute("version");
 	}
 
-	@Override
+/*	@Override
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
-		WebApplicationEntity webService = (WebApplicationEntity) masterEntity;
-		url = webService.getURL();
+		WebApplicationEntity webApp = (WebApplicationEntity) masterEntity;
+		path = webApp.getPath();
 	}
-
+*/
 	@Override
 	protected IEntity cloneEntity() {
-		return new WebApplicationEntity(getWorkspace(),getRealmId(),http,url,serviceType);
+		return new WebApplicationEntity(getWorkspace(),getRealmId(),page,serviceType);
+	}
+	
+	public static String createQueryKey(long realmId, InternetAddress address, int port, String hostname, String path, String serviceType) {
+		return ENTITY_TYPE + ":" + realmId + ":" + HexaEncoding.bytes2hex(address.toBytes()) + ":" + port + ":" + hostname + ":" + path + ":" + serviceType;
+	}
+	
+	@Override
+	protected String generateQueryKey() {
+		WebPageEntity page = getWebPage();
+		WebSiteEntity site = page.getWebSite();
+		String path = page.getPath();
+		String hostname = site.getHostName();
+		ServiceEntity http = site.getHTTP();
+		return createQueryKey(getRealmId(), http.getAddress().getAddress(), http.getPort(), hostname, path, serviceType);
 	}
 }

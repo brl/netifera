@@ -36,6 +36,9 @@ public class File implements Serializable {
 	}
 	
 	public String getName() {
+		String path = this.path;
+		if (path.endsWith(fileSystem.getNameSeparator()))
+			path = path.substring(0, path.length()-1);
 		return path.substring(path.lastIndexOf(fileSystem.getNameSeparator())+1);
 	}
 	

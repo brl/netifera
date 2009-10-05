@@ -103,6 +103,10 @@
          id="com.netifera.platform.probebuild.feature"
          version="0.0.0"/>
 
+   <includes
+         id="com.netifera.platform.net.cifs.feature"
+         version="0.0.0"/>
+
    <requires>
       <import feature="com.netifera.platform.ui.feature" version="1.0.0"/>
       <import feature="com.netifera.platform.core.feature" version="1.0.0"/>

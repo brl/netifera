@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import com.netifera.platform.net.internal.tools.bruteforce.Activator;
+import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
@@ -16,14 +17,6 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 public class FTPAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
 	
-/*	public IndexedIterable<Credential> defaultCredentials() {
-		ArrayList<Credential> list = new ArrayList<Credential>();
-		list.add(new UsernameAndPassword("root","toor")); // XXX for testing with slackserver vmware
-		list.add(new UsernameAndPassword("test","test"));
-		list.add(new UsernameAndPassword("ftp","ftp")); // or anonymous
-		return new ListIndexedIterable<Credential>(list);
-	}
-*/
 	protected void setupToolOptions() {
 		super.setupToolOptions();
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
@@ -34,8 +27,11 @@ public class FTPAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
 		String username = up.getUsernameString();
-		if (!username.equals("ftp") && !username.equals("anonymous"))
-			Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), username);
+		if (!username.equals("ftp") && !username.equals("anonymous")) {
+			UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), username);
+			user.setPassword(up.getPasswordString());
+			user.update();
+		}
 		super.authenticationSucceeded(credential);
 	}
 	

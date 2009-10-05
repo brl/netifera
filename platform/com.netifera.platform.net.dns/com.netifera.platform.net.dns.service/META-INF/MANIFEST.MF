@@ -12,8 +12,6 @@ Import-Package: com.netifera.platform.api.log,
  com.netifera.platform.util.addresses.inet,
  com.netifera.platform.util.locators,
  org.osgi.service.component;version="1.0.0"
-Bundle-ClassPath: lib/dnsjava-2.0.7.jar,
- .
 Export-Package: com.netifera.platform.net.dns.internal.service;x-internal:=true,
  com.netifera.platform.net.dns.service,
  com.netifera.platform.net.dns.service.client,

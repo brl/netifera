@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import com.netifera.platform.net.internal.tools.bruteforce.Activator;
+import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
@@ -16,14 +17,6 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 public class POP3AuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
 	
-/*	@Override
-	public IndexedIterable<Credential> defaultCredentials() {
-		ArrayList<Credential> list = new ArrayList<Credential>();
-		list.add(new UsernameAndPassword("root","toor")); // XXX for testing with slackserver vmware
-		list.add(new UsernameAndPassword("test","test"));
-		return new ListIndexedIterable<Credential>(list);
-	}
-*/
 	@Override
 	protected void setupToolOptions() {
 		super.setupToolOptions();
@@ -35,6 +28,12 @@ public class POP3AuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
+		
+		//XXX is this good? the pop3 user might not be a local user
+		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), up.getUsernameString());
+		user.setPassword(up.getPasswordString());
+		user.update();
+		
 		super.authenticationSucceeded(credential);
 	}
 	

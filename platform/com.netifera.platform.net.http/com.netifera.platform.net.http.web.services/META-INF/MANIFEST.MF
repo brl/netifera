@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: HTTP Services Plug-in
+Bundle-Name: Web Applications Plug-in
 Bundle-SymbolicName: com.netifera.platform.net.http.web.services
 Bundle-Version: 1.0.0
-Bundle-Vendor: netifera
+Bundle-Vendor: Netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.api.model,

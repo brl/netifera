@@ -27,7 +27,7 @@ public class WebApplicationAdapterProvider implements IEntityAdapterProvider {
 					return ((URI)page.getAdapter(URI.class)).resolve(page.getPath());
 				}
 				if (entity instanceof WebApplicationEntity) {
-					return new URI(((WebApplicationEntity)entity).getURL());
+					return ((WebApplicationEntity)entity).getWebPage().getAdapter(adapterType);
 				}
 			} catch (URISyntaxException e) {
 				return null;
@@ -37,14 +37,14 @@ public class WebApplicationAdapterProvider implements IEntityAdapterProvider {
 		if (!(entity instanceof WebApplicationEntity))
 			return null;
 		
-		WebApplicationEntity serviceEntity = (WebApplicationEntity) entity;
-		String serviceType = serviceEntity.getServiceType();
+		WebApplicationEntity webAppEntity = (WebApplicationEntity) entity;
+		String serviceType = webAppEntity.getServiceType();
 		IWebApplicationProvider provider = providers.get(serviceType);
 		if (provider != null && adapterType.isAssignableFrom(provider.getServiceClass())) {
-			HTTP http = (HTTP) serviceEntity.getHTTP().getAdapter(HTTP.class);
+			HTTP http = (HTTP) webAppEntity.getWebPage().getWebSite().getHTTP().getAdapter(HTTP.class);
 			URI url;
 			try {
-				url = new URI(serviceEntity.getURL());
+				url = new URI(webAppEntity.getWebPage().getURL());
 			} catch (URISyntaxException e) {
 				return null;
 			}

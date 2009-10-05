@@ -771,6 +771,20 @@
 		<product>psyBNC</product>
 		<version>$regex-group-1</version>
 	</ServicePattern>
+	<ServicePattern regex="^\x05\x00\r\x03\x10\x00\x00\x00\x18\x00\x00\x00v\x07\x00\x00\x04\x00\x01\x05\x00\x00.\x00$">
+		<service>DCERPC</service>
+		<os>Windows</os>
+	</ServicePattern>
+	<ServicePattern regex="^\x05\x00\x0d\x03\x10\x00\x00\x00\x18\x00\x00\x00\x00\x00.*">
+		<service>DCERPC</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x04\x06\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00.*">
+		<service>DCERPC</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x05\x00\r\x03\x10\x00\x00\x00\x18\x00\x00\x00....\x04\x00\x01\x05\x00\x00\x00\x00$">
+		<service>DCERPC</service>
+		<os>Windows</os>
+	</ServicePattern>
 	<ServicePattern regex="^\x79\x08.\x00\x00\x00\x00.*\x00\x21\x00\x01.{7}([^\x00]+)\x00.*">
 		<service>NetBIOS-NS</service>
 		<hostname>$regex-group-1</hostname>

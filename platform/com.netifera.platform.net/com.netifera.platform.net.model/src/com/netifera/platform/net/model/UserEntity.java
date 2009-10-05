@@ -1,5 +1,10 @@
 package com.netifera.platform.net.model;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
@@ -14,23 +19,60 @@ public class UserEntity extends AbstractEntity {
 
 	private final IEntityReference host;
 	private final String name;
+	private Map<String,String> hashes;
 
 	public UserEntity(IWorkspace workspace, HostEntity host, String name) {
 		super(ENTITY_NAME, workspace, host.getRealmId());
 		this.host = host.createReference();
 		this.name = name;
+		this.hashes = new HashMap<String,String>();
 	}
 
 	UserEntity() {
 		this.host = null;
 		this.name = null;
 	}
+	
 	public HostEntity getHost() {
 		return (HostEntity) referenceToEntity(host);
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public void setPassword(String password) {
+		setNamedAttribute("password", password);
+	}
+
+	public String getPassword() {
+		return getNamedAttribute("password");
+	}
+
+	public void setHash(String hashType, String hash) {
+		hashes.put(hashType, hash);
+	}
+
+	public Set<String> getHashTypes() {
+		return Collections.unmodifiableSet(hashes.keySet());
+	}
+	
+	public String getHash(String hashType) {
+		return hashes.get(hashType);
+	}
+
+	public void setHome(String home) {
+		setNamedAttribute("home", home);
+	}
+
+	public String getHome() {
+		return getNamedAttribute("home");
+	}
+	
+	@Override
+	protected void synchronizeEntity(AbstractEntity masterEntity) {
+		super.synchronizeEntity(masterEntity);
+		hashes = ((UserEntity)masterEntity).hashes;
 	}
 
 	@Override

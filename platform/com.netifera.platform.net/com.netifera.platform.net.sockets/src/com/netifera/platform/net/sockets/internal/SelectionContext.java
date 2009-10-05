@@ -7,8 +7,8 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.netifera.platform.api.log.ILogger;
@@ -24,9 +24,9 @@ class SelectionContext {
 	private final SelectableChannel socket;
 	private final ILogger logger;
 	
-	private final Queue<SelectionFuture<Void,?>> connectQueue = new ArrayBlockingQueue<SelectionFuture<Void,?>>(100);
-	private final Queue<SelectionFuture<?,?>> readQueue = new ArrayBlockingQueue<SelectionFuture<?,?>>(100);
-	private final BlockingQueue<SelectionFuture<Integer,?>> writeQueue = new ArrayBlockingQueue<SelectionFuture<Integer,?>>(100);
+	private final Queue<SelectionFuture<Void,?>> connectQueue = new LinkedBlockingQueue<SelectionFuture<Void,?>>(10);
+	private final Queue<SelectionFuture<?,?>> readQueue = new LinkedBlockingQueue<SelectionFuture<?,?>>(10);
+	private final BlockingQueue<SelectionFuture<Integer,?>> writeQueue = new LinkedBlockingQueue<SelectionFuture<Integer,?>>(10);
 	
 	SelectionContext(SocketEngineService engine, AsynchronousSelectableChannel channel, ILogger logger) {
 		this.engine = engine;
@@ -58,7 +58,8 @@ class SelectionContext {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder(128);
-		sb.append("op:");
+		sb.append(asynchronousChannel);
+		sb.append(" [");
 		boolean opAdded = false;
 		if (connectQueue.peek() != null) {
 			opAdded = true;
@@ -81,42 +82,54 @@ class SelectionContext {
 		if (!opAdded) {
 			sb.append("NONE");
 		}
+		sb.append("]");
 		return sb.toString();
 	}
 	
 	public synchronized int getInterestOps() {
-		int interestOps = 0;
+		int ops = 0;
 		if (connectQueue.peek() != null)
-			interestOps |= SelectionKey.OP_CONNECT;
+			ops |= SelectionKey.OP_CONNECT;
 		if (readQueue.peek() != null)
-			interestOps |= SelectionKey.OP_READ;
+			ops |= SelectionKey.OP_READ;
 		if (writeQueue.peek() != null)
-			interestOps |= SelectionKey.OP_WRITE;
-		return interestOps;
+			ops |= SelectionKey.OP_WRITE;
+		return ops;
 	}
 	
-	synchronized boolean register() {
-		boolean registered = false;
+	synchronized void register() {
 		try {
 //			System.out.println("register "+socket+" interest ops "+getInterestOps());
 //			SelectionKey key = socket.keyFor(engine.getSelector());
 //			if (key != null && key.isValid())
 //				key.interestOps(getInterestOps());
 //			else
-			if (getInterestOps() != 0) {
+			if (getInterestOps() != 0)
 				socket.register(engine.getSelector(), getInterestOps(), this);
-				registered = true;
-			}
 		} catch (ClosedChannelException e) {
 			// do nothing
+			System.err.println("Closed channel? "+socket);
+			e.printStackTrace();
 			logger.error("Closed channel? "+socket, e);
 		} catch (CancelledKeyException e) {
 			logger.error("Canceled key for "+socket, e);
+			System.err.println("Canceled key for "+socket+"; closing");
+			e.printStackTrace();
 			close(); //XXX
+			cleanUp();
 		}
-		return registered;
 	}
-	
+
+	private void cleanUp() {
+		logger.info("Cleaning up "+socket);
+		SelectionFuture<?,?> future;
+		while ((future = connectQueue.poll()) != null)
+			future.cancel(true);
+		while ((future = readQueue.poll()) != null)
+			future.cancel(true);
+		while ((future = writeQueue.poll()) != null)
+			future.cancel(true);
+	}
 	
 	/**
 	 * Close the specified socket channel and decrease the open socket counter.
@@ -153,36 +166,37 @@ class SelectionContext {
 	 */
 	public synchronized long testTimeOut(SelectionKey key, long now) {
 		long timeout = Long.MAX_VALUE;
-		if (!key.isValid()) {
-//			System.err.println("invalid key (timeouted) "+asynchronousChannel);
+
+/*		if (!key.isValid()) {
+			System.err.println("invalid key (timeouted) "+asynchronousChannel);
 			key.cancel(); //XXX is this ok???
 			return timeout;
 		}
-		
+*/		
 		if ((key.interestOps() & SelectionKey.OP_CONNECT) != 0) {
-			if (connectQueue.peek().testTimeOut(now)) {
-				connectQueue.poll();
+			if (connectQueue.peek().getDeadline() < now) {
+				connectQueue.poll().setTimedOut();
 			} else {
 				timeout = Math.min(timeout, connectQueue.peek().getDeadline() - now);
 			}
 		}
 		if ((key.interestOps() & SelectionKey.OP_READ) != 0) {
-			if (readQueue.peek().testTimeOut(now)) {
-				readQueue.poll();
+			if (readQueue.peek().getDeadline() < now) {
+				readQueue.poll().setTimedOut();
 			} else {
 				timeout = Math.min(timeout, readQueue.peek().getDeadline() - now);
 			}
 		}
 		if ((key.interestOps() & SelectionKey.OP_WRITE) != 0) {
-			if (writeQueue.peek().testTimeOut(now)) {
-				writeQueue.poll();
+			if (writeQueue.peek().getDeadline() < now) {
+				writeQueue.poll().setTimedOut();
 			} else {
 				timeout = Math.min(timeout, writeQueue.peek().getDeadline() - now);
 			}
 		}
-		key.interestOps(getInterestOps());
-		if (getInterestOps() == 0)
-			key.cancel();
+		
+		updateKey(key);
+		
 		return timeout;
 	}
 	
@@ -197,29 +211,48 @@ class SelectionContext {
 	 */
 	public synchronized void testKey(SelectionKey key) {
 //		System.out.println("test key "+(connectQueue.peek()!=null)+" "+(readQueue.peek()!=null)+" "+(writeQueue.peek()!=null));
-		if (!key.isValid()) {
+/*		if (!key.isValid()) {
 			logger.error("invalid key; closeing "+asynchronousChannel);
 			key.cancel();
 			this.close();
 			return;
 		}
-		
+*/		
 		boolean connectable = key.isConnectable();
 		boolean readable = key.isReadable();
 		boolean writable = key.isWritable();
 		
 		if (connectable) {
+//			key.cancel();
+//			System.err.println(">>> handle connect: "+this);
 			handleOperation(connectQueue.poll());
-			key.cancel();
-			return;
+//			System.err.println(">>> done handle connect: "+this);
+//			return;
 		}
-		if (readable)
+		if (readable) {
+//			key.cancel();
+//			System.err.println(">>> handle read: "+this);
 			handleOperation(readQueue.poll());
-		if (writable)
+//			System.err.println(">>> done handle read: "+this);
+//			return;
+		}
+		if (writable) {
+//			key.cancel();
+//			System.err.println(">>> handle write: "+this);
 			handleOperation(writeQueue.poll());
-		
-		key.interestOps(getInterestOps());
-		if (getInterestOps() == 0)
-			key.cancel(); //XXX is this ok?
+//			System.err.println(">>> done handle write: "+this);
+//			return;
+		}
+
+		updateKey(key);
+	}
+	
+	private void updateKey(SelectionKey key) {
+		int ops = getInterestOps();
+		if (ops == 0) {
+//			System.err.println("iops = 0, cancelling key "+asynchronousChannel);
+			key.cancel();
+		}
+		key.interestOps(ops);
 	}
 }

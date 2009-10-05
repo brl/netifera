@@ -55,9 +55,7 @@ public class SelectionFuture<V,A> extends FutureTask<V> {
 		return deadline;
 	}
 	
-	public boolean testTimeOut(long now) {
-		if (deadline > now) return false;
+	public void setTimedOut() {
 		setException(new SocketTimeoutException());
-		return true;
 	}
 }

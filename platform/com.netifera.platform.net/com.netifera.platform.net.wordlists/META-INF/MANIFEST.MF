@@ -12,6 +12,7 @@ Export-Package: com.netifera.platform.net.wordlists
 Service-Component: OSGI-INF/common-passwords.xml,
  OSGI-INF/top-10-passwords.xml,
  OSGI-INF/common-unix-usernames.xml,
+ OSGI-INF/common-windows-usernames.xml,
  OSGI-INF/common-ap-usernames.xml,
  OSGI-INF/common-ap-passwords.xml,
  OSGI-INF/common-male-names.xml,

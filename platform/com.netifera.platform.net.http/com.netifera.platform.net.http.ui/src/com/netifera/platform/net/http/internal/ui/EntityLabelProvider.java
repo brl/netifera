@@ -82,7 +82,7 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 			WebApplicationEntity app = (WebApplicationEntity) e;
 			String answer = app.getServiceType();
 			try {
-				URI url = new URI(app.getURL());
+				URI url = new URI(app.getWebPage().getURL());
 				answer = url.getPath()+" "+answer;
 			} catch (URISyntaxException ex) {
 				// TODO Auto-generated catch block
