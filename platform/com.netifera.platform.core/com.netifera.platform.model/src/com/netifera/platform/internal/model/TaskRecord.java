@@ -28,7 +28,6 @@ public class TaskRecord implements ITaskRecord {
 		this.taskStatus = status;
 		this.taskOutput = new ArrayList<ITaskOutput>();
 		this.taskId = status.getTaskId();
-		space.getDatabase().store(this);
 		this.commitThreadActive = false;
 	}
 

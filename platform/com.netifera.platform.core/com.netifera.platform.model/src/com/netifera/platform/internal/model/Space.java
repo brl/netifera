@@ -136,15 +136,14 @@ public class Space implements ISpace {
 	
 	public synchronized void addTaskRecord(ITaskStatus status) {
 		final TaskRecord record = new TaskRecord(status, this);
+		database.store(record);
 		if(spaceTasks.contains(record)) {
 			return;
 		}
 		spaceTasks.add(record);
-		database.store(record);
 		manager.addTaskToSpace(status.getTaskId(), this);
 		tasksDirty = true;
 		getTaskEventManager().fireEvent(SpaceTaskChangeEvent.createCreationEvent(record));
-		
 	}
 	
 	public void updateTaskRecord(ITaskRecord record) {
