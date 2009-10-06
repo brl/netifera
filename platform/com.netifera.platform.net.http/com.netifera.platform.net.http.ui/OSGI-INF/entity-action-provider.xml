@@ -13,5 +13,14 @@
 		cardinality="0..n"
 		policy="dynamic"
 	/>
+
+	<reference 
+		name="WEBSPIDER_MODULES"
+		interface="com.netifera.platform.net.http.spider.IWebSpiderModule"
+		bind="registerWebSpiderModule"
+		unbind="unregisterWebSpiderModule"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
 	
 </component>

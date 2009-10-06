@@ -430,14 +430,14 @@ public class WebSpider implements IWebSpider {
 		logger.info("Enabled module: "+module.getName());
 	}
 
-	public void addModule(String className) {
+	public void addModule(String name) {
 		for (IWebSpiderModule module: Activator.getInstance().getWebSpiderModules()) {
-			if (module.getClass().getName().equals(className)) {
+			if (module.getName().equals(name)) {
 				addModule(module);
 				return;
 			}
 		}
-		logger.error("Module not found: "+className);
+		logger.error("Module not found: '"+name+"'");
 	}
 	
 	public synchronized void removeModule(IWebSpiderModule module) {
@@ -606,12 +606,10 @@ public class WebSpider implements IWebSpider {
 			int basePort = worker.base.getPort() == -1 ? 80 : worker.base.getPort();
 			int urlPort = url.getPort() == -1 ? 80 : url.getPort();
 			if (host.equals(worker.base.getHost()) && basePort == urlPort) {
-				System.out.println("found web spider worker for "+url);
 				worker.addURL(url);
 				return;
 			}
 		}
-		System.out.println("not found web spider worker for "+url);
 		throw new OutOfScopeException(url);
 	}
 }

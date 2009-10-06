@@ -8,6 +8,7 @@ import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.net.http.service.HTTP;
+import com.netifera.platform.net.http.spider.IWebSpiderModule;
 import com.netifera.platform.net.http.tools.HTTPBasicAuthBruteforcer;
 import com.netifera.platform.net.http.tools.WebApplicationScanner;
 import com.netifera.platform.net.http.tools.WebCrawler;
@@ -26,7 +27,8 @@ import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 
 public class EntityActionProvider implements IEntityActionProvider {
 
-	private List<IWordList> wordlists = new ArrayList<IWordList>();
+	final private List<IWordList> wordlists = new ArrayList<IWordList>();
+	final private List<IWebSpiderModule> modules = new ArrayList<IWebSpiderModule>();
 
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
@@ -83,25 +85,25 @@ public class EntityActionProvider implements IEntityActionProvider {
 	
 	private void addWebCrawler(String name, List<IAction> answer, HTTP http, String startURL) {
 		// Visit every page of the web server, starting from the given page.
-		ToolAction webCrawler = new ToolAction(name, WebCrawler.class.getName());
-		webCrawler.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
-		webCrawler.addOption(new StringOption("url", "Base URL", "URL to start to crawl from", startURL));
-		webCrawler.addOption(new BooleanOption("followLinks", "Follow links", "Follow links inside this website?", true));
-		webCrawler.addOption(new BooleanOption("fetchImages", "Fetch images", "Fetch images following <img> tags?", false));
-		webCrawler.addOption(new BooleanOption("scanWebApplications", "Scan common web applications", "Try common URLs for known web applications?", false));
-		webCrawler.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
-		webCrawler.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
-		answer.add(webCrawler);
+		ToolAction crawler = new ToolAction(name, WebCrawler.class.getName());
+		crawler.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
+		crawler.addOption(new StringOption("url", "Base URL", "URL to start to crawl from", startURL));
+		crawler.addOption(new MultipleStringOption("modules", "Modules", "Web Spider modules to activate during this crawling session", "Modules", getAvailableWebSpiderModules()));
+		crawler.addOption(new BooleanOption("followLinks", "Follow links", "Follow links inside this website?", true));
+		crawler.addOption(new BooleanOption("fetchImages", "Fetch images", "Fetch images following <img> tags?", false));
+		crawler.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+		crawler.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
+		answer.add(crawler);
 	}
 	
 	private void addWebApplicationScanner(String name, List<IAction> answer, HTTP http, String hostname) {
 		// Attempt to detect web applications
-		ToolAction webApplicationScanner = new ToolAction(name, WebApplicationScanner.class.getName());
-		webApplicationScanner.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
-		webApplicationScanner.addOption(new StringOption("hostname", "Host name", "Host name for the web site", hostname != null ? hostname : http.getURIHost()));
-		webApplicationScanner.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
-		webApplicationScanner.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
-		answer.add(webApplicationScanner);
+		ToolAction scanner = new ToolAction(name, WebApplicationScanner.class.getName());
+		scanner.addFixedOption(new GenericOption(HTTP.class, "target", "Target", "Target HTTP service", http));
+		scanner.addOption(new StringOption("hostname", "Host name", "Host name for the web site", hostname != null ? hostname : http.getURIHost()));
+		scanner.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+		scanner.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to download for each page", 1024*16));
+		answer.add(scanner);
 	}
 
 	public List<IAction> getQuickActions(IShadowEntity shadow) {
@@ -128,5 +130,20 @@ public class EntityActionProvider implements IEntityActionProvider {
 	
 	protected void unregisterWordList(IWordList wordlist) {
 		this.wordlists.remove(wordlist);
+	}
+
+	private String[] getAvailableWebSpiderModules() {
+		List<String> names = new ArrayList<String>();
+		for (IWebSpiderModule module: modules)
+			names.add(module.getName());
+		return names.toArray(new String[names.size()]);
+	}
+	
+	protected void registerWebSpiderModule(IWebSpiderModule module) {
+		this.modules.add(module);
+	}
+	
+	protected void unregisterWebSpiderModule(IWebSpiderModule module) {
+		this.modules.remove(module);
 	}
 }
