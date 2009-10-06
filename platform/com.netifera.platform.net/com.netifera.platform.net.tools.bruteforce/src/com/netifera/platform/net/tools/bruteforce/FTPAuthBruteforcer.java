@@ -3,6 +3,7 @@ package com.netifera.platform.net.tools.bruteforce;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.bruteforce.Activator;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
@@ -17,10 +18,10 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 public class FTPAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
 	
-	protected void setupToolOptions() {
-		super.setupToolOptions();
+	protected void setupToolOptions() throws ToolException {
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
 		context.setTitle("Bruteforce authentication on FTP @ "+target);
+		super.setupToolOptions();
 	}
 	
 	public void authenticationSucceeded(Credential credential) {

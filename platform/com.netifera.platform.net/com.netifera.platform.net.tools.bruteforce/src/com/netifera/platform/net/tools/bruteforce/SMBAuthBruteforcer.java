@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.TimeUnit;
 
+import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.bruteforce.Activator;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
@@ -21,8 +22,7 @@ public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private String sourceHostName = "";
 	
 	@Override
-	protected void setupToolOptions() {
-		super.setupToolOptions();
+	protected void setupToolOptions() throws ToolException {
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
 		context.setTitle("Bruteforce LM authentication on SMB @ "+target);
 		
@@ -30,6 +30,8 @@ public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 			targetHostName = (String) context.getConfiguration().get("targetHostName");
 		if (context.getConfiguration().get("sourceHostName") != null)
 			sourceHostName = (String) context.getConfiguration().get("sourceHostName");
+		
+		super.setupToolOptions();
 	}
 	
 	@Override

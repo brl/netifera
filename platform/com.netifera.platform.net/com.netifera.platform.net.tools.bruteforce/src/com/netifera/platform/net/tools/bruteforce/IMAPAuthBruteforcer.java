@@ -3,6 +3,7 @@ package com.netifera.platform.net.tools.bruteforce;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.bruteforce.Activator;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
@@ -18,10 +19,10 @@ public class IMAPAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
 	
 	@Override
-	protected void setupToolOptions() {
-		super.setupToolOptions();
+	protected void setupToolOptions() throws ToolException {
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
 		context.setTitle("Bruteforce authentication on IMAP @ "+target);
+		super.setupToolOptions();
 	}
 	
 	@Override

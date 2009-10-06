@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
@@ -21,12 +22,13 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private int maximumConnections = 1;
 
 	@Override
-	protected void setupToolOptions() {
-		super.setupToolOptions();
+	protected void setupToolOptions() throws ToolException {
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
 		maximumConnections = (Integer) context.getConfiguration().get("maximumConnections");
 
 		context.setTitle("Bruteforce authentication on SSH @ " + target);
+		
+		super.setupToolOptions();
 	}
 
 	@Override
@@ -127,7 +129,7 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 					cancel();
 					context.info("Shutting down thread executor pool");
 					executor.shutdown();
-					if (!executor.awaitTermination(1, TimeUnit.MINUTES)) {
+					if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
 						context
 								.warning("Thread executor pool not terminated after 1 minute");
 					}

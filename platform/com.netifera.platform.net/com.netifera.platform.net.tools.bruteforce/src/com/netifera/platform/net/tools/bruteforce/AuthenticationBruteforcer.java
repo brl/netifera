@@ -2,6 +2,7 @@ package com.netifera.platform.net.tools.bruteforce;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.netifera.platform.api.iterables.FiniteIterable;
 import com.netifera.platform.api.probe.IProbe;
@@ -55,16 +56,20 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	}
 	
 //	@SuppressWarnings("unchecked")
-	protected void setupToolOptions() {
+	protected void setupToolOptions() throws ToolException {
 //		credentials = (IndexedIterable<Credential>) context.getConfiguration().get("credentials");
 //		if (credentials == null)
 			credentials = createCredentials();
-		credentialsIterator = credentials.iterator();
+		try {
+			credentialsIterator = credentials.iterator();
+		} catch (NoSuchElementException e) {
+			throw new ToolException("No credentials to try");
+		}
 
 		Boolean singleMode = (Boolean) context.getConfiguration().get("singleMode");
 		if (singleMode != null)
 			this.singleMode = singleMode;
-}
+	}
 
 	public void authenticationError(Credential credential, Throwable e) {
 		String msg = e.getLocalizedMessage();

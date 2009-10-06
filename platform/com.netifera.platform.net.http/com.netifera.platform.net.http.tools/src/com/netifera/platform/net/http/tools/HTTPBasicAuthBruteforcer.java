@@ -3,6 +3,7 @@ package com.netifera.platform.net.http.tools;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
@@ -24,14 +25,14 @@ public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private int keepAlive = 0;
 	
 	@Override
-	protected void setupToolOptions() {
-		super.setupToolOptions();
+	protected void setupToolOptions() throws ToolException {
 		target = (HTTP) context.getConfiguration().get("target");
 		path = (String) context.getConfiguration().get("path");
 		hostname = (String) context.getConfiguration().get("hostname");
 		method = (String) context.getConfiguration().get("method");
 		keepAlive = (Integer) context.getConfiguration().get("keepAlive");
 		context.setTitle("Bruteforce Basic HTTP authentication on "+target.getLocator()+" with "+path);
+		super.setupToolOptions();
 	}
 
 	@Override
