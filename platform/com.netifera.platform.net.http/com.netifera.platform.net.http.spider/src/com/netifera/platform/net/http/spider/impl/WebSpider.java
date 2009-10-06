@@ -42,6 +42,7 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class WebSpider implements IWebSpider {
+	private volatile boolean createWebPageEntities = false;
 	private volatile boolean followLinks = true;
 	private volatile boolean fetchImages = false;
 	private volatile int maximumConnections = 5;
@@ -256,7 +257,7 @@ public class WebSpider implements IWebSpider {
 					if (contentType.matches("(text/|application/x-javascript).*")) {
 						String content = new String(myResponse.getContent(bufferSize));
 
-						if (status == 200 && !isPageNotFound(content))
+						if (createWebPageEntities && status == 200 && !isPageNotFound(content))
 							pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
 						
 						if (followLinks) {
@@ -274,7 +275,7 @@ public class WebSpider implements IWebSpider {
 								pageEntity.update();
 */						}
 					} else {
-						if (status == 200)
+						if (createWebPageEntities && status == 200)
 							pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
 					}
 				}
@@ -385,6 +386,14 @@ public class WebSpider implements IWebSpider {
 		this.spaceId = spaceId;
 	}
 
+	public void setCreateWebPageEntities(boolean createWebPageEntities) {
+		this.createWebPageEntities = createWebPageEntities;
+	}
+
+	public boolean getCreateWebPageEntities() {
+		return createWebPageEntities;
+	}
+
 	public void setFollowLinks(boolean followLinks) {
 		this.followLinks = followLinks;
 	}
@@ -432,7 +441,7 @@ public class WebSpider implements IWebSpider {
 
 	public void addModule(String name) {
 		for (IWebSpiderModule module: Activator.getInstance().getWebSpiderModules()) {
-			if (module.getName().equals(name)) {
+			if (module.getName().equals(name) || module.getClass().getName().equals(name)) {
 				addModule(module);
 				return;
 			}

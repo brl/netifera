@@ -18,6 +18,7 @@ import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.spider.impl.WebSpider;
 import com.netifera.platform.net.http.spider.modules.FaviconHarvesterModule;
 import com.netifera.platform.net.http.spider.modules.HTTPBasicAuthExtractorModule;
+import com.netifera.platform.net.http.spider.modules.WebApplicationDetectorModule;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv6Address;
@@ -104,18 +105,18 @@ public class AddWebSite  implements ITool {
 			spider.setRealm(realm);
 			spider.setSpaceId(context.getSpaceId());
 			spider.addTarget(http, url.getHost());
-			spider.visit(url);
 
 			spider.addModule(FaviconHarvesterModule.class.getName());
-//			spider.addModule(EmailsHarvesterModule.class.getName());
 			spider.addModule(HTTPBasicAuthExtractorModule.class.getName());
-//			spider.addModule(CrawlBackupFilesModule.class.getName());
-//			spider.addModule(CrawlDefaultFilesModule.class.getName());
+			spider.addModule(WebApplicationDetectorModule.class.getName());
 			
 			spider.setFollowLinks(false);
 			spider.setFetchImages(false);
 //			spider.setMaximumConnections((Integer)context.getConfiguration().get("maximumConnections"));
 //			spider.setBufferSize((Integer)context.getConfiguration().get("bufferSize"));
+
+			spider.visit(url);
+			spider.visit(url.resolve("/favicon.ico"));
 
 			spider.run();
 		} catch (Exception e) {

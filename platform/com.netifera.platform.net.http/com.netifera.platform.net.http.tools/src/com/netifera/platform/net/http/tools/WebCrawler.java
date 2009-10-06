@@ -10,12 +10,6 @@ import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.spider.impl.WebSpider;
-import com.netifera.platform.net.http.spider.modules.CrawlBackupFilesModule;
-import com.netifera.platform.net.http.spider.modules.CrawlDefaultFilesModule;
-import com.netifera.platform.net.http.spider.modules.EmailsHarvesterModule;
-import com.netifera.platform.net.http.spider.modules.FaviconHarvesterModule;
-import com.netifera.platform.net.http.spider.modules.HTTPBasicAuthExtractorModule;
-import com.netifera.platform.net.http.spider.modules.WebApplicationDetectorModule;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 
 public class WebCrawler implements ITool {
@@ -47,25 +41,21 @@ public class WebCrawler implements ITool {
 			spider.setSpaceId(context.getSpaceId());
 			spider.addTarget(http, base.getHost());
 			spider.visit(base);
-
-			spider.addModule(FaviconHarvesterModule.class.getName());
-			spider.addModule(EmailsHarvesterModule.class.getName());
-			spider.addModule(HTTPBasicAuthExtractorModule.class.getName());
-			spider.addModule(CrawlBackupFilesModule.class.getName());
-			spider.addModule(CrawlDefaultFilesModule.class.getName());
 			
+			if (context.getConfiguration().get("createWebPageEntities") != null)
+				spider.setCreateWebPageEntities((Boolean)context.getConfiguration().get("createWebPageEntities"));
 			if (context.getConfiguration().get("followLinks") != null)
 				spider.setFollowLinks((Boolean)context.getConfiguration().get("followLinks"));
 			if (context.getConfiguration().get("fetchImages") != null)
 				spider.setFetchImages((Boolean)context.getConfiguration().get("fetchImages"));
-			if (context.getConfiguration().get("scanWebApplications") != null)
-				if ((Boolean)context.getConfiguration().get("scanWebApplications"))
-					spider.addModule(WebApplicationDetectorModule.class.getName());
 			if (context.getConfiguration().get("maximumConnections") != null)
 				spider.setMaximumConnections((Integer)context.getConfiguration().get("maximumConnections"));
 			if (context.getConfiguration().get("bufferSize") != null)
 				spider.setBufferSize((Integer)context.getConfiguration().get("bufferSize"));
 
+			for (String moduleName: (String[]) context.getConfiguration().get("modules"))
+				spider.addModule(moduleName);
+				
 			spider.run();
 		} catch (Exception e) {
 			e.printStackTrace();
