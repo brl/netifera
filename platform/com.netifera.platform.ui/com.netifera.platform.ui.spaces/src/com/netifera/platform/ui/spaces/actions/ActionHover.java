@@ -163,6 +163,7 @@ public class ActionHover extends PopupDialog {
 		Set<String> tags = ((AbstractEntity)entity.getRealEntity()).getTags();
 		if (tags.size() > 0) {
 			Composite tagsArea = toolkit.createComposite(body, SWT.NONE);
+			tagsArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			RowLayout layout = new RowLayout();
 			layout.wrap = true;
 			tagsArea.setLayout(layout);
@@ -173,13 +174,13 @@ public class ActionHover extends PopupDialog {
 		String information = Activator.getDefault().getLabelProvider().getInformation(entity);
 		if (information != null && information.length()>0) {
 			FormText informationForm = toolkit.createFormText(body, true);
+			informationForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			informationForm.setFont(JFaceResources.getDefaultFont());
 			informationForm.setColor("red", Display.getDefault().getSystemColor(SWT.COLOR_RED));
 			informationForm.setColor("green", Display.getDefault().getSystemColor(SWT.COLOR_DARK_GREEN));
 			informationForm.setColor("blue", Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 			informationForm.setParagraphsSeparated(false);
 			informationForm.setText("<form>"+information+"</form>", true, false);
-			
 			addSeparator();
 		} else {
 			if (tags.size() > 0)
