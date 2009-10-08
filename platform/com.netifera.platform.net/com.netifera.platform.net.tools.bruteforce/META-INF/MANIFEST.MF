@@ -23,5 +23,5 @@ Import-Package: com.netifera.platform.api.iterables,
  org.osgi.util.tracker;version="1.3.0"
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.netifera.platform.net.services
-Service-Component: OSGI-INF/tool-provider.xml
 Export-Package: com.netifera.platform.net.tools.bruteforce
+Service-Component: OSGI-INF/tool-provider.xml

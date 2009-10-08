@@ -42,7 +42,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 					addWebApplicationScanner("Scan Web Applications", answer, http, null);
 				} else {
 					for (String vhost: names) {
-						addWebCrawler("Crawl web site " + vhost, answer, http, http.getURI(vhost));
+						addWebCrawler("Crawl Web Site " + vhost, answer, http, http.getURI(vhost));
 					}
 					for (String vhost: names) {
 						addWebApplicationScanner("Scan Web Applications at " + vhost, answer, http, vhost);

@@ -1,4 +1,4 @@
-package com.netifera.platform.net.tools.bruteforce;
+package com.netifera.platform.net.cifs.tools;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 import java.util.concurrent.TimeUnit;
 
 import com.netifera.platform.api.tools.ToolException;
-import com.netifera.platform.net.internal.tools.bruteforce.Activator;
+import com.netifera.platform.net.cifs.internal.tools.Activator;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
@@ -14,22 +14,23 @@ import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.TCPChannel;
+import com.netifera.platform.net.tools.bruteforce.UsernameAndPasswordBruteforcer;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
-public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
+public class LMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private TCPSocketLocator target;
-	private String targetHostName = "*SMBSERVER";
-	private String sourceHostName = "";
+	private String remoteName = "*SMBSERVER";
+	private String localName = "";
 	
 	@Override
 	protected void setupToolOptions() throws ToolException {
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
 		context.setTitle("Bruteforce LM authentication on SMB @ "+target);
 		
-		if (context.getConfiguration().get("targetHostName") != null)
-			targetHostName = (String) context.getConfiguration().get("targetHostName");
-		if (context.getConfiguration().get("sourceHostName") != null)
-			sourceHostName = (String) context.getConfiguration().get("sourceHostName");
+		if (context.getConfiguration().get("remoteName") != null)
+			remoteName = (String) context.getConfiguration().get("remoteName");
+		if (context.getConfiguration().get("localName") != null)
+			localName = (String) context.getConfiguration().get("localName");
 		
 		super.setupToolOptions();
 	}
@@ -88,7 +89,7 @@ public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 					final long timeout, final TimeUnit unit,
 					final CompletionHandler<Boolean, Credential> handler) {
 				
-				channel.write(helloPacket(), timeout, unit, null, new CompletionHandler<Integer,Void>() {
+				channel.write(sessionRequestPacket(), timeout, unit, null, new CompletionHandler<Integer,Void>() {
 					public void completed(Integer result, Void attachment) {
 						final ByteBuffer dst = ByteBuffer.allocate(2048);
 						channel.read(dst, timeout, unit, attachment, new CompletionHandler<Integer,Void>() {
@@ -97,16 +98,16 @@ public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 								int code = dst.get() & 0xFF;
 								if (code != 0x82) {
 									if (code == 0x83) { // insuficient resources
-										context.warning("Server responded 'insufficient resources'");
+										context.warning("Server replied 'insufficient resources'");
 										handler.failed(new Exception("Insuficient resources"), credential);
 									} else {
-										context.error("Unknown response code to hello packet: "+String.format("0x%x",code));
+										context.error("Unknown response code to Session Request: "+String.format("0x%x",code));
 										cancel();
 									}
 //									failed
 									return;
 								}
-								channel.write(protPacket(), timeout, unit, null, new CompletionHandler<Integer,Void>() {
+								channel.write(negotiateProtocolPacket(), timeout, unit, null, new CompletionHandler<Integer,Void>() {
 									public void completed(Integer result, Void attachment) {
 										dst.clear();
 										channel.read(dst, timeout, unit, attachment, new CompletionHandler<Integer,Void>() {
@@ -114,12 +115,12 @@ public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 												dst.flip();
 												int response = dst.get(9) & 0xFF;
 												if (response != 0x00) {
-													context.error("Bad response to prot packet: "+String.format("0x%x",response));
+													context.error("Bad response to Protocol Negotiation: "+String.format("0x%x",response));
 													cancel();
 //													failed
 													return;
 												}
-												channel.write(loginPacket((UsernameAndPassword)credential), timeout, unit, null, new CompletionHandler<Integer,Void>() {
+												channel.write(sessionSetupPacket((UsernameAndPassword)credential), timeout, unit, null, new CompletionHandler<Integer,Void>() {
 													public void completed(Integer result, Void attachment) {
 														dst.clear();
 														channel.read(dst, timeout, unit, attachment, new CompletionHandler<Integer,Void>() {
@@ -188,53 +189,19 @@ public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 		return verifier;
 	}
 	
-	private ByteBuffer helloPacket() {
-		byte[] buf1 = { (byte) 0x81, 0x00, 0x00, 0x44, 0x20 };
-		byte[] buf2 = { 0x00, 0x20 };
-		byte[] buf3 = { 0x00 };
-
+	private ByteBuffer sessionRequestPacket() {
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
-		buffer.put(buf1);
-		buffer.put((getNetBIOSName(targetHostName)+"CA").getBytes());
-		buffer.put(buf2);
-		buffer.put((getNetBIOSName(sourceHostName)+"CA").getBytes());
-		buffer.put(buf3);
+		buffer.put(new byte[] { (byte) 0x81, 0x00, 0x00, 0x44, 0x20 });
+		buffer.put((getNetBIOSName(remoteName)+"CA").getBytes());
+		buffer.put(new byte[] { 0x00, 0x20 });
+		buffer.put((getNetBIOSName(localName)+"CA").getBytes());
+		buffer.put((byte) 0);
 		buffer.flip();
 		return buffer;
 	}
 	
-	private ByteBuffer loginPacket(UsernameAndPassword credential) {
-		byte[] req = { (byte)0xFF, 0x53, 0x4D, 0x42, 0x73, 0x00,
-				    0x00, 0x00, 0x00, 0x18, 0x01, 0x20, 0x00, 0x00,
-				    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				    0x00, 0x00, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00,
-				    0x00, 0x00, 0x0A, (byte)0xFF, 0x00, 0x00, 0x00, 0x04,
-				    0x11, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				    0x00
-			};
-		
-		String username = credential.getUsernameString();
-		String password = credential.getPasswordString();
-
-		ByteBuffer buffer = ByteBuffer.allocate(2048);
-		buffer.order(ByteOrder.BIG_ENDIAN);
-		buffer.putShort((short)0);
-		buffer.putShort((short)(username.length()+password.length()+57));
-		buffer.put(req);
-		buffer.order(ByteOrder.LITTLE_ENDIAN);
-		buffer.putShort((short)(password.length()+1));
-		buffer.putInt(0);
-		buffer.putShort((short)(username.length()+password.length()+2));
-		buffer.put(password.getBytes());
-		buffer.put((byte)0);
-		buffer.put(username.getBytes());
-		buffer.put((byte)0);
-		buffer.flip();
-		return buffer;
-	}
-	
-	private ByteBuffer protPacket() {
-		byte[] prot = { 0x00, 0x00,
+	private ByteBuffer negotiateProtocolPacket() {
+		byte[] request = { 0x00, 0x00,
 			    0x00, (byte)0x89, (byte)0xFF, 0x53, 0x4D, 0x42, 0x72, 0x00,
 			    0x00, 0x00, 0x00, 0x18, 0x01, 0x20, 0x00, 0x00,
 			    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -255,6 +222,33 @@ public class SMBAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 			    0x62, 0x61, 0x00
 			};
 
-		return ByteBuffer.wrap(prot);
+		return ByteBuffer.wrap(request);
+	}
+	
+	private ByteBuffer sessionSetupPacket(UsernameAndPassword credential) {
+		String username = credential.getUsernameString();
+		String password = credential.getPasswordString();
+
+		ByteBuffer buffer = ByteBuffer.allocate(2048);
+		buffer.order(ByteOrder.BIG_ENDIAN);
+		buffer.putShort((short)0);
+		buffer.putShort((short)(username.length()+password.length()+57));
+		buffer.put(new byte[] { (byte)0xFF, 0x53, 0x4D, 0x42, 0x73, 0x00,
+				    0x00, 0x00, 0x00, 0x18, 0x01, 0x20, 0x00, 0x00,
+				    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				    0x00, 0x00, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00,
+				    0x00, 0x00, 0x0A, (byte)0xFF, 0x00, 0x00, 0x00, 0x04,
+				    0x11, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				    0x00 });
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		buffer.putShort((short)(password.length()+1));
+		buffer.putInt(0);
+		buffer.putShort((short)(username.length()+password.length()+2));
+		buffer.put(password.getBytes());
+		buffer.put((byte)0);
+		buffer.put(username.getBytes());
+		buffer.put((byte)0);
+		buffer.flip();
+		return buffer;
 	}
 }

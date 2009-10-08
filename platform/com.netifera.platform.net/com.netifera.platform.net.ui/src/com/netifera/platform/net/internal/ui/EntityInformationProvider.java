@@ -229,19 +229,19 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 		StringBuffer buffer = new StringBuffer();
 		if (e.getPassword() != null) {
 			buffer.append("<p>Password: ");
-			buffer.append(e.getPassword().length() > 0 ? e.getPassword() : "<no password>");
+			buffer.append(escape(e.getPassword().length() > 0 ? e.getPassword() : "<no password>"));
 			buffer.append("</p>");
 		}
 		for (String hashType: e.getHashTypes()) {
 			buffer.append("<p>Hash: ");
-			buffer.append(e.getHash(hashType));
+			buffer.append(escape(e.getHash(hashType)));
 			buffer.append(" (");
-			buffer.append(hashType);
+			buffer.append(escape(hashType));
 			buffer.append(")</p>");
 		}
 		if (e.getHome() != null) {
 			buffer.append("<p>Home: ");
-			buffer.append(e.getHome());
+			buffer.append(escape(e.getHome()));
 			buffer.append("</p>");
 		}
 		return buffer.toString();
