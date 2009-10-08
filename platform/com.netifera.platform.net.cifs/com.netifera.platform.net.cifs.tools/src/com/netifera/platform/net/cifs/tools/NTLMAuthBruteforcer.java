@@ -11,6 +11,8 @@ import jcifs.smb.SmbAuthException;
 
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.cifs.internal.tools.Activator;
+import com.netifera.platform.net.model.HostEntity;
+import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
@@ -26,15 +28,23 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private String remoteName = "*SMBSERVER";
 	private String localName = "";
 	
+	private boolean checkLocal = true;
+	private boolean checkDomain = true;
+	
 	@Override
 	protected void setupToolOptions() throws ToolException {
 		target = (TCPSocketLocator) context.getConfiguration().get("target");
-		context.setTitle("Bruteforce LM authentication on SMB @ "+target);
+		context.setTitle("Bruteforce NTLM authentication on SMB @ "+target);
 		
 		if (context.getConfiguration().get("remoteName") != null)
 			remoteName = (String) context.getConfiguration().get("remoteName");
 		if (context.getConfiguration().get("localName") != null)
 			localName = (String) context.getConfiguration().get("localName");
+
+		if (context.getConfiguration().get("checkLocal") != null)
+			checkLocal = (Boolean) context.getConfiguration().get("checkLocal");
+		if (context.getConfiguration().get("checkDomain") != null)
+			checkDomain = (Boolean) context.getConfiguration().get("checkDomain");
 		
 		super.setupToolOptions();
 	}
@@ -154,37 +164,58 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 						channel.read(dst, timeout, unit, attachment, new CompletionHandler<Integer,Void>() {
 							public void completed(Integer result, Void attachment) {
 								dst.flip();
-/*												int response = dst.get(9) & 0xFF;
-								if (response != 0x00) {
-									context.error("Bad response to Protocol Negotiation: "+String.format("0x%x",response));
+								dst.order(ByteOrder.LITTLE_ENDIAN);
+								int status = dst.getInt(9);
+								if (status != SmbAuthException.NT_STATUS_OK) {
+									context.error("Bad response to SMB Protocol Negotiation, NT Status Code: "+String.format("0x%x",status));
 									cancel();
 //									failed
 									return;
 								}
-*/
+
 								// get the challenge
 								byte[] challenge = new byte[8];
 								for (int i=0; i<challenge.length; i++)
 									challenge[i] = dst.get(73+i);
 
 								// get workgroup and machine name
-								byte[] workgroup = new byte[16];
-								byte[] machineName = new byte[16];
+								byte[] workgroupBytes = new byte[16];
+								byte[] machineNameBytes = new byte[16];
 
-								//FIXME this ignored unicode 2nd byte
+								//FIXME this ignores unicode 2nd byte
 								int i=0;
 								while ((dst.get(81 + i * 2) != 0) && (i < 16)) {
-									workgroup[i] = dst.get(81 + i * 2);
+									workgroupBytes[i] = dst.get(81 + i * 2);
 									i++;
 								}
 
 								int j=0;
 								while ((dst.get(81 + (i + j + 1) * 2) != 0) && (j < 16)) {
-									machineName[j] = dst.get(81 + (i + j + 1) * 2);
+									machineNameBytes[j] = dst.get(81 + (i + j + 1) * 2);
 									j++;
 								}
 
-								channel.write(sessionSetupPacket(sessionKey, (UsernameAndPassword)credential, new String(workgroup), challenge), timeout, unit, null, new CompletionHandler<Integer,Void>() {
+								String workgroup = new String(workgroupBytes);
+								String machineName = new String(machineNameBytes);
+								
+								//FIXME should do this only once:
+								
+								InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(realm, context.getSpaceId(), target.getAddress());
+								addressEntity.addName(machineName);
+								addressEntity.update();
+								
+								HostEntity hostEntity = addressEntity.getHost();
+								hostEntity.setNamedAttribute("workgroup", workgroup);
+//								hostEntity.setNamedAttribute("netbiosname", machineName);
+								hostEntity.update();
+								
+								if (checkLocal)
+									if (checkDomain)
+										workgroup = "";
+									else
+										workgroup = "localhost";
+								
+								channel.write(sessionSetupPacket(sessionKey, (UsernameAndPassword)credential, workgroup, challenge), timeout, unit, null, new CompletionHandler<Integer,Void>() {
 									public void completed(Integer result, Void attachment) {
 										dst.clear();
 										channel.read(dst, timeout, unit, attachment, new CompletionHandler<Integer,Void>() {
@@ -195,17 +226,29 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 												switch (status) {
 												case SmbAuthException.NT_STATUS_ACCOUNT_LOCKED_OUT:
 													context.warning("Account Locked Out: "+credential);
+													markBadUser(((UsernameAndPassword)credential).getUsernameString());
 													break;
 												case SmbAuthException.NT_STATUS_ACCOUNT_DISABLED:
 													context.warning("Account Disabled: "+credential);
+													markBadUser(((UsernameAndPassword)credential).getUsernameString());
+													break;
+												case SmbAuthException.NT_STATUS_LOGON_FAILURE:
+													// continue trying more passwords for this user
+													break;
+												case SmbAuthException.NT_STATUS_PASSWORD_EXPIRED:
+													context.warning("Expired Password: "+credential);
+													markBadUser(((UsernameAndPassword)credential).getUsernameString());
+													break;
+												case SmbAuthException.NT_STATUS_PASSWORD_MUST_CHANGE:
+													context.warning("Change Password On Next Login: "+credential);
 													break;
 												case SmbAuthException.NT_STATUS_OK:
 													break;
 												default:
-													context.debug("Unknown NT Status Code: "+String.format("%x", status));
+													context.debug("Unknown NT Status Code for SMB Session Setup: "+String.format("0x%x", status));
 												}
 												
-												handler.completed(status == SmbAuthException.NT_STATUS_OK, credential);
+												handler.completed(status == SmbAuthException.NT_STATUS_OK || status == SmbAuthException.NT_STATUS_PASSWORD_MUST_CHANGE, credential);
 												try {
 													channel.close();
 												} catch (IOException e) {

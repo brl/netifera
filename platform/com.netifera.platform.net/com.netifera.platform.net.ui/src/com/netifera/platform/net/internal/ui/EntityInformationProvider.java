@@ -87,6 +87,10 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 			}
 			buffer.append("</p>");
 		}
+		if (e.getNamedAttribute("workgroup") != null) {
+			buffer.append("<p>Workgroup: "+escape(e.getNamedAttribute("workgroup")));
+			buffer.append("</p>");
+		}
 		if (geoipService != null) {
 			for (NetworkAddressEntity addressEntity: e.getAddresses()) {
 				INetworkAddress address = addressEntity.getAddress();

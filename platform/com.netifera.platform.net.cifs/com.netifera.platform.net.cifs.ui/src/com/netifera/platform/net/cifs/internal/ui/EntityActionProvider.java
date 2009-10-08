@@ -47,8 +47,8 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
 				bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
 				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 5));
-				bruteforcer.addOption(new StringOption("remoteName", "Remote Name", "Target host NetBIOS name", "*SMBSERVER", true));
-				bruteforcer.addOption(new StringOption("localName", "Local Name", "Local host NetBIOS name", "", true));
+//				bruteforcer.addOption(new StringOption("remoteName", "Remote Name", "Target host NetBIOS name", "*SMBSERVER", true));
+//				bruteforcer.addOption(new StringOption("localName", "Local Name", "Local host NetBIOS name", "", true));
 				answer.add(bruteforcer);
 			
 				bruteforcer = new ToolAction("Bruteforce NTLM Authentication", NTLMAuthBruteforcer.class.getName());
@@ -62,8 +62,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
 				bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
 				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 1));
-				bruteforcer.addOption(new StringOption("remoteName", "Remote Name", "Target host NetBIOS name", "*SMBSERVER", true));
-				bruteforcer.addOption(new StringOption("localName", "Local Name", "Local host NetBIOS name", "", true));
+//				bruteforcer.addOption(new StringOption("remoteName", "Remote Name", "Target host NetBIOS name", "*SMBSERVER", true));
+//				bruteforcer.addOption(new StringOption("localName", "Local Name", "Local host NetBIOS name", "", true));
+				bruteforcer.addOption(new BooleanOption("checkLocal", "Check Local Accounts", "Check credentials against local accounts on the target host", true));
+				bruteforcer.addOption(new BooleanOption("checkDomain", "Check Domain Accounts", "Check credentials against the host primary domain controller via the target host", true));
 				answer.add(bruteforcer);
 			}
 
@@ -79,8 +81,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
 				bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
 				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 1));
-				bruteforcer.addOption(new StringOption("remoteName", "Remote Name", "Target host NetBIOS name", "*SMBSERVER", true));
-				bruteforcer.addOption(new StringOption("localName", "Local Name", "Local host NetBIOS name", "", true));
+//				bruteforcer.addOption(new StringOption("remoteName", "Remote Name", "Target host NetBIOS name", "*SMBSERVER", true));
+//				bruteforcer.addOption(new StringOption("localName", "Local Name", "Local host NetBIOS name", "", true));
+				bruteforcer.addOption(new BooleanOption("checkLocal", "Check Local Accounts", "Check credentials against local accounts on the target host", true));
+				bruteforcer.addOption(new BooleanOption("checkDomain", "Check Domain Accounts", "Check credentials against the host primary domain controller via the target host", true));
 				answer.add(bruteforcer);
 			}
 		}

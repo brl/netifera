@@ -58,6 +58,12 @@ public abstract class CredentialsVerifier {
 		}
 		return false;
 	}
+
+	public void markBadUser(String username) {
+		synchronized (credentials) {
+			foundUsers.add(username);
+		}
+	}
 	
 	public void retryCredential(Credential credential) {
 		synchronized(retryCredentials) {
