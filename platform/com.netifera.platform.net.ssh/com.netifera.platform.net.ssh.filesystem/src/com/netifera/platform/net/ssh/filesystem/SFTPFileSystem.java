@@ -3,6 +3,7 @@ package com.netifera.platform.net.ssh.filesystem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -13,6 +14,8 @@ import com.netifera.platform.host.filesystem.IFileSystemListener;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.trilead.ssh2.SFTPv3Client;
 import com.trilead.ssh2.SFTPv3DirectoryEntry;
 
@@ -23,6 +26,17 @@ public class SFTPFileSystem implements IFileSystem {
 
 	private List<IFileSystemListener> listeners = new ArrayList<IFileSystemListener>();
 
+	public SFTPFileSystem(URI url) {
+		InternetAddress address = InternetAddress.fromString(url.getHost());
+		TCPSocketLocator locator = new TCPSocketLocator(address, url.getPort());
+		this.ssh = new SSH(locator);
+
+		String[] userInfo = url.getUserInfo().split(":");
+		String username = userInfo[0];
+		String password = userInfo.length > 1 ? userInfo[1] : "";
+		this.credential = new UsernameAndPassword(username, password);
+	}
+	
 	public SFTPFileSystem(SSH ssh, UsernameAndPassword credential) {
 		this.ssh = ssh;
 		this.credential = credential;

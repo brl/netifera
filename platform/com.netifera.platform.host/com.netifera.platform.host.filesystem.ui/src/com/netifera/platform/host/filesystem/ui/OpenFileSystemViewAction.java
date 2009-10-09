@@ -1,5 +1,7 @@
 package com.netifera.platform.host.filesystem.ui;
 
+import java.net.URI;
+
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -16,11 +18,11 @@ public abstract class OpenFileSystemViewAction extends SpaceAction {
 		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/folders.png"));
 	}
 
-	public abstract IFileSystem createFileSystem();
+	public abstract URI getURL();
 	
 	@Override
 	public void run() {
-		IFileSystem fileSystem = createFileSystem();
+		IFileSystem fileSystem = Activator.getInstance().getFileSystemFactory().create(getURL());
 		
 		try {
 			IViewPart view = UIPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(

@@ -22,3 +22,4 @@ Import-Package: com.netifera.platform.host.filesystem,
  org.osgi.framework;version="1.3.0"
 Export-Package: com.netifera.platform.net.cifs,
  com.netifera.platform.net.cifs.filesystem
+Service-Component: OSGI-INF/smb-filesystem-provider.xml

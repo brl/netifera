@@ -1,5 +1,7 @@
 package com.netifera.platform.net.ssh.internal.ui;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,17 +9,15 @@ import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.tools.IToolConfiguration;
-import com.netifera.platform.host.filesystem.IFileSystem;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UsernameAndPasswordEntity;
-import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
-import com.netifera.platform.net.ssh.filesystem.SFTPFileSystem;
 import com.netifera.platform.net.ssh.tools.SSHAuthBruteforcer;
 import com.netifera.platform.net.ssh.tools.SSHProbeDeployer;
 import com.netifera.platform.net.wordlists.IWordList;
+import com.netifera.platform.probebuild.api.IProbeBuilderService;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
@@ -27,7 +27,6 @@ import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.probebuild.api.IProbeBuilderService;
 
 public class EntityActionProvider implements IEntityActionProvider {
 	private IProbeBuilderService probeBuilder;
@@ -84,12 +83,26 @@ public class EntityActionProvider implements IEntityActionProvider {
 			if (ssh != null) {
 				SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
 					@Override
-					public IFileSystem createFileSystem() {
+					public URI getURL() {
 						IToolConfiguration config = getConfiguration();
-						return new SFTPFileSystem((SSH)config.get("ssh"), new UsernameAndPassword((String)config.get("username"),(String)config.get("password")));
+						TCPSocketLocator target = (TCPSocketLocator) config.get("target");
+						String username = (String) config.get("username");
+						String password = (String) config.get("password");
+						String url = "sftp://";
+						url += username+":"+password+"@";
+						url += target.getAddress();
+						url += ":"+target.getPort();
+						url += "/";
+						try {
+							return new URI(url);
+						} catch (URISyntaxException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							throw new RuntimeException(e);
+						}
 					}
 				};
-				action.addFixedOption(new GenericOption(SSH.class, "ssh", "SSH", "SSH server to connect to", ssh));
+				action.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target server to connect to", ssh.getLocator()));
 				action.addOption(new StringOption("username", "Username", "", "root"));
 				action.addOption(new StringOption("password", "Password", "", ""));
 				answer.add(action);

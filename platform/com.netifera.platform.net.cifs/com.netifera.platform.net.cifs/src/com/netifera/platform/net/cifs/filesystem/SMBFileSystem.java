@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import com.netifera.platform.host.filesystem.IFileSystem;
 import com.netifera.platform.host.filesystem.IFileSystemListener;
 
 public class SMBFileSystem implements IFileSystem {
-	final private SmbFile share;
+	private SmbFile share;
 	
 	public void addListener(IFileSystemListener listener) {
 	}
@@ -25,7 +26,15 @@ public class SMBFileSystem implements IFileSystem {
 	public SMBFileSystem(String url) throws MalformedURLException {
 		share = new SmbFile(url);
 	}
-	
+
+	public SMBFileSystem(URI url) {
+		try {
+			share = new SmbFile(url.toASCIIString());
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public File createDirectory(String directoryName) throws IOException {
 		// TODO Auto-generated method stub
 		return null;

@@ -16,12 +16,12 @@ import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
 import com.netifera.platform.host.filesystem.LocalFileSystem;
 
-public class FileSystem {
+public class FileSystemService {
 	private ILogger logger;
 	private IFileSystem fileSystem;
 	private final String rootPrefix;
 	
-	public FileSystem() {
+	public FileSystemService() {
 		fileSystem = new LocalFileSystem();
 		if(System.getProperty("com.netifera.filesystemprefix") != null) {
 			rootPrefix = System.getProperty("com.netifera.filesystemprefix");

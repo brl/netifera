@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.filesystem-factory">
-	<implementation class="com.netifera.platform.host.filesystem.probe.FileSystemFactory" />
+	<implementation class="com.netifera.platform.host.internal.filesystem.FileSystemFactory" />
 	<service>
 		<provide interface="com.netifera.platform.host.filesystem.IFileSystemFactory" />
 	</service>
+
+	<reference 
+		name="FILESYSTEM_PROVIDERS"
+		interface="com.netifera.platform.host.filesystem.IFileSystemProvider"
+		bind="registerProvider"
+		unbind="unregisterProvider"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
 	
 	<reference
     	name="LOG_MANAGER"

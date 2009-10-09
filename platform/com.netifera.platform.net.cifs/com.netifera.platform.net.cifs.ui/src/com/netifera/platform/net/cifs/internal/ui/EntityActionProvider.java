@@ -1,6 +1,7 @@
 package com.netifera.platform.net.cifs.internal.ui;
 
-import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,9 +9,7 @@ import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.tools.IToolConfiguration;
-import com.netifera.platform.host.filesystem.IFileSystem;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
-import com.netifera.platform.net.cifs.filesystem.SMBFileSystem;
 import com.netifera.platform.net.cifs.tools.LMAuthBruteforcer;
 import com.netifera.platform.net.cifs.tools.NTLMAuthBruteforcer;
 import com.netifera.platform.net.model.ServiceEntity;
@@ -101,7 +100,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			if (locator != null && serviceEntity.getServiceType().equals("NetBIOS-SSN")) {
 				SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
 					@Override
-					public IFileSystem createFileSystem() {
+					public URI getURL() {
 						IToolConfiguration config = getConfiguration();
 						TCPSocketLocator target = (TCPSocketLocator) config.get("target");
 						String domain = (String) config.get("domain");
@@ -118,8 +117,8 @@ public class EntityActionProvider implements IEntityActionProvider {
 							url += ":"+target.getPort();
 						url += "/";
 						try {
-							return new SMBFileSystem(url);
-						} catch (MalformedURLException e) {
+							return new URI(url);
+						} catch (URISyntaxException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 							throw new RuntimeException(e);

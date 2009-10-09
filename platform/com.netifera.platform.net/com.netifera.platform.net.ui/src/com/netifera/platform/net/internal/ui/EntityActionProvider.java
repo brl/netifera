@@ -1,5 +1,7 @@
 package com.netifera.platform.net.internal.ui;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,6 @@ import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.tools.IToolConfiguration;
-import com.netifera.platform.host.filesystem.IFileSystem;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
 import com.netifera.platform.net.model.INetworkEntityFactory;
@@ -18,10 +19,8 @@ import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.services.basic.FTP;
-import com.netifera.platform.net.services.basic.FTPFileSystem;
 import com.netifera.platform.net.services.basic.POP3;
 import com.netifera.platform.net.services.basic.Telnet;
-import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.detection.IServerDetectorService;
 import com.netifera.platform.net.services.examples.IMAP;
 import com.netifera.platform.net.tools.bruteforce.FTPAuthBruteforcer;
@@ -265,12 +264,26 @@ public class EntityActionProvider implements IEntityActionProvider {
 		if (ftp != null) {
 			SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
 				@Override
-				public IFileSystem createFileSystem() {
+				public URI getURL() {
 					IToolConfiguration config = getConfiguration();
-					return new FTPFileSystem((FTP)config.get("ftp"), new UsernameAndPassword((String)config.get("username"),(String)config.get("password")));
+					TCPSocketLocator target = (TCPSocketLocator) config.get("target");
+					String username = (String) config.get("username");
+					String password = (String) config.get("password");
+					String url = "ftp://";
+					url += username+":"+password+"@";
+					url += target.getAddress();
+					url += ":"+target.getPort();
+					url += "/";
+					try {
+						return new URI(url);
+					} catch (URISyntaxException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
 				}
 			};
-			action.addFixedOption(new GenericOption(FTP.class, "ftp", "FTP", "FTP server to connect to", ftp));
+			action.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target server to connect to", ftp.getLocator()));
 			action.addOption(new StringOption("username", "Username", "", "ftp"));
 			action.addOption(new StringOption("password", "Password", "", "", true));
 			answer.add(action);
