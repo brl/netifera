@@ -25,6 +25,7 @@ import com.netifera.platform.net.services.detection.IServerDetectorService;
 import com.netifera.platform.net.services.examples.IMAP;
 import com.netifera.platform.net.tools.bruteforce.FTPAuthBruteforcer;
 import com.netifera.platform.net.tools.bruteforce.IMAPAuthBruteforcer;
+import com.netifera.platform.net.tools.bruteforce.MSSQLAuthBruteforcer;
 import com.netifera.platform.net.tools.bruteforce.POP3AuthBruteforcer;
 import com.netifera.platform.net.tools.portscanning.TCPConnectScanner;
 import com.netifera.platform.net.tools.portscanning.UDPScanner;
@@ -137,6 +138,24 @@ public class EntityActionProvider implements IEntityActionProvider {
 			answer.add(bruteforcer);
 		}
 
+		if (entity instanceof ServiceEntity) {
+			ServiceEntity serviceEntity = (ServiceEntity) entity;
+			TCPSocketLocator locator = (TCPSocketLocator) serviceEntity.getAdapter(TCPSocketLocator.class);
+			if (locator != null && serviceEntity.getServiceType().equals("MSSQL")) {
+				ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", MSSQLAuthBruteforcer.class.getName());
+				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target MSSQL service", locator));
+//				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
+				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "sa", true));
+				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
+				bruteforcer.addOption(new StringOption("passwords", "Passwords", "List of passwords to try, separated by space or comma", "Passwords", "", true));
+				bruteforcer.addOption(new MultipleStringOption("passwords_wordlists", "Passwords Wordlists", "Wordlists to try as passwords", "Passwords", getAvailableWordLists(new String[] {IWordList.CATEGORY_PASSWORDS, IWordList.CATEGORY_NAMES})));
+				bruteforcer.addOption(new BooleanOption("tryNullPassword", "Try null password", "Try null password", true));
+				bruteforcer.addOption(new BooleanOption("tryUsernameAsPassword", "Try username as password", "Try username as password", true));
+				bruteforcer.addOption(new BooleanOption("singleMode", "Single mode", "Stop after one credential is found", false));
+				bruteforcer.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));
+				answer.add(bruteforcer);
+			}
+		}
 		addNetblockActions(entity, answer);
 		
 		return answer;
