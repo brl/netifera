@@ -23,5 +23,4 @@ public class CommonAPPasswords implements IWordList {
 			words.add(word);
 		return new ListIndexedIterable<String>(words);
 	}
-	
 }

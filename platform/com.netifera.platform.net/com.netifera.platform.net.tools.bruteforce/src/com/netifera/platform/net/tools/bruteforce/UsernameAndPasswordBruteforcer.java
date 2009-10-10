@@ -24,7 +24,7 @@ public abstract class UsernameAndPasswordBruteforcer extends AuthenticationBrute
 			passwords.add(Arrays.asList(((String)context.getConfiguration().get("passwords")).split("[\\s,]+")));
 
 		for (String wordlistName: (String[]) context.getConfiguration().get("usernames_wordlists")) {
-			IWordList wordlist = Activator.getInstance().getWordList(wordlistName);
+			IWordList wordlist = Activator.getInstance().getWordListManager().getWordListByName(wordlistName);
 			if (wordlist == null) {
 				context.error("Missing wordlist: "+wordlistName);
 			} else {
@@ -35,7 +35,7 @@ public abstract class UsernameAndPasswordBruteforcer extends AuthenticationBrute
 		}
 
 		for (String wordlistName: (String[]) context.getConfiguration().get("passwords_wordlists")) {
-			IWordList wordlist = Activator.getInstance().getWordList(wordlistName);
+			IWordList wordlist = Activator.getInstance().getWordListManager().getWordListByName(wordlistName);
 			if (wordlist == null) {
 				context.error("Missing wordlist: "+wordlistName);
 			} else {

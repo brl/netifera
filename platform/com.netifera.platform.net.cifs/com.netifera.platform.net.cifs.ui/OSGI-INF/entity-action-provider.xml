@@ -7,11 +7,9 @@
 	
 	<reference 
 		name="WORDLISTS"
-		interface="com.netifera.platform.net.wordlists.IWordList"
-		bind="registerWordList"
-		unbind="unregisterWordList"
-		cardinality="0..n"
-		policy="dynamic"
+		interface="com.netifera.platform.net.wordlists.IWordListManager"
+		bind="setWordListManager"
+		unbind="unsetWordListManager"
 	/>
 	
 </component>

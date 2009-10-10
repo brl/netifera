@@ -17,6 +17,7 @@ import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.wordlists.IWordList;
+import com.netifera.platform.net.wordlists.IWordListManager;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
@@ -27,8 +28,8 @@ import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 
 public class EntityActionProvider implements IEntityActionProvider {
 
-	final private List<IWordList> wordlists = new ArrayList<IWordList>();
 	final private List<IWebSpiderModule> modules = new ArrayList<IWebSpiderModule>();
+	private IWordListManager wordListManager;
 
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
@@ -111,26 +112,21 @@ public class EntityActionProvider implements IEntityActionProvider {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	private String[] getAvailableWordLists(String[] categories) {
 		List<String> names = new ArrayList<String>();
-		for (IWordList wordlist: wordlists) {
-			for (String category: categories) {
-				if (wordlist.getCategory().equals(category)) {
-					names.add(wordlist.getName());
-					break;
-				}
-			}
+		for (IWordList wordlist: wordListManager.getWordListsByCategories(categories)) {
+			names.add(wordlist.getName());
 		}
 		return names.toArray(new String[names.size()]);
 	}
-	
-	protected void registerWordList(IWordList wordlist) {
-		this.wordlists.add(wordlist);
+
+	protected void setWordListManager(IWordListManager wordListManager) {
+		this.wordListManager = wordListManager;
 	}
 	
-	protected void unregisterWordList(IWordList wordlist) {
-		this.wordlists.remove(wordlist);
+	protected void unsetWordListManager(IWordListManager wordListManager) {
+		this.wordListManager = null;
 	}
 
 	private String[] getAvailableWebSpiderModules() {

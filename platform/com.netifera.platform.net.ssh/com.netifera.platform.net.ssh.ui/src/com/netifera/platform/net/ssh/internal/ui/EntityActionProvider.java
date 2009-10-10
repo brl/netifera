@@ -17,6 +17,7 @@ import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.net.ssh.tools.SSHAuthBruteforcer;
 import com.netifera.platform.net.ssh.tools.SSHProbeDeployer;
 import com.netifera.platform.net.wordlists.IWordList;
+import com.netifera.platform.net.wordlists.IWordListManager;
 import com.netifera.platform.probebuild.api.IProbeBuilderService;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
@@ -30,7 +31,7 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public class EntityActionProvider implements IEntityActionProvider {
 	private IProbeBuilderService probeBuilder;
-	private List<IWordList> wordlists = new ArrayList<IWordList>();
+	private IWordListManager wordListManager;
 	
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
@@ -122,23 +123,18 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 	private String[] getAvailableWordLists(String[] categories) {
 		List<String> names = new ArrayList<String>();
-		for (IWordList wordlist: wordlists) {
-			for (String category: categories) {
-				if (wordlist.getCategory().equals(category)) {
-					names.add(wordlist.getName());
-					break;
-				}
-			}
+		for (IWordList wordlist: wordListManager.getWordListsByCategories(categories)) {
+			names.add(wordlist.getName());
 		}
 		return names.toArray(new String[names.size()]);
 	}
 	
-	protected void registerWordList(IWordList wordlist) {
-		this.wordlists.add(wordlist);
+	protected void setWordListManager(IWordListManager wordListManager) {
+		this.wordListManager = wordListManager;
 	}
 	
-	protected void unregisterWordList(IWordList wordlist) {
-		this.wordlists.remove(wordlist);
+	protected void unsetWordListManager(IWordListManager wordListManager) {
+		this.wordListManager = null;
 	}
 
 	protected void setProbeBuilder(IProbeBuilderService probeBuilder) {

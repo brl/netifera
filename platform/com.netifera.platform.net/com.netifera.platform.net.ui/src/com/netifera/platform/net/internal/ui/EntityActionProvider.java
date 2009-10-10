@@ -30,6 +30,7 @@ import com.netifera.platform.net.tools.bruteforce.POP3AuthBruteforcer;
 import com.netifera.platform.net.tools.portscanning.TCPConnectScanner;
 import com.netifera.platform.net.tools.portscanning.UDPScanner;
 import com.netifera.platform.net.wordlists.IWordList;
+import com.netifera.platform.net.wordlists.IWordListManager;
 import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
@@ -51,7 +52,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 	private IServerDetectorService serverDetector;
 	private INetworkEntityFactory entityFactory;
-	private List<IWordList> wordlists = new ArrayList<IWordList>();
+	private IWordListManager wordListManager;
 	
 	@SuppressWarnings("unchecked")
 	private IndexedIterable<InternetAddress> getInternetAddressIndexedIterable(IEntity entity) {
@@ -332,13 +333,8 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 	private String[] getAvailableWordLists(String[] categories) {
 		List<String> names = new ArrayList<String>();
-		for (IWordList wordlist: wordlists) {
-			for (String category: categories) {
-				if (wordlist.getCategory().equals(category)) {
-					names.add(wordlist.getName());
-					break;
-				}
-			}
+		for (IWordList wordlist: wordListManager.getWordListsByCategories(categories)) {
+			names.add(wordlist.getName());
 		}
 		return names.toArray(new String[names.size()]);
 	}
@@ -359,11 +355,11 @@ public class EntityActionProvider implements IEntityActionProvider {
 		this.entityFactory = null;
 	}
 	
-	protected void registerWordList(IWordList wordlist) {
-		this.wordlists.add(wordlist);
+	protected void setWordListManager(IWordListManager wordListManager) {
+		this.wordListManager = wordListManager;
 	}
 	
-	protected void unregisterWordList(IWordList wordlist) {
-		this.wordlists.remove(wordlist);
+	protected void unsetWordListManager(IWordListManager wordListManager) {
+		this.wordListManager = null;
 	}
 }
