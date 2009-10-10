@@ -103,6 +103,10 @@ public class File implements Serializable {
 	}
 	
 	public boolean renameTo(String newName) throws IOException {
-		return fileSystem.rename(getAbsolutePath(), newName);
+		if (fileSystem.rename(getAbsolutePath(), newName)) {
+			path = newName;
+			return true;
+		}
+		return false;
 	}
 }
