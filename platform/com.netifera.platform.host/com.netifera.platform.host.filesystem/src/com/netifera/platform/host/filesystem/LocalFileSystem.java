@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocalFileSystem implements IFileSystem {
-	private List<IFileSystemListener> listeners = new ArrayList<IFileSystemListener>();
+//	private List<IFileSystemListener> listeners = new ArrayList<IFileSystemListener>();
 	
 	public String getNameSeparator() {
 		return java.io.File.separator;
@@ -54,20 +54,19 @@ public class LocalFileSystem implements IFileSystem {
 		java.io.File file = new java.io.File(path);
 		if (file.delete()) {
 			File deletedFile = convert(file);
-			for (IFileSystemListener listener: listeners)
-				listener.removed(deletedFile);
 			return true;
 		}
 		return false;
 	}
 
 	public boolean deleteDirectory(String path) {
-		return false;
+		return delete(path);
 	}
 
 	public File createDirectory(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		java.io.File file = new java.io.File(path);
+		file.mkdir();
+		return convert(file);
 	}
 	
 	public boolean rename(String oldName, String newName) {
@@ -76,14 +75,6 @@ public class LocalFileSystem implements IFileSystem {
 		return oldFile.renameTo(newFile);
 	}
 
-	public void addListener(IFileSystemListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeListener(IFileSystemListener listener) {
-		listeners.remove(listener);
-	}
-	
 	public String toString() {
 		return "Local File System";
 	}

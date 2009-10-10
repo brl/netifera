@@ -10,7 +10,6 @@ import java.util.Vector;
 
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.IFileSystemListener;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
@@ -23,8 +22,6 @@ public class SFTPFileSystem implements IFileSystem {
 
 	private SSH ssh;
 	private Credential credential;
-
-	private List<IFileSystemListener> listeners = new ArrayList<IFileSystemListener>();
 
 	public SFTPFileSystem(URI url) {
 		InternetAddress address = InternetAddress.fromString(url.getHost());
@@ -46,10 +43,7 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
 			client.mkdir(directoryName, 0775);
-			File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
-			for (IFileSystemListener listener: listeners)
-				listener.added(file);
-			return file;
+			return new File(this, directoryName, File.DIRECTORY, 0, 0);
 		} finally {
 			client.close();
 		}
@@ -59,10 +53,10 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
 			client.rm(fileName);
-			File file = new File(this, fileName, File.FILE, 0, 0);
+/*			File file = new File(this, fileName, File.FILE, 0, 0);
 			for (IFileSystemListener listener: listeners)
 				listener.removed(file);
-			return true;
+*/			return true;
 		} finally {
 			client.close();
 		}
@@ -73,10 +67,10 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
 			client.rmdir(directoryName);
-			File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
+/*			File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
 			for (IFileSystemListener listener: listeners)
 				listener.removed(file);
-			return true;
+*/			return true;
 		} finally {
 			client.close();
 		}
@@ -87,13 +81,13 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
 			client.mv(oldName, newName);
-			File oldFile = new File(this, oldName, File.FILE, 0, 0);
+/*			File oldFile = new File(this, oldName, File.FILE, 0, 0);
 			File newFile = new File(this, newName, File.FILE, 0, 0);
 			for (IFileSystemListener listener: listeners) {
 				listener.removed(oldFile);
 				listener.added(newFile);
 			}
-			return true;
+*/			return true;
 		} finally {
 			client.close();
 		}
@@ -149,14 +143,6 @@ public class SFTPFileSystem implements IFileSystem {
 		return new File[] {new File(this, "/", File.DIRECTORY, 0, 0)};
 	}
 
-	public void addListener(IFileSystemListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeListener(IFileSystemListener listener) {
-		listeners.remove(listener);
-	}
-	
 	@Override
 	public String toString() {
 		return ssh.toString();

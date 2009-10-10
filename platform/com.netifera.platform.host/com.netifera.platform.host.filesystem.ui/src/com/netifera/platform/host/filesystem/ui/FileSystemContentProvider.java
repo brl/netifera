@@ -11,7 +11,6 @@ import org.eclipse.jface.viewers.Viewer;
 
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.IFileSystemListener;
 import com.netifera.platform.host.internal.filesystem.ui.Activator;
 
 public class FileSystemContentProvider implements ITreeContentProvider {
@@ -23,60 +22,6 @@ public class FileSystemContentProvider implements ITreeContentProvider {
 	private TreeViewer viewer;
 	private FileSystemView view;
 	
-	private IFileSystemListener fileSystemListener = new IFileSystemListener() {
-		public void added(final File file) {
-			viewer.getControl().getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					String parentPath = file.getParent().getAbsolutePath();
-					File[] siblings = cache.get(parentPath);
-					if (siblings != null) {
-						List<File> siblingsList = new ArrayList<File>(siblings.length+1);
-						for (File sibling: siblings) {
-							if (sibling.equals(file))
-								return;
-							siblingsList.add(sibling);
-						}
-						siblingsList.add(file);
-						cache.put(parentPath, siblingsList.toArray(new File[0]));
-					}/* else {
-						clear(file.getParent());
-					}*/
-					viewer.refresh(file.getParent(), false);
-				}
-			});
-		}
-
-		public void removed(final File file) {
-			viewer.getControl().getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					clear(file);
-					String parentPath = file.getParent().getAbsolutePath();
-					File[] siblings = cache.get(parentPath);
-					if (siblings != null) {
-						List<File> siblingsList = new ArrayList<File>(siblings.length);
-						for (File sibling: siblings) {
-							if (!sibling.equals(file))
-								siblingsList.add(sibling);
-						}
-						cache.put(parentPath, siblingsList.toArray(new File[0]));
-					}/* else {
-						clear(file.getParent());
-					}*/
-					viewer.refresh(file.getParent(), false);
-				}
-			});
-		}
-
-		public void update(final File file) {
-			viewer.getControl().getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					clear(file);
-					viewer.refresh(file, true);
-				}
-			});
-		}
-	};
-
 	
 	public Object[] getChildren(final Object o) {
 		final String path = ((File)o).getAbsolutePath();
@@ -155,13 +100,7 @@ public class FileSystemContentProvider implements ITreeContentProvider {
 		roots = fileSystem.getRoots();
 		clear();
 		
-		if(oldInput instanceof IFileSystem) {
-			((IFileSystem) oldInput).removeListener(fileSystemListener);
-		}
-		
 		this.viewer = (TreeViewer) viewer;
-
-		fileSystem.addListener(fileSystemListener);
 	}
 
 	public void clear(File directory) {
@@ -189,5 +128,57 @@ public class FileSystemContentProvider implements ITreeContentProvider {
 			});
 		else
 			Activator.getInstance().getBalloonManager().error(message);
+	}
+	
+	public void added(final File file) {
+		viewer.getControl().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				String parentPath = file.getParent().getAbsolutePath();
+				File[] siblings = cache.get(parentPath);
+				if (siblings != null) {
+					List<File> siblingsList = new ArrayList<File>(siblings.length+1);
+					for (File sibling: siblings) {
+						if (sibling.equals(file))
+							return;
+						siblingsList.add(sibling);
+					}
+					siblingsList.add(file);
+					cache.put(parentPath, siblingsList.toArray(new File[0]));
+				}/* else {
+					clear(file.getParent());
+				}*/
+				viewer.refresh(file.getParent(), false);
+			}
+		});
+	}
+
+	public void removed(final File file) {
+		viewer.getControl().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				clear(file);
+				String parentPath = file.getParent().getAbsolutePath();
+				File[] siblings = cache.get(parentPath);
+				if (siblings != null) {
+					List<File> siblingsList = new ArrayList<File>(siblings.length);
+					for (File sibling: siblings) {
+						if (!sibling.equals(file))
+							siblingsList.add(sibling);
+					}
+					cache.put(parentPath, siblingsList.toArray(new File[0]));
+				}/* else {
+					clear(file.getParent());
+				}*/
+				viewer.refresh(file.getParent(), false);
+			}
+		});
+	}
+
+	public void update(final File file) {
+		viewer.getControl().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				clear(file);
+				viewer.refresh(file, true);
+			}
+		});
 	}
 }

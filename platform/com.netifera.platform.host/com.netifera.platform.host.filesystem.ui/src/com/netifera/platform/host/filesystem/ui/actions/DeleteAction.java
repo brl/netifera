@@ -6,12 +6,13 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Display;
 
 import com.netifera.platform.host.filesystem.File;
+import com.netifera.platform.host.filesystem.ui.FileSystemContentProvider;
 import com.netifera.platform.host.internal.filesystem.ui.Activator;
 
 public class DeleteAction extends AbstractFileSystemAction {
 
-	public DeleteAction(ISelectionProvider selectionProvider) {
-		super(selectionProvider);
+	public DeleteAction(ISelectionProvider selectionProvider, FileSystemContentProvider contentProvider) {
+		super(selectionProvider, contentProvider);
 		setText("&Delete");
 		setToolTipText("Delete File");
 		ImageDescriptor icon =  Activator.getInstance().getImageCache().getDescriptor("icons/delete.png");
@@ -27,7 +28,9 @@ public class DeleteAction extends AbstractFileSystemAction {
 					new Thread(new Runnable() {
 						public void run() {
 							try {
-								if (!file.delete())
+								if (file.delete())
+									contentProvider.removed(file);
+								else
 									Activator.getInstance().getBalloonManager().warning("Cannot delete "+file);
 							} catch (Exception e) {
 								Activator.getInstance().getBalloonManager().error(e.toString());

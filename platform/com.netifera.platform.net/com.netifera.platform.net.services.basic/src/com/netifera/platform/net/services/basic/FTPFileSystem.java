@@ -12,7 +12,6 @@ import org.apache.commons.net.ftp.FTPFile;
 
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.IFileSystemListener;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
@@ -21,8 +20,6 @@ public class FTPFileSystem implements IFileSystem {
 
 	private FTP ftp;
 	private UsernameAndPassword credential;
-
-	private List<IFileSystemListener> listeners = new ArrayList<IFileSystemListener>();
 
 	public FTPFileSystem(URI url) {
 		InternetAddress address = InternetAddress.fromString(url.getHost());
@@ -45,8 +42,6 @@ public class FTPFileSystem implements IFileSystem {
 		try {
 			if (client.makeDirectory(directoryName)) {
 				File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
-				for (IFileSystemListener listener: listeners)
-					listener.added(file);
 				return file;
 			}
 		} finally {
@@ -60,8 +55,6 @@ public class FTPFileSystem implements IFileSystem {
 		try {
 			if (client.deleteFile(fileName)) {
 				File file = new File(this, fileName, File.FILE, 0, 0);
-				for (IFileSystemListener listener: listeners)
-					listener.removed(file);
 				return true;
 			}
 		} finally {
@@ -75,8 +68,6 @@ public class FTPFileSystem implements IFileSystem {
 		try {
 			if (client.deleteFile(directoryName)) {
 				File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
-				for (IFileSystemListener listener: listeners)
-					listener.removed(file);
 				return true;
 			}
 		} finally {
@@ -89,13 +80,13 @@ public class FTPFileSystem implements IFileSystem {
 		FTPClient client = ftp.createClient(credential);
 		try {
 			if (client.rename(oldName, newName)) {
-				File oldFile = new File(this, oldName, File.FILE, 0, 0);
+/*				File oldFile = new File(this, oldName, File.FILE, 0, 0);
 				File newFile = new File(this, newName, File.FILE, 0, 0);
 				for (IFileSystemListener listener: listeners) {
 					listener.removed(oldFile);
 					listener.added(newFile);
 				}
-				return true;
+*/				return true;
 			}
 		} finally {
 			client.disconnect();
@@ -147,14 +138,6 @@ public class FTPFileSystem implements IFileSystem {
 
 	public File[] getRoots() {
 		return new File[] {new File(this, "/", File.DIRECTORY, 0, 0)};
-	}
-
-	public void addListener(IFileSystemListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeListener(IFileSystemListener listener) {
-		listeners.remove(listener);
 	}
 	
 	@Override

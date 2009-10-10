@@ -13,16 +13,10 @@ import jcifs.smb.SmbFile;
 
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.IFileSystemListener;
 
 public class SMBFileSystem implements IFileSystem {
 	private SmbFile share;
 	
-	public void addListener(IFileSystemListener listener) {
-	}
-	public void removeListener(IFileSystemListener listener) {
-	}
-
 	public SMBFileSystem(String url) throws MalformedURLException {
 		share = new SmbFile(url);
 	}

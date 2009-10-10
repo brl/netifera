@@ -11,7 +11,6 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.dispatcher.StatusMessage;
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.IFileSystemListener;
 
 public class RemoteFileSystem implements IFileSystem {
 
@@ -24,11 +23,6 @@ public class RemoteFileSystem implements IFileSystem {
 		this.logger = logger;
 	}
 	
-	public void addListener(IFileSystemListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public File createDirectory(String directoryName) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
@@ -82,11 +76,6 @@ public class RemoteFileSystem implements IFileSystem {
 		return msg.getFileRoots();
 	}
 
-	public void removeListener(IFileSystemListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public boolean rename(String oldName, String newName) throws IOException {
 		// TODO Auto-generated method stub
 		return false;
@@ -103,8 +92,7 @@ public class RemoteFileSystem implements IFileSystem {
 		}
 	}
 	
-private IProbeMessage exchangeMessage(IProbeMessage message) {
-		
+	private IProbeMessage exchangeMessage(IProbeMessage message) {
 		try {
 			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
 			if(response instanceof StatusMessage) { 
