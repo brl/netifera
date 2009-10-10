@@ -53,27 +53,19 @@ public class FTPFileSystem implements IFileSystem {
 	public boolean delete(String fileName) throws IOException {
 		FTPClient client = ftp.createClient(credential);
 		try {
-			if (client.deleteFile(fileName)) {
-				File file = new File(this, fileName, File.FILE, 0, 0);
-				return true;
-			}
+			return client.deleteFile(fileName);
 		} finally {
 			client.disconnect();
 		}
-		return false;
 	}
 
 	public boolean deleteDirectory(String directoryName) throws IOException {
 		FTPClient client = ftp.createClient(credential);
 		try {
-			if (client.deleteFile(directoryName)) {
-				File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
-				return true;
-			}
+			return client.removeDirectory(directoryName);
 		} finally {
 			client.disconnect();
 		}
-		return false;
 	}
 
 	public boolean rename(String oldName, String newName) throws IOException {
@@ -115,7 +107,6 @@ public class FTPFileSystem implements IFileSystem {
 		try {
 //			client.pasv();
 			FTPFile[] files = client.listFiles(directoryName);
-
 			return convert(directoryName, files);
 		} finally {
 			client.disconnect();
@@ -127,13 +118,15 @@ public class FTPFileSystem implements IFileSystem {
 	}
 
 	public InputStream getInputStream(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO this is not complete, look at retrieveFileStream comment
+		FTPClient client = ftp.createClient(credential);
+		return client.retrieveFileStream(fileName);
 	}
 
 	public OutputStream getOutputStream(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO this is not complete, look at storeFileStream comment
+		FTPClient client = ftp.createClient(credential);
+		return client.storeFileStream(fileName);
 	}
 
 	public File[] getRoots() {

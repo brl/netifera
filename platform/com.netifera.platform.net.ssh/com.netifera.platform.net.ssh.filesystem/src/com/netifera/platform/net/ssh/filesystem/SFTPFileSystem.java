@@ -53,10 +53,7 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
 			client.rm(fileName);
-/*			File file = new File(this, fileName, File.FILE, 0, 0);
-			for (IFileSystemListener listener: listeners)
-				listener.removed(file);
-*/			return true;
+			return true;
 		} finally {
 			client.close();
 		}
@@ -67,10 +64,7 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
 			client.rmdir(directoryName);
-/*			File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
-			for (IFileSystemListener listener: listeners)
-				listener.removed(file);
-*/			return true;
+			return true;
 		} finally {
 			client.close();
 		}
@@ -81,13 +75,7 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
 			client.mv(oldName, newName);
-/*			File oldFile = new File(this, oldName, File.FILE, 0, 0);
-			File newFile = new File(this, newName, File.FILE, 0, 0);
-			for (IFileSystemListener listener: listeners) {
-				listener.removed(oldFile);
-				listener.added(newFile);
-			}
-*/			return true;
+			return true;
 		} finally {
 			client.close();
 		}

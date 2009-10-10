@@ -29,19 +29,22 @@ public class SMBFileSystem implements IFileSystem {
 		}
 	}
 
+	public String getNameSeparator() {
+		return "/";
+	}
+
 	public File createDirectory(String directoryName) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public boolean delete(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		(new SmbFile(fileName)).delete();
+		return true;
 	}
 
 	public boolean deleteDirectory(String directoryName) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		return delete(directoryName);
 	}
 
 	public File[] getDirectoryList(String directoryName) throws IOException {
@@ -49,17 +52,11 @@ public class SMBFileSystem implements IFileSystem {
 	}
 
 	public InputStream getInputStream(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return (new SmbFile(fileName)).getInputStream();
 	}
-
-	public String getNameSeparator() {
-		return "/";
-	}
-
+	
 	public OutputStream getOutputStream(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return (new SmbFile(fileName)).getOutputStream();
 	}
 
 	public File[] getRoots() {
@@ -73,8 +70,8 @@ public class SMBFileSystem implements IFileSystem {
 	}
 
 	public boolean rename(String oldName, String newName) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		(new SmbFile(oldName)).renameTo(new SmbFile(newName));
+		return true;
 	}
 
 	private File[] convert(SmbFile[] smbFiles) throws SmbException {
