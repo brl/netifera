@@ -279,8 +279,8 @@ public class TaskItem extends Composite {
 				}
 			} else {
 				int worked = taskRecord.getWorkDone();
-				if (worked > 0 && !progress.isDisposed()) {
-					progress.setSelection(taskRecord.getWorkDone());
+				if (worked >= 0 && !progress.isDisposed()) {
+					progress.setSelection(worked);
 				}
 			}
 		}

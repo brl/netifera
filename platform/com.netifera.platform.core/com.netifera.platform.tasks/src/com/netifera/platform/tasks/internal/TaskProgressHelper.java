@@ -28,12 +28,10 @@ public class TaskProgressHelper {
 	}
 	
 	void worked(int work) {
-//		if (totalWork<0)
-//			throw new RuntimeException("Trying to update progress, but totalWork was not set");
 		worked+=work;
 		taskStatus.setWorkDone(worked*100/totalWork);
-		/* notify change if more than 2% increment since last update */
-		if((worked-lastWorkedUpdate)*100/totalWork >= 2) {
+		/* notify change if more than 1% increment since last update */
+		if((worked-lastWorkedUpdate)*100/totalWork >= 1) {
 			lastWorkedUpdate = worked;
 			output.changed();
 		}
