@@ -223,6 +223,7 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 												dst.flip();
 												dst.order(ByteOrder.LITTLE_ENDIAN);
 												int status = dst.getInt(9);
+												short action = dst.getShort(41);
 												switch (status) {
 												case SmbAuthException.NT_STATUS_ACCOUNT_LOCKED_OUT:
 													context.warning("Account Locked Out: "+credential);
@@ -243,12 +244,14 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 													context.warning("Change Password On Next Login: "+credential);
 													break;
 												case SmbAuthException.NT_STATUS_OK:
-													break;
+/*													if (action == 0x0001)
+														context.debug("Invalid account (anonymous connection): "+credential);
+*/													break;
 												default:
 													context.debug("Unknown NT Status Code for SMB Session Setup: "+String.format("0x%x", status));
 												}
 												
-												handler.completed(status == SmbAuthException.NT_STATUS_OK || status == SmbAuthException.NT_STATUS_PASSWORD_MUST_CHANGE, credential);
+												handler.completed((status == SmbAuthException.NT_STATUS_OK || status == SmbAuthException.NT_STATUS_PASSWORD_MUST_CHANGE) && (action != 0x0001), credential);
 												try {
 													channel.close();
 												} catch (IOException e) {
