@@ -127,12 +127,10 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 					}
 				} finally {
 					cancel();
-					context.info("Shutting down thread executor pool");
+					context.debug("Shutting down thread executor pool");
 					executor.shutdown();
-					if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-						context
-								.warning("Thread executor pool not terminated after 1 minute");
-					}
+					if (!executor.awaitTermination(60, TimeUnit.SECONDS))
+						context.warning("Thread executor pool not terminated after 1 minute");
 				}
 			}
 		};

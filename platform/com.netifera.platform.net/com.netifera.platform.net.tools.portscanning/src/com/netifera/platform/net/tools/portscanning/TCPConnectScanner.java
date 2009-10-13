@@ -28,6 +28,7 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 public class TCPConnectScanner extends AbstractPortscanner {	
 	private int errorCount = 0;
 	private int errorThreshold = 30;
+	private boolean skipUnreachable = true;
 	private BitSet badHostSet;
 	private AtomicInteger outstandingConnects;
 	private Set<ActiveServiceDetector> detectors = Collections.synchronizedSet(new HashSet<ActiveServiceDetector>());
@@ -370,6 +371,8 @@ public class TCPConnectScanner extends AbstractPortscanner {
 	}
 
 	private void markTargetBad(int index, Runnable runnable) {
+		if (!skipUnreachable)
+			return;
 		synchronized (badHostSet) {
 			if (!badHostSet.get(index)) {
 				badHostSet.set(index);
@@ -386,6 +389,8 @@ public class TCPConnectScanner extends AbstractPortscanner {
 	
 	protected void setupToolOptions() throws ToolException {
 		context.setTitle("TCP Connect Scan");
+		if (context.getConfiguration().get("skipUnreachable") != null)
+			skipUnreachable = (Boolean) context.getConfiguration().get("skipUnreachable");
 		super.setupToolOptions();
 	}
 }

@@ -66,6 +66,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		PortSet portset = serverDetector.getTriggerablePorts("tcp");
 		assert portset.itemCount() > 0;
 		tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
+		tcpConnectScanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
 		return tcpConnectScanner;
 	}
 
