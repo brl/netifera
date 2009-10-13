@@ -7,7 +7,9 @@ Bundle-Activator: com.netifera.platform.net.internal.wordlists.Activator
 Bundle-Vendor: Netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.iterables,
- org.osgi.framework;version="1.3.0"
+ com.netifera.platform.api.log,
+ org.osgi.framework;version="1.3.0",
+ org.osgi.service.component
 Export-Package: com.netifera.platform.net.wordlists
 Service-Component: OSGI-INF/wordlist-manager.xml,
  OSGI-INF/common-passwords.xml,

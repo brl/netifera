@@ -5,6 +5,13 @@
 		<provide interface="com.netifera.platform.net.wordlists.IWordListManager" />
 	</service>
 
+	<reference
+    	name="LOGGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
+
 	<reference 
 		name="WORDLISTS"
 		interface="com.netifera.platform.net.wordlists.IWordList"
