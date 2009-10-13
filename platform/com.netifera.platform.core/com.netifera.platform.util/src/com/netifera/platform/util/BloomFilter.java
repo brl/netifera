@@ -1,4 +1,4 @@
-package com.netifera.platform.net.http.spider.impl;
+package com.netifera.platform.util;
 
 import java.util.BitSet;
 

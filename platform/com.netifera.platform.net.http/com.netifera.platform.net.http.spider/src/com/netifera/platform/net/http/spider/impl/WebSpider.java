@@ -37,6 +37,7 @@ import com.netifera.platform.net.http.spider.OutOfScopeException;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
+import com.netifera.platform.util.BloomFilter;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
