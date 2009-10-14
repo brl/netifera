@@ -1,5 +1,6 @@
 package com.netifera.platform.kernel.internal.probe;
 
+import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessageErrorException;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.dispatcher.UnhandledMessageException;
@@ -8,6 +9,7 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tasks.ITaskClient;
 import com.netifera.platform.api.tools.IToolConfiguration;
+import com.netifera.platform.dispatcher.StatusMessage;
 import com.netifera.platform.tools.ToolLaunchMessage;
 
 public class ToolClient {
@@ -52,11 +54,16 @@ public class ToolClient {
 	
 	private void exchangeMessages(String toolClassName, IToolConfiguration configuration, ISpace space) throws MessengerException {
 		logger.debug("Sending tool launch message to launch: " + toolClassName);
-		ToolLaunchMessage response = (ToolLaunchMessage) probe.getMessenger().exchangeMessage(new ToolLaunchMessage(toolClassName, configuration, space.getId()));
-		logger.debug("Launch completed, task id = " + response.getTaskId());
-		taskClient.createTask(toolClassName, response.getTaskId(), space);
-		taskClient.startTask(response.getTaskId());
+		IProbeMessage response = probe.getMessenger().exchangeMessage(new ToolLaunchMessage(toolClassName, configuration, space.getId()));
+		if (response instanceof ToolLaunchMessage) {
+			ToolLaunchMessage toolLaunchResponse = (ToolLaunchMessage) response;
+			logger.debug("Launch completed, task id = " + toolLaunchResponse.getTaskId());
+			taskClient.createTask(toolClassName, toolLaunchResponse.getTaskId(), space);
+			taskClient.startTask(toolLaunchResponse.getTaskId());
+		} else if (response instanceof StatusMessage) {
+			logger.warning("Tool launch failed: "+((StatusMessage)response).getErrorMessage());
+		} else {
+			logger.warning("Unexpected response to tool launch: "+response);
+		}
 	}
-	
-	
 }
