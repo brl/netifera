@@ -36,7 +36,8 @@ public class Regex implements IPattern {
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append("\t<ServicePattern regex=\""+escape(escape(pattern))+"\">\n");
-		buffer.append("\t\t<service>"+escape(defaults.get("serviceType"))+"</service>\n");
+		if (defaults.containsKey("service"))
+				buffer.append("\t\t<service>"+escape(defaults.get("service"))+"</service>\n");
 		for (String name: new String[] {"os", "distribution", "arch", "product", "version", "build", "hostname", "username", "password"}) {
 			if (defaults.containsKey(name))
 				buffer.append("\t\t<"+name+">"+escape(defaults.get(name))+"</"+name+">\n");
