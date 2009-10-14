@@ -107,7 +107,12 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		parent.setLayout(layout);
 		
 		toolBar = new ToolBar(parent, SWT.BORDER);
-		toolBar.setLayoutData(new FormData());
+		FormData formData = new FormData();
+//		formData.top = new FormAttachment(0,0);
+//		formData.bottom = new FormAttachment(100,0);
+		formData.left = new FormAttachment(0,0);
+		formData.right = new FormAttachment(100,0);
+		toolBar.setLayoutData(formData);
 
 		IToolBarManager contributions = new ToolBarManager(toolBar);
 		contributions.add(new ChangeVisualizationAction(this));
@@ -119,7 +124,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		
 		currentVisualization.addContributions(contributions);
 		
-		FormData formData = new FormData();
+		formData = new FormData();
 		formData.top = new FormAttachment(toolBar,0);
 		formData.bottom = new FormAttachment(100,0);
 		formData.left = new FormAttachment(0,0);
