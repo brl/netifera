@@ -32,7 +32,7 @@ public class ServerDetectorService extends NetworkServiceDetectorService impleme
 	 * 1194 new openvpn
 	 * 5000 old openvpn
 	 */
-	private final static PortSet DEFAULT_UDP_PORTSET = new PortSet("53,111,135,137,138,139,161,1194,5000,5060");
+	private final static PortSet DEFAULT_UDP_PORTSET = new PortSet("53,111,135,137,138,139,161,177,1194,1812,1900,2049,4045,5000,5060");
 	
 	// Returns the PortSet of (pre-registered) triggerable ports for a given protocol
 	public PortSet getTriggerablePorts(String protocol) {

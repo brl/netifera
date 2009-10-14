@@ -37,5 +37,8 @@
 	</ServicePattern>
 	<ServicePattern regex="^(\xff[\xfb\xfc\xfd].)+.*">
 		<service>Telnet</service>
-	</ServicePattern>	
+	</ServicePattern>
+	<ServicePattern regex="^\x38.{8}\x00\x00\x00\x00\x00$">
+		<service>OpenVPN</service>
+	</ServicePattern>
 </netifera:Patterns>

@@ -42,6 +42,9 @@
 <ServiceTrigger timeout="6000" name="XDMCP" data="0001000200090100065a6172646f5a">
 <Endpoint protocol="udp">177</Endpoint>
 </ServiceTrigger>
+<ServiceTrigger timeout="6000" name="OpenVPN" data="38835f90640513c7960000000000">
+<Endpoint protocol="udp">1194</Endpoint>
+</ServiceTrigger>
 <ServiceTrigger timeout="6000" name="Radius" data="0100001400000000000000000000000000000000">
 <Endpoint protocol="udp">1812</Endpoint>
 </ServiceTrigger>
