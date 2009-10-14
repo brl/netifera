@@ -372,8 +372,9 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 		// data length
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.putShort((short) (0x1f + workgroup.length() + username.length()));
-		
-		NtlmPasswordAuthentication ntlm = new NtlmPasswordAuthentication(username+":"+password);
+
+		//XXX "" domain is ok? null would be substituted with smb.client.domain property
+		NtlmPasswordAuthentication ntlm = new NtlmPasswordAuthentication("", username, password);
 		buffer.put(ntlm.getAnsiHash(challenge));
 		buffer.put(NtlmPasswordAuthentication.getNTLMResponse(password, challenge));
 		
