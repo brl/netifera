@@ -50,14 +50,12 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 		Map<String,String> clientInfo, serverInfo;
 		TCPSocketLocator locator = new TCPSocketLocator(key.getServerAddress(), key.getServerPort());
 		
-		clientInfo = Activator.getInstance().getClientDetector().detect(
-				"tcp", key.getServerPort(), clientData, serverData);
+		clientInfo = Activator.getInstance().getClientDetector().detect("tcp", key.getServerPort(), clientData, serverData);
 
 		clientData.rewind();
 		serverData.rewind();
 		
-		serverInfo = Activator.getInstance().getServerDetector().detect(
-					"tcp", key.getServerPort(), clientData, serverData);
+		serverInfo = Activator.getInstance().getServerDetector().detect("tcp", key.getServerPort(), clientData, serverData);
 
 		String serviceType = null;
 		if(serverInfo != null) {
@@ -87,33 +85,42 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 	
 	private void handleIPPacket(IP ip, IPacketModuleContext ctx) {
 		final long realm = ctx.getRealm();
-		final long view = ctx.getSpaceId();
+		final long space = ctx.getSpaceId();
 		final IClientDetectorService clientDetector = Activator.getInstance().getClientDetector();
 		final IServerDetectorService serverDetector = Activator.getInstance().getServerDetector();
 		final INetworkEntityFactory factory = Activator.getInstance().getNetworkEntityFactory();
+		
 		if(clientDetector == null || serverDetector == null || factory == null)
 			return;
+
+		if (!ip.getSourceAddress().isUnspecified())
+			factory.createAddress(realm, space, ip.getSourceAddress());
 		
 		if (ip.getNextHeader() instanceof UDP) {
 			UDP udp = (UDP) ip.getNextHeader();
 			ByteBuffer empty = ByteBuffer.allocate(0);
 			Map<String,String> clientInfo, serverInfo;
 			if(udp.payload() == null) return;
+			
 			clientInfo = clientDetector.detect("udp", udp.getDestinationPort(), udp.payload().toByteBuffer(), empty);
 			if (clientInfo != null) {
 				UDPSocketLocator locator = new UDPSocketLocator(ip.getDestinationAddress(), udp.getDestinationPort());
 				String serviceType = clientInfo.get("serviceType");
-				factory.createService(realm, view, locator, serviceType, null);
-				factory.createClient(realm, view, ip.getSourceAddress(), serviceType, clientInfo, locator);
-				sniffCredentials(locator, serviceType, udp.payload().toByteBuffer(), empty, realm, view);
+				if (ip.getDestinationAddress().isUniCast())
+					factory.createService(realm, space, locator, serviceType, null);
+				if (ip.getSourceAddress().isUniCast())
+					factory.createClient(realm, space, ip.getSourceAddress(), serviceType, clientInfo, locator);
+				sniffCredentials(locator, serviceType, udp.payload().toByteBuffer(), empty, realm, space);
 			} else {
 				serverInfo = serverDetector.detect("udp", udp.getSourcePort(), empty, udp.payload().toByteBuffer());
 				if (serverInfo != null) {
 					UDPSocketLocator locator = new UDPSocketLocator(ip.getSourceAddress(), udp.getSourcePort());
 					String serviceType = serverInfo.get("serviceType");
-					factory.createService(realm, view, locator, serviceType, serverInfo);
-					factory.createClient(realm, view, ip.getDestinationAddress(), serviceType, null, locator);
-					sniffCredentials(locator, serviceType, empty, udp.payload().toByteBuffer(), realm, view);
+					if (ip.getSourceAddress().isUniCast())
+						factory.createService(realm, space, locator, serviceType, serverInfo);
+					if (ip.getDestinationAddress().isUniCast())
+						factory.createClient(realm, space, ip.getDestinationAddress(), serviceType, null, locator);
+					sniffCredentials(locator, serviceType, empty, udp.payload().toByteBuffer(), realm, space);
 				}
 			}
 		}
