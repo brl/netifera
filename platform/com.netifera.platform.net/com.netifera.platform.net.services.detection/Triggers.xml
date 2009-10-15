@@ -70,6 +70,12 @@
 <ServiceTrigger timeout="6000" name="LDAP" data="300c020101600702010204008000">
 <Endpoint protocol="tcp">389</Endpoint>
 </ServiceTrigger>
+<ServiceTrigger timeout="6000" name="MODBUS" data="000000000002010800ff">
+<Endpoint protocol="tcp">502</Endpoint>
+</ServiceTrigger>
+<ServiceTrigger timeout="6000" name="X11" data="6c000b000000000000000000">
+<Endpoint protocol="tcp">6000-6009</Endpoint>
+</ServiceTrigger>
 <ServiceTrigger timeout="6000" name="Wait" data="">
 <Endpoint protocol="tcp">79,119</Endpoint>
 </ServiceTrigger>

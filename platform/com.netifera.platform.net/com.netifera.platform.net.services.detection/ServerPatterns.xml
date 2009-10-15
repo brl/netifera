@@ -895,4 +895,19 @@
 	<ServicePattern regex="^EFATAL.*">
 		<service>PostgreSQL</service>
 	</ServicePattern>
+	<ServicePattern regex="^\x00\x00\x00\x00\x00\x03\x01\x88.$">
+		<service>MODBUS</service>
+	</ServicePattern>
+	<ServicePattern regex="^cvs .*">
+		<service>CVS</service>
+	</ServicePattern>
+	<ServicePattern regex=".*pserver aborted.*">
+		<service>CVS</service>
+	</ServicePattern>
+	<ServicePattern regex=".*MIT-MAGIC-COOKIE.*">
+		<service>X11</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x01\x00\x0b\x00\x00.*">
+		<service>X11</service>
+	</ServicePattern>
 </netifera:Patterns>
