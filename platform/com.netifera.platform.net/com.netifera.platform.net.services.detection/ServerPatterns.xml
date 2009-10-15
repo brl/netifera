@@ -785,6 +785,9 @@
 		<service>DCERPC</service>
 		<os>Windows</os>
 	</ServicePattern>
+	<ServicePattern regex="^\x05\x00\x0d\x03.*">
+		<service>DCERPC</service>
+	</ServicePattern>
 	<ServicePattern regex="^\x79\x08.\x00\x00\x00\x00.*\x00\x21\x00\x01.{7}([^\x00]+)\x00.*">
 		<service>NetBIOS-NS</service>
 		<hostname>$regex-group-1</hostname>
@@ -794,9 +797,6 @@
 	</ServicePattern>
 	<ServicePattern regex="^\x79\x08.\x00\x00\x00\x00.*">
 		<service>NetBIOS-NS</service>
-	</ServicePattern>
-	<ServicePattern regex="^\x05\x00\x0d\x03.*">
-		<service>NetBIOS-SSN</service>
 	</ServicePattern>
 	<ServicePattern regex="^\x83\x00.*">
 		<service>NetBIOS-SSN</service>
