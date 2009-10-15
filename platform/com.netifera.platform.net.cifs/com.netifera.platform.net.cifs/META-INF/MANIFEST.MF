@@ -21,5 +21,18 @@ Import-Package: com.netifera.platform.host.filesystem,
  jcifs.util.transport,
  org.osgi.framework;version="1.3.0"
 Export-Package: com.netifera.platform.net.cifs,
- com.netifera.platform.net.cifs.filesystem
+ com.netifera.platform.net.cifs.filesystem,
+ jcifs,
+ jcifs.dcerpc,
+ jcifs.dcerpc.msrpc,
+ jcifs.dcerpc.ndr,
+ jcifs.http,
+ jcifs.https,
+ jcifs.netbios,
+ jcifs.ntlmssp,
+ jcifs.smb,
+ jcifs.util,
+ jcifs.util.transport
 Service-Component: OSGI-INF/smb-filesystem-provider.xml
+Bundle-ClassPath: lib/jcifs-1.3.8.jar,
+ .

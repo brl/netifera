@@ -32,12 +32,6 @@
          unpack="false"/>
 
    <plugin
-         id="jcifs"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.netifera.platform.net.cifs.tools"
          download-size="0"
          install-size="0"
