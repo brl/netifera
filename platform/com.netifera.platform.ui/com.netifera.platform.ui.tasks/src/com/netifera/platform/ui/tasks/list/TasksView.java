@@ -36,6 +36,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.netifera.platform.tasks.TaskStatus;
 import com.netifera.platform.ui.internal.tasks.TasksPlugin;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.tasks.actions.TaskCancelAction;
@@ -107,6 +108,7 @@ public class TasksView extends ViewPart implements IShowInSource{
 		viewerRefreshAction.setViewer(viewer);
 		
 		viewerFilter = new TaskFilter();
+		viewerFilter.filter(TaskStatus.WAITING, false);
 		viewer.addFilter(viewerFilter);
 
 		/* only set context menu in tableMode */

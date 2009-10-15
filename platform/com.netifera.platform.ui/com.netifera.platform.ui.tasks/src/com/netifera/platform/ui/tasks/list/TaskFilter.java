@@ -53,10 +53,9 @@ public class TaskFilter extends ViewerFilter {
 	
 	public void fillFilterMenu(IMenuManager menuMgr) {
 		menuMgr.add(createAction("Running", TaskStatus.RUNNING));
-		menuMgr.add(createAction("Waiting", TaskStatus.WAITING));
 		menuMgr.add(createAction("Finished", TaskStatus.FINISHED));
 		menuMgr.add(createAction("Failed", TaskStatus.FAILED));
-		
+		menuMgr.add(createAction("Waiting", TaskStatus.WAITING));
 	}
 	private Action createAction(final String text, final int filterType) {
 		Action action = new Action(text, Action.AS_CHECK_BOX) {
