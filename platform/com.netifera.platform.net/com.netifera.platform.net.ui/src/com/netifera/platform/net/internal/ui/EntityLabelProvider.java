@@ -107,7 +107,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		} else if(e instanceof ClientEntity) {
 			return getClientText((ClientEntity)e);
 		} else if(e instanceof ClientServiceConnectionEntity) {
-			return getServiceConnectionText((ClientServiceConnectionEntity)e);
+			return getClientServiceConnectionText((ClientServiceConnectionEntity)e);
 		} else if(e instanceof PasswordEntity) {
 			return ((PasswordEntity)e).getPassword();
 		} else if(e instanceof UsernameAndPasswordEntity) {
@@ -458,18 +458,9 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return getHostName(e.getAddress().getHost())+":"+label.toString();
 	}
 
-	private String getServiceConnectionText(ClientServiceConnectionEntity e) {
-		InternetAddressEntity address = e.getService().getAddress();
-		HostEntity host = address.getHost();
-		
+	private String getClientServiceConnectionText(ClientServiceConnectionEntity e) {
 		StringBuffer buffer = new StringBuffer();
 		
-		if (host.getLabel() != null) {
-			buffer.append(host.getLabel());
-		} else {
-			buffer.append(address.getAddress().toStringLiteral());
-		}
-		buffer.append(':'); // FIXME '/' for IPv6?
 		buffer.append(getServiceText(e.getService()));
 		if (e.getIdentity() != null) {
 			buffer.append('(' + e.getIdentity() + ')');
