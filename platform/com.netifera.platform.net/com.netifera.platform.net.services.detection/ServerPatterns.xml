@@ -741,7 +741,7 @@
 		<os>Unix</os>
 	</ServicePattern>
 	<ServicePattern regex=".*\r\nLocation:\s*http://(.+):(\d+)/.*\r\nServer:\s*([^r]+)\r\n.*">
-		<service>UPnP</service>
+		<service>SSDP</service>
 		<product>$regex-group-3</product>
 	</ServicePattern>
 	<ServicePattern regex="^\x03.*">
