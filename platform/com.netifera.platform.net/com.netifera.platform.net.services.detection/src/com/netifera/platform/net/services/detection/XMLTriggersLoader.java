@@ -17,6 +17,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import com.netifera.platform.util.HexaEncoding;
 import com.netifera.platform.util.PortSet;
 
+@Deprecated
 public class XMLTriggersLoader {
 	List<INetworkServiceTrigger>answer =  new ArrayList<INetworkServiceTrigger>();
 

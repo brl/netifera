@@ -20,6 +20,7 @@ import com.netifera.platform.util.patternmatching.ISessionPattern;
 import com.netifera.platform.util.patternmatching.Regex;
 import com.netifera.platform.util.patternmatching.SessionPattern;
 
+@Deprecated
 public class XMLPatternsLoader {
 	List<INetworkServiceDetector> answer = new ArrayList<INetworkServiceDetector>();
 
