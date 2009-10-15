@@ -41,7 +41,7 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 		InputStream stream;
 		try {
 			stream = context.getBundleContext().getBundle().getEntry("ServerPatterns.xml").openStream();
-			serverDetectors = loadDetectors(stream);
+			serverDetectors = loadDetectors(stream, false);
 			stream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -49,7 +49,7 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 
 		try {
 			stream = context.getBundleContext().getBundle().getEntry("ClientPatterns.xml").openStream();
-			clientDetectors = loadDetectors(stream);
+			clientDetectors = loadDetectors(stream, true);
 			stream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,7 +66,7 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 	protected void deactivate(ComponentContext context) {
 	}
 
-	private List<INetworkServiceDetector> loadDetectors(InputStream stream) {
+	private List<INetworkServiceDetector> loadDetectors(InputStream stream, boolean clientSide) {
 		List<INetworkServiceDetector> answer = new ArrayList<INetworkServiceDetector>();
 		InputStreamReader reader = new InputStreamReader(stream);
 		XMLElement xml = new XMLElement();
@@ -94,7 +94,7 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 						regex.add(name, value);
 					}
 				}
-				INetworkServiceDetector detector = newDetector(service, new SessionPattern(new Regex(".*"), regex));
+				INetworkServiceDetector detector = clientSide ? newDetector(service, new SessionPattern(regex, new Regex(".*"))) : newDetector(service, new SessionPattern(new Regex(".*"), regex));
 				answer.add(detector);
 			}
 		} catch (XMLParseException e) {
