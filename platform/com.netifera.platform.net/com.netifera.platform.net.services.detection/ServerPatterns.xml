@@ -798,11 +798,17 @@
 	<ServicePattern regex="^\x79\x08.\x00\x00\x00\x00.*">
 		<service>NetBIOS-NS</service>
 	</ServicePattern>
+	<ServicePattern regex="^..[\x01\x28\x29\x30]\x10\x00\x01.*\x00\x20\x00\x01.*">
+		<service>NetBIOS-NS</service>
+	</ServicePattern>
 	<ServicePattern regex="^\x83\x00.*">
 		<service>NetBIOS-SSN</service>
 	</ServicePattern>
 	<ServicePattern regex="^\x82\x00\x00\x00.*">
 		<service>NetBIOS-SSN</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x11\x02......\x00\x8a.*">
+		<service>NetBIOS-DGM</service>
 	</ServicePattern>
 	<ServicePattern regex="\x00\x00\x00\x55\xff\x53\x4d\x42\x72\x00.*">
 		<service>Microsoft-DS</service>
