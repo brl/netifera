@@ -740,7 +740,7 @@
 		<service>XDMCP</service>
 		<os>Unix</os>
 	</ServicePattern>
-	<ServicePattern regex="(?imd)NOTIFY\s.*\r\nLocation:\s*http://(.+):(\d+)/.*\r\nServer:\s*([^r]+)\r\n.*">
+	<ServicePattern regex="(?imd)^NOTIFY\s.*\r\nLocation:\s*http://(.+):(\d+)/.*\r\nServer:\s*([^r]+)\r\n.*">
 		<service>SSDP</service>
 		<product>$regex-group-3</product>
 	</ServicePattern>
@@ -906,5 +906,8 @@
 	</ServicePattern>
 	<ServicePattern regex="^\x01\x00\x0b\x00\x00.*">
 		<service>X11</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x02\x01\x06.....\x00\x00.*\x35\x01[\x05\x06].*">
+		<service>DHCP</service>
 	</ServicePattern>
 </netifera:Patterns>

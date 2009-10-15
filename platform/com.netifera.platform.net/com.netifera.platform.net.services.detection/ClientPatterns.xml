@@ -41,4 +41,7 @@
 	<ServicePattern regex="^\x38.{8}\x00\x00\x00\x00\x00$">
 		<service>OpenVPN</service>
 	</ServicePattern>
+	<ServicePattern regex="(?imd)^M-SEARCH \* HTTP.*">
+		<service>SSDP</service>
+	</ServicePattern>
 </netifera:Patterns>
