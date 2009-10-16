@@ -42,7 +42,7 @@ import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
-public class ActionHover extends PopupDialog {
+public class EntityHover extends PopupDialog {
 	private final IShadowEntity entity;
 	private ISpace space;
 
@@ -64,7 +64,7 @@ public class ActionHover extends PopupDialog {
 		}
 	}
 	
-	public ActionHover(Shell parent, Point location, Object input, Object item) {
+	public EntityHover(Shell parent, Point location, Object input, Object item) {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP , false, false, false, false, false, 
 				/*ModelPlugin.getPlugin().getLabelProvider().getText(entity.getRealEntity())*/ null, null);
 		if(!(input instanceof ISpace))
@@ -241,7 +241,7 @@ public class ActionHover extends PopupDialog {
 					public void run() {
 						AddTagDialog addTagDialog = new AddTagDialog(getParentShell(), getShell().getLocation(), space, entity);
 						addTagDialog.open();
-						ActionHover.this.close();
+						EntityHover.this.close();
 					}
 				};
 				addTagAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/tag_blue_add_16x16.png"));
@@ -251,7 +251,7 @@ public class ActionHover extends PopupDialog {
 					public void run() {
 						CommentDialog commentDialog = new CommentDialog(getParentShell(), getShell().getLocation(), space, entity);
 						commentDialog.open();
-						ActionHover.this.close();
+						EntityHover.this.close();
 					}
 				};
 				commentAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/comment_edit_16x16.png"));
@@ -325,7 +325,7 @@ public class ActionHover extends PopupDialog {
 					if (((ToolConfiguration) spaceAction.getConfiguration()).isFixed()) {
 						spaceAction.run();
 					} else {
-						RunActionHover runActionDialog = new RunActionHover(getParentShell(), getShell().getLocation(), spaceAction);
+						RunActionDialog runActionDialog = new RunActionDialog(getParentShell(), getShell().getLocation(), spaceAction);
 						runActionDialog.open();
 					}
 				} else {

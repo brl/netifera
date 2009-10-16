@@ -69,7 +69,7 @@ import com.netifera.platform.ui.api.model.IEdgeWithStyle;
 import com.netifera.platform.ui.internal.world.Activator;
 import com.netifera.platform.ui.internal.world.ConcurrentRenderableLayer;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
-import com.netifera.platform.ui.spaces.actions.ActionHover;
+import com.netifera.platform.ui.spaces.actions.EntityHover;
 import com.netifera.platform.ui.spaces.actions.ChooseLayerAction;
 import com.netifera.platform.ui.spaces.actions.SelectLayersAction;
 import com.netifera.platform.ui.world.actions.ToggleFollowNewEntitiesAction;
@@ -281,7 +281,7 @@ public class WorldView extends ViewPart {
 			private void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {
 				hideInformationControl();
-				informationControl = new ActionHover(parent, location, input, item);
+				informationControl = new EntityHover(parent, location, input, item);
 				informationControl.open();
 				System.out.println("show");
 			}

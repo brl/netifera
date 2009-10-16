@@ -46,7 +46,7 @@ import com.netifera.platform.ui.spaces.actions.options.MultipleStringOptionWidge
 import com.netifera.platform.ui.spaces.actions.options.OptionWidget;
 import com.netifera.platform.ui.spaces.actions.options.StringOptionWidget;
 
-public class RunActionHover extends PopupDialog {
+public class RunActionDialog extends PopupDialog {
 	
 	private FormToolkit toolkit;
 	private ScrolledForm form;
@@ -60,7 +60,7 @@ public class RunActionHover extends PopupDialog {
 	private ImageHyperlink runLink;
 	
 	
-	public RunActionHover(Shell parent, Point location, ISpaceAction action) {
+	public RunActionDialog(Shell parent, Point location, ISpaceAction action) {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP, true, false, false, false, false, /*action.getText()*/ null, "Press ESC to exit");
 		this.action = action;
 		
@@ -101,7 +101,7 @@ public class RunActionHover extends PopupDialog {
 
 	private void setHeader() {
 		form.setFont(JFaceResources.getDialogFont());
-		form.setImage(ActionHover.getActionImage(action));
+		form.setImage(EntityHover.getActionImage(action));
 		form.setText(action.getText());
 //		form.setSeparatorVisible(true);
 //		toolkit.decorateFormHeading(form);
