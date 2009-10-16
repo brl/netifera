@@ -8,6 +8,7 @@
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="HttpGet" data="474554202f20485454502f312e300d0a0d0a">
 <Endpoint protocol="tcp">80-81,88,443,1080,8000,8080-8081,8118,8888</Endpoint>
+<Endpoint protocol="tcp">10000,20000</Endpoint>
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="FiveNewLines" data="0a0a0a0a0a">
 <Endpoint protocol="tcp">3306</Endpoint>
@@ -36,7 +37,7 @@
 <ServiceTrigger timeout="6000" name="RPCTCP" data="8000002812345678000000000000000200000000000000000000000000000000000000000000000000000000">
 <Endpoint protocol="tcp">111,2049,4045,32771-32850</Endpoint>
 </ServiceTrigger>
-<ServiceTrigger timeout="6000" name="Snmpv1Public" data="302602010004067075626c6963a11902041f3c1d65020100020100300b300906052b060102010500">
+<ServiceTrigger timeout="6000" name="SNMPv1Public" data="302602010004067075626c6963a11902041f3c1d65020100020100300b300906052b060102010500">
 <Endpoint protocol="udp">161</Endpoint>
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="XDMCP" data="0001000200090100065a6172646f5a">

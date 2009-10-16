@@ -169,8 +169,19 @@ public class ActionHover extends PopupDialog {
 			tagsArea.setLayout(layout);
 			for (String tag: tags)
 				addTag(tagsArea, tag);
+			addSeparator();
 		}
 
+		String comment = ((AbstractEntity)entity).getNamedAttribute("comment");
+		if (comment != null && comment.length()>0) {
+			FormText commentForm = toolkit.createFormText(body, true);
+			commentForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			commentForm.setFont(JFaceResources.getDefaultFont());
+			commentForm.setParagraphsSeparated(false);
+			commentForm.setText(comment, false, false);
+			addSeparator();
+		}
+		
 		String information = Activator.getDefault().getLabelProvider().getInformation(entity);
 		if (information != null && information.length()>0) {
 			FormText informationForm = toolkit.createFormText(body, true);
@@ -182,9 +193,6 @@ public class ActionHover extends PopupDialog {
 			informationForm.setParagraphsSeparated(false);
 			informationForm.setText("<form>"+information+"</form>", true, false);
 			addSeparator();
-		} else {
-			if (tags.size() > 0)
-				addSeparator();
 		}
 	}
 
@@ -239,7 +247,17 @@ public class ActionHover extends PopupDialog {
 				addTagAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/tag_blue_add_16x16.png"));
 				quickActions.add(addTagAction);
 				
-				IAction removeAction = new SpaceAction("Remove Entity From This Space") {
+				IAction commentAction = new SpaceAction("Comment") {
+					public void run() {
+						CommentDialog commentDialog = new CommentDialog(getParentShell(), getShell().getLocation(), space, entity);
+						commentDialog.open();
+						ActionHover.this.close();
+					}
+				};
+				commentAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/comment_edit_16x16.png"));
+				quickActions.add(commentAction);
+
+				IAction removeAction = new SpaceAction("Remove From Space") {
 					public void run() {
 						getSpace().removeEntity(entity.getRealEntity());
 					}
@@ -247,6 +265,7 @@ public class ActionHover extends PopupDialog {
 				removeAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/delete_hover.png"));
 				quickActions.add(removeAction);
 			}
+			
 			if (quickActions.size()>0) {
 				addSeparator();
 				Composite bar = toolkit.createComposite(body);

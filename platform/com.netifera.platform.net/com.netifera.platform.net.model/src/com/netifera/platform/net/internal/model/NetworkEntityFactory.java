@@ -162,6 +162,21 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		return changed;
 	}
 
+	private boolean updateComment(AbstractEntity entity, String newComment) {
+		String oldComment = entity.getNamedAttribute("comment");
+		if (oldComment != null) {
+			if (!oldComment.contains(newComment)) {
+				newComment = oldComment + "\n" + newComment;
+				entity.setNamedAttribute("comment", newComment);
+				return true;
+			}
+		} else {
+			entity.setNamedAttribute("comment", newComment);
+			return true;
+		}
+		return false;
+	}
+	
 	public synchronized void setOperatingSystem(long realm, long spaceId, InternetAddress address, String os) {
 		InternetAddressEntity addressEntity = createAddress(realm, spaceId, address);
 		HostEntity hostEntity = addressEntity.getHost();
@@ -185,6 +200,8 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 			updateAttribute(ServiceEntity.PRODUCT_KEY, info, answer);
 			updateAttribute(ServiceEntity.VERSION_KEY, info, answer);
 			updateSystem(answer, info);
+			if (info.containsKey("comment"))
+				updateComment(answer, info.get("comment"));
 		}
 		
 		answer.save();
@@ -224,6 +241,8 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 				changed |= updateAttribute(ServiceEntity.PRODUCT_KEY, info, answer);
 				changed |= updateAttribute(ServiceEntity.VERSION_KEY, info, answer);
 				changed |= updateSystem(answer, info);
+				if (info.containsKey("comment"))
+					changed |= updateComment(answer, info.get("comment"));
 				if(changed)
 					answer.update();
 			}

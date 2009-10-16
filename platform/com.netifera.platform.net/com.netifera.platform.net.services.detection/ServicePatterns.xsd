@@ -3,16 +3,13 @@
 
     <complexType name="ServicePattern">
         <all>
-        	<element name="service" type="string" maxOccurs="1"
-        		minOccurs="1">
-        	</element>
-        	<element name="product" type="string" maxOccurs="1"
-        		minOccurs="0">
-        	</element>
-        	<element name="version" type="string" minOccurs="0"
-        		maxOccurs="1">
+        	<element name="service" type="string" maxOccurs="1" minOccurs="1">
         	</element>
         	
+        	<element name="product" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	<element name="version" type="string" minOccurs="0" maxOccurs="1">
+        	</element>
         	<element name="build" type="string" maxOccurs="1" minOccurs="0">
         	</element>
         	
@@ -21,20 +18,22 @@
         	
         	<element name="os" type="string" maxOccurs="1" minOccurs="0">
         	</element>
-
         	<element name="distribution" type="string" maxOccurs="1" minOccurs="0">
         	</element>
-        	
         	<element name="arch" type="string" maxOccurs="1" minOccurs="0">
         	</element>
-        	
         	<element name="lang" type="string" maxOccurs="1" minOccurs="0">
         	</element>
         	
         	<element name="username" type="string" maxOccurs="1" minOccurs="0">
         	</element>
-        	
         	<element name="password" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+        	
+        	<element name="comment" type="string" maxOccurs="1" minOccurs="0">
+        	</element>
+
+        	<element name="tag" type="string" maxOccurs="unbounded" minOccurs="0">
         	</element>
         </all>
         <attribute name="regex" type="string" use="optional"></attribute>
