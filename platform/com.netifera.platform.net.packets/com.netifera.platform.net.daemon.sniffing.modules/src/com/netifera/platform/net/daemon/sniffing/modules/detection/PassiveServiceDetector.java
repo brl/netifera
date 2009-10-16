@@ -106,9 +106,9 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 			if (clientInfo != null) {
 				UDPSocketLocator locator = new UDPSocketLocator(ip.getDestinationAddress(), udp.getDestinationPort());
 				String serviceType = clientInfo.get("serviceType");
-				if (ip.getDestinationAddress().isUniCast())
+				if (isToUnicast(ip))
 					factory.createService(realm, space, locator, serviceType, null);
-				if (ip.getSourceAddress().isUniCast())
+				if (isFromUnicast(ip))
 					factory.createClient(realm, space, ip.getSourceAddress(), serviceType, clientInfo, locator);
 				sniffCredentials(locator, serviceType, udp.payload().toByteBuffer(), empty, realm, space);
 			} else {
@@ -116,16 +116,38 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 				if (serverInfo != null) {
 					UDPSocketLocator locator = new UDPSocketLocator(ip.getSourceAddress(), udp.getSourcePort());
 					String serviceType = serverInfo.get("serviceType");
-					if (ip.getSourceAddress().isUniCast())
+					if (isFromUnicast(ip))
 						factory.createService(realm, space, locator, serviceType, serverInfo);
-					if (ip.getDestinationAddress().isUniCast())
+					if (isToUnicast(ip))
 						factory.createClient(realm, space, ip.getDestinationAddress(), serviceType, null, locator);
 					sniffCredentials(locator, serviceType, empty, udp.payload().toByteBuffer(), realm, space);
 				}
 			}
 		}
 	}
-	
+
+	private boolean isFromUnicast(IP ip) {
+		if (!ip.getSourceAddress().isUniCast())
+			return false;
+		if (ip instanceof IPv4) {
+			int source = ((IPv4)ip).getSourceAddress().toInteger();
+			int destination = ((IPv4)ip).getDestinationAddress().toInteger();
+			return !((source & destination) == destination && (source | destination) == source);
+		}
+		return true;
+	}
+
+	private boolean isToUnicast(IP ip) {
+		if (!ip.getDestinationAddress().isUniCast())
+			return false;
+		if (ip instanceof IPv4) {
+			int source = ((IPv4)ip).getSourceAddress().toInteger();
+			int destination = ((IPv4)ip).getDestinationAddress().toInteger();
+			return !((source & destination) == source && (source | destination) == destination);
+		}
+		return true;
+	}
+
 	private void sniffCredentials(ISocketLocator locator, String serviceType, ByteBuffer clientData, ByteBuffer serverData, long realm, long view) {
 		Credential credential = Activator.getInstance().getCredentialSniffer().sniff(serviceType, clientData, serverData);
 		if(credential != null) {
