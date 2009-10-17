@@ -31,6 +31,6 @@ public class CrawlBackupFilesModule implements IWebSpiderModule {
 	public void start(IWebSpiderContext context) {
 	}
 
-	public void stop() {
+	public void stop(IWebSpiderContext context) {
 	}
 }

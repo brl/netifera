@@ -5,5 +5,5 @@ public interface IWebSpiderModule {
 
 	void start(IWebSpiderContext context);
 	void handle(IWebSpiderContext context, HTTPRequest request, HTTPResponse response);
-	void stop();
+	void stop(IWebSpiderContext context);
 }

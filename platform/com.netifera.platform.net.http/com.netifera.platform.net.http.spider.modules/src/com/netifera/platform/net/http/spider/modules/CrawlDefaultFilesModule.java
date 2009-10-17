@@ -28,6 +28,6 @@ public class CrawlDefaultFilesModule implements IWebSpiderModule {
 	public void start(IWebSpiderContext context) {
 	}
 
-	public void stop() {
+	public void stop(IWebSpiderContext context) {
 	}
 }

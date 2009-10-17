@@ -31,7 +31,7 @@ public class HTTPBasicAuthExtractorModule implements IWebSpiderModule {
 	public void start(IWebSpiderContext context) {
 	}
 
-	public void stop() {
+	public void stop(IWebSpiderContext context) {
 	}
 	
 	protected void setFactory(IWebEntityFactory factory) {

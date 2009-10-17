@@ -25,7 +25,7 @@ public class WebApplicationDetectorModule implements IWebSpiderModule {
 			context.getSpider().visit(context.getBaseURL().resolve(url));
 	}
 	
-	public void stop() {
+	public void stop(IWebSpiderContext context) {
 	}
 	
 	public void handle(IWebSpiderContext context, HTTPRequest request, HTTPResponse response) {

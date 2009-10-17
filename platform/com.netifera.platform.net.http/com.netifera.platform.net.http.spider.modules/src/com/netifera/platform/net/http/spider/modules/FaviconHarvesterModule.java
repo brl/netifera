@@ -42,7 +42,7 @@ public class FaviconHarvesterModule implements IWebSpiderModule {
 		context.getSpider().visit(context.getBaseURL().resolve("/favicon.ico"));
 	}
 
-	public void stop() {
+	public void stop(IWebSpiderContext context) {
 	}
 	
 	protected void setFactory(IWebEntityFactory factory) {
