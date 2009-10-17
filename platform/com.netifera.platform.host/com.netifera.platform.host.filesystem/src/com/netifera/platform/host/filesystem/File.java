@@ -5,8 +5,8 @@ import java.io.Serializable;
 
 
 public class File implements Serializable {
-	
 	private static final long serialVersionUID = -5668415766862514374L;
+	
 	public static final int DIRECTORY = 1;
 	public static final int FILE = 2;
 	public static final int SYMBOLIC_LINK = 4;
@@ -18,6 +18,10 @@ public class File implements Serializable {
 	
 	final private long length;
 	final private long lastModified;
+
+	public File(IFileSystem fileSystem, String path) {
+		this(fileSystem, path, path.endsWith(fileSystem.getNameSeparator()) ? DIRECTORY : FILE, 0, 0);
+	}
 
 	public File(IFileSystem fileSystem, String path, int attributes, long length, long lastModified) {
 		this.fileSystem = fileSystem;
@@ -45,9 +49,11 @@ public class File implements Serializable {
 	public String getAbsolutePath() {
 		return path;
 	}
+	
 	public void setPath(String path) {
 		this.path = path;
 	}
+	
 	public boolean isDirectory() {
 		return (attributes & DIRECTORY) != 0;
 	}
@@ -79,21 +85,6 @@ public class File implements Serializable {
 		return new File(fileSystem, path.substring(0, lastIndex), DIRECTORY, 0, 0);
 	}
 	
-	public boolean equals(Object o) {
-		if (!(o instanceof File))
-			return false;
-		File file = (File) o;
-		return fileSystem == file.fileSystem && (path.equals(file.path));
-	}
-	
-	public int hashCode() {
-		return path.hashCode();
-	}
-	
-	public String toString() {
-		return path;
-	}
-	
 	public boolean delete() throws IOException {
 		if (isDirectory()) {
 			return fileSystem.deleteDirectory(path);
@@ -108,5 +99,20 @@ public class File implements Serializable {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof File))
+			return false;
+		File file = (File) o;
+		return fileSystem == file.fileSystem && (path.equals(file.path));
+	}
+	
+	public int hashCode() {
+		return path.hashCode();
+	}
+	
+	public String toString() {
+		return path;
 	}
 }

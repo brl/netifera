@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocalFileSystem implements IFileSystem {
-//	private List<IFileSystemListener> listeners = new ArrayList<IFileSystemListener>();
 	
 	public String getNameSeparator() {
 		return java.io.File.separator;
@@ -52,11 +51,7 @@ public class LocalFileSystem implements IFileSystem {
 
 	public boolean delete(String path) {
 		java.io.File file = new java.io.File(path);
-		if (file.delete()) {
-			File deletedFile = convert(file);
-			return true;
-		}
-		return false;
+		return file.delete();
 	}
 
 	public boolean deleteDirectory(String path) {
