@@ -804,6 +804,10 @@
 	<ServicePattern regex="^\x82\x00\x00\x00.*">
 		<service>NetBIOS-SSN</service>
 	</ServicePattern>
+	<ServicePattern regex="^\x11\x02......\x00\x8a.*BROWSE\x00\x01.....([^\x00]+)\x00.*\x00$*">
+		<service>NetBIOS-DGM</service>
+		<hostname>{$1}</hostname>
+	</ServicePattern>
 	<ServicePattern regex="^\x11\x02......\x00\x8a.*">
 		<service>NetBIOS-DGM</service>
 	</ServicePattern>

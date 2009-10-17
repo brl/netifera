@@ -47,4 +47,7 @@
 	<ServicePattern regex="^\x01\x01\x06.*\x35\x01\x01.*\xff$">
 		<service>DHCP</service>
 	</ServicePattern>
+		<ServicePattern regex="^..[\x01\x28\x29\x30]\x10\x00\x01.*\x00\x20\x00\x01.*">
+		<service>NetBIOS-NS</service>
+	</ServicePattern>
 </netifera:Patterns>
