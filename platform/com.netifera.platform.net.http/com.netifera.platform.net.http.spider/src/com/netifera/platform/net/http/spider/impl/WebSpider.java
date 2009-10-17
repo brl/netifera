@@ -561,11 +561,12 @@ public class WebSpider implements IWebSpider {
 			}
 		} finally {
 			for (IWebSpiderModule module: modules) {
-				try {
-					module.stop();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				for (WebSpiderWorker worker: workers.values())
+					try {
+						module.stop(worker.getContext());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 			}
 
 			if (Thread.currentThread().isInterrupted())
