@@ -12,6 +12,7 @@
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="FiveNewLines" data="0a0a0a0a0a">
 <Endpoint protocol="tcp">3306</Endpoint>
+<Endpoint protocol="tcp">2401</Endpoint>
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="TNSConnect" data="005a0000010000000136012c000008007fffa30a000001000020003a0000000000000000000000000000000006fc00000002000000000000000028434f4e4e4543545f444154413d28434f4d4d414e443d76657273696f6e2929">
 <Endpoint protocol="tcp">1521-1529</Endpoint>
