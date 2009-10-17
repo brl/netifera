@@ -744,9 +744,6 @@
 		<service>SSDP</service>
 		<product>{$3}</product>
 	</ServicePattern>
-	<ServicePattern regex="^\x03.*">
-		<service>Radius</service>
-	</ServicePattern>
 	<ServicePattern regex="^SIP/2.0 200 OK[\r\n].*Server: (.*)[\r\n]">
 		<service>SIP</service>
 		<product>{$1}</product>
@@ -867,16 +864,6 @@
 	<ServicePattern regex="^0.\x02\x01.\w.*">
 		<service>LDAP</service>
 	</ServicePattern>
-	<ServicePattern regex="^.{10}\x05.*">
-		<service>Kerberos</service>
-		<version>5</version>
-	</ServicePattern>
-	<ServicePattern regex="^[\x02\x0b].\x00..{16}.*">
-		<service>Radius</service>
-	</ServicePattern>
-	<ServicePattern regex="^.{16}.\x10.{10}.*">
-		<service>ISAKMP</service>
-	</ServicePattern>
 	<ServicePattern regex="^\x00\x10\x00\x01\x1a\+&lt;M\x00\x05\x00\x00\x00\x00\x00\x01$">
 		<service>PPTP</service>
 	</ServicePattern>
@@ -916,7 +903,10 @@
 	<ServicePattern regex="^\x01\x00\x0b\x00\x00.*">
 		<service>X11</service>
 	</ServicePattern>
-	<ServicePattern regex="^\x02\x01\x06.....\x00\x00.*\x35\x01[\x05\x06].*">
+	<ServicePattern regex="^\x02\x01\x06.*\x35\x01[\x05\x06].*\xff$">
 		<service>DHCP</service>
+	</ServicePattern>
+	<ServicePattern regex="(?m)^VER \d+ MSNP\d+\r\n.*">
+		<service>MSN</service>
 	</ServicePattern>
 </netifera:Patterns>

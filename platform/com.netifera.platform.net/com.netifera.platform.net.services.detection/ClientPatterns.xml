@@ -4,28 +4,28 @@
 	xsi:schemaLocation="http://netifera.com/ServicePatterns ServicePatterns.xsd ">
 	<ServicePattern regex="(?i)^GET http[s]?://.* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
 		<service>HTTP Proxy</service>
-		<product>$regex-group-1</product>
+		<product>{$1}</product>
 	</ServicePattern>
 	<ServicePattern regex="(?i)^GET .* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
 		<service>HTTP</service>
-		<product>$regex-group-1</product>
+		<product>{$1}</product>
 	</ServicePattern>
 	<ServicePattern regex="^SSH-.*OpenSSH_([\w.]+)\s+([^\x00\r\n]*).*">
 		<service>SSH</service>
-		<os>$regex-group-2</os>
+		<os>{$2}</os>
 		<product>OpenSSH</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^SSH-\d\.\d-([^\r\n\x00]*)">
 		<service>SSH</service>
-		<product>$regex-group-1</product>
+		<product>{$1}</product>
 	</ServicePattern>
 	<ServicePattern regex="^VER \d+ MSN.*CVR \d+ [^ ]* (.*) (MSN[^ ]*) ([\d.]*) .*USR \d+ [^ ]* . ([^\r\n]+)[\r\n].*">
 		<service>MSN</service>
-		<os>$regex-group-1</os>
-		<product>$regex-group-2</product>
-		<version>$regex-group-3</version>
-		<username>$regex-group-4</username>
+		<os>{$1}</os>
+		<product>{$2}</product>
+		<version>{$3}</version>
+		<username>{$4}</username>
 	</ServicePattern>
 	<ServicePattern regex="^&lt;\?xml version='1\.0' \?&gt;&lt;stream:stream to\='gmail.com' .*">
 		<service>Jabber</service>
@@ -33,7 +33,7 @@
 	</ServicePattern>
 	<ServicePattern regex="^^NICK ([^\r\n]+)[\r\n].*">
 		<service>IRC</service>
-		<username>$regex-group-1</username>
+		<username>{$1}</username>
 	</ServicePattern>
 	<ServicePattern regex="^(\xff[\xfb\xfc\xfd].)+.*">
 		<service>Telnet</service>
@@ -43,5 +43,8 @@
 	</ServicePattern>
 	<ServicePattern regex="(?imd)^M-SEARCH \* HTTP.*">
 		<service>SSDP</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x01\x01\x06.*\x35\x01\x01.*\xff$">
+		<service>DHCP</service>
 	</ServicePattern>
 </netifera:Patterns>
