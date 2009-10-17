@@ -24,7 +24,6 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 	private static final String PATTERN_TAG = "ServicePattern";
 	private static final String PATTERN_TAG_ATT_REGEX = "regex";
 	private static final String SERVICE_TAG  = "service";
-	private static final String REGEX_GROUP_PREFIX  = "$regex-group-";
 
 	private static final String TRIGGER_TAG = "ServiceTrigger";
 	private static final String TRIGGER_TAG_ATT_NAME = "name";
@@ -87,12 +86,7 @@ public class XMLDetectorProvider implements INetworkServiceDetectorProvider {
 						service = value;
 						regex.add("serviceType", service); //FIXME serviceType deprecated
 					}
-					if(value.startsWith(REGEX_GROUP_PREFIX)) {
-						Integer groupIndex = Integer.valueOf(value.substring(REGEX_GROUP_PREFIX.length()));
-						regex.add(groupIndex, name);
-					} else {
-						regex.add(name, value);
-					}
+					regex.add(name, value);
 				}
 				INetworkServiceDetector detector = clientSide ? newDetector(service, new SessionPattern(regex, new Regex(".*"))) : newDetector(service, new SessionPattern(new Regex(".*"), regex));
 				answer.add(detector);

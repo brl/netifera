@@ -29,7 +29,6 @@ public class XMLPatternsLoader {
 		private static final String PATTERN_TAG = "ServicePattern";
 		private static final String PATTERN_TAG_ATT_REGEX = "regex";
 		private static final String SERVICE_TAG  = "service";
-		private static final String REGEX_GROUP_PREFIX  = "$regex-group-";
 
 		Regex pattern;
 		String service;
@@ -58,10 +57,7 @@ public class XMLPatternsLoader {
 					pattern.add("serviceType", value);
 				}
 				/*pattern fields tag ends (ex: os,version,service) */
-				if(value.startsWith(REGEX_GROUP_PREFIX)) {
-					Integer groupIndex = Integer.valueOf(value.substring(REGEX_GROUP_PREFIX.length()));
-					pattern.add(groupIndex, name);
-				} else if (pattern != null) {
+				if (pattern != null) {
 					pattern.add(name, value);
 				}
 			}

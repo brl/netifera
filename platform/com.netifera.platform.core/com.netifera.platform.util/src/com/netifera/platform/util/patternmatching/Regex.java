@@ -7,9 +7,7 @@ import java.util.regex.Pattern;
 
 public class Regex implements IPattern {
 	private Pattern pattern;
-	private final Map<Integer, String> groupNames =
-		new HashMap<Integer, String>();
-	private final Map<String, String> defaults = new HashMap<String, String>();
+	private final Map<String, String> information = new HashMap<String, String>();
 	
 	public static Regex caseInsensitive(final String pattern) {
 		return new Regex(Pattern.compile(pattern, Pattern.MULTILINE|Pattern.DOTALL|Pattern.CASE_INSENSITIVE));
@@ -36,35 +34,19 @@ public class Regex implements IPattern {
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append("\t<ServicePattern regex=\""+escape(escape(pattern))+"\">\n");
-		if (defaults.containsKey("service"))
-				buffer.append("\t\t<service>"+escape(defaults.get("service"))+"</service>\n");
+		if (information.containsKey("service"))
+				buffer.append("\t\t<service>"+escape(information.get("service"))+"</service>\n");
 		for (String name: new String[] {"os", "distribution", "arch", "product", "version", "build", "hostname", "username", "password"}) {
-			if (defaults.containsKey(name))
-				buffer.append("\t\t<"+name+">"+escape(defaults.get(name))+"</"+name+">\n");
-			else if (groupNames.containsValue(name)) {
-				for (Integer group: groupNames.keySet())
-					if (groupNames.get(group).equals(name)) {
-						buffer.append("\t\t<"+name+">$regex-group-"+group+"</"+name+">\n");
-						break;
-					}
-			}
+			if (information.containsKey(name))
+				buffer.append("\t\t<"+name+">"+escape(information.get(name))+"</"+name+">\n");
 		}
 		buffer.append("\t</ServicePattern>");
 		return buffer.toString();
 	}
 	
-	public void add(final Integer index, final String name) {
-		groupNames.put(index, name);
-	}
-	
-	public void add(final Integer index, final String name, final String defaultValue) {
-		add(index, name);
-		add(name, defaultValue);
-	}
-	
-	public void add(final String name, final String defaultValue) {
-		if (defaultValue != null)
-			defaults.put(name, defaultValue);
+	public void add(final String name, final String value) {
+		if (value != null)
+			information.put(name, value);
 	}
 	
 	public boolean match(final Map<String, String> answer, final String data) {
@@ -85,11 +67,13 @@ public class Regex implements IPattern {
 	}
 	
 	private void fillOutAnswer(final Map<String,String> answer, final Matcher matcher) {
-		for (String name: defaults.keySet()) {
-			answer.put(name, defaults.get(name));
-		}
-		for (Integer groupNumber: groupNames.keySet()) {
-			answer.put(groupNames.get(groupNumber), new String(matcher.group(groupNumber.intValue()).trim()));
+		for (String name: information.keySet()) {
+			String value = information.get(name);
+			for (int i=0; i<=matcher.groupCount(); i++) {
+				if (value.contains("{$"+i+"}"))
+					value = value.replaceAll("\\{\\$"+i+"\\}", matcher.group(i));
+			}
+			answer.put(name, value);
 		}
 	}
 }

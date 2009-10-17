@@ -45,13 +45,13 @@ public class ServiceDetectorProvider implements INetworkServiceDetectorProvider 
 			if (((String) os).matches(".*indow.*"))
 					responseRegex.add("arch", "i386"); // FIXME x86_64
 		} else if (os instanceof Integer) {
-			responseRegex.add((Integer)os, "os");
+			responseRegex.add("os", "{$"+os+"}");
 		}
 		if (versionGroup != null) {
 			if (versionGroup instanceof String) {
 				responseRegex.add("version", (String)versionGroup);
 			} else if (versionGroup instanceof Integer) {
-				responseRegex.add((Integer)versionGroup, "version");
+				responseRegex.add("version", "{$"+versionGroup+"}");
 			}
 		}
 		return newDetector(protocol,ports,new SessionPattern(triggerRegex, responseRegex));

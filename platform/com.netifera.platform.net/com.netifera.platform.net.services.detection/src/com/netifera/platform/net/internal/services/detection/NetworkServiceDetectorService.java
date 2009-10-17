@@ -22,25 +22,25 @@ abstract class NetworkServiceDetectorService implements INetworkServiceDetectorS
 		genericOSDetectors = new ArrayList<IPattern>();
 
 		Regex regex = Regex.caseInsensitive(".*((sunos|solaris|linux|macosx|osx|darwin|(net|free|open)bsd) [\\w.]+).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*(sunos|solaris|macosx|darwin|(net|free|open)bsd).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*(red hat|redhat|centos|fedora|debian|ubuntu|gentoo|mandriva|knopixx|slackware|suse).*");
 		regex.add("os", "Linux");
-		regex.add(1, "distribution");
+		regex.add("distribution", "{$1}");
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*((windows.nt|windows.200.|windows |win(32|2k|nt|200.)|cygwin) (version )?[\\w.]+).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		regex.add("arch", "i386"); // FIXME some NT run alpha
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*(windows.nt|windows.200.|windows |for windows|win(32|2k|nt|200.)|cygwin).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		regex.add("arch", "i386"); // FIXME some NT run alpha
 		genericOSDetectors.add(regex);
 

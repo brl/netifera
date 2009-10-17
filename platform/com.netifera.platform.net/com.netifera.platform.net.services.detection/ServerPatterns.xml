@@ -5,7 +5,7 @@
 	<ServicePattern regex="^SSH-.*dropbear_([.\w]+).*">
 		<service>SSH</service>
 		<product>Dropbear</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^SSH-.*Sun_SSH.*">
 		<service>SSH</service>
@@ -18,13 +18,13 @@
 	<ServicePattern regex="^SSH-.*OpenSSH_([.\w]+).*">
 		<service>SSH</service>
 		<product>OpenSSH</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^SSH-.*Cisco-(\d+\.\d+).*">
 		<service>SSH</service>
 		<os>Cisco IOS</os>
 		<product>Cisco SSH</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^SSH-.*">
 		<service>SSH</service>
@@ -34,14 +34,14 @@
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>FileZilla</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220.*Microsoft FTP Service \(Version (\d[^)]+).*">
 		<service>FTP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Microsoft FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]Microsoft FTP Service\r\n.*">
 		<service>FTP</service>
@@ -54,7 +54,7 @@
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Serv-U FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220-Serv-U FTP Server for Winsock\r\n.*">
 		<service>FTP</service>
@@ -72,19 +72,19 @@
 		<service>FTP</service>
 		<os>Unix</os>
 		<product>WU-FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220-\r\n220 .* FTP server \(Version ([-.+\w()]+)\) ready\.\r\n.*">
 		<service>FTP</service>
 		<os>Unix</os>
 		<product>WU-FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 ProFTPD (\d\S+) Server.*">
 		<service>FTP</service>
 		<os>Unix</os>
 		<product>ProFTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 .*ProFTP.*">
 		<service>FTP</service>
@@ -95,32 +95,32 @@
 		<service>FTP</service>
 		<os>Unix</os>
 		<product>vsftpd</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 .* FTP server \(GNU inetutils ([\d.]+)\) ready\.\r\n.*">
 		<service>FTP</service>
 		<os>Unix</os>
 		<product>GNU inetutils</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 Cisco \(([\d.]+)\) FTP server ready\r\n.*">
 		<service>FTP</service>
 		<os>Cisco IOS</os>
 		<product>Cisco FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 .* Server \(vftpd ([\d.]+)\) ready\.\r\n.*">
 		<service>FTP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>VFTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 .*\(Version (\d.\d)/OpenBSD.*">
 		<service>FTP</service>
 		<os>OpenBSD</os>
 		<product>OpenBSD FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220---------- Welcome to Pure-FTPd (\[\p{Alpha}+\] )*----------\r\n.*">
 		<service>FTP</service>
@@ -130,19 +130,19 @@
 		<service>FTP</service>
 		<os>Tru64</os>
 		<product>Compaq FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220-[A-Z0-9]*FTP[A-Z0-9]*1 IBM FTP CS(:?\/\d+)? (V\d+R[\d+\.]+) at .*, [\d:]+ on [\d-]+\.\r\n.*">
 		<service>FTP</service>
 		<os>z/OS</os>
 		<product>IBM FTP</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220-[A-Z0-9]*FTP[A-Z0-9]*1 IBM VM Level (\d+) at .*, [\d:]+ .*\r\n.*">
 		<service>FTP</service>
 		<os>z/VM</os>
 		<product>IBM FTP</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 HP ARPA FTP Server \[.{8}\] \(C\) Hewlett-Packard .*\r\n.*">
 		<service>FTP</service>
@@ -162,7 +162,7 @@
 	<ServicePattern regex="^220 .* FTP server \((?:Revision [\d.]+ )?Version wuftpd-([^ ]+).*\) ready\.\r\n.*">
 		<service>FTP</service>
 		<product>WU-FTPD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220-QTCP at .*">
 		<service>FTP</service>
@@ -180,31 +180,31 @@
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Alt-N MDaemon</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK Domino IMAP4 Server Release (\d[-.\w]+) +ready.*">
 		<service>IMAP</service>
 		<product>Lotus Domino</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK Domino IMAP4 Server Build V([\w_]+ Beta \w+) ready.*">
 		<service>IMAP</service>
 		<product>Lotus Domino</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK Microsoft Exchange IMAP4rev1 server version ([-.\w]+) .*">
 		<service>IMAP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Microsoft Exchange IMAP4rev1</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK Microsoft Exchange 2000 IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n.*">
 		<service>IMAP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Microsoft Exchange 2000 IMAP4rev1</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK .* Microsoft Exchange .*">
 		<service>IMAP</service>
@@ -230,7 +230,7 @@
 	<ServicePattern regex="^\* OK CommuniGate Pro IMAP Server ([\w.]+) .*ready.*">
 		<service>IMAP</service>
 		<product>CommuniGate Pro</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\* OK.*">
 		<service>IMAP</service>
@@ -246,40 +246,40 @@
 	</ServicePattern>
 	<ServicePattern regex="(?i)^HTTP/1\.[01].*Proxy-Agent: ([^\r\n]*)[\r\n].*">
 		<service>HTTP Proxy</service>
-		<product>$regex-group-1</product>
+		<product>{$1}</product>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.0 \d\d\d .*\r\nServer: Tomcat Web Server/(\d[-.\w ]+) \( ([^)]+) \)\r\n.*">
 		<service>HTTP</service>
-		<os>$regex-group-2</os>
+		<os>{$2}</os>
 		<product>Apache Tomcat</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.0 \d\d\d .*\r\nServer: Tomcat Web Server/(\d[-.\w ]+)\r\n\r\n.*">
 		<service>HTTP</service>
 		<product>Apache Tomcat</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.0 \d\d\d .*\r\nServlet-Engine: Tomcat Web Server/(\d[-.\w]+) .*">
 		<service>HTTP</service>
 		<product>Apache Tomcat</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: Apache\/([-.\w]+) +HP-UX_Apache-based_Web_Server.*\r\n.*">
 		<service>HTTP</service>
 		<os>HP-UX</os>
 		<product>HP-UX Apache</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: HP-UX_Apache-based_Web_Server\/([-.\w]+) .*\r\n.*">
 		<service>HTTP</service>
 		<os>HP-UX</os>
 		<product>HP-UX Apache</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*[Ss]erver: IBM_HTTP_Server.* Apache\/([^ \t\r\n]+).*\r\n.*">
 		<service>HTTP</service>
 		<product>IBM Apache</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*[Ss]erver: IBM_HTTP_Server.*">
 		<service>HTTP</service>
@@ -289,17 +289,17 @@
 		<service>HTTP</service>
 		<os>HP-UX</os>
 		<product>Rapidsite Apache</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: MIT Web Server Apache\/([^ \t\r\n]+).*\r\n.*">
 		<service>HTTP</service>
 		<product>MIT Apache</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: Apache\/([^ \t\r\n]+).*\r\n.*">
 		<service>HTTP</service>
 		<product>Apache</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: Apache.*">
 		<service>HTTP</service>
@@ -310,12 +310,12 @@
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Microsoft IIS</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*\r\nServer: mini_httpd/(\d+\.\d+).*">
 		<service>HTTP</service>
 		<product>Acme mini_httpd</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*level.15.*">
 		<service>HTTP</service>
@@ -335,17 +335,17 @@
 	<ServicePattern regex="^HTTP/1\.[01].*Server: lighttpd/([-.\w]+)\r\n.*">
 		<service>HTTP</service>
 		<product>lighttpd</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: nginx/([-.\w]+)\r\n.*">
 		<service>HTTP</service>
 		<product>nginx</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: Mongrel ([-.\w]+)\r\n.*">
 		<service>HTTP</service>
 		<product>Mongrel</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: Lotus-Domino\r\n.*">
 		<service>HTTP</service>
@@ -357,20 +357,20 @@
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: AV-TECH (.*) Video Web Server\n.*">
 		<service>HTTP</service>
-		<os>$regex-group-1</os>
+		<os>{$1}</os>
 		<product>AV-TECH Video</product>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: JRun Web Server\/([\d.]+)\r\n.*">
 		<service>HTTP</service>
 		<product>Adobe JRun</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*Server: NetPort Software ([\d.]+)\r\n.*">
 		<service>HTTP</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Intel NetPort</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.1 403 Forbidden \( The server denied the specified Uniform Resource Locator \(URL\). Contact the server administrator.  \)\r\n.*">
 		<service>HTTP</service>
@@ -382,22 +382,22 @@
 		<service>HTTP</service>
 		<os>OpenVMS</os>
 		<product>WASD</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="(?i)^HTTP/1\.[01].*\r\nServer: (HP.Chai\w+)\/([\d.]+)\r\n.*">
 		<service>HTTP</service>
 		<os>HP Printer</os>
-		<product>$regex-group-1</product>
-		<version>$regex-group-2</version>
+		<product>{$1}</product>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="(?i)^HTTP/1\.[01].*\r?\nServer: ([^\/ \t\r\n]+)\/([^ \/\t\r\n]+).*\r?\n.*">
 		<service>HTTP</service>
-		<product>$regex-group-1</product>
-		<version>$regex-group-2</version>
+		<product>{$1}</product>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="(?i)^HTTP/1\.[01].*\r?\nServer: +([^\/\t\r\n ][^\/\t\r\n]*)(:?\/.*)?\r?\n.*">
 		<service>HTTP</service>
-		<product>$regex-group-1</product>
+		<product>{$1}</product>
 	</ServicePattern>
 	<ServicePattern regex="^HTTP/1\.[01].*">
 		<service>HTTP</service>
@@ -408,24 +408,24 @@
 	</ServicePattern>
 	<ServicePattern regex="(?i)^RTSP/1\.0.*\r\nServer: QTSS\/([\d.]+) \(.*Build\/([^;]+);.*Platform\/([^;]+).*\)\r\n.*">
 		<service>RTSP</service>
-		<os>$regex-group-3</os>
+		<os>{$3}</os>
 		<product>QuickTime Streaming Server</product>
-		<version>$regex-group-1</version>
-		<build>$regex-group-2</build>
+		<version>{$1}</version>
+		<build>{$2}</build>
 	</ServicePattern>
 	<ServicePattern regex="(?i)^RTSP/1\.0.*\r\nServer: DSS\/([\d.]+) \(.*Build\/([^;]+);.*Platform\/([^;]+).*\)\r\n.*">
 		<service>RTSP</service>
-		<os>$regex-group-3</os>
+		<os>{$3}</os>
 		<product>Darwin Streaming Server</product>
-		<version>$regex-group-1</version>
-		<build>$regex-group-2</build>
+		<version>{$1}</version>
+		<build>{$2}</build>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK &lt;.*@([-.\w]+)&gt;.*XMail ([\d-.]+) .*">
 		<service>POP3</service>
 		<os>Windows</os>
 		<product>XMail</product>
-		<version>$regex-group-2</version>
-		<hostname>$regex-group-1</hostname>
+		<version>{$2}</version>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK Welcome to MailEnable POP3 Server.*">
 		<service>POP3</service>
@@ -446,12 +446,12 @@
 	<ServicePattern regex="^\+OK Lotus Notes POP3 server version ([-.\w]+) ready.*">
 		<service>POP3</service>
 		<product>Lotus Domino</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK Lotus Notes POP3 server version Release ([-.\w]+) ready.*">
 		<service>POP3</service>
 		<product>Lotus Domino</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK.*Lotus Notes POP3.*">
 		<service>POP3</service>
@@ -462,21 +462,21 @@
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Microsoft Exchange 2003 POP3D</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK Microsoft Exchange 2000 POP3 server version (\S+).* ready\.\r\n.*">
 		<service>POP3</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Microsoft Exchange 2000 POP3</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK Microsoft Exchange POP3 server version (\S+) ready\r\n.*">
 		<service>POP3</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>Microsoft Exchange</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK.*Exchange.*POP3.*">
 		<service>POP3</service>
@@ -489,14 +489,14 @@
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>MDaemon</product>
-		<version>$regex-group-2</version>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK ([-.\w]+) POP MDaemon ready using UNREGISTERED SOFTWARE ([\d.]+) &lt;MDAEMON.*">
 		<service>POP3</service>
 		<os>Windows</os>
 		<arch>i386</arch>
 		<product>MDaemon</product>
-		<version>$regex-group-2</version>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK.*POP MDaemon.*">
 		<service>POP3</service>
@@ -511,7 +511,7 @@
 	<ServicePattern regex="^\+OK Qpopper \(version ([\d.]+)\) at .* starting\..*">
 		<service>POP3</service>
 		<product>Qpopper</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK.*[Dd]ovecot.*">
 		<service>POP3</service>
@@ -520,13 +520,13 @@
 	</ServicePattern>
 	<ServicePattern regex="^\+OK ([-.\w]+) Merak ([\d.]+) POP3.*">
 		<service>POP3</service>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 		<product>Merak</product>
-		<version>$regex-group-2</version>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK &lt;.*@([-.\w]+)&gt;.*">
 		<service>POP3</service>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^\+OK.*">
 		<service>POP3</service>
@@ -534,13 +534,13 @@
 	<ServicePattern regex="^220[ -]([-.\w]+) .*Sendmail ([-.\w]+)/.*">
 		<service>SMTP</service>
 		<product>Sendmail</product>
-		<version>$regex-group-2</version>
-		<hostname>$regex-group-1</hostname>
+		<version>{$2}</version>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220.*Sendmail ([-.\w]+)/.*">
 		<service>SMTP</service>
 		<product>Sendmail</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220.*Sendmail.*">
 		<service>SMTP</service>
@@ -556,8 +556,8 @@
 		<service>SMTP</service>
 		<os>Windows</os>
 		<product>XMail</product>
-		<version>$regex-group-2</version>
-		<hostname>$regex-group-1</hostname>
+		<version>{$2}</version>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220.*XMail.*">
 		<service>SMTP</service>
@@ -569,44 +569,44 @@
 		<service>SMTP</service>
 		<os>Windows</os>
 		<product>MDaemon</product>
-		<version>$regex-group-2</version>
-		<hostname>$regex-group-1</hostname>
+		<version>{$2}</version>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) Kerio MailServer ([-.\w]+) ESMTP.*">
 		<service>SMTP</service>
 		<product>Kerio</product>
-		<version>$regex-group-2</version>
-		<hostname>$regex-group-1</hostname>
+		<version>{$2}</version>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) Microsoft E?SMTP MAIL Service, Version: ([-.\w]+) ready.*">
 		<service>SMTP</service>
 		<os>Windows</os>
 		<product>Microsoft Exchange</product>
-		<version>$regex-group-2</version>
-		<hostname>$regex-group-1</hostname>
+		<version>{$2}</version>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) Microsoft E?SMTP MAIL Service ready.*">
 		<service>SMTP</service>
 		<os>Windows</os>
 		<product>Microsoft Exchange</product>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) Mercury/32 v([-.\w]+) ESMTP server ready.*">
 		<service>SMTP</service>
 		<os>Windows</os>
 		<product>Mercury/32</product>
-		<version>$regex-group-2</version>
-		<hostname>$regex-group-1</hostname>
+		<version>{$2}</version>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) .*[Pp]ost[Ff]ix.*">
 		<service>SMTP</service>
 		<product>Postfix</product>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) E?SMTP \(spam is not appreciated\)\r\n.*">
 		<service>SMTP</service>
 		<product>Postfix</product>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^220.*IMail.*">
 		<service>SMTP</service>
@@ -633,7 +633,7 @@
 	<ServicePattern regex="^220[ -].* ESMTP Exim ([\d.]+) .*\r\n.*">
 		<service>SMTP</service>
 		<product>Exim</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220.*[Pp]ost[Ff]ix.*">
 		<service>SMTP</service>
@@ -645,9 +645,9 @@
 	</ServicePattern>
 	<ServicePattern regex="^220 ([^\s]+) V([-.\w]+), (OpenVMS V[-.\w]+(?: VAX)?) ready.*">
 		<service>SMTP</service>
-		<os>$regex-group-3</os>
+		<os>{$3}</os>
 		<product>VMS SMTP</product>
-		<version>$regex-group-2</version>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220 ([^\s]+) Symantec Mail Security .*\r\n.*">
 		<service>SMTP</service>
@@ -657,13 +657,13 @@
 	</ServicePattern>
 	<ServicePattern regex="^220 ([-.\w]+) ESMTP Merak ([\d.]+);.*">
 		<service>SMTP</service>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 		<product>Merak</product>
-		<version>$regex-group-2</version>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="^220[ -]([-.\w]+) E?SMTP.*">
 		<service>SMTP</service>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="(?idm)^(220.*\n250|220.*SMTP|412 .*smtp|554.*mail|554.*smtp|220 .*mail).*">
 		<service>SMTP</service>
@@ -674,7 +674,7 @@
 	<ServicePattern regex="^.\x00\x00\x00\x0a([-\w._]*)\x00.*">
 		<service>MySQL</service>
 		<product>MySQL</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^.\x00\x00\x00\xff\x6a\x04.*">
 		<service>MySQL</service>
@@ -691,17 +691,17 @@
 	<ServicePattern regex=".*\x07version\x04bind.*\x00\x10\x00\x03\x00\x00\x00\x00\x00[\x04-\x15][\x03-\x14]([-\w._ ]{3,20}).*">
 		<service>DNS</service>
 		<product>ISC Bind</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex=".*\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})$">
 		<service>DNS</service>
 		<product>ISC Bind</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex=".*\x07version\x04bind.*[\x03-\x14]BIND ([-\w._]{3,20})$">
 		<service>DNS</service>
 		<product>ISC Bind</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex=".*\x07version\x04bind.*">
 		<service>DNS</service>
@@ -720,7 +720,7 @@
 	</ServicePattern>
 	<ServicePattern regex="^.{4}[\x00\x84].{8}.*(i[pP]hone|i[tT]ouch).*">
 		<service>mDNS</service>
-		<os>$regex-group-1</os>
+		<os>{$1}</os>
 	</ServicePattern>
 	<ServicePattern regex=".*public.*\x2b\x06\x01\x02\x01\x01\x01...(.*)">
 		<service>SNMPv1</service>
@@ -734,7 +734,7 @@
 		<service>XDMCP</service>
 		<os>Unix</os>
 		<product>dtlogin</product>
-		<version>$regex-group-2</version>
+		<version>{$2}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\x00\x01\x00[\x08\x0c].{8}.+">
 		<service>XDMCP</service>
@@ -742,14 +742,14 @@
 	</ServicePattern>
 	<ServicePattern regex="(?imd)^NOTIFY\s.*\r\nLocation:\s*http://(.+):(\d+)/.*\r\nServer:\s*([^r]+)\r\n.*">
 		<service>SSDP</service>
-		<product>$regex-group-3</product>
+		<product>{$3}</product>
 	</ServicePattern>
 	<ServicePattern regex="^\x03.*">
 		<service>Radius</service>
 	</ServicePattern>
 	<ServicePattern regex="^SIP/2.0 200 OK[\r\n].*Server: (.*)[\r\n]">
 		<service>SIP</service>
-		<product>$regex-group-1</product>
+		<product>{$1}</product>
 	</ServicePattern>
 	<ServicePattern regex="^SIP/.*">
 		<service>SIP</service>
@@ -769,7 +769,7 @@
 	<ServicePattern regex="^:Welcome!.+@.+ NOTICE \* :psyBNC([\d.-]+)\r\n.*">
 		<service>IRC</service>
 		<product>psyBNC</product>
-		<version>$regex-group-1</version>
+		<version>{$1}</version>
 	</ServicePattern>
 	<ServicePattern regex="^\x05\x00\r\x03\x10\x00\x00\x00\x18\x00\x00\x00v\x07\x00\x00\x04\x00\x01\x05\x00\x00.\x00$">
 		<service>DCERPC</service>
@@ -790,7 +790,7 @@
 	</ServicePattern>
 	<ServicePattern regex="^\x79\x08.\x00\x00\x00\x00.*\x00\x21\x00\x01.{7}([^\x00]+)\x00.*">
 		<service>NetBIOS-NS</service>
-		<hostname>$regex-group-1</hostname>
+		<hostname>{$1}</hostname>
 	</ServicePattern>
 	<ServicePattern regex="^\x79\x08.*BROWSE.*">
 		<service>NetBIOS-NS</service>
