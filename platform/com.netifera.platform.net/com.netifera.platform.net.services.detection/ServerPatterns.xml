@@ -917,4 +917,10 @@
 	<ServicePattern regex="(?m)^VER \d+ MSNP\d+\r\n.*">
 		<service>MSN</service>
 	</ServicePattern>
+	<ServicePattern regex="^\x00[\x5a\x5b\x5c\x5d]00507f000001$">
+		<service>SOCKS4a</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x00[\x5a\x5b\x5c\x5d].{6}$">
+		<service>SOCKS4</service>
+	</ServicePattern>
 </netifera:Patterns>

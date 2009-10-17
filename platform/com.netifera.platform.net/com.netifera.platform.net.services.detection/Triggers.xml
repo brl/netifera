@@ -7,7 +7,7 @@
 <Endpoint protocol="tcp">21,990</Endpoint>
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="HttpGet" data="474554202f20485454502f312e300d0a0d0a">
-<Endpoint protocol="tcp">80-81,88,443,1080,8000,8080-8081,8118,8888</Endpoint>
+<Endpoint protocol="tcp">80-81,88,443,8000,8080-8081,8118,8888</Endpoint>
 <Endpoint protocol="tcp">10000,20000</Endpoint>
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="FiveNewLines" data="0a0a0a0a0a">
@@ -81,6 +81,9 @@
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="PostgreSQL" data="00000029000300007573657200706f73746772657300646174616261736500706f7374677265730000">
 <Endpoint protocol="tcp">5432</Endpoint>
+</ServiceTrigger>
+<ServiceTrigger timeout="6000" name="SOCKS4" data="040100507f00000100">
+<Endpoint protocol="tcp">1080</Endpoint>
 </ServiceTrigger>
 <ServiceTrigger timeout="6000" name="Wait" data="">
 <Endpoint protocol="tcp">79,119</Endpoint>

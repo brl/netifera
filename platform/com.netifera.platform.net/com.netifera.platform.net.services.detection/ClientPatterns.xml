@@ -50,4 +50,11 @@
 		<ServicePattern regex="^..[\x01\x28\x29\x30]\x10\x00\x01.*\x00\x20\x00\x01.*">
 		<service>NetBIOS-NS</service>
 	</ServicePattern>
+	<ServicePattern regex="^\x04\x01\x00\x50.{4}\x00$">
+		<service>SOCKS4</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x04\x01\x00\x50\x00\x00\x00.\x00([^\x00]+)\x00$">
+		<service>SOCKS4a</service>
+		<comment>Connects to {$1}</comment>
+	</ServicePattern>
 </netifera:Patterns>
