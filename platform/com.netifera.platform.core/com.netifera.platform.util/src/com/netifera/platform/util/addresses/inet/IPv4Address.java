@@ -175,7 +175,7 @@ public class IPv4Address extends InternetAddress {
 
 	@Override
 	public boolean isUniCast() {
-		return !isMultiCast() && addressData != 0xFFFFFFFF;
+		return !isUnspecified() && !isMultiCast() && addressData != 0xFFFFFFFF;
 	}
 	
 	@Override
