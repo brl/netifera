@@ -266,13 +266,13 @@ public class EntityHover extends PopupDialog {
 				quickActions.add(removeAction);
 			}
 			
-			if (quickActions.size()>0 && actions.size() > 0) {
+			if (quickActions.size()>0 && actions.size() > 0)
 				addSeparator();
-				Composite bar = toolkit.createComposite(body);
-				bar.setLayout(new GridLayout(20,false));
-				for (IAction action: quickActions)
-					addAction(action, bar, true);
-			}
+			
+			Composite bar = toolkit.createComposite(body);
+			bar.setLayout(new GridLayout(20,false));
+			for (IAction action: quickActions)
+				addAction(action, bar, true);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
