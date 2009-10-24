@@ -16,5 +16,4 @@ public interface HTTPResponse {
 	byte[] getContent() throws IOException;
 	
 	String toString();
-//	byte[] getContentBytes(int maxSize);
 }

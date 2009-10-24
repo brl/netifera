@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.UDPChannel;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.UDPSocketLocator;
 
 

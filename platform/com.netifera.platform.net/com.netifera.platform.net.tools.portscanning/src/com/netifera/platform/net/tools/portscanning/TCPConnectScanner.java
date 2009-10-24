@@ -19,10 +19,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.TCPChannel;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public class TCPConnectScanner extends AbstractPortscanner {	

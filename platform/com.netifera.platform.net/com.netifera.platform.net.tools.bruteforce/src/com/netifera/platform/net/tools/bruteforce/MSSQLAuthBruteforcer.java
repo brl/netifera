@@ -9,8 +9,8 @@ import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.TCPChannel;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public class MSSQLAuthBruteforcer extends UsernameAndPasswordBruteforcer {

@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.netifera.platform.net.services.credentials.Credential;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.TCPChannel;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public abstract class TCPCredentialsVerifier extends CredentialsVerifier {

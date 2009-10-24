@@ -21,10 +21,10 @@ import com.netifera.platform.net.dns.internal.tools.Activator;
 import com.netifera.platform.net.dns.service.DNS;
 import com.netifera.platform.net.dns.service.client.AsynchronousLookup;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.AddressFormatException;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class DNSReverseLookup implements ITool {
 	private static final boolean DEBUG = false;

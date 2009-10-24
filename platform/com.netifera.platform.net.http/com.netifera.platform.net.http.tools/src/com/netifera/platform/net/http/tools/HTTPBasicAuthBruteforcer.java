@@ -11,11 +11,11 @@ import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.LineChannel;
 import com.netifera.platform.net.sockets.TCPChannel;
 import com.netifera.platform.net.tools.bruteforce.UsernameAndPasswordBruteforcer;
 import com.netifera.platform.util.Base64;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private HTTP target;

@@ -1,4 +1,4 @@
-package com.netifera.platform.net.sockets;
+package com.netifera.platform.util.asynchronous;
 
 public interface CompletionHandler<V,A> {
 	void cancelled(A attachment);

@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import com.netifera.platform.net.sockets.internal.Activator;
 import com.netifera.platform.net.sockets.internal.SocketEngineService;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public class TCPChannel extends AsynchronousSocketChannel {

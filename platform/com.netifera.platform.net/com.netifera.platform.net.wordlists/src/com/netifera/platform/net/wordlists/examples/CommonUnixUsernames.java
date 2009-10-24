@@ -19,7 +19,7 @@ public class CommonUnixUsernames implements IWordList {
 
 	public FiniteIterable<String> getWords() {
 		List<String> words = new ArrayList<String>();
-		for (String word: "root admin test guest user ftp web webmaster www mysql oracle postgres db apache tomcat backup postmaster mail video audio remote shop sales".split(" "))
+		for (String word: "root admin test guest user ftp web webmaster www mysql oracle postgres db apache tomcat backup postmaster mail video audio remote support info help shop sales marketing".split(" "))
 			words.add(word);
 		return new ListIndexedIterable<String>(words);
 	}
