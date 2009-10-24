@@ -148,7 +148,7 @@ public class PortSet implements IndexedIterable<Integer> {
 	}
 
 	public static int verifyPort(final int port) throws IllegalArgumentException {
-		if (port < 0 || port > PORT_MAX) {
+		if (port <= 0 || port > PORT_MAX) {
 			throw new IllegalArgumentException("Invalid port: " + port);
 		}
 		return port;
