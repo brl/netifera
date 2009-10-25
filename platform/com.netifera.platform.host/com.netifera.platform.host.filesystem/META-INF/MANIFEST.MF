@@ -9,10 +9,11 @@ Import-Package: com.netifera.platform.api.dispatcher,
  com.netifera.platform.api.log,
  com.netifera.platform.api.probe,
  com.netifera.platform.dispatcher,
+ com.netifera.platform.services,
  org.osgi.framework;version="1.3.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.netifera.platform.host.filesystem,
  com.netifera.platform.host.filesystem.probe
-Service-Component: OSGI-INF/filesystem-factory.xml,
- OSGI-INF/filesystem.xml,
- OSGI-INF/local-filesystem-provider.xml
+Service-Component: OSGI-INF/filesystem-bridge.xml,
+ OSGI-INF/local-filesystem-provider.xml,
+ OSGI-INF/remote-filesystem-provider.xml

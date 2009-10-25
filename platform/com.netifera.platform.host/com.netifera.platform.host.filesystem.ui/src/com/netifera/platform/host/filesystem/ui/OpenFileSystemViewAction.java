@@ -18,11 +18,11 @@ public abstract class OpenFileSystemViewAction extends SpaceAction {
 		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/folders.png"));
 	}
 
-	public abstract URI getURL();
+	public abstract URI getFileSystemURL();
 	
 	@Override
 	public void run() {
-		IFileSystem fileSystem = Activator.getInstance().getFileSystemFactory().create(getURL());
+		IFileSystem fileSystem = (IFileSystem) Activator.getInstance().getServiceFactory().create(IFileSystem.class, getFileSystemURL(), this.getSpace().getProbeId());
 		
 		try {
 			IViewPart view = UIPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(

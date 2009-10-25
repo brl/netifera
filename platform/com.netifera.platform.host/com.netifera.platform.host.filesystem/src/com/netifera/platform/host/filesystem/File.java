@@ -1,6 +1,8 @@
 package com.netifera.platform.host.filesystem;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 
 
@@ -100,7 +102,15 @@ public class File implements Serializable {
 		}
 		return false;
 	}
-	
+
+	public InputStream getInputStream() throws IOException {
+		return fileSystem.getInputStream(path);
+	}
+
+	public OutputStream getOutputStream() throws IOException {
+		return fileSystem.getOutputStream(path);
+	}
+
 	public boolean equals(Object o) {
 		if (!(o instanceof File))
 			return false;

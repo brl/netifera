@@ -3,6 +3,7 @@ package com.netifera.platform.host.filesystem.probe;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
 import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessengerException;
@@ -16,9 +17,11 @@ public class RemoteFileSystem implements IFileSystem {
 
 	private final IProbe probe;
 	private final ILogger logger;
+	private final URI url;
 	private String messengerError;
 	
-	public RemoteFileSystem(IProbe probe, ILogger logger) {
+	public RemoteFileSystem(URI url, IProbe probe, ILogger logger) {
+		this.url = url;
 		this.probe = probe;
 		this.logger = logger;
 	}
@@ -39,7 +42,7 @@ public class RemoteFileSystem implements IFileSystem {
 	}
 
 	public File[] getDirectoryList(String directoryName) throws IOException {
-		final GetDirectoryListing msg = (GetDirectoryListing) exchangeMessage(new GetDirectoryListing(directoryName));
+		final GetDirectoryListing msg = (GetDirectoryListing) exchangeMessage(new GetDirectoryListing(url, directoryName));
 		if(msg == null) {
 			logger.warning("GetDirectoryList failed " + messengerError);
 			return null;
@@ -65,7 +68,7 @@ public class RemoteFileSystem implements IFileSystem {
 	}
 
 	public File[] getRoots() {
-		final GetRoots msg = (GetRoots) exchangeMessage(new GetRoots());
+		final GetRoots msg = (GetRoots) exchangeMessage(new GetRoots(url));
 		if(msg == null) {
 			logger.warning("GetRoots failed" + messengerError);
 			return null;
@@ -105,5 +108,10 @@ public class RemoteFileSystem implements IFileSystem {
 			return null;
 		}
 	}
-
+	
+	public String toString() {
+		if (url.getScheme().equals("file"))
+			return probe.getName();
+		return url.toString() + " from "+probe.getName();
+	}
 }

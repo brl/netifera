@@ -101,7 +101,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			if (locator != null && serviceEntity.getServiceType().equals("NetBIOS-SSN")) {
 				SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
 					@Override
-					public URI getURL() {
+					public URI getFileSystemURL() {
 						IToolConfiguration config = getConfiguration();
 						TCPSocketLocator target = (TCPSocketLocator) config.get("target");
 						String domain = (String) config.get("domain");

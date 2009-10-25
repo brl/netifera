@@ -84,7 +84,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			if (ssh != null) {
 				SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
 					@Override
-					public URI getURL() {
+					public URI getFileSystemURL() {
 						IToolConfiguration config = getConfiguration();
 						TCPSocketLocator target = (TCPSocketLocator) config.get("target");
 						String username = (String) config.get("username");

@@ -14,31 +14,18 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.LocalFileSystem;
+import com.netifera.platform.services.IServiceFactory;
 
-public class FileSystemService {
+public class FileSystemBridge {
 	private ILogger logger;
-	private IFileSystem fileSystem;
-	private final String rootPrefix;
+	private IServiceFactory serviceFactory;
 	
-	public FileSystemService() {
-		fileSystem = new LocalFileSystem();
-		if(System.getProperty("com.netifera.filesystemprefix") != null) {
-			rootPrefix = System.getProperty("com.netifera.filesystemprefix");
-		} else {
-			rootPrefix = "";
-		}
-	}
+//	private Map<String,IFileSystem> fileSystems = new HashMap<String,IFileSystem>();
 	
 	private void getDirectoryListing(IMessenger messenger, GetDirectoryListing message) {
 		try {
-			File[] files = fileSystem.getDirectoryList(rootPrefix + message.getDirectoryPath());
-			for(File f : files) {
-				if(rootPrefix.length()>0 && f.getAbsolutePath().startsWith(rootPrefix)) {
-					String realPath = f.getAbsolutePath().substring(rootPrefix.length());
-					f.setPath(realPath);
-				}
-			}
+			IFileSystem fileSystem = (IFileSystem) serviceFactory.create(IFileSystem.class, message.getFileSystemURL());
+			File[] files = fileSystem.getDirectoryList(message.getDirectoryPath());
 			messenger.emitMessage(message.createResponse(files));
 		} catch(IOException e) {
 			logger.warning("Error sending message response: " + e.getMessage());
@@ -51,6 +38,7 @@ public class FileSystemService {
 	
 	private void getRoots(IMessenger messenger, GetRoots message) {
 		try {
+			IFileSystem fileSystem = (IFileSystem) serviceFactory.create(IFileSystem.class, message.getFileSystemURL());
 			File[] files = fileSystem.getRoots();
 			messenger.emitMessage(message.createResponse(files));
 		} catch(MessengerException e) {
@@ -96,5 +84,12 @@ public class FileSystemService {
 	}
 	
 	protected void unsetDispatcher(IMessageDispatcherService dispatcher) {
+	}
+	
+	protected void setServiceFactory(IServiceFactory factory) {
+		this.serviceFactory = factory;
+	}
+	
+	protected void unsetServiceFactory(IServiceFactory factory) {
 	}
 }

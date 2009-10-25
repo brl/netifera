@@ -5,13 +5,12 @@
 		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProvider" />
 	</service>
 	
-	  <reference
+	<reference
     	name="LOG_MANAGER"
     	interface="com.netifera.platform.api.log.ILogManager"
     	bind="setLogManager"
     	unbind="unsetLogManager"
     />
-    
     
  	<reference
  		name="PROBE_MANAGER"
@@ -19,10 +18,14 @@
  		bind="setProbeManager"
  		unbind="unsetProbeManager"
  	/>
- 	<reference
- 		name="FILESYSTEM_FACTORY"
- 		interface="com.netifera.platform.host.filesystem.IFileSystemFactory"
- 		bind="setFileSystemFactory"
- 		unbind="unsetFileSystemFactory"
- 	/>
+ 	 	
+	<reference 
+		name="FILESYSTEM_SPIDER_MODULES"
+		interface="com.netifera.platform.host.filesystem.spider.IFileSystemSpiderModule"
+		bind="registerFileSystemSpiderModule"
+		unbind="unregisterFileSystemSpiderModule"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+ 	
 </component>

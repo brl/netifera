@@ -8,6 +8,7 @@ Bundle-Vendor: Netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.host.filesystem,
  com.netifera.platform.net.services.credentials,
+ com.netifera.platform.services,
  jcifs,
  jcifs.dcerpc,
  jcifs.dcerpc.msrpc,

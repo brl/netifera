@@ -2,6 +2,6 @@
 <component name="netifera.filesystem-local">
 	<implementation class="com.netifera.platform.host.internal.filesystem.LocalFileSystemProvider" />
 	<service>
-		<provide interface="com.netifera.platform.host.filesystem.IFileSystemProvider" />
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
 	</service>
 </component>

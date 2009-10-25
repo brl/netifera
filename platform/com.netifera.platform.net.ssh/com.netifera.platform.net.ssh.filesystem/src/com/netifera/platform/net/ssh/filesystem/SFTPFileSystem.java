@@ -15,6 +15,7 @@ import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.SFTPv3Client;
 import com.trilead.ssh2.SFTPv3DirectoryEntry;
 
@@ -40,44 +41,52 @@ public class SFTPFileSystem implements IFileSystem {
 	}
 	
 	public File createDirectory(String directoryName) throws IOException {
-		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
+		Connection connection = ssh.createConnection(credential);
+		SFTPv3Client client = new SFTPv3Client(connection);
 		try {
 			client.mkdir(directoryName, 0775);
 			return new File(this, directoryName, File.DIRECTORY, 0, 0);
 		} finally {
 			client.close();
+			connection.close();
 		}
 	}
 
 	public boolean delete(String fileName) throws IOException {
-		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
+		Connection connection = ssh.createConnection(credential);
+		SFTPv3Client client = new SFTPv3Client(connection);
 		try {
 			client.rm(fileName);
 			return true;
 		} finally {
 			client.close();
+			connection.close();
 		}
 //		return false;
 	}
 
 	public boolean deleteDirectory(String directoryName) throws IOException {
-		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
+		Connection connection = ssh.createConnection(credential);
+		SFTPv3Client client = new SFTPv3Client(connection);
 		try {
 			client.rmdir(directoryName);
 			return true;
 		} finally {
 			client.close();
+			connection.close();
 		}
 //		return false;
 	}
 
 	public boolean rename(String oldName, String newName) throws IOException {
-		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
+		Connection connection = ssh.createConnection(credential);
+		SFTPv3Client client = new SFTPv3Client(connection);
 		try {
 			client.mv(oldName, newName);
 			return true;
 		} finally {
 			client.close();
+			connection.close();
 		}
 //		return false;
 	}
