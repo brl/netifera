@@ -1,15 +1,11 @@
 package com.netifera.platform.net.ssh.internal.ui;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.api.tools.IToolConfiguration;
-import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UsernameAndPasswordEntity;
@@ -32,7 +28,7 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 public class EntityActionProvider implements IEntityActionProvider {
 	private IProbeBuilderService probeBuilder;
 	private IWordListManager wordListManager;
-	
+
 	public List<IAction> getActions(IShadowEntity entity) {
 		List<IAction> answer = new ArrayList<IAction>();
 		SSH ssh = (SSH) entity.getAdapter(SSH.class);
@@ -82,33 +78,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		if (entity instanceof ServiceEntity) {
 			SSH ssh = (SSH) entity.getAdapter(SSH.class);
 			if (ssh != null) {
-				SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
-					@Override
-					public URI getFileSystemURL() {
-						IToolConfiguration config = getConfiguration();
-						TCPSocketLocator target = (TCPSocketLocator) config.get("target");
-						String username = (String) config.get("username");
-						String password = (String) config.get("password");
-						String url = "sftp://";
-						url += username+":"+password+"@";
-						url += target.getAddress();
-						url += ":"+target.getPort();
-						url += "/";
-						try {
-							return new URI(url);
-						} catch (URISyntaxException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							throw new RuntimeException(e);
-						}
-					}
-				};
-				action.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target server to connect to", ssh.getLocator()));
-				action.addOption(new StringOption("username", "Username", "", "root"));
-				action.addOption(new StringOption("password", "Password", "", ""));
-				answer.add(action);
-				
-				action = new OpenTerminalAction("Open SSH Terminal", ((ServiceEntity)entity).getAddress().getHost());
+				SpaceAction action = new OpenTerminalAction("Open SSH Terminal", ((ServiceEntity)entity).getAddress().getHost());
 				action.addFixedOption(new StringOption("connector", "Connector", "", "com.netifera.platform.net.ssh.terminal.SSHConnector"));
 				action.addOption(new StringOption("host", "Host", "Host to connect to", ssh.getLocator().getAddress().toString()));
 				action.addOption(new IntegerOption("port", "Port", "Port to connect to", ssh.getLocator().getPort(), 0xFFFF));

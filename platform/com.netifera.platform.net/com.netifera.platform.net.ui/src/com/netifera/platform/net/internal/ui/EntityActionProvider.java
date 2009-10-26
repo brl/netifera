@@ -1,7 +1,5 @@
 package com.netifera.platform.net.internal.ui;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +9,6 @@ import com.netifera.platform.api.iterables.IndexedIterable;
 import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.api.tools.IToolConfiguration;
-import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.NetblockEntity;
@@ -279,35 +275,6 @@ public class EntityActionProvider implements IEntityActionProvider {
 				udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
 				answer.add(udpScanner);
 			}
-		}
-
-		FTP ftp = (FTP) entity.getAdapter(FTP.class);
-		if (ftp != null) {
-			SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
-				@Override
-				public URI getFileSystemURL() {
-					IToolConfiguration config = getConfiguration();
-					TCPSocketLocator target = (TCPSocketLocator) config.get("target");
-					String username = (String) config.get("username");
-					String password = (String) config.get("password");
-					String url = "ftp://";
-					url += username+":"+password+"@";
-					url += target.getAddress();
-					url += ":"+target.getPort();
-					url += "/";
-					try {
-						return new URI(url);
-					} catch (URISyntaxException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						throw new RuntimeException(e);
-					}
-				}
-			};
-			action.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target server to connect to", ftp.getLocator()));
-			action.addOption(new StringOption("username", "Username", "", "ftp"));
-			action.addOption(new StringOption("password", "Password", "", "", true));
-			answer.add(action);
 		}
 
 		Telnet telnet = (Telnet) entity.getAdapter(Telnet.class);

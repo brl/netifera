@@ -140,6 +140,10 @@ public class SFTPFileSystem implements IFileSystem {
 		return new File[] {new File(this, "/", File.DIRECTORY, 0, 0)};
 	}
 
+	public void disconnect() throws IOException {
+		// TODO Auto-generated method stub
+	}
+
 	@Override
 	public String toString() {
 		return ssh.toString();

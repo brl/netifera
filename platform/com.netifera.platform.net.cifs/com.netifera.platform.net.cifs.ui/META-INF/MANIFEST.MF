@@ -3,17 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: CIFS UI Plug-in
 Bundle-SymbolicName: com.netifera.platform.net.cifs.ui
 Bundle-Version: 1.0.0
-Bundle-Activator: com.netifera.platform.net.cifs.internal.ui.Activator
 Bundle-Vendor: Netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.model,
- com.netifera.platform.api.tools,
- com.netifera.platform.host.filesystem,
- com.netifera.platform.host.filesystem.ui,
- com.netifera.platform.net.cifs.filesystem,
  com.netifera.platform.net.cifs.tools,
  com.netifera.platform.net.model,
- com.netifera.platform.net.services.credentials,
  com.netifera.platform.net.wordlists,
  com.netifera.platform.tools.options,
  com.netifera.platform.ui.actions,

@@ -5,7 +5,10 @@ Bundle-SymbolicName: com.netifera.platform.net.services.basic
 Bundle-Version: 1.0.0
 Bundle-Vendor: netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Import-Package: com.netifera.platform.host.filesystem,
+Import-Package: com.netifera.platform.api.iterables,
+ com.netifera.platform.api.model,
+ com.netifera.platform.host.filesystem,
+ com.netifera.platform.net.model,
  com.netifera.platform.net.services,
  com.netifera.platform.net.services.auth,
  com.netifera.platform.net.services.credentials,
@@ -18,6 +21,7 @@ Require-Bundle: org.apache.commons.net;bundle-version="1.4.1",
  org.apache.oro;bundle-version="2.0.8"
 Service-Component: OSGI-INF/ftp-provider.xml,
  OSGI-INF/ftp-filesystem-provider.xml,
+ OSGI-INF/ftp-filesystem-adapter-provider.xml,
  OSGI-INF/pop3-provider.xml,
  OSGI-INF/smtp-provider.xml,
  OSGI-INF/telnet-provider.xml

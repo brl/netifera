@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.file-action-provider">
-	<implementation class="com.netifera.platform.host.filesystem.ui.probe.EntityActionProvider" />
+	<implementation class="com.netifera.platform.host.internal.filesystem.ui.EntityActionProvider" />
 	<service>
 		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProvider" />
 	</service>

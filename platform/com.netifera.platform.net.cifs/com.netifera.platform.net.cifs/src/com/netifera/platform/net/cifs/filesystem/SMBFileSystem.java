@@ -74,6 +74,10 @@ public class SMBFileSystem implements IFileSystem {
 		return true;
 	}
 
+	public void disconnect() throws IOException {
+		// TODO Auto-generated method stub
+	}
+
 	private File[] convert(SmbFile[] smbFiles) throws SmbException {
 		List<File> files = new ArrayList<File>();
 		for (SmbFile smbFile: smbFiles) {

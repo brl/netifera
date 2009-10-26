@@ -133,6 +133,9 @@ public class FTPFileSystem implements IFileSystem {
 		return new File[] {new File(this, "/", File.DIRECTORY, 0, 0)};
 	}
 	
+	public void disconnect() {
+	}
+	
 	@Override
 	public String toString() {
 		return ftp.toString();

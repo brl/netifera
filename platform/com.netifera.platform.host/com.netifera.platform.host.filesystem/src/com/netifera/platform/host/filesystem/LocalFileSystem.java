@@ -87,4 +87,7 @@ public class LocalFileSystem implements IFileSystem {
 	public String toString() {
 		return "Local File System";
 	}
+
+	public void disconnect() {
+	}
 }

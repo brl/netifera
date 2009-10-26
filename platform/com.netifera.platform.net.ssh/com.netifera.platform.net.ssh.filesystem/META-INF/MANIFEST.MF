@@ -5,7 +5,10 @@ Bundle-SymbolicName: com.netifera.platform.net.ssh.filesystem
 Bundle-Version: 1.0.0
 Bundle-Vendor: netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Import-Package: com.netifera.platform.host.filesystem,
+Import-Package: com.netifera.platform.api.iterables,
+ com.netifera.platform.api.model,
+ com.netifera.platform.host.filesystem,
+ com.netifera.platform.net.model,
  com.netifera.platform.net.services,
  com.netifera.platform.net.services.credentials,
  com.netifera.platform.net.services.ssh,
@@ -15,4 +18,5 @@ Import-Package: com.netifera.platform.host.filesystem,
  com.trilead.ssh2,
  com.trilead.ssh2.sftp
 Export-Package: com.netifera.platform.net.ssh.filesystem
-Service-Component: OSGI-INF/sftp-filesystem-provider.xml
+Service-Component: OSGI-INF/sftp-filesystem-provider.xml,
+ OSGI-INF/sftp-filesystem-adapter-provider.xml

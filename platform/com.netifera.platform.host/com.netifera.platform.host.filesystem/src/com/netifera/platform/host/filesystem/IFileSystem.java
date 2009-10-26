@@ -19,4 +19,6 @@ public interface IFileSystem {
 	File createDirectory(String directoryName) throws IOException;
 	
 	boolean rename(String oldName, String newName) throws IOException;
+	
+	void disconnect() throws IOException;
 }

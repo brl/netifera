@@ -84,6 +84,10 @@ public class RemoteFileSystem implements IFileSystem {
 		return false;
 	}
 	
+	public void disconnect() throws IOException {
+		// TODO Auto-generated method stub
+	}
+	
 	@SuppressWarnings("unused")
 	private boolean sendMessage(IProbeMessage message) {
 		try {

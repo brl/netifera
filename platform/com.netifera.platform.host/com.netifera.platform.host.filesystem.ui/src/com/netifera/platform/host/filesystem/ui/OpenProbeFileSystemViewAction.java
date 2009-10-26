@@ -1,4 +1,4 @@
-package com.netifera.platform.host.filesystem.ui.probe;
+package com.netifera.platform.host.filesystem.ui;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +13,6 @@ import org.eclipse.ui.PlatformUI;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.ui.FileSystemView;
 import com.netifera.platform.host.internal.filesystem.ui.Activator;
 import com.netifera.platform.ui.actions.SpaceAction;
 
