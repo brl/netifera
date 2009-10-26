@@ -3,6 +3,9 @@ package com.netifera.platform.services;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.netifera.platform.api.probe.IProbe;
+import com.netifera.platform.services.internal.Activator;
+
 abstract public class ServiceLocator {
 	final private URI url;
 
@@ -18,6 +21,14 @@ abstract public class ServiceLocator {
 	
 	public URI getURL() {
 		return url;
+	}
+
+	public Object create(IProbe probe) {
+		return Activator.getInstance().getServiceFactory().create(getType(), getURL(), probe);
+	}
+
+	public Object create() {
+		return Activator.getInstance().getServiceFactory().create(getType(), getURL());
 	}
 	
 	public String toString() {
