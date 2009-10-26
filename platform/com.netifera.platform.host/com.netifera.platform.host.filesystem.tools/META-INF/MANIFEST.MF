@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: FileSystem Tools Plug-in
+Bundle-SymbolicName: com.netifera.platform.host.filesystem.tools
+Bundle-Version: 1.0.0
+Bundle-Activator: com.netifera.platform.host.filesystem.internal.tools.Activator
+Bundle-Vendor: Netifera
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.netifera.platform.api.log,
+ com.netifera.platform.api.model,
+ com.netifera.platform.api.probe,
+ com.netifera.platform.api.tools,
+ com.netifera.platform.host.filesystem,
+ com.netifera.platform.host.filesystem.spider,
+ com.netifera.platform.host.filesystem.spider.impl,
+ com.netifera.platform.services,
+ com.netifera.platform.tools,
+ org.osgi.framework;version="1.3.0",
+ org.osgi.util.tracker
+Export-Package: com.netifera.platform.host.filesystem.tools
+Service-Component: OSGI-INF/tool-provider.xml
+Bundle-ActivationPolicy: lazy
