@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime;bundle-version="3.4.0"
 Service-Component: OSGI-INF/entity-action-provider.xml
 Import-Package: com.netifera.platform.api.model,
- com.netifera.platform.host.terminal.ui,
  com.netifera.platform.net.model,
  com.netifera.platform.net.services,
  com.netifera.platform.net.services.ssh,

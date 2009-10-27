@@ -1,13 +1,12 @@
 package com.netifera.platform.net.ssh.internal.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
-import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UsernameAndPasswordEntity;
 import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.net.ssh.tools.SSHAuthBruteforcer;
@@ -20,7 +19,6 @@ import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
-import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 import com.netifera.platform.util.locators.TCPSocketLocator;
@@ -73,22 +71,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 	}
 
 	public List<IAction> getQuickActions(IShadowEntity entity) {
-		List<IAction> answer = new ArrayList<IAction>();
-
-		if (entity instanceof ServiceEntity) {
-			SSH ssh = (SSH) entity.getAdapter(SSH.class);
-			if (ssh != null) {
-				SpaceAction action = new OpenTerminalAction("Open SSH Terminal", ((ServiceEntity)entity).getAddress().getHost());
-				action.addFixedOption(new StringOption("connector", "Connector", "", "com.netifera.platform.net.ssh.terminal.SSHConnector"));
-				action.addOption(new StringOption("host", "Host", "Host to connect to", ssh.getLocator().getAddress().toString()));
-				action.addOption(new IntegerOption("port", "Port", "Port to connect to", ssh.getLocator().getPort(), 0xFFFF));
-				action.addOption(new StringOption("username", "Username", "", "root"));
-				action.addOption(new StringOption("password", "Password", "", "", true));
-				action.addOption(new StringOption("key", "Public Key", "Public Key to use in the authentication", "", true));
-				answer.add(action);
-			}
-		}
-		return answer;
+		return Collections.emptyList();
 	}
 
 	private String[] getAvailableWordLists(String[] categories) {

@@ -15,11 +15,11 @@ import com.netifera.platform.host.internal.terminal.ui.ReadOnlySettingsStore;
 import com.netifera.platform.host.terminal.ui.view.TerminalView;
 import com.netifera.platform.ui.actions.SpaceAction;
 
-public class OpenTerminalAction extends SpaceAction {
+public class OpenRawTerminalAction extends SpaceAction {
 
 	private IEntity hostEntity;
 	
-	public OpenTerminalAction(String name, IEntity hostEntity) {
+	public OpenRawTerminalAction(String name, IEntity hostEntity) {
 		super(name);
 		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/terminal_view.png"));
 		this.hostEntity = hostEntity;

@@ -1,5 +1,8 @@
 package com.netifera.platform.host.terminal.probe;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,26 +16,25 @@ import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.host.terminal.IPseudoTerminalFactory;
 import com.netifera.platform.host.terminal.ITerminal;
+import com.netifera.platform.host.terminal.ITerminalService;
 import com.netifera.platform.host.terminal.ITerminalOutputHandler;
+import com.netifera.platform.services.IServiceFactory;
 
-public class TerminalManager {
+public class TerminalServiceBridge {
 	private ILogger logger;
-	private IPseudoTerminalFactory ptyFactory;
-	
+	private IServiceFactory serviceFactory;
 	private Map<String, ITerminal> ptyMap = new HashMap<String, ITerminal>();
 	private Map<String, IMessenger> messengerMap = new HashMap<String, IMessenger>();
 	
 	private final ITerminalOutputHandler outputHandler;
 	
-	public TerminalManager() {
+	public TerminalServiceBridge() {
 		outputHandler = createTerminalOutputHandler();
 	}
 	
 	private ITerminalOutputHandler createTerminalOutputHandler() {
 		return new ITerminalOutputHandler() {
-
 			public void terminalOutput(String ptyName, byte[] data, int length) {
 				byte[] sendBytes = new byte[length];
 				System.arraycopy(data, 0, sendBytes, 0, length);
@@ -43,7 +45,6 @@ public class TerminalManager {
 			public void terminalClosed(String ptyName) {
 				emitMessage(ptyName, new TerminalClosed(ptyName));	
 			}
-			
 		};
 	}
 	
@@ -58,13 +59,30 @@ public class TerminalManager {
 	
 	private ITerminal createTerminal(String command, IMessenger messenger) {
 		synchronized(messengerMap) {
-			final ITerminal terminal = ptyFactory.openTerminal(command, outputHandler);
+			ITerminal terminal = null;
+			try {
+				terminal = getTerminalManager().openTerminal(command, outputHandler);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if(terminal != null) {
 				ptyMap.put(terminal.getName(), terminal);
 				messengerMap.put(terminal.getName(), messenger);
 			}
 			return terminal;
 		}
+	}
+
+	private ITerminalService getTerminalManager() {
+		ITerminalService terminalManager = null;
+		try {
+			terminalManager = (ITerminalService) serviceFactory.create(ITerminalService.class, new URI("local://"));
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return terminalManager;
 	}
 	
 	private void terminalInput(IMessenger messenger, TerminalInput message) {
@@ -89,7 +107,6 @@ public class TerminalManager {
 		closePty(message.getPtyName());
 	}
 	
-	
 	private void closePty(String ptyName) {
 		synchronized (messengerMap) {
 			ITerminal terminal = ptyMap.get(ptyName);
@@ -100,6 +117,7 @@ public class TerminalManager {
 			messengerMap.remove(ptyName);
 		}
 	}
+	
 	private void emitMessage(String ptyName, IProbeMessage message) {
 		IMessenger messenger;
 		synchronized(messengerMap) {
@@ -144,6 +162,7 @@ public class TerminalManager {
 		dispatcher.registerMessageHandler(TerminalSizeChange.ID, handler);
 		dispatcher.registerMessageHandler(CloseTerminal.ID, handler);
 	}
+	
 	protected void setMessageDispatcher(IMessageDispatcherService dispatcher) {
 		registerHandlers(dispatcher.getServerDispatcher());
 	}
@@ -152,18 +171,16 @@ public class TerminalManager {
 	}
 	
 	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Terminal Manager");
+		logger = logManager.getLogger("Terminal Service");
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {
-		
 	}
 	
-	protected void setPtyFactory(IPseudoTerminalFactory factory) {
-		ptyFactory = factory;
+	protected void setServiceFactory(IServiceFactory serviceFactory) {
+		this.serviceFactory = serviceFactory;
 	}
 	
-	protected void unsetPtyFactory(IPseudoTerminalFactory factory) {
-		
+	protected void unsetServiceFactory(IServiceFactory serviceFactory) {
 	}
 }

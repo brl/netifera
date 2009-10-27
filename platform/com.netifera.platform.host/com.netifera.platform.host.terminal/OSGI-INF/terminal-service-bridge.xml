@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.terminal-manager">
-	<implementation class="com.netifera.platform.host.terminal.probe.TerminalManager"/>
+<component name="netifera.terminal-service-bridge">
+	<implementation class="com.netifera.platform.host.terminal.probe.TerminalServiceBridger"/>
 	
 	<reference
 		name="LOG_MANAGER"
@@ -16,10 +16,4 @@
 		unbind="unsetMessageDispatcher"
 	/>
 	
-	<reference
-		name="PTY_FACTORY"
-		interface="com.netifera.platform.host.terminal.IPseudoTerminalFactory"
-		bind="setPtyFactory"
-		unbind="unsetPtyFactory"
-	/>
 </component>

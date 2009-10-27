@@ -5,13 +5,18 @@ Bundle-SymbolicName: com.netifera.platform.host.terminal
 Bundle-Version: 1.0.0
 Bundle-Vendor: NETIFERA
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Service-Component: OSGI-INF/terminal-manager-factory.xml,
- OSGI-INF/terminal-manager.xml,
- OSGI-INF/pseudo-terminal-factory.xml
 Import-Package: com.netifera.platform.api.dispatcher,
+ com.netifera.platform.api.iterables,
  com.netifera.platform.api.log,
+ com.netifera.platform.api.model,
  com.netifera.platform.api.probe,
  com.netifera.platform.api.system,
- com.netifera.platform.dispatcher
+ com.netifera.platform.dispatcher,
+ com.netifera.platform.model,
+ com.netifera.platform.services
 Export-Package: com.netifera.platform.host.terminal,
  com.netifera.platform.host.terminal.probe
+Service-Component: OSGI-INF/terminal-service-bridge.xml,
+ OSGI-INF/local-terminal-service-provider.xml,
+ OSGI-INF/remote-terminal-service-provider.xml,
+ OSGI-INF/probe-terminal-adapter-provider.xml

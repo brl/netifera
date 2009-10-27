@@ -5,11 +5,11 @@ import java.io.OutputStream;
 
 import com.netifera.platform.host.terminal.ITerminal;
 
-public class PtyOutputStream extends OutputStream {
+public class PTYOutputStream extends OutputStream {
 
 	private final ITerminal terminal;
 	
-	public PtyOutputStream(ITerminal terminal) {
+	public PTYOutputStream(ITerminal terminal) {
 		this.terminal = terminal;
 	}
 	@Override

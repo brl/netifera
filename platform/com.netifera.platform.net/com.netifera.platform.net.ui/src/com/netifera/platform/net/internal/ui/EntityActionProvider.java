@@ -9,7 +9,7 @@ import com.netifera.platform.api.iterables.IndexedIterable;
 import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.host.terminal.ui.OpenTerminalAction;
+import com.netifera.platform.host.terminal.ui.OpenRawTerminalAction;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.PortSetEntity;
@@ -279,7 +279,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 		Telnet telnet = (Telnet) entity.getAdapter(Telnet.class);
 		if (telnet != null) {
-			SpaceAction action = new OpenTerminalAction("Open Telnet Terminal", ((ServiceEntity)entity).getAddress().getHost());
+			SpaceAction action = new OpenRawTerminalAction("Open Telnet Terminal", ((ServiceEntity)entity).getAddress().getHost());
 			action.addOption(new StringOption("host", "Host", "Host to connect to", telnet.getLocator().getAddress().toString()));
 			action.addOption(new IntegerOption("port", "Port", "Port to connect to", telnet.getLocator().getPort(), 0xFFFF));
 			action.addFixedOption(new StringOption("connector", "Connector", "", "org.eclipse.tm.internal.terminal.telnet.TelnetConnector"));
@@ -287,7 +287,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		} else {
 			TCPSocketLocator locator = (TCPSocketLocator) entity.getAdapter(TCPSocketLocator.class);
 			if (locator != null) {
-				SpaceAction action = new OpenTerminalAction("Open Raw Terminal", ((ServiceEntity)entity).getAddress().getHost());
+				SpaceAction action = new OpenRawTerminalAction("Open Raw Terminal", ((ServiceEntity)entity).getAddress().getHost());
 				action.addOption(new StringOption("host", "Host", "Host to connect to", locator.getAddress().toString()));
 				action.addOption(new IntegerOption("port", "Port", "Port to connect to", locator.getPort(), 0xFFFF));
 				action.addFixedOption(new StringOption("connector", "Connector", "", "org.eclipse.tm.internal.terminal.telnet.TelnetConnector"));

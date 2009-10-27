@@ -9,17 +9,17 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.dispatcher.StatusMessage;
 import com.netifera.platform.host.terminal.ITerminal;
-import com.netifera.platform.host.terminal.ITerminalManager;
+import com.netifera.platform.host.terminal.ITerminalService;
 import com.netifera.platform.host.terminal.ITerminalOutputHandler;
 
-public class RemoteTerminalManager implements ITerminalManager {
+public class RemoteTerminalService implements ITerminalService {
 	
 	private final ILogger logger;
 	private final IProbe probe;
 	private String messengerError;
 	private Map<String, RemoteTerminal> ptyMap = new HashMap<String, RemoteTerminal>();
 	
-	RemoteTerminalManager(IProbe probe, ILogger logger) {
+	public RemoteTerminalService(IProbe probe, ILogger logger) {
 		this.probe = probe;
 		this.logger = logger;
 	}
@@ -37,13 +37,13 @@ public class RemoteTerminalManager implements ITerminalManager {
 		
 	}
 	
-	void terminalOutput(TerminalOutput terminalOutput) {
+	public void terminalOutput(TerminalOutput terminalOutput) {
 		RemoteTerminal terminal = ptyMap.get(terminalOutput.getPty());
 		terminal.receiveOutput(terminalOutput.getOutput());
 		
 	}
 	
-	void terminalClosed(TerminalClosed terminalClosed) {
+	public void terminalClosed(TerminalClosed terminalClosed) {
 		RemoteTerminal terminal = ptyMap.get(terminalClosed.getPtyName());
 		
 		if(terminal != null) {
@@ -92,5 +92,8 @@ public class RemoteTerminalManager implements ITerminalManager {
 			messengerError = e.getMessage();
 			return null;
 		}
+	}
+
+	public void disconnect() {
 	}
 }

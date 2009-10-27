@@ -1,5 +1,6 @@
-package com.netifera.platform.host.terminal.probe;
+package com.netifera.platform.host.internal.terminal;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,30 +14,38 @@ import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
-import com.netifera.platform.host.terminal.ITerminalManager;
-import com.netifera.platform.host.terminal.ITerminalManagerFactory;
+import com.netifera.platform.host.terminal.ITerminalService;
+import com.netifera.platform.host.terminal.probe.RemoteTerminalService;
+import com.netifera.platform.host.terminal.probe.TerminalClosed;
+import com.netifera.platform.host.terminal.probe.TerminalOutput;
+import com.netifera.platform.services.IRemoteServiceProvider;
 
-public class TerminalManagerFactory implements ITerminalManagerFactory {
+public class RemoiteTerminalServiceProvider implements IRemoteServiceProvider {
 
 	private ILogger logger;
-	private Map<IProbe, RemoteTerminalManager> probeMap =
-		new HashMap<IProbe, RemoteTerminalManager>();
-	public ITerminalManager createForProbe(IProbe probe) {
+	private Map<IProbe, RemoteTerminalService> probeMap =
+		new HashMap<IProbe, RemoteTerminalService>();
+
+	public Object create(URI url, IProbe probe) {
+		//XXX ignoring url
 		if(probeMap.containsKey(probe))
 			return probeMap.get(probe);
 		
-		final RemoteTerminalManager rtm = new RemoteTerminalManager(probe, logger);
+		final RemoteTerminalService rtm = new RemoteTerminalService(probe, logger);
 		probeMap.put(probe, rtm);
 		return rtm;
 	}
-	
-	
+
+	public Class<?> getType() {
+		return ITerminalService.class;
+	}
+
 	private void registerHandlers(IMessageDispatcher dispatcher) {
 		IMessageHandler handler = new IMessageHandler() {
 
 			public void call(IMessenger messenger, IProbeMessage message)
 					throws DispatchException {
-				RemoteTerminalManager rtm = (RemoteTerminalManager) createForProbe(messenger.getProbe());
+				RemoteTerminalService rtm = (RemoteTerminalService) probeMap.get(messenger.getProbe());
 				if(message instanceof TerminalOutput) {
 					rtm.terminalOutput((TerminalOutput) message);
 				} else if(message instanceof TerminalClosed) {
@@ -55,15 +64,12 @@ public class TerminalManagerFactory implements ITerminalManagerFactory {
 	}
 	
 	protected void unsetMessageDispatcher(IMessageDispatcherService dispatcher) {
-		
 	}
 	
 	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Terminal Manager");
+		logger = logManager.getLogger("Terminal Service");
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {
-		
 	}
-
 }

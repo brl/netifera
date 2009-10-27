@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.terminal-manager-factory">
-	<implementation class="com.netifera.platform.host.terminal.probe.TerminalManagerFactory" />
+<component name="netifera.remote-terminal-service-provider">
+	<implementation class="com.netifera.platform.host.internal.terminal.RemoteTerminalServiceProvider" />
 	<service>
-		<provide interface="com.netifera.platform.host.terminal.ITerminalManagerFactory" />
+		<provide interface="com.netifera.platform.services.IRemoteServiceProvider" />
 	</service>
 	
 	<reference
