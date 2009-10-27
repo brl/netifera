@@ -20,8 +20,11 @@ public class Backdoor {
 		
 		String backdoorPath = getBackdoorPath(sysOS);
 		if (backdoorPath == null || !verifyBackdoorPath(backdoorPath)) {
-			logger.warning("Could not find 'backdoor' binary");
-			backdoorPath = null;
+			backdoorPath = System.getProperty("user.home", System.getenv("HOME")) + File.separator + ".netifera" + File.separator + "backdoor";
+			if (!verifyBackdoorPath(backdoorPath)) {
+				logger.warning("Could not find 'backdoor' binary");
+				backdoorPath = null;
+			}
 		}
 		return backdoorPath;
 	}
