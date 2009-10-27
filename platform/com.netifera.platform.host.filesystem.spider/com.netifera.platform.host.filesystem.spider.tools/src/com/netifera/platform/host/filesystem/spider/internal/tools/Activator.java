@@ -1,4 +1,4 @@
-package com.netifera.platform.host.filesystem.internal.tools;
+package com.netifera.platform.host.filesystem.spider.internal.tools;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

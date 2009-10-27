@@ -1,4 +1,4 @@
-package com.netifera.platform.host.filesystem.tools;
+package com.netifera.platform.host.filesystem.spider.tools;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,8 +8,8 @@ import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.internal.tools.Activator;
 import com.netifera.platform.host.filesystem.spider.impl.FileSystemSpider;
+import com.netifera.platform.host.filesystem.spider.internal.tools.Activator;
 
 public class FileSystemHarvester implements ITool {
 	private IToolContext context;

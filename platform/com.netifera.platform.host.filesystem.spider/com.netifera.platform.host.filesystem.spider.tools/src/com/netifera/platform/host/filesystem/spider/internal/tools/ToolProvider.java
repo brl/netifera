@@ -1,8 +1,8 @@
-package com.netifera.platform.host.filesystem.internal.tools;
+package com.netifera.platform.host.filesystem.spider.internal.tools;
 
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolProvider;
-import com.netifera.platform.host.filesystem.tools.FileSystemHarvester;
+import com.netifera.platform.host.filesystem.spider.tools.FileSystemHarvester;
 
 public class ToolProvider implements IToolProvider {
 	private final static String[] toolClassNames = { 
