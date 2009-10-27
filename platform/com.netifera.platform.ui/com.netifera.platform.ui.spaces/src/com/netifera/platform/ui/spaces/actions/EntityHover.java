@@ -68,9 +68,9 @@ public class EntityHover extends PopupDialog {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP , false, false, false, false, false, 
 				/*ModelPlugin.getPlugin().getLabelProvider().getText(entity.getRealEntity())*/ null, null);
 		if(!(input instanceof ISpace))
-			throw new IllegalArgumentException("ActionHover input is "+input);
+			throw new IllegalArgumentException("EntityHover input is "+input);
 		if(!(item instanceof IShadowEntity))
-			throw new IllegalArgumentException("ActionHover item is "+item);
+			throw new IllegalArgumentException("EntityHover item is "+item);
 		this.location = location;
 		this.entity = (IShadowEntity)item;
 		this.space = (ISpace) input;

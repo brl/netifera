@@ -6,14 +6,22 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 
 import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
+import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.probe.Activator;
+import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.actions.EntityHover;
 
 public class ProbeStatusLine extends ControlContribution {
 
@@ -42,6 +50,26 @@ public class ProbeStatusLine extends ControlContribution {
 		label.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent arg0) {
 				Activator.getDefault().getProbeManager().removeProbeChangeListener(probeChangeListener);
+			}
+		});
+		
+		label.addMouseListener(new MouseListener() {
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+
+			public void mouseDown(MouseEvent e) {
+			}
+
+			public void mouseUp(MouseEvent e) {
+				IEditorPart editor = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+				IEditorInput input = editor.getEditorInput();
+				if (input instanceof SpaceEditorInput) {
+					ISpace space = ((SpaceEditorInput)input).getSpace();
+					if (space.getProbeId() != probe.getProbeId())
+						return;
+					EntityHover hover = new EntityHover(label.getShell(), label.toDisplay(e.x,e.y), space, probe.getEntity());
+					hover.open();
+				}
 			}
 		});
 
