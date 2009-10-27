@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.process-manager">
-	<implementation class="com.netifera.platform.host.processes.probe.ProcessManager" />
+<component name="netifera.process-service-bridge">
+	<implementation class="com.netifera.platform.host.processes.probe.ProcessServiceBridge" />
 	
 		<reference
     	name="LOG_MANAGER"

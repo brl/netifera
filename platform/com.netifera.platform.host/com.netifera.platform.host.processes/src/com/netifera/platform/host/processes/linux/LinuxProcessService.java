@@ -1,4 +1,4 @@
-package com.netifera.platform.host.processes;
+package com.netifera.platform.host.processes.linux;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,13 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.netifera.platform.api.log.ILogger;
+import com.netifera.platform.host.processes.IProcessService;
+import com.netifera.platform.host.processes.Process;
 
-public class LinuxProcessManager implements IProcessManager {
+public class LinuxProcessService implements IProcessService {
 	private ILogger logger;
 	private static final String managerName = "Process Manager [Linux]";
 	private final String procPath;
 	
-	public LinuxProcessManager(ILogger logger) {
+	public LinuxProcessService(ILogger logger) {
 		this.logger = logger;
 		File f = new File("/proc");
 		if(f.isDirectory()) {

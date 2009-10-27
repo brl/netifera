@@ -12,16 +12,16 @@ import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.host.processes.IProcessManager;
-import com.netifera.platform.host.processes.LinuxProcessManager;
+import com.netifera.platform.host.processes.IProcessService;
+import com.netifera.platform.host.processes.linux.LinuxProcessService;
 
-public class ProcessManager {
+public class ProcessServiceBridge {
 	
 	private ILogger logger;
-	IProcessManager manager;
+	IProcessService service;
 	
 	protected void activate(ComponentContext ctx) {
-		manager = new LinuxProcessManager(logger);
+		service = new LinuxProcessService(logger); //TODO
 	}
 	
 	protected void deactivate(ComponentContext ctx) {
@@ -29,7 +29,7 @@ public class ProcessManager {
 	}
 	
 	private void getProcessList(IMessenger messenger, GetProcessList message) {
-		GetProcessList response = message.createResponse(manager.getProcessList());
+		GetProcessList response = message.createResponse(service.getProcessList());
 		try {
 			messenger.emitMessage(response);
 		} catch (MessengerException e) {
@@ -73,7 +73,7 @@ public class ProcessManager {
 		
 	}
 	protected void setLogManager(ILogManager logManager) {
-		this.logger = logManager.getLogger("Process Manager");
+		this.logger = logManager.getLogger("Process Service");
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {

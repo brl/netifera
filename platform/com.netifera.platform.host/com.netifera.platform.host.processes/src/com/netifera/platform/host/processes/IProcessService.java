@@ -1,7 +1,7 @@
 package com.netifera.platform.host.processes;
 
 
-public interface IProcessManager {
+public interface IProcessService {
 	Process[] getProcessList();
 	boolean kill(int pid);
 }

@@ -11,7 +11,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.host.processes.IProcessManagerFactory;
+import com.netifera.platform.services.IServiceFactory;
 import com.netifera.platform.ui.images.ImageCache;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.util.BalloonManager;
@@ -22,7 +22,7 @@ public class Activator implements BundleActivator {
 	private static Activator instance;
 	private ImageCache imageCache;
 	private BalloonManager balloonManager;
-	private ServiceTracker processManagerFactoryTracker;
+	private ServiceTracker serviceFactoryTracker;
 	private ServiceTracker probeManagerTracker;
 
 	public static Activator getInstance() {
@@ -37,8 +37,8 @@ public class Activator implements BundleActivator {
 		instance = this;
 		imageCache = new ImageCache(PLUGIN_ID);
 		
-		processManagerFactoryTracker = new ServiceTracker(context, IProcessManagerFactory.class.getName(), null);
-		processManagerFactoryTracker.open();
+		serviceFactoryTracker = new ServiceTracker(context, IServiceFactory.class.getName(), null);
+		serviceFactoryTracker.open();
 		
 		probeManagerTracker = new ServiceTracker(context, IProbeManagerService.class.getName(), null);
 		probeManagerTracker.open();
@@ -63,9 +63,10 @@ public class Activator implements BundleActivator {
 		return balloonManager;
 	}
 
-	public IProcessManagerFactory getProcessManagerFactory() {
-		return (IProcessManagerFactory) processManagerFactoryTracker.getService();
+	public IServiceFactory getServiceFactory() {
+		return (IServiceFactory) serviceFactoryTracker.getService();
 	}
+	
 	public IProbeManagerService getProbeManager() {
 		return (IProbeManagerService) probeManagerTracker.getService();
 	}

@@ -5,16 +5,16 @@ import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.dispatcher.StatusMessage;
-import com.netifera.platform.host.processes.IProcessManager;
+import com.netifera.platform.host.processes.IProcessService;
 import com.netifera.platform.host.processes.Process;
 
-public class RemoteProcessManager implements IProcessManager {
+public class RemoteProcessService implements IProcessService {
 
 	private final IProbe probe;
 	private final ILogger logger;
 	private String messengerError;
 	
-	public RemoteProcessManager(IProbe probe, ILogger logger) {
+	public RemoteProcessService(IProbe probe, ILogger logger) {
 		this.probe = probe;
 		this.logger = logger;
 	}
