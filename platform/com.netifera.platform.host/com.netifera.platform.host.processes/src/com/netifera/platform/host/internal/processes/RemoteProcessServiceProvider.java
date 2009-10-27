@@ -8,7 +8,7 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.host.processes.probe.RemoteProcessService;
 import com.netifera.platform.services.IRemoteServiceProvider;
 
-public class RemoiteProcessServiceProvider implements IRemoteServiceProvider {
+public class RemoteProcessServiceProvider implements IRemoteServiceProvider {
 
 	private ILogger logger;
 

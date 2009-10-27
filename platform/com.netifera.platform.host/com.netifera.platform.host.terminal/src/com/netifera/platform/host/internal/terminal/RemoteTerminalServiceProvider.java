@@ -20,7 +20,7 @@ import com.netifera.platform.host.terminal.probe.TerminalClosed;
 import com.netifera.platform.host.terminal.probe.TerminalOutput;
 import com.netifera.platform.services.IRemoteServiceProvider;
 
-public class RemoiteTerminalServiceProvider implements IRemoteServiceProvider {
+public class RemoteTerminalServiceProvider implements IRemoteServiceProvider {
 
 	private ILogger logger;
 	private Map<IProbe, RemoteTerminalService> probeMap =

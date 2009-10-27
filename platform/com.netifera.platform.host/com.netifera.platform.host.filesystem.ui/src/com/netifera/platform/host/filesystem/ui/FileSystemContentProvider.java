@@ -96,7 +96,7 @@ public class FileSystemContentProvider implements ITreeContentProvider {
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		fileSystem = (IFileSystem) newInput;
-//		if (fileSystem == null) return;
+		if (fileSystem == null) return;
 		roots = fileSystem.getRoots();
 		clear();
 		
