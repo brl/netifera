@@ -9,14 +9,11 @@ import org.eclipse.jface.action.IAction;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.host.filesystem.FileSystemLocator;
 import com.netifera.platform.host.filesystem.spider.IFileSystemSpiderModule;
 import com.netifera.platform.host.filesystem.tools.FileSystemHarvester;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
-import com.netifera.platform.host.filesystem.ui.OpenProbeFileSystemViewAction;
-import com.netifera.platform.model.ProbeEntity;
 import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
@@ -33,14 +30,6 @@ public class EntityActionProvider implements IEntityActionProvider {
 	public List<IAction> getActions(IShadowEntity shadow) {
 		List<IAction> answer = new ArrayList<IAction>();
 		
-		if(shadow instanceof ProbeEntity) {
-			ProbeEntity probeEntity = (ProbeEntity) shadow;
-			IProbe probe = probeManager.getProbeById(probeEntity.getProbeId());
-			if(probe != null && probe.isConnected()) {
-				answer.add(new OpenProbeFileSystemViewAction(logger, probe));
-			}
-		}
-
 		FileSystemLocator fileSystemLocator = (FileSystemLocator) shadow.getAdapter(FileSystemLocator.class);
 		if (fileSystemLocator != null) {
 			ToolAction harvester = new ToolAction("Harvest File System", FileSystemHarvester.class.getName());
@@ -72,7 +61,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 	}
 
 	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Probe Actions");
+		logger = logManager.getLogger("File System Actions");
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {

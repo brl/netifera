@@ -9,7 +9,7 @@ import com.netifera.platform.services.IServiceProvider;
 public class LocalFileSystemProvider implements IServiceProvider {
 
 	public IFileSystem create(URI url) {
-		if (url.getScheme().equals("file"))
+		if (url.getScheme().equals("local"))
 			return new LocalFileSystem();
 		return null;
 	}

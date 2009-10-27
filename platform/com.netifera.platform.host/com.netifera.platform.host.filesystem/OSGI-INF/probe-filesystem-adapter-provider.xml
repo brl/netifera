@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.probe-filesystem-adapter-provider">
+	<implementation class="com.netifera.platform.host.internal.filesystem.ProbeFileSystemAdapterProvider" />
+	<service>
+		<provide interface="com.netifera.platform.api.model.IEntityAdapterProvider" />
+	</service>
+	
+</component>

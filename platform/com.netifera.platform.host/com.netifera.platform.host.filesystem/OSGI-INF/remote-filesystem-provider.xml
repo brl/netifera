@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.filesystem-local">
+<component name="netifera.remote-filesystem-provider">
 	<implementation class="com.netifera.platform.host.internal.filesystem.RemoteFileSystemProvider" />
 	<service>
 		<provide interface="com.netifera.platform.services.IRemoteServiceProvider" />
