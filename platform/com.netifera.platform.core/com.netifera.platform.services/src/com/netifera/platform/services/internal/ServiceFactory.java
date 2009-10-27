@@ -1,6 +1,7 @@
 package com.netifera.platform.services.internal;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,15 @@ public class ServiceFactory implements IServiceFactory {
 	private IProbeManagerService probeManager;
 	
 	public Object create(Class<?> serviceType, URI url) {
+		if (url.getScheme().equals("probe"))
+			try {
+				return create(serviceType, new URI("local:///"), Long.valueOf(url.getHost()));
+			} catch (NumberFormatException e) {
+				throw new RuntimeException(e);
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+			}
+		
 		for (IServiceProvider provider: providers) {
 			if (serviceType.isAssignableFrom(provider.getType())) {
 				Object service = provider.create(url);
@@ -50,6 +60,7 @@ public class ServiceFactory implements IServiceFactory {
 		return create(serviceType, url, probeManager.getProbeById(probeId));
 	}
 
+	
 	protected void registerProvider(IServiceProvider provider) {
 		logger.info("Register Service Provider: "+provider.getClass().getName());
 		providers.add(provider);
