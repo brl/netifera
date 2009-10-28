@@ -28,7 +28,6 @@ public class EntityActionProvider implements IEntityActionProvider {
 		
 		FileSystemServiceLocator fileSystemLocator = (FileSystemServiceLocator) shadow.getAdapter(FileSystemServiceLocator.class);
 		if (fileSystemLocator != null /*&& fileSystemLocator.getHost() != null*/) {
-			
 			ToolAction harvester = new ToolAction("Harvest File System", FileSystemHarvester.class.getName());
 			harvester.addFixedOption(new StringOption("target", "Target", "Target File System", fileSystemLocator.getURL().toASCIIString()));
 			harvester.addFixedOption(new GenericOption(InternetAddress.class, "host", "Host", "Host", fileSystemLocator.getHost() != null ? (InternetAddress)((HostEntity)fileSystemLocator.getHost()).getDefaultAddress().getAddress() : InternetAddress.fromString("127.0.0.1")));

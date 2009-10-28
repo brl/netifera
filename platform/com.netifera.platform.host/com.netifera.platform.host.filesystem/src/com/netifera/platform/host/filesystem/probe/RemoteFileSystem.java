@@ -114,8 +114,8 @@ public class RemoteFileSystem implements IFileSystem {
 	}
 	
 	public String toString() {
-		if (url.getScheme().equals("file"))
+		if (url.getScheme().equals("local"))
 			return probe.getName();
-		return url.toString() + " from "+probe.getName();
+		return url.toString() + " on "+probe.getName();
 	}
 }

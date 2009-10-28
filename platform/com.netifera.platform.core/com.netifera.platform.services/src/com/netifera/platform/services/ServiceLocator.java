@@ -25,7 +25,7 @@ abstract public class ServiceLocator {
 	public URI getURL() {
 		return url;
 	}
-	
+
 	public IEntity getHost() {
 		return host;
 	}

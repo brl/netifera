@@ -91,7 +91,7 @@ public class RunActionDialog extends PopupDialog {
 		
 		body = form.getBody();
 		GridLayout bodyLayout = new GridLayout();
-//		bodyLayout.verticalSpacing = 5;
+		bodyLayout.verticalSpacing = 3;
 		body.setLayout(bodyLayout);
 //		body.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		toolkit.paintBordersFor(body);

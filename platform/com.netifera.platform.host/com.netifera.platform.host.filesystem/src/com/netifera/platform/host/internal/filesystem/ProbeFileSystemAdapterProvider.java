@@ -13,8 +13,9 @@ public class ProbeFileSystemAdapterProvider implements IEntityAdapterProvider {
 	public Object getAdapter(IEntity entity, Class<?> adapterType) {
 		if (adapterType.isAssignableFrom(FileSystemServiceLocator.class)) {
 			if (entity instanceof ProbeEntity) {
+				ProbeEntity probeEntity = (ProbeEntity) entity;
 				try {
-					return new FileSystemServiceLocator("probe://"+((ProbeEntity)entity).getProbeId()+"/", ((ProbeEntity)entity).getHostEntity());
+					return new FileSystemServiceLocator("local://"+probeEntity.getProbeId()+"/", probeEntity.getHostEntity());
 				} catch (URISyntaxException e) {
 					throw new RuntimeException(e);
 				}

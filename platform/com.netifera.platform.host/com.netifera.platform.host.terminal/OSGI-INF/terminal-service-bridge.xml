@@ -15,5 +15,12 @@
 		bind="setMessageDispatcher"
 		unbind="unsetMessageDispatcher"
 	/>
+
+	<reference
+		name="SERVICE_FACTORY"
+		interface="com.netifera.platform.services.IServiceFactory"
+		bind="setServiceFactory"
+		unbind="unsetServiceFactory"
+	/>
 	
 </component>

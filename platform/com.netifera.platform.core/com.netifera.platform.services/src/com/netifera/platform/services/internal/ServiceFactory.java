@@ -22,7 +22,7 @@ public class ServiceFactory implements IServiceFactory {
 	private IProbeManagerService probeManager;
 	
 	public Object create(Class<?> serviceType, URI url) {
-		if (url.getScheme().equals("probe"))
+		if (url.getScheme().equals("local") && url.getHost() != null && url.getHost().length() > 0)
 			try {
 				return create(serviceType, new URI("local:///"), Long.valueOf(url.getHost()));
 			} catch (NumberFormatException e) {
@@ -30,7 +30,6 @@ public class ServiceFactory implements IServiceFactory {
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
-		
 		for (IServiceProvider provider: providers) {
 			if (serviceType.isAssignableFrom(provider.getType())) {
 				Object service = provider.create(url);
@@ -57,9 +56,15 @@ public class ServiceFactory implements IServiceFactory {
 	}
 
 	public Object create(Class<?> serviceType, URI url, long probeId) {
-		return create(serviceType, url, probeManager.getProbeById(probeId));
+		IProbe probe = probeManager.getProbeById(probeId);
+		if (probe == null) {
+			logger.error("create("+serviceType+", "+url+", "+probeId+") failed, unknown probe "+probeId);
+			probe = probeManager.getLocalProbe(); // HACK
+		}
+		return create(serviceType, url, probe);
 	}
 
+	/*************************************************************************/
 	
 	protected void registerProvider(IServiceProvider provider) {
 		logger.info("Register Service Provider: "+provider.getClass().getName());

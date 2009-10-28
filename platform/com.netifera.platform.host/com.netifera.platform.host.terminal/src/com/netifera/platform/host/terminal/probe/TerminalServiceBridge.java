@@ -77,7 +77,7 @@ public class TerminalServiceBridge {
 	private ITerminalService getTerminalManager() {
 		ITerminalService terminalManager = null;
 		try {
-			terminalManager = (ITerminalService) serviceFactory.create(ITerminalService.class, new URI("local://"));
+			terminalManager = (ITerminalService) serviceFactory.create(ITerminalService.class, new URI("local:///"));
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
