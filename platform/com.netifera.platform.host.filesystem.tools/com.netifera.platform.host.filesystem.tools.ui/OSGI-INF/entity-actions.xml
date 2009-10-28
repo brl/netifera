@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.filesystem-tools-action-provider">
+	<implementation class="com.netifera.platform.host.filesystem.tools.ui.EntityActionProvider" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProvider" />
+	</service>
+	
+	<reference 
+		name="FILESYSTEM_SPIDER_MODULES"
+		interface="com.netifera.platform.host.filesystem.spider.IFileSystemSpiderModule"
+		bind="registerFileSystemSpiderModule"
+		unbind="unregisterFileSystemSpiderModule"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+ 	
+</component>

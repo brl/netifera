@@ -14,7 +14,7 @@ public class ProbeProcessServiceAdapterProvider implements IEntityAdapterProvide
 		if (adapterType.isAssignableFrom(ProcessServiceLocator.class)) {
 			if (entity instanceof ProbeEntity) {
 				try {
-					return new ProcessServiceLocator("probe://"+((ProbeEntity)entity).getProbeId()+"/");
+					return new ProcessServiceLocator("probe://"+((ProbeEntity)entity).getProbeId()+"/", ((ProbeEntity)entity).getHostEntity());
 				} catch (URISyntaxException e) {
 					throw new RuntimeException(e);
 				}

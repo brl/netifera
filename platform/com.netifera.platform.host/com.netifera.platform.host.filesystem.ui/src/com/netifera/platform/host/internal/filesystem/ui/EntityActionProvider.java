@@ -11,7 +11,7 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.host.filesystem.FileSystemLocator;
+import com.netifera.platform.host.filesystem.FileSystemServiceLocator;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
@@ -28,7 +28,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 	public List<IAction> getQuickActions(IShadowEntity shadow) {
 		List<IAction> answer = new ArrayList<IAction>();
 		
-		final FileSystemLocator fileSystemLocator = (FileSystemLocator) shadow.getAdapter(FileSystemLocator.class);
+		final FileSystemServiceLocator fileSystemLocator = (FileSystemServiceLocator) shadow.getAdapter(FileSystemServiceLocator.class);
 		if (fileSystemLocator != null) {
 			SpaceAction action = new OpenFileSystemViewAction("Browse File System") {
 				@Override

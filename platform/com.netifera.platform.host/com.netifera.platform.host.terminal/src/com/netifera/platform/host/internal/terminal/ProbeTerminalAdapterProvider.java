@@ -14,7 +14,7 @@ public class ProbeTerminalAdapterProvider implements IEntityAdapterProvider {
 		if (adapterType.isAssignableFrom(TerminalServiceLocator.class)) {
 			if (entity instanceof ProbeEntity) {
 				try {
-					return new TerminalServiceLocator("probe://"+((ProbeEntity)entity).getProbeId()+"/");
+					return new TerminalServiceLocator("probe://"+((ProbeEntity)entity).getProbeId()+"/", ((ProbeEntity)entity).getHostEntity());
 				} catch (URISyntaxException e) {
 					throw new RuntimeException(e);
 				}
