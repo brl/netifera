@@ -241,7 +241,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		private IStructureContext structureContext;
 		/* used by shadow entities to reference the entity they were cloned from */
 		private AbstractEntity originalEntity;
-		private ISpace view;
+		private ISpace space;
 	}
 	
 	/*
@@ -385,11 +385,11 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		tags.remove(tag);
 	}
 
-	public long getViewId() {
+	public long getSpaceId() {
 		if(shadowContext == null) {
 			throw new IllegalStateException();
 		}
-		return shadowContext.view.getId();
+		return shadowContext.space.getId();
 	}
 	
 	public Object getAdapter(final Class<?> adapterType) {
