@@ -57,7 +57,7 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 		} else if (e instanceof ClientServiceConnectionEntity) {
 			return getServiceInformation(((ClientServiceConnectionEntity)e).getService());
 		} else if (e instanceof PortSetEntity) {
-			return getPortsetInformation((PortSetEntity)e);
+			return getPortSetInformation((PortSetEntity)e);
 		} else if (e instanceof UserEntity) {
 			return getUserInformation((UserEntity)e);
 		}
@@ -195,7 +195,7 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 		return data.replaceAll("[^\\p{Print}\\p{Blank}]", "."); // non-printable chars
 	}
 
-	private String getPortsetInformation(PortSetEntity portset) {
+	private String getPortSetInformation(PortSetEntity portset) {
 		final List<String> lines = breakIntoLines(portset.getPorts());
 
 		final StringBuilder result = new StringBuilder();
@@ -231,17 +231,23 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 	
 	private String getUserInformation(UserEntity e) {
 		StringBuffer buffer = new StringBuffer();
+		if (e.isLocked()) {
+			buffer.append("<p>Locked</p>");
+		}
+		if (e.isPriviledged()) {
+			buffer.append("<p>Priviledged User</p>");
+		}
 		if (e.getPassword() != null) {
 			buffer.append("<p>Password: ");
 			buffer.append(escape(e.getPassword().length() > 0 ? e.getPassword() : "<no password>"));
 			buffer.append("</p>");
 		}
 		for (String hashType: e.getHashTypes()) {
-			buffer.append("<p>Hash: ");
-			buffer.append(escape(e.getHash(hashType)));
-			buffer.append(" (");
+			buffer.append("<p>Hash ");
 			buffer.append(escape(hashType));
-			buffer.append(")</p>");
+			buffer.append(": ");
+			buffer.append(escape(e.getHash(hashType)));
+			buffer.append("</p>");
 		}
 		if (e.getHome() != null) {
 			buffer.append("<p>Home: ");

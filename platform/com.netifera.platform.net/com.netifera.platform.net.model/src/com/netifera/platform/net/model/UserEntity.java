@@ -20,6 +20,7 @@ public class UserEntity extends AbstractEntity {
 	private final IEntityReference host;
 	private final String name;
 	private Map<String,String> hashes;
+	private boolean locked = false;
 
 	public UserEntity(IWorkspace workspace, HostEntity host, String name) {
 		super(ENTITY_NAME, workspace, host.getRealmId());
@@ -69,15 +70,31 @@ public class UserEntity extends AbstractEntity {
 		return getNamedAttribute("home");
 	}
 	
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
+	
+	public boolean isLocked() {
+		return locked;
+	}
+	
+	public boolean isPriviledged() {
+		return name.equals("root") || name.toLowerCase().equals("administrator"); //XXX HACK
+	}
+	
 	@Override
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
 		super.synchronizeEntity(masterEntity);
 		hashes = ((UserEntity)masterEntity).hashes;
+		locked = ((UserEntity)masterEntity).locked;
 	}
 
 	@Override
 	protected IEntity cloneEntity() {
-		return new UserEntity(getWorkspace(), getHost(), getName());
+		UserEntity clone = new UserEntity(getWorkspace(), getHost(), getName());
+		clone.hashes = hashes;
+		clone.locked = locked;
+		return clone;
 	}
 	
 	public static String createQueryKey(long realmId, String name, long hostId) {

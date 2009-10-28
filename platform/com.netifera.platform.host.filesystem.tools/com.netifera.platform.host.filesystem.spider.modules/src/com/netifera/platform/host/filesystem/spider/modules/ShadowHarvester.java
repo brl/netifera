@@ -26,7 +26,11 @@ public class ShadowHarvester implements IFileSystemSpiderModule {
 				String hash = parts[1];
 				UserEntity userEntity = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), context.getHostAddress(), username);
 				if (hash.length() > 1) {
+					userEntity.setLocked(false);
 					userEntity.setHash("UNIX", hash);
+					userEntity.update();
+				} else {
+					userEntity.setLocked(true);
 					userEntity.update();
 				}
 				line = reader.readLine();
