@@ -1,5 +1,6 @@
 package com.netifera.platform.host.filesystem.spider.impl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class FileSystemSpider implements IFileSystemSpider {
 	}
 
 	public void setLogger(ILogger logger) {
+
 		this.logger = logger;
 	}
 	
@@ -180,6 +182,9 @@ public class FileSystemSpider implements IFileSystemSpider {
 		for (IFileSystemSpiderModule module: modules) {
 			try {
 				module.handle(context, file, content);
+			} catch (FileNotFoundException e) {
+				logger.debug("File Not Found: "+file);
+				return;
 			} catch (Throwable e) {
 				e.printStackTrace();
 				logger.error("Error on module '"+module.getName()+"': "+e);
