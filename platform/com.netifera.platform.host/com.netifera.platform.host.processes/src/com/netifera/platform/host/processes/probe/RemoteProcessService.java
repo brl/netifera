@@ -26,12 +26,15 @@ public class RemoteProcessService implements IProcessService {
 			return null;
 		}
 		return msg.getProcessList();
-		
 	}
 
 	public boolean kill(int pid) {
-		// TODO Auto-generated method stub
-		return false;
+		final KillProcess msg = (KillProcess) exchangeMessage(new KillProcess(pid));
+		if(msg == null) {
+			logger.warning("KillProcess failed " + messengerError);
+			return false;
+		}
+		return msg.getResult();
 	}
 	
 	@SuppressWarnings("unused")
@@ -46,7 +49,6 @@ public class RemoteProcessService implements IProcessService {
 	}
 	
 	private IProbeMessage exchangeMessage(IProbeMessage message) {
-		
 		try {
 			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
 			if(response instanceof StatusMessage) { 

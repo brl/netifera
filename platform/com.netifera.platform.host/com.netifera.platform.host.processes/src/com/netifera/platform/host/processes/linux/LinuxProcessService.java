@@ -16,7 +16,6 @@ import com.netifera.platform.host.processes.Process;
 
 public class LinuxProcessService implements IProcessService {
 	private ILogger logger;
-	private static final String managerName = "Process Manager [Linux]";
 	private final String procPath;
 	
 	public LinuxProcessService(ILogger logger) {
@@ -195,6 +194,6 @@ public class LinuxProcessService implements IProcessService {
 	
 	@Override
 	public String toString() {
-		return managerName;
+		return "Process Service [Linux]";
 	}
 }

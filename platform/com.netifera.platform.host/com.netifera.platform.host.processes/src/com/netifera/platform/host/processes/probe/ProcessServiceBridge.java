@@ -36,11 +36,20 @@ public class ProcessServiceBridge {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		};
-		
 	}
+
+	private void kill(IMessenger messenger, KillProcess message) {
+		KillProcess response = message.createResponse(service.kill(message.getPID()));
+		try {
+			messenger.emitMessage(response);
+		} catch (MessengerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		};
+	}
+
 	private void registerHandlers(IMessageDispatcher dispatcher) {
 		IMessageHandler handler = new IMessageHandler() {
-
 			public void call(IMessenger messenger, IProbeMessage message)
 					throws DispatchException {
 				try {
@@ -48,19 +57,19 @@ public class ProcessServiceBridge {
 				} catch(MessengerException e) {
 					logger.warning("Error sending message response " + e.getMessage());
 				}
-				
 			}
-			
 		};
 		
 		dispatcher.registerMessageHandler(GetProcessList.ID, handler);
-		
+		dispatcher.registerMessageHandler(KillProcess.ID, handler);
 	}
 	
 	
 	private void dispatch(IMessenger messenger, IProbeMessage message) throws DispatchMismatchException, MessengerException {
 		if(message instanceof GetProcessList) {
 			getProcessList(messenger, (GetProcessList)message);
+		} else if(message instanceof KillProcess) {
+			kill(messenger, (KillProcess)message);
 		}
 	}
 	
