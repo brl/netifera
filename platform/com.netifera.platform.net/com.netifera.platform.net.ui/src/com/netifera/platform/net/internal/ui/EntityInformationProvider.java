@@ -66,9 +66,11 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 
 	private String getHostInformation(HostEntity e) {
 		StringBuffer buffer = new StringBuffer();
-		// if has more than 1 address or a label set that prevents from seeing the address
-		if (e.getAddresses().size() > 1 || e.getLabel() != null) {
-			buffer.append("<p>Addresses: ");
+		if (e.getAddresses().size() >= 1) {
+			if (e.getAddresses().size() > 1)
+				buffer.append("<p>Addresses: ");
+			else
+				buffer.append("<p>Address: ");
 			Iterator<NetworkAddressEntity> addresses = e.getAddresses().iterator();
 			while (addresses.hasNext()) {
 				NetworkAddressEntity a = addresses.next();
