@@ -1,5 +1,6 @@
 package com.netifera.platform.net.ssh.filesystem;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,8 +17,12 @@ import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.SFTPException;
 import com.trilead.ssh2.SFTPv3Client;
 import com.trilead.ssh2.SFTPv3DirectoryEntry;
+import com.trilead.ssh2.SFTPv3FileAttributes;
+import com.trilead.ssh2.SFTPv3FileHandle;
+import com.trilead.ssh2.sftp.ErrorCodes;
 
 public class SFTPFileSystem implements IFileSystem {
 
@@ -45,7 +50,7 @@ public class SFTPFileSystem implements IFileSystem {
 		SFTPv3Client client = new SFTPv3Client(connection);
 		try {
 			client.mkdir(directoryName, 0775);
-			return new File(this, directoryName, File.DIRECTORY, 0, 0);
+			return new File(this, directoryName, File.S_IFDIR, 0, 0);
 		} finally {
 			client.close();
 			connection.close();
@@ -94,9 +99,11 @@ public class SFTPFileSystem implements IFileSystem {
 	private File convert(String directoryPath, SFTPv3DirectoryEntry sftpFile) {
 		int attributes = 0;
 		if (sftpFile.attributes.isDirectory())
-			attributes |= File.DIRECTORY;
+			attributes |= File.S_IFDIR;
 		if (sftpFile.attributes.isRegularFile())
-			attributes |= File.FILE;
+			attributes |= File.S_IFREG;
+		if (sftpFile.attributes.isSymlink())
+			attributes |= File.S_IFLNK;
 		if (!directoryPath.endsWith("/"))
 			directoryPath += "/";
 		String fullPath = directoryPath+sftpFile.filename;
@@ -127,8 +134,17 @@ public class SFTPFileSystem implements IFileSystem {
 	}
 
 	public InputStream getInputStream(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			final Connection connection = ssh.createConnection(credential);
+			SFTPv3Client client = new SFTPv3Client(connection);
+			SFTPv3FileAttributes attributes = client.stat(fileName);
+			SFTPv3FileHandle handle = client.openFileRO(fileName);
+			return new SFTPInputStream(connection, client, handle, attributes.size);
+		} catch (SFTPException e) {
+			if (e.getServerErrorCode() == ErrorCodes.SSH_FX_NO_SUCH_FILE)
+				throw new FileNotFoundException(fileName);
+			throw e;
+		}
 	}
 
 	public OutputStream getOutputStream(String fileName) throws IOException {
@@ -137,7 +153,7 @@ public class SFTPFileSystem implements IFileSystem {
 	}
 
 	public File[] getRoots() {
-		return new File[] {new File(this, "/", File.DIRECTORY, 0, 0)};
+		return new File[] {new File(this, "/", File.S_IFDIR, 0, 0)};
 	}
 
 	public void disconnect() throws IOException {

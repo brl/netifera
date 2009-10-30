@@ -41,7 +41,7 @@ public class FTPFileSystem implements IFileSystem {
 		FTPClient client = ftp.createClient(credential);
 		try {
 			if (client.makeDirectory(directoryName)) {
-				File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
+				File file = new File(this, directoryName, File.S_IFDIR, 0, 0);
 				return file;
 			}
 		} finally {
@@ -89,9 +89,9 @@ public class FTPFileSystem implements IFileSystem {
 	private File convert(String directoryPath, FTPFile ftpFile) {
 		int attributes = 0;
 		if (ftpFile.isDirectory())
-			attributes |= File.DIRECTORY;
+			attributes |= File.S_IFDIR;
 		if (ftpFile.isFile())
-			attributes |= File.FILE;
+			attributes |= File.S_IFDIR;
 		return new File(this, directoryPath+"/"+ftpFile.getName(), attributes, ftpFile.getSize(), ftpFile.getTimestamp().getTimeInMillis());
 	}
 
@@ -130,7 +130,7 @@ public class FTPFileSystem implements IFileSystem {
 	}
 
 	public File[] getRoots() {
-		return new File[] {new File(this, "/", File.DIRECTORY, 0, 0)};
+		return new File[] {new File(this, "/", File.S_IFDIR, 0, 0)};
 	}
 	
 	public void disconnect() {

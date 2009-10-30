@@ -89,9 +89,9 @@ public class SMBFileSystem implements IFileSystem {
 	private File convert(SmbFile smbFile) throws SmbException {
 		int attributes = 0;
 		if (smbFile.isDirectory())
-			attributes |= File.DIRECTORY;
+			attributes |= File.S_IFDIR;
 		if (smbFile.isFile())
-			attributes |= File.FILE;
+			attributes |= File.S_IFREG;
 		String fullPath = smbFile.getCanonicalPath();
 //		if (fullPath.endsWith("/"))
 //			fullPath = fullPath.substring(0, fullPath.length()-1);

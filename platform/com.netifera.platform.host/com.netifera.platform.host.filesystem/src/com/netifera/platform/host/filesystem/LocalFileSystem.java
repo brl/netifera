@@ -35,11 +35,9 @@ public class LocalFileSystem implements IFileSystem {
 	private File convert(java.io.File javaFile) {
 		int attributes = 0;
 		if (javaFile.isDirectory())
-			attributes |= File.DIRECTORY;
+			attributes |= File.S_IFDIR;
 		if (javaFile.isFile())
-			attributes |= File.FILE;
-		if (javaFile.isHidden())
-			attributes |= File.HIDDEN;
+			attributes |= File.S_IFREG;
 		String path = javaFile.getAbsolutePath();
 		if(rootPrefix.length()>0 && path.startsWith(rootPrefix)) {
 			path = path.substring(rootPrefix.length());
