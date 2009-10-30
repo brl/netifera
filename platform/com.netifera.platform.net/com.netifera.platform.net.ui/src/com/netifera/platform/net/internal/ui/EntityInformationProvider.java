@@ -87,6 +87,21 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 			}
 			buffer.append("</p>");
 		}
+		if (e.getNamedAttribute("cpu") != null) {
+			buffer.append("<p>CPU: "+escape(e.getNamedAttribute("cpu")));
+			buffer.append("</p>");
+		}
+		if (e.getNamedAttribute("bogomips") != null) {
+			buffer.append("<p>CPU bogomips: "+escape(e.getNamedAttribute("bogomips")));
+			buffer.append("</p>");
+		}
+		if (e.getNamedAttribute("memoryTotal") != null) {
+			buffer.append("<p>Memory: "+escape(e.getNamedAttribute("memoryTotal")));
+			if (e.getNamedAttribute("memoryFree") != null) {
+				buffer.append(" ("+escape(e.getNamedAttribute("memoryFree"))+" free)");
+			}
+			buffer.append("</p>");
+		}
 		if (e.getNamedAttribute("workgroup") != null) {
 			buffer.append("<p>Workgroup: "+escape(e.getNamedAttribute("workgroup")));
 			buffer.append("</p>");

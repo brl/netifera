@@ -17,4 +17,5 @@ Import-Package: com.netifera.platform.api.log,
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/passwd-harvester.xml,
  OSGI-INF/shadow-harvester.xml,
- OSGI-INF/homes-harvester.xml
+ OSGI-INF/homes-harvester.xml,
+ OSGI-INF/proc-harvester.xml

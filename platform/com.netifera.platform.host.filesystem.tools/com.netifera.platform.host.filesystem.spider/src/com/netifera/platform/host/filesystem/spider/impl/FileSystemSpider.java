@@ -48,7 +48,7 @@ public class FileSystemSpider implements IFileSystemSpider {
 	}
 
 	public void setLogger(ILogger logger) {
-
+		logger.enableDebug();
 		this.logger = logger;
 	}
 	

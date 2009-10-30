@@ -37,10 +37,8 @@ public class HomesHarvester implements IFileSystemSpiderModule {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content.getContentStream()));
 			String line = reader.readLine();
 			while (line != null) {
-//				if (line.matches(".*mysql.*"))
+				if (line.matches(".*(mysql|sqlplus|telnet|ssh|scp|ftp|wget).*"))
 					context.getLogger().info("History "+file+": "+line);
-//				else if (line.matches(".*(telnet|ssh|ftp|wget).*"))
-//					context.getLogger().info("History: "+file+"+line);
 				line = reader.readLine();
 			}
 		} else if (file.getAbsolutePath().matches(".*/.ssh/known_hosts")) {

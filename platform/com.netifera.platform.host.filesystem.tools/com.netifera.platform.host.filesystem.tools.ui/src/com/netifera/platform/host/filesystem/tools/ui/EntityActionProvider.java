@@ -10,6 +10,7 @@ import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.host.filesystem.FileSystemServiceLocator;
 import com.netifera.platform.host.filesystem.spider.IFileSystemSpiderModule;
 import com.netifera.platform.host.filesystem.tools.FileSystemHarvester;
+import com.netifera.platform.host.filesystem.tools.Netstat;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IntegerOption;
@@ -35,6 +36,13 @@ public class EntityActionProvider implements IEntityActionProvider {
 			harvester.addOption(new IntegerOption("maximumThreads", "Maximum threads", "Maximum number of threads", 5));
 			harvester.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to fetch for each file", 1024*16));
 			answer.add(harvester);
+			
+//			if (fileSystemLocator.getHost() != null && ((HostEntity)fileSystemLocator.getHost()).getPlatform().matches(".*linux.*") {
+				ToolAction netstat = new ToolAction("Netstat", Netstat.class.getName());
+				netstat.addFixedOption(new StringOption("target", "Target", "Target File System", fileSystemLocator.getURL().toASCIIString()));
+				netstat.addFixedOption(new GenericOption(InternetAddress.class, "host", "Host", "Host", fileSystemLocator.getHost() != null ? (InternetAddress)((HostEntity)fileSystemLocator.getHost()).getDefaultAddress().getAddress() : InternetAddress.fromString("127.0.0.1")));
+				answer.add(netstat);
+//			}
 		}
 		
 		return answer;

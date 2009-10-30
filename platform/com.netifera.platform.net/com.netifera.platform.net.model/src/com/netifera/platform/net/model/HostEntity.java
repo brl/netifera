@@ -66,6 +66,37 @@ public class HostEntity extends AbstractEntity {
 		return false;
 	}
 	
+	public String getPlatform() {
+		String os = getNamedAttribute("os");
+		String arch = getNamedAttribute("arch");
+		String platformOS = null;
+		String platformArch = null;
+		
+		if (os == null)
+			return null;
+
+		if (os.toLowerCase().matches(".*linux.*")) {
+			platformOS = "linux";
+		} else if (os.toLowerCase().matches(".*windows.*")) {
+			platformOS = "windows";
+			platformArch = "i386";
+		} else if (os.toLowerCase().matches(".*osx.*")) {
+			platformOS = "osx";
+			platformArch = "i386";
+		}
+
+		if (arch.toLowerCase().matches(".*(i.86|x86|intel).*")) {
+			platformArch = "i386";
+		} else if (arch.toLowerCase().matches("(x64|amd64)")) {
+			platformArch = "x64";
+		}
+		
+		if (platformOS != null && platformArch != null) {
+			return platformOS+"/"+platformArch;
+		}
+		return null;
+	}
+	
 	@Override
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
 		label = ((HostEntity)masterEntity).label;
