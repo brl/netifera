@@ -19,48 +19,64 @@ public class HomesHarvester implements IFileSystemSpiderModule {
 	public void handle(IFileSystemSpiderContext context, File file, IFileContent content) throws IOException {
 		if (file.getAbsolutePath().equals("/etc/passwd")) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content.getContentStream()));
-			String line = reader.readLine();
-			while (line != null) {
-				String[] parts = line.split(":");
-				String username = parts[0];
-				String home = parts[5];
-				
-				UserEntity userEntity = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), context.getHostAddress(), username);
-				userEntity.setHome(home);
-				userEntity.update();
-				
-				fetchHomeFiles(context, username, home);
-				
-				line = reader.readLine();
+			try {
+				String line = reader.readLine();
+				while (line != null) {
+					String[] parts = line.split(":");
+					String username = parts[0];
+					String home = parts[5];
+					
+					UserEntity userEntity = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), context.getHostAddress(), username);
+					userEntity.setHome(home);
+					userEntity.update();
+					
+					fetchHomeFiles(context, username, home);
+					
+					line = reader.readLine();
+				}
+			} finally {
+				reader.close();
 			}
 		} else if (file.getAbsolutePath().matches(".*history")) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content.getContentStream()));
-			String line = reader.readLine();
-			while (line != null) {
-				if (line.matches(".*(mysql|sqlplus|telnet|ssh|scp|ftp|wget).*"))
-					context.getLogger().info("History "+file+": "+line);
-				line = reader.readLine();
+			try {
+				String line = reader.readLine();
+				while (line != null) {
+					if (line.matches(".*(mysql|sqlplus|telnet|ssh|scp|ftp|wget).*"))
+						context.getLogger().info("History "+file+": "+line);
+					line = reader.readLine();
+				}
+			} finally {
+				reader.close();
 			}
 		} else if (file.getAbsolutePath().matches(".*/.ssh/known_hosts")) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content.getContentStream()));
-			String line = reader.readLine();
-			while (line != null) {
-				if (line.contains(" "))
-					context.getLogger().info("SSH "+file+": "+line.split(" ")[0]);
-				line = reader.readLine();
+			try {
+				String line = reader.readLine();
+				while (line != null) {
+					if (line.contains(" "))
+						context.getLogger().info("SSH "+file+": "+line.split(" ")[0]);
+					line = reader.readLine();
+				}
+			} finally {
+				reader.close();
 			}
 		} else if (file.getAbsolutePath().matches(".*/.purple/accounts.xml")) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content.getContentStream()));
-			String line = reader.readLine();
-			while (line != null) {
-				line = line.trim();
-				if (line.matches(".*<protocol>([^<]+)</protocol>.*"))
+			try {
+				String line = reader.readLine();
+				while (line != null) {
+					line = line.trim();
+					if (line.matches(".*<protocol>([^<]+)</protocol>.*"))
+							context.getLogger().info("Pidgin "+file+": "+line);
+					else if (line.matches(".*<name>([^<]+)</name>.*"))
 						context.getLogger().info("Pidgin "+file+": "+line);
-				else if (line.matches(".*<name>([^<]+)</name>.*"))
-					context.getLogger().info("Pidgin "+file+": "+line);
-				else if (line.matches(".*<password>([^<]+)</password>.*"))
-					context.getLogger().info("Pidgin "+file+": "+line);
-				line = reader.readLine();
+					else if (line.matches(".*<password>([^<]+)</password>.*"))
+						context.getLogger().info("Pidgin "+file+": "+line);
+					line = reader.readLine();
+				}
+			} finally {
+				reader.close();
 			}
 		}
 	}

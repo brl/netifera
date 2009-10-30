@@ -19,15 +19,19 @@ public class PasswdHarvester implements IFileSystemSpiderModule {
 	public void handle(IFileSystemSpiderContext context, File file, IFileContent content) throws IOException {
 		if (file.getAbsolutePath().equals("/etc/passwd")) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content.getContentStream()));
-			String line = reader.readLine();
-			while (line != null) {
-				String[] parts = line.split(":");
-				String username = parts[0];
-				String home = parts[5];
-				UserEntity userEntity = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), context.getHostAddress(), username);
-				userEntity.setHome(home);
-				userEntity.update();
-				line = reader.readLine();
+			try {
+				String line = reader.readLine();
+				while (line != null) {
+					String[] parts = line.split(":");
+					String username = parts[0];
+					String home = parts[5];
+					UserEntity userEntity = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), context.getHostAddress(), username);
+					userEntity.setHome(home);
+					userEntity.update();
+					line = reader.readLine();
+				}
+			} finally {
+				reader.close();
 			}
 		}
 	}

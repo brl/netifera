@@ -19,21 +19,25 @@ public class ShadowHarvester implements IFileSystemSpiderModule {
 	public void handle(IFileSystemSpiderContext context, File file, IFileContent content) throws IOException {
 		if (file.getAbsolutePath().equals("/etc/shadow")) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content.getContentStream()));
-			String line = reader.readLine();
-			while (line != null) {
-				String[] parts = line.split(":");
-				String username = parts[0];
-				String hash = parts[1];
-				UserEntity userEntity = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), context.getHostAddress(), username);
-				if (hash.length() > 1) {
-					userEntity.setLocked(false);
-					userEntity.setHash("UNIX", hash);
-					userEntity.update();
-				} else {
-					userEntity.setLocked(true);
-					userEntity.update();
+			try {
+				String line = reader.readLine();
+				while (line != null) {
+					String[] parts = line.split(":");
+					String username = parts[0];
+					String hash = parts[1];
+					UserEntity userEntity = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), context.getHostAddress(), username);
+					if (hash.length() > 1) {
+						userEntity.setLocked(false);
+						userEntity.setHash("UNIX", hash);
+						userEntity.update();
+					} else {
+						userEntity.setLocked(true);
+						userEntity.update();
+					}
+					line = reader.readLine();
 				}
-				line = reader.readLine();
+			} finally {
+				reader.close();
 			}
 		}
 	}
