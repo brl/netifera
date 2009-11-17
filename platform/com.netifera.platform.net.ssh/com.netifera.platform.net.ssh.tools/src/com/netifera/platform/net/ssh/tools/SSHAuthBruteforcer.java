@@ -86,7 +86,8 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 												authenticationFailed(credential);
 											}
 										} catch (IOException e) {
-											// e.printStackTrace();
+											context.error(e.getMessage() + (e.getCause() != null ? " ("+e.getCause().getMessage()+")" : ""));
+//											e.printStackTrace();
 											errorCount = errorCount + 1;
 											authenticationError(credential, e);
 											connection.close();
@@ -102,7 +103,8 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 										}
 									}
 								} catch (IOException e) {
-									// e.printStackTrace();
+									context.error(e.getMessage() + (e.getCause() != null ? " ("+e.getCause().getMessage()+")" : ""));
+//									e.printStackTrace();
 									errorCount = errorCount + 1;
 									if (errorCount / (successCount + 1) > 2) {
 										context.error("Too many errors, aborting.");
