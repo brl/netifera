@@ -40,11 +40,32 @@ public class SFTPFileSystem implements IFileSystem {
 		this.credential = new UsernameAndPassword(username, password);
 	}
 	
-	public SFTPFileSystem(SSH ssh, UsernameAndPassword credential) {
+	public SFTPFileSystem(SSH ssh, Credential credential) {
 		this.ssh = ssh;
 		this.credential = credential;
 	}
+
+	public String getNameSeparator() {
+		return "/";
+	}
 	
+	public File[] getRoots() {
+		return new File[] {new File(this, "/", File.S_IFDIR, 0, 0)};
+	}
+
+	public File[] getDirectoryList(String directoryName) throws IOException {
+		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
+		try {
+			return convert(directoryName, client.ls(directoryName));
+		} catch (SFTPException e) {
+			if (e.getServerErrorCode() == ErrorCodes.SSH_FX_NO_SUCH_FILE)
+				throw new FileNotFoundException(directoryName);
+			throw e;
+		} finally {
+			client.close();
+		}
+	}
+
 	public File createDirectory(String directoryName) throws IOException {
 		Connection connection = ssh.createConnection(credential);
 		SFTPv3Client client = new SFTPv3Client(connection);
@@ -76,11 +97,32 @@ public class SFTPFileSystem implements IFileSystem {
 		try {
 			client.rmdir(directoryName);
 			return true;
+		} catch (SFTPException e) {
+			if (e.getServerErrorCode() == ErrorCodes.SSH_FX_NO_SUCH_FILE)
+				throw new FileNotFoundException(directoryName);
+			throw e;
 		} finally {
 			client.close();
 			connection.close();
 		}
 //		return false;
+	}
+
+
+	public File stat(String fileName) throws IOException {
+		Connection connection = ssh.createConnection(credential);
+		SFTPv3Client client = new SFTPv3Client(connection);
+		try {
+			SFTPv3FileAttributes attributes = client.stat(fileName);
+			return new File(this, fileName, attributes.permissions, attributes.size, attributes.mtime);
+		} catch (SFTPException e) {
+			if (e.getServerErrorCode() == ErrorCodes.SSH_FX_NO_SUCH_FILE)
+				throw new FileNotFoundException(fileName);
+			throw e;
+		} finally {
+			client.close();
+			connection.close();
+		}
 	}
 
 	public boolean rename(String oldName, String newName) throws IOException {
@@ -89,6 +131,10 @@ public class SFTPFileSystem implements IFileSystem {
 		try {
 			client.mv(oldName, newName);
 			return true;
+		} catch (SFTPException e) {
+			if (e.getServerErrorCode() == ErrorCodes.SSH_FX_NO_SUCH_FILE)
+				throw new FileNotFoundException(oldName);
+			throw e;
 		} finally {
 			client.close();
 			connection.close();
@@ -120,19 +166,6 @@ public class SFTPFileSystem implements IFileSystem {
 		return files.toArray(new File[files.size()]);
 	}
 
-	public File[] getDirectoryList(String directoryName) throws IOException {
-		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
-		try {
-			return convert(directoryName, client.ls(directoryName));
-		} finally {
-			client.close();
-		}
-	}
-
-	public String getNameSeparator() {
-		return "/";
-	}
-
 	public InputStream getInputStream(String fileName) throws IOException {
 		try {
 			final Connection connection = ssh.createConnection(credential);
@@ -150,10 +183,6 @@ public class SFTPFileSystem implements IFileSystem {
 	public OutputStream getOutputStream(String fileName) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public File[] getRoots() {
-		return new File[] {new File(this, "/", File.S_IFDIR, 0, 0)};
 	}
 
 	public void disconnect() throws IOException {

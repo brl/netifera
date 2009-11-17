@@ -27,6 +27,10 @@ public class LocalFileSystem implements IFileSystem {
 	public File[] getRoots() {
 		return convert(java.io.File.listRoots()); //TODO rootPrefix
 	}
+	
+	public File stat(String fileName) {
+		return convert(new java.io.File(rootPrefix+fileName));
+	}
 
 	public File[] getDirectoryList(String directoryName) {
 		return convert((new java.io.File(rootPrefix+directoryName)).listFiles());

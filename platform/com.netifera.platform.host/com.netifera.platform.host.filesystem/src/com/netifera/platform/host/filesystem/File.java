@@ -1,5 +1,6 @@
 package com.netifera.platform.host.filesystem;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -86,7 +87,7 @@ public class File implements Serializable {
 		return (permissions & File.S_IFDIR) != 0;
 	}
 
-	public boolean isFile() {
+	public boolean isRegularFile() {
 		return (permissions & File.S_IFREG) != 0;
 	}
 	
@@ -125,6 +126,14 @@ public class File implements Serializable {
 		return false;
 	}
 
+	public boolean exists() throws IOException {
+		try {
+			return fileSystem.stat(getAbsolutePath()) != null;
+		} catch (FileNotFoundException e) {
+			return false;
+		}
+	}
+	
 	public InputStream getInputStream() throws IOException {
 		return fileSystem.getInputStream(path);
 	}

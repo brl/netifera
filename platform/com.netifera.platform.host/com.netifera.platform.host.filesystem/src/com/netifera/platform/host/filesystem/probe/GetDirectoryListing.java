@@ -40,7 +40,7 @@ public class GetDirectoryListing extends ProbeMessage {
 		return url;
 	}
 	
-	public String getDirectoryPath() {
+	public String getPath() {
 		return path;
 	}
 	

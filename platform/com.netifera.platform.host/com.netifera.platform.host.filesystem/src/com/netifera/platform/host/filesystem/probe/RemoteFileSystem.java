@@ -27,18 +27,33 @@ public class RemoteFileSystem implements IFileSystem {
 	}
 	
 	public File createDirectory(String directoryName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		final CreateDirectory msg = (CreateDirectory) exchangeMessage(new CreateDirectory(url, directoryName));
+		if(msg == null) {
+			logger.warning("CreateDirectory failed " + messengerError);
+			return null;
+		}
+		
+		return msg.getResult();
 	}
 
 	public boolean delete(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		final DeleteFile msg = (DeleteFile) exchangeMessage(new DeleteFile(url, fileName));
+		if(msg == null) {
+			logger.warning("DeleteFile failed " + messengerError);
+			return false;
+		}
+		
+		return msg.getResult();
 	}
 
 	public boolean deleteDirectory(String directoryName) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		final DeleteDirectory msg = (DeleteDirectory) exchangeMessage(new DeleteDirectory(url, directoryName));
+		if(msg == null) {
+			logger.warning("DeleteDirectory failed " + messengerError);
+			return false;
+		}
+		
+		return msg.getResult();
 	}
 
 	public File[] getDirectoryList(String directoryName) throws IOException {
@@ -117,5 +132,10 @@ public class RemoteFileSystem implements IFileSystem {
 		if (url.getScheme().equals("local"))
 			return probe.getName();
 		return url.toString() + " on "+probe.getName();
+	}
+
+	public File stat(String fileName) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

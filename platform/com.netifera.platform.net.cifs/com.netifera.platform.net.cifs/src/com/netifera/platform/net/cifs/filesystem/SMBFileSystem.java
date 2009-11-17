@@ -1,5 +1,6 @@
 package com.netifera.platform.net.cifs.filesystem;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -67,6 +68,13 @@ public class SMBFileSystem implements IFileSystem {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+	}
+
+	public File stat(String fileName) throws IOException {
+		SmbFile file = (new SmbFile(fileName));
+		if (!file.exists())
+			throw new FileNotFoundException(fileName);
+		return convert(file);
 	}
 
 	public boolean rename(String oldName, String newName) throws IOException {

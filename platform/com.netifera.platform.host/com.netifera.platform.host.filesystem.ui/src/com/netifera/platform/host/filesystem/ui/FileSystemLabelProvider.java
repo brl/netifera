@@ -94,7 +94,7 @@ public class FileSystemLabelProvider extends ColumnLabelProvider {
 		File file = (File) element;
 		switch (column) {
 			case 0: return file.getName();
-			case 1: return file.isFile() ? getLengthText(file.length()) : null;
+			case 1: return file.isRegularFile() ? getLengthText(file.length()) : null;
 			case 2:
 				if (file.lastModified() == 0) {
 					return null;

@@ -132,6 +132,16 @@ public class FTPFileSystem implements IFileSystem {
 	public File[] getRoots() {
 		return new File[] {new File(this, "/", File.S_IFDIR, 0, 0)};
 	}
+
+	public File stat(String fileName) throws IOException {
+/*		FTPClient client = ftp.createClient(credential);
+		FTPFile[] files = client.listFiles(fileName);
+		if (files.length > 1)
+			return new File(this, fileName, File.S_IFDIR, 0, 0);
+		return convert(files);
+*/
+		return null;
+	}
 	
 	public void disconnect() {
 	}
