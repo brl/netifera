@@ -298,8 +298,17 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 					IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 					Iterator<?> iterator = selection.iterator();
 					while (iterator.hasNext()) {
-						buffer.append(labelProvider.getText(iterator.next()));
-						buffer.append("\n");
+						Object o = iterator.next();
+						if (o instanceof IShadowEntity) {
+							IShadowEntity entity = (IShadowEntity) o;
+							IShadowEntity parent = ((TreeStructureContext)entity.getStructureContext()).getParent();
+							while (parent != null) {
+								parent = ((TreeStructureContext)parent.getStructureContext()).getParent();
+								if (parent != null) buffer.append("\t"); // the top parent is not shown in the tree, so avoid extra indent for it
+							}
+							buffer.append(labelProvider.getText(entity));
+							buffer.append("\n");
+						}
 					}
 					event.data = buffer.toString();
 				}
