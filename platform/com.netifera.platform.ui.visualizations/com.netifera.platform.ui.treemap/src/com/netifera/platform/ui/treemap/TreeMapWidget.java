@@ -1,6 +1,5 @@
 package com.netifera.platform.ui.treemap;
 
-import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -21,24 +20,36 @@ import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 public class TreeMapWidget extends Canvas {
 
 	private TreeMap treeMap;
+	private IHilbertCurve curve = new DefaultHilbertCurve();
 
 	class TreeMapFrame {
 		double scale = 1.0;
 		int offsetX = 0, offsetY = 0;
+		
+		void adjust() {
+			Rectangle rect = getClientArea();
+			int extent = (int) (Math.min(rect.width,rect.height) * scale);
+			int w = extent - offsetX;
+			int h = extent - offsetY;
+			if (w < rect.width)
+				offsetX -= rect.width - w;
+			if (h < rect.height)
+				offsetY -= rect.height - h;
+			if (offsetX < 0) offsetX = 0;
+			if (offsetY < 0) offsetY = 0;
+		}
 	};
 	
 //	private List<TreeMapFrame> frameStack = new ArrayList<TreeMapFrame>();
 
 	private TreeMapFrame frame = new TreeMapFrame();
 	
-	private IColorProvider colorProvider;
-
 	public TreeMapWidget(Composite parent, int style) {
 		super(parent, style);
 
 		initializeTreeMap();
 
-		setBackground(Display.getDefault().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+		setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
 		setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
 		
 		addControlListener(new ControlAdapter() {
@@ -93,12 +104,14 @@ public class TreeMapWidget extends Canvas {
 					if (panning) {
 						frame.offsetX = originalOffsetX + (clickX - event.x);
 						frame.offsetY = originalOffsetY + (clickY - event.y);
+						frame.adjust();
 						redraw();
 					}
 					if (zooming) {
-						frame.scale = originalScale * Math.pow(2.0, (clickY - event.y) / 10.0);
+						frame.scale = Math.max(1.0, originalScale * Math.pow(2.0, (clickY - event.y) / 10.0));
 						frame.offsetX = (int)((clickX + originalOffsetX)*frame.scale/originalScale - clickX);
 						frame.offsetY = (int)((clickY + originalOffsetY)*frame.scale/originalScale - clickY);
+						frame.adjust();
 						redraw();
 					}
 					break;
@@ -131,20 +144,17 @@ public class TreeMapWidget extends Canvas {
 		gc.setForeground(getForeground());
 		gc.setBackground(getForeground());
 		
-		treeMap.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc);
+		curve.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc);
+		treeMap.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve);
 	}
 	
 	public void add(IPv4Address address, IEntity entity) {
-		treeMap.add(address, entity, colorProvider == null ? getForeground() : colorProvider.getForeground(entity));
+		treeMap.add(address, entity);
 		redraw();
 	}
 	
 	public void reset() {
 		initializeTreeMap();
 		redraw();
-	}
-	
-	public void setColorProvider(IColorProvider colorProvider) {
-		this.colorProvider = colorProvider;
 	}
 }

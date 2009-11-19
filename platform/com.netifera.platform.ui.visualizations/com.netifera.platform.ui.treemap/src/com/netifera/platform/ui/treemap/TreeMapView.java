@@ -1,14 +1,8 @@
 package com.netifera.platform.ui.treemap;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -27,20 +21,15 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.ISpaceContentChangeEvent;
-import com.netifera.platform.api.model.layers.IGroupLayerProvider;
-import com.netifera.platform.api.model.layers.ILayerProvider;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
-import com.netifera.platform.ui.spaces.actions.ChooseLayerAction;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class TreeMapView extends ViewPart {
 
 	public static final String ID = "com.netifera.platform.views.treemap";
-
-	private IGroupLayerProvider colorLayerProvider;
 
 	private ISpace space;
 	private IEventHandler spaceChangeListener;
@@ -49,7 +38,6 @@ public class TreeMapView extends ViewPart {
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		
 		treeMapWidget = new TreeMapWidget(parent, SWT.BORDER);
 		treeMapWidget.setLayout(new FillLayout());
 		
@@ -114,7 +102,7 @@ public class TreeMapView extends ViewPart {
 	}
 
 	private void initializeToolBar() {
-		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
+/*		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 		
 		toolbarManager.add(new ChooseLayerAction("Set Color", Activator.getInstance().getImageCache().getDescriptor("icons/colors.png")) {
 			@Override
@@ -135,7 +123,7 @@ public class TreeMapView extends ViewPart {
 				setColorLayer((IGroupLayerProvider)provider);
 			}
 		});
-	}
+*/	}
 
 	@Override
 	public void setFocus() {
@@ -201,7 +189,7 @@ public class TreeMapView extends ViewPart {
 	private synchronized void removeEntity(IEntity entity) {
 	}
 
-	public IGroupLayerProvider getColorLayer() {
+/*	public IGroupLayerProvider getColorLayer() {
 		return colorLayerProvider;
 	}
 	
@@ -228,4 +216,6 @@ public class TreeMapView extends ViewPart {
 		});
 		setSpace(space);//to repopulate
 	}
+*/
+	
 }
