@@ -10,7 +10,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
 import com.netifera.platform.api.model.IEntity;
@@ -85,7 +84,7 @@ public class TreeMap implements Iterable<IEntity> {
 		int n = size();
 		if (n == 0)
 			return 0.0;
-		return Math.log((double)n) / Math.log((double)netblock.itemCount());
+		return Math.log((double)(n+1)) / Math.log((double)(netblock.itemCount()+1));
 	}
 
 	private double maximumTemperature() {
@@ -178,6 +177,9 @@ public class TreeMap implements Iterable<IEntity> {
 	}
 	
 	public void paint(int x, int y, int extent, GC gc, IHilbertCurve curve) {
+		if (extent <= 0)// dont draw at subpixel level, avoid unnecesary drawing of details that woudlnt be visible
+			return;
+		
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
 			gc.setAlpha((int)(255 / Math.sqrt(extent+1))); // as we zoom-in the outermost color fades out as the smaller detail is more visible
@@ -187,7 +189,7 @@ public class TreeMap implements Iterable<IEntity> {
 		
 		// draw grid for /0. /8, /16 and /24 (all except individual addresses)
 		if (netblock.getCIDR() < 32 && extent > 64) { // dont draw grid if the scale is too small
-			gc.setAlpha(Math.min(extent, 256) / 8); // make the grid gradually appear as we zoom-in
+			gc.setAlpha(Math.min(extent, 256) / 24); // make the grid gradually appear as we zoom-in
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 			for (int i=1; i<16; i++) {
 				int xi = x + (i*extent/16);
@@ -197,26 +199,23 @@ public class TreeMap implements Iterable<IEntity> {
 			}
 		}
 
-		if (extent > 0) { // dont draw at subpixel level, avoid unnecesary drawing of details that woudlnt be visible
-			boolean has0 = false;
-			for (int i=0; i<256; i++) {
-				TreeMap submap = submaps[i];
-				if (submap != null) {
-					int h = curve.getIndex(netblock, submap.netblock);
-					int xi = h % 16;
-					int yi = h / 16;
-					int subX = x + (xi*extent/16);
-					int subY = y + (yi*extent/16);
-					int subExtent = extent/16;
-					submap.paint(subX, subY, subExtent, gc, curve);
-					if (h == 0)
-						has0 = true;
-				}
+		boolean has0 = false;
+		for (int i=0; i<256; i++) {
+			TreeMap submap = submaps[i];
+			if (submap != null) {
+				int h = curve.getIndex(netblock, submap.netblock);
+				int xi = h % 16;
+				int yi = h / 16;
+				int subX = x + (xi*extent/16);
+				int subY = y + (yi*extent/16);
+				int subExtent = extent/16;
+				submap.paint(subX, subY, subExtent, gc, curve);
+				if (h == 0)
+					has0 = true;
 			}
-			
-			if (!has0 || extent < 16*(gc.stringExtent("0").y+3))
-				paintLabel(x, y, extent, gc);
 		}
-
+		
+		if (!has0 || extent < 16*(gc.stringExtent("0").y+3))
+			paintLabel(x, y, extent, gc);
 	}
 }
