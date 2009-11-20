@@ -4,13 +4,13 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.netifera.platform.ui.internal.world.Activator;
-import com.netifera.platform.ui.world.WorldView;
+import com.netifera.platform.ui.world.GlobeWorldView;
 
 public class ToggleLabelsAction extends Action {
 	
-	final private WorldView view;
+	final private GlobeWorldView view;
 	
-	public ToggleLabelsAction(WorldView view) {
+	public ToggleLabelsAction(GlobeWorldView view) {
 		this.view = view;
 		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/labels.png"));
 		update();

@@ -77,9 +77,9 @@ import com.netifera.platform.ui.world.actions.ToggleLabelsAction;
 import com.netifera.platform.ui.world.actions.ToggleOverviewAction;
 import com.netifera.platform.ui.world.actions.TogglePlaceNamesAction;
 
-public class WorldView extends ViewPart {
+public class GlobeWorldView extends ViewPart {
 
-	public static final String ID = "com.netifera.platform.views.world";
+	public static final String ID = "com.netifera.platform.views.world3d";
 
 	private Composite SWT_AWT_container;
 	private Frame awtFrame;
@@ -140,7 +140,7 @@ public class WorldView extends ViewPart {
 */	};
 
 	
-	public WorldView() {
+	public GlobeWorldView() {
 	  Configuration.setValue(AVKey.OFFLINE_MODE, false);
 	  
 //		Configuration.setValue(AVKey.GLOBE_CLASS_NAME, EarthFlat.class.getName());
@@ -210,10 +210,6 @@ public class WorldView extends ViewPart {
 		}
 	}
 
-	/**
-	 * This is a callback that will allow us to create the viewer and initialize
-	 * it.
-	 */
 	@Override
 	public void createPartControl(final Composite parent) {
 		this.SWT_AWT_container = new Composite(parent, SWT.NO_BACKGROUND | SWT.BORDER | SWT.EMBEDDED);
@@ -244,7 +240,7 @@ public class WorldView extends ViewPart {
 						if (label != null) {
 							Display.getDefault().syncExec(new Runnable() {
 								public void run() {
-									WorldView.this.getViewSite().getActionBars().getStatusLineManager().setMessage(label);
+									GlobeWorldView.this.getViewSite().getActionBars().getStatusLineManager().setMessage(label);
 								}
 							});
 						}
@@ -316,7 +312,7 @@ public class WorldView extends ViewPart {
 					if (editorInput instanceof SpaceEditorInput) {
 						ISpace newSpace = ((SpaceEditorInput)editorInput).getSpace();
 						setPartName(newSpace.getName());//FIXME this is because the name changes and we dont get notified
-						if (newSpace != WorldView.this.space)
+						if (newSpace != GlobeWorldView.this.space)
 							setSpace(newSpace);
 					}
 				}
@@ -381,7 +377,7 @@ public class WorldView extends ViewPart {
 			}
 			@Override
 			protected List<ILayerProvider> getActiveLayers() {
-				return WorldView.this.getLayers();
+				return GlobeWorldView.this.getLayers();
 			}
 			@Override
 			protected List<ILayerProvider> getLayers() {
@@ -448,7 +444,7 @@ public class WorldView extends ViewPart {
 			space.addChangeListenerAndPopulate(spaceChangeListener);
 			setPartName(space.getName());
 		} else {
-			setPartName("WorldView");
+			setPartName("World");
 		}
 		worldWindow.repaint();
 	}

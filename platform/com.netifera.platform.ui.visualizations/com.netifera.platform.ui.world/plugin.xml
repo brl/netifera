@@ -6,25 +6,12 @@
          point="org.eclipse.ui.views">
       <view
             category="com.netifera.platform.ui.category.General"
-            class="com.netifera.platform.ui.world.WorldView"
+            class="com.netifera.platform.ui.world.GlobeWorldView"
             icon="icons/world.png"
-            id="com.netifera.platform.views.world"
-            name="World"
+            id="com.netifera.platform.views.world3d"
+            name="World 3D"
             restorable="true">
       </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="*">
-         <view
-               id="com.netifera.platform.views.world"
-               minimized="false"
-               ratio="0.55"
-               relationship="fast"
-               relative="com.netifera.platform.ui.views.Tasks">
-         </view>
-      </perspectiveExtension>
    </extension>
 
 </plugin>
