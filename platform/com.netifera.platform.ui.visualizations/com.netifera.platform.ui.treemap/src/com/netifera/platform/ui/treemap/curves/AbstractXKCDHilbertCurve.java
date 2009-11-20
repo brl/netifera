@@ -156,7 +156,7 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 
 	protected void drawRegionLabel(int x, int y, int extent, GC gc, String label, int i, int j, int w) {
 		int fontSize = w*extent/16/label.length();
-		if (fontSize >= 150)
+		if (fontSize <= 0 || fontSize >= 150)
 			return;
 		gc.setAlpha(150-fontSize);
 		Font font = new Font(Display.getDefault(),"Arial",fontSize,SWT.BOLD);
