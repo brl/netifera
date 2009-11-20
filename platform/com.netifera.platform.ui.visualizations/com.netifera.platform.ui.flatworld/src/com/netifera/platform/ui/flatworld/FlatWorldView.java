@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPageListener;
@@ -167,9 +168,13 @@ public class FlatWorldView extends ViewPart {
 		
 		this.space = space;
 		spaceChangeListener = new IEventHandler() {
-			public void handleEvent(IEvent event) {
+			public void handleEvent(final IEvent event) {
 				if(event instanceof ISpaceContentChangeEvent) {
-					handleSpaceChange((ISpaceContentChangeEvent)event);
+					Display.getDefault().syncExec(new Runnable() {
+						public void run() {
+							handleSpaceChange((ISpaceContentChangeEvent)event);
+						}
+					});
 				}
 			}
 		};
