@@ -152,7 +152,7 @@ public class FlatWorld extends Canvas {
 		gc.setInterpolation(SWT.HIGH);
 		gc.setAdvanced(false);
 
-		Rectangle rect = getClientArea();
+		final Rectangle rect = getClientArea();
 		gc.setClipping(rect);
 		
 //		gc.setLineWidth(1);
@@ -166,15 +166,24 @@ public class FlatWorld extends Canvas {
 		int srcHeight = (int)(textureBounds.height / frame.scale);
 		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x, rect.y, rect.width, rect.height);
 
-		Font font = new Font(Display.getDefault(),"Arial",12,SWT.BOLD);
-		gc.setFont(font);
 
-		labels.visit(getGeographicalRegionFromTextureRegion(srcX,srcY,srcWidth,srcHeight), new IQuadTreeVisitor<String>() {
+		final FloatRectangle region = getGeographicalRegionFromTextureRegion(srcX,srcY,srcWidth,srcHeight);
+		labels.visit(region, new IQuadTreeVisitor<String>() {
 			public void visit(QuadTree<String> tree, FloatPoint location, String label) {
-				Point screenCoordinates = getScreenCoordinatesFromLocation(location.x, location.y);
+				Point screenCoordinates = getScreenCoordinatesFromLocation(location.y, location.x);
 				gc.setAlpha(128);
 				gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+				
+				int fontSize = (int)(rect.width/(region.width/tree.getBounds().width)/label.length());
+				if (fontSize <= 0) fontSize = 1;
+				if (fontSize >= 48) fontSize = 48;
+				Font font = new Font(Display.getDefault(),"Arial",fontSize,SWT.BOLD);
+				gc.setAlpha(128-fontSize);
+				gc.setFont(font);
+
 				gc.drawString(label, screenCoordinates.x, screenCoordinates.y, true);
+				font.dispose();
+				
 				gc.setAlpha(80);
 				gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 				int w = label.length()*2;
@@ -184,7 +193,8 @@ public class FlatWorld extends Canvas {
 	}
 	
 	private FloatRectangle getGeographicalRegionFromTextureRegion(int x, int y, int width, int height) {
-		return new FloatRectangle(-180,-90,360,180);
+		Rectangle textureBounds = texture.getBounds();
+		return new FloatRectangle((x-textureBounds.x)*360/textureBounds.width-180,(y-textureBounds.y)*-180/textureBounds.height+90 - 180*height/textureBounds.height,360*width/textureBounds.width,180*height/textureBounds.height);
 	}
 
 	private Point getScreenCoordinatesFromLocation(float lat, float lon) {
@@ -196,8 +206,9 @@ public class FlatWorld extends Canvas {
 	}
 
 	public void addLabel(double latitude, double longitude, String label) {
+//		System.out.println(latitude+" "+label);
 		if (label == null) return;
-		labels.put(new FloatPoint((float)latitude, (float)longitude), label);
+		labels.put(new FloatPoint((float)longitude, (float)latitude), label);
 		redraw();
 	}
 }

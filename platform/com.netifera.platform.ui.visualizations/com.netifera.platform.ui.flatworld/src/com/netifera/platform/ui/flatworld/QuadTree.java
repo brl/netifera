@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class QuadTree<E> {
 
-	static public int BRANCH_THRESHOLD = 20;
+	static public int BRANCH_THRESHOLD = 2;
 	
 	final private FloatRectangle bounds;
 	private QuadTree<E> quadrants[];
@@ -13,6 +13,10 @@ public class QuadTree<E> {
 
 	public QuadTree(FloatRectangle bounds) {
 		this.bounds = bounds;
+	}
+
+	public FloatRectangle getBounds() {
+		return bounds;
 	}
 	
 	private boolean isLeaf() {
@@ -73,8 +77,8 @@ public class QuadTree<E> {
 		if (contents.size() < BRANCH_THRESHOLD)
 			return;
 		
-		int w = 0;
-		int h = 0;
+		float w = 0;
+		float h = 0;
 		for (FloatPoint location: contents.keySet()) {
 			w += location.x - bounds.x;
 			h += location.y - bounds.y;
