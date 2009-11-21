@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.flatworld;
+package com.netifera.platform.ui.flatworld.support;
 
 public class FloatPoint {
 	public final float x;

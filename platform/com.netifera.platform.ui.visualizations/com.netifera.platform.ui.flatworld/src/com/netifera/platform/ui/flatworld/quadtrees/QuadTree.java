@@ -1,7 +1,10 @@
-package com.netifera.platform.ui.flatworld;
+package com.netifera.platform.ui.flatworld.quadtrees;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.netifera.platform.ui.flatworld.support.FloatPoint;
+import com.netifera.platform.ui.flatworld.support.FloatRectangle;
 
 public class QuadTree<E> {
 
@@ -17,6 +20,15 @@ public class QuadTree<E> {
 
 	public FloatRectangle getBounds() {
 		return bounds;
+	}
+	
+	public int size() {
+		if (isLeaf())
+			return contents.size();
+		int count = 0;
+		for (QuadTree<E> quadrant: quadrants)
+			count += quadrant.size();
+		return count;
 	}
 	
 	private boolean isLeaf() {
@@ -56,6 +68,17 @@ public class QuadTree<E> {
 	}
 
 	public void visit(FloatRectangle region, IQuadTreeVisitor<E> visitor) {
+		if (!region.intersects(bounds))
+			return;
+		if (visitor.visit(this)) {
+			if (!isLeaf()) {
+				for (QuadTree<E> quadrant: quadrants)
+					quadrant.visit(region, visitor);
+			}
+		}
+	}
+
+	public void visit(FloatRectangle region, IQuadTreeElementsVisitor<E> visitor) {
 		region = bounds.intersection(region);
 		if (region.isEmpty())
 			return;

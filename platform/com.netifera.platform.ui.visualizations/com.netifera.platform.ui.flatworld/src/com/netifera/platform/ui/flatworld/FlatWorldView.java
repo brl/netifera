@@ -164,17 +164,13 @@ public class FlatWorldView extends ViewPart {
 		if (this.space != null)
 			this.space.removeChangeListener(spaceChangeListener);
 
-		// cleanup
+		world.initializeLayers();
 		
 		this.space = space;
 		spaceChangeListener = new IEventHandler() {
 			public void handleEvent(final IEvent event) {
 				if(event instanceof ISpaceContentChangeEvent) {
-					Display.getDefault().syncExec(new Runnable() {
-						public void run() {
-							handleSpaceChange((ISpaceContentChangeEvent)event);
-						}
-					});
+					handleSpaceChange((ISpaceContentChangeEvent)event);
 				}
 			}
 		};
@@ -184,7 +180,12 @@ public class FlatWorldView extends ViewPart {
 		} else {
 			setPartName("World");
 		}
-//		worldWindow.repaint();
+		
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				world.redraw();
+			}
+		});
 	}
 	
 	private void handleSpaceChange(final ISpaceContentChangeEvent event) {
@@ -241,9 +242,13 @@ public class FlatWorldView extends ViewPart {
 	}
 
 	private void addNode(IEntity entity) {
-		ILocation location = getLocation(entity);
+		final ILocation location = getLocation(entity);
 		if (location != null) {
-			world.addLabel(location.getPosition()[0], location.getPosition()[1], location.getCity());
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					world.addLabel(location.getPosition()[0], location.getPosition()[1], location.getCity());
+				}
+			});
 		}
 	}
 

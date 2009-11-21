@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.flatworld;
+package com.netifera.platform.ui.flatworld.support;
 
 
 public class FloatRectangle {
@@ -51,7 +51,19 @@ public class FloatRectangle {
 			bottom < top ? 0 : bottom - top);
 	}
 	
+	public boolean intersects(FloatRectangle rect) {
+		return !intersection(rect).isEmpty();
+	}
+	
 	public boolean isEmpty () {
 		return (width <= 0) || (height <= 0);
+	}
+	
+	public FloatPoint topLeft() {
+		return new FloatPoint(x,y);
+	}
+
+	public FloatPoint bottomRight() {
+		return new FloatPoint(x+width,y+height);
 	}
 }
