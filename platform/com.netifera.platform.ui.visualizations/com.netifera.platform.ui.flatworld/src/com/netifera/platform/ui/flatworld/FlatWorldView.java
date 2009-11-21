@@ -86,7 +86,7 @@ public class FlatWorldView extends ViewPart {
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
+		for (ILayerProvider layerProvider: Activator.getInstance().getModel().getLayerProviders()) {
 			if (layerProvider.isDefaultEnabled() &&
 					(layerProvider instanceof IGeographicalLayerProvider || layerProvider instanceof IEdgeLayerProvider))
 				layerProviders.add(layerProvider);
@@ -244,11 +244,14 @@ public class FlatWorldView extends ViewPart {
 	private void addNode(IEntity entity) {
 		final ILocation location = getLocation(entity);
 		if (location != null) {
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					world.addLabel(location.getPosition()[0], location.getPosition()[1], location.getCity());
-				}
-			});
+			final String label = location.getCity() != null ? location.getCity() : location.getCountry();
+			if (label != null) {
+				Display.getDefault().syncExec(new Runnable() {
+					public void run() {
+						world.addLabel(location.getPosition()[0], location.getPosition()[1], label);
+					}
+				});
+			}
 		}
 	}
 

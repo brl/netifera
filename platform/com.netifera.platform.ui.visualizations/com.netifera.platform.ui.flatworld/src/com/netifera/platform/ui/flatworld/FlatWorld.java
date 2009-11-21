@@ -176,7 +176,7 @@ public class FlatWorld extends Canvas {
 		labels.visit(region, new IQuadTreeElementsVisitor<String>() {
 			public void visit(QuadTree<String> tree, FloatPoint location, String label) {
 				Point screenCoordinates = getScreenCoordinatesFromLocation(location);
-				gc.setAlpha(128);
+				gc.setAlpha(150);
 				gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 				
 				int w = (int)(rect.width/(region.width/tree.getBounds().width));
@@ -194,7 +194,7 @@ public class FlatWorld extends Canvas {
 				gc.setAlpha(64);
 				gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 //				int w = label.length()*2;
-				int d = Math.min(w,h) / 2;
+				int d = (int) Math.sqrt(Math.max(w,h));
 				gc.fillOval(screenCoordinates.x-d, screenCoordinates.y-d, d*2, d*2);
 			}
 		});
