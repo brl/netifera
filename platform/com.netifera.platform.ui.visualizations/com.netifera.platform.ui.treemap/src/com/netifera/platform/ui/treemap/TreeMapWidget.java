@@ -14,14 +14,14 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.netifera.platform.api.model.IEntity;
-import com.netifera.platform.ui.treemap.curves.XKCDHilbertCurve;
+import com.netifera.platform.ui.treemap.curves.RegistriesHilbertCurve;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 public class TreeMapWidget extends Canvas {
 
 	private TreeMap treeMap;
-	private IHilbertCurve curve = new XKCDHilbertCurve();
+	private IHilbertCurve curve = new RegistriesHilbertCurve();
 
 	class TreeMapFrame {
 		double scale = 1.0;

@@ -181,8 +181,14 @@ public class TreeMap implements Iterable<IEntity> {
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
 			gc.setAlpha((int)(255 / Math.sqrt(extent+1))); // as we zoom-in the outermost color fades out as the smaller detail is more visible
-			gc.setBackground(getColorForTemperature(temperature));
-			gc.fillRectangle(x, y, extent+1, extent+1);
+			if (extent > 0) {
+				gc.setBackground(getColorForTemperature(temperature));
+				gc.fillRectangle(x, y, extent+1, extent+1);
+			} else {
+//				gc.setAlpha(128);
+				gc.setForeground(getColorForTemperature(temperature));
+				gc.drawPoint(x+1, y+1);
+			}
 		}
 
 		if (extent <= 0)// dont draw at subpixel level, avoid unnecesary drawing of details that woudlnt be visible
