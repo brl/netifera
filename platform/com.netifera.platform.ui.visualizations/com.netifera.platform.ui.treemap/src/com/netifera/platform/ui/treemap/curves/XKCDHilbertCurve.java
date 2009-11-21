@@ -84,7 +84,7 @@ public class XKCDHilbertCurve extends AbstractXKCDHilbertCurve {
 		drawRegion(x, y, extent, gc, new int[] {16,13, -1,0, 0,1, -1,0, 0,-2, -2,0, 0,-3, -1,0, 0,-1, -3,0, 0,8}); // various registrars
 		drawRegionLabel(x, y, extent, gc, "Various Registries", 8,13, 6);
 
-		drawRegionLabel(x, y, extent, gc, "Public Data Nets", 2,0, 1);
+//		drawRegionLabel(x, y, extent, gc, "Public Data Network", 2,0, 1); // reclaimed in 2008
 		drawRegionLabel(x, y, extent, gc, "HP", 3,0, 1);
 		drawRegionLabel(x, y, extent, gc, "DEC", 4,0, 1);
 		drawRegionLabel(x, y, extent, gc, "Ford", 5,0, 1);
@@ -93,46 +93,46 @@ public class XKCDHilbertCurve extends AbstractXKCDHilbertCurve {
 		
 		drawRegionLabel(x, y, extent, gc, "GE", 0,1, 1);
 		drawRegionLabel(x, y, extent, gc, "Xerox", 2,1, 1);
-		drawRegionLabel(x, y, extent, gc, "Bell Labs", 3,1, 1);
+		drawRegionLabel(x, y, extent, gc, "AT&T", 3,1, 1);
 		drawRegionLabel(x, y, extent, gc, "Apple", 4,1, 1);
 		drawRegionLabel(x, y, extent, gc, "MIT", 5,1, 1);
 		drawRegionLabel(x, y, extent, gc, "DISA", 7,1, 1);
 		
-		drawRegionLabel(x, y, extent, gc, "BB&N", 0,2, 1);
-		drawRegionLabel(x, y, extent, gc, "BB&N", 2,2, 1);
-		drawRegionLabel(x, y, extent, gc, "DoD/Intel", 3,2, 1);
+		drawRegionLabel(x, y, extent, gc, "Level3", 0,2, 1);
+		drawRegionLabel(x, y, extent, gc, "Level3", 2,2, 1);
+		drawRegionLabel(x, y, extent, gc, "DoD-Intel", 3,2, 1);
 		drawRegionLabel(x, y, extent, gc, "DISA", 4,2, 2);
-		drawRegionLabel(x, y, extent, gc, "Cable TV", 6,2, 1);
-		drawRegionLabel(x, y, extent, gc, "UK/MoD", 7,2, 1);
+		drawRegionLabel(x, y, extent, gc, "Cable", 6,2, 1);
+		drawRegionLabel(x, y, extent, gc, "UK MoD", 7,2, 1);
 
-		drawRegionLabel(x, y, extent, gc, "Army/AISC", 1,3, 1);
+		drawRegionLabel(x, y, extent, gc, "US Army", 1,3, 1);
 		drawRegionLabel(x, y, extent, gc, "IBM", 2,3, 1);
 		drawRegionLabel(x, y, extent, gc, "Private", 3,3, 1);
 		drawRegionLabel(x, y, extent, gc, "DSI", 5,3, 1);
 		drawRegionLabel(x, y, extent, gc, "DISA", 6,3, 1);
 
 		drawRegionLabel(x, y, extent, gc, "SITA", 1,4, 1);
-		drawRegionLabel(x, y, extent, gc, "Merc", 2,4, 1);
-		drawRegionLabel(x, y, extent, gc, "CAP/DEBIS/CCS", 3,4, 1);
+		drawRegionLabel(x, y, extent, gc, "Merck", 2,4, 1);
+		drawRegionLabel(x, y, extent, gc, "Cap Debis CCS", 3,4, 1);
 		drawRegionLabel(x, y, extent, gc, "AT&T", 4,4, 1);
-		drawRegionLabel(x, y, extent, gc, "Merit", 5,4, 1);
+		drawRegionLabel(x, y, extent, gc, "MERIT", 5,4, 1);
 
 		drawRegionLabel(x, y, extent, gc, "USPS", 1,5, 1);
-		drawRegionLabel(x, y, extent, gc, "Boeing", 2,5, 1);
+		drawRegionLabel(x, y, extent, gc, "DoD NIC", 2,5, 1);
 		drawRegionLabel(x, y, extent, gc, "duPont", 3,5, 1);
-		drawRegionLabel(x, y, extent, gc, "OLA", 4,5, 1);
+		drawRegionLabel(x, y, extent, gc, "DLA", 4,5, 1);
 		drawRegionLabel(x, y, extent, gc, "Halliburton", 5,5, 1);
 		drawRegionLabel(x, y, extent, gc, "PSI", 7,5, 1);
 
-		drawRegionLabel(x, y, extent, gc, "UK Social Security", 3,6, 1);
-		drawRegionLabel(x, y, extent, gc, "BB&N", 4,6, 1);
+		drawRegionLabel(x, y, extent, gc, "UK Department for Work and Pensions", 3,6, 1);
+//		drawRegionLabel(x, y, extent, gc, "BB&N", 4,6, 1); // was reclaimed, now unallocated
 		drawRegionLabel(x, y, extent, gc, "INTEROP", 5,6, 1);
 		drawRegionLabel(x, y, extent, gc, "Eli Lily", 6,6, 1);
-		drawRegionLabel(x, y, extent, gc, "AFRINIC", 7,6, 1);
+		drawRegionLabel(x, y, extent, gc, "AfriNIC", 7,6, 1);
 
 		drawRegionLabel(x, y, extent, gc, "Prudential", 3,7, 1);
-		drawRegionLabel(x, y, extent, gc, "Bell North", 4,7, 1);
-		drawRegionLabel(x, y, extent, gc, "Ham Radio", 5,7, 1);
+		drawRegionLabel(x, y, extent, gc, "Bell Northern Research", 4,7, 1);
+		drawRegionLabel(x, y, extent, gc, "HAM Radio", 5,7, 1);
 		drawRegionLabel(x, y, extent, gc, "Japan", 6,7, 1);
 
 		drawRegionLabel(x, y, extent, gc, "Loopback", 7,8, 1);
