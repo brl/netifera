@@ -109,7 +109,7 @@ public class XKCDHilbertCurve extends AbstractXKCDHilbertCurve {
 		drawRegionLabel(x, y, extent, gc, "IBM", 2,3, 1);
 		drawRegionLabel(x, y, extent, gc, "Private", 3,3, 1);
 		drawRegionLabel(x, y, extent, gc, "DSI", 5,3, 1);
-		drawRegionLabel(x, y, extent, gc, "DISA", 6,3, 1);
+		drawRegionLabel(x, y, extent, gc, "DISA", 7,3, 1);
 
 		drawRegionLabel(x, y, extent, gc, "SITA", 1,4, 1);
 		drawRegionLabel(x, y, extent, gc, "Merck", 2,4, 1);

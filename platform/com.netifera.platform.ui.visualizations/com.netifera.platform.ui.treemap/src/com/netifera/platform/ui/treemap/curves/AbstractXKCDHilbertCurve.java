@@ -6,7 +6,10 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
+import com.netifera.platform.net.geoip.ILocation;
+import com.netifera.platform.ui.internal.treemap.Activator;
 import com.netifera.platform.ui.treemap.IHilbertCurve;
+import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 
@@ -139,7 +142,8 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 	}
 
 	protected void drawRegion(int x, int y, int extent, GC gc, int[] coordinatesArray) {
-		gc.setAlpha(150);
+		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
+		gc.setAlpha(255);
 		int[] pointArray = new int[coordinatesArray.length];
 		int xi = coordinatesArray[0];
 		int yi = coordinatesArray[1];
@@ -155,14 +159,22 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 	}
 
 	protected void drawRegionLabel(int x, int y, int extent, GC gc, String label, int i, int j, int w) {
-		int fontSize = w*extent/16/label.length();
+		int availableSpace = w*extent/16;
+		if (availableSpace < 4)
+			return;
+		int fontSize = availableSpace/label.length();
 		if (fontSize <= 0 || fontSize >= 150)
 			return;
+		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		gc.setAlpha(150-fontSize);
 		Font font = new Font(Display.getDefault(),"Arial",fontSize,SWT.BOLD);
 		gc.setFont(font);
 		Point labelExtent = gc.stringExtent(label);
-		int labelX = x + (i*extent/16) + (w*extent/16 - labelExtent.x)/2;
+/*		if (labelExtent.x < availableSpace-(Math.max(4, availableSpace/8))) {
+			font.dispose();
+			fontSize = fontSize *
+		}
+*/		int labelX = x + (i*extent/16) + (availableSpace - labelExtent.x)/2;
 		int labelY = y + (j*extent/16) + (extent/16 - labelExtent.y)/2;
 		gc.drawString(label, labelX, labelY, true);
 		font.dispose();
@@ -170,22 +182,77 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 
 	abstract protected void paintRegions(int x, int y, int extent, GC gc);
 	
-	public void paint(int x, int y, int extent, GC gc) {
-		gc.setAlpha(50);
-		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
-		gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
-		for (int i: new int[] {1, 2, 5, 7, 23, 27, 31, 36, 37, 39, 42, 46, 49, 50, 92, 93, 94, 95, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 197, 223, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255}) {
-			int h = hilbertCurve[i];
-			int xi = h % 16;
-			int yi = h / 16;
-			int x1 = x + (xi*extent/16);
-			int y1 = y + (yi*extent/16);
-			gc.fillRectangle(x1, y1, extent/16+1, extent/16+1);
-		}
-		
-		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-		gc.setLineWidth(2);
+	public void paint(int x, int y, int extent, GC gc, IPv4Netblock netblock) {
+		if (netblock.getCIDR() == 0) {
+			gc.setAlpha(50);
+			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
+			gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
+			for (int i: new int[] {1, 2, 5, 7, 23, 27, 31, 36, 37, 39, 42, 46, 49, 50, 92, 93, 94, 95, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 197, 223, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255}) {
+				int h = hilbertCurve[i];
+				int hx = h % 16;
+				int hy = h / 16;
+				int xi = x + (hx*extent/16);
+				int yi = y + (hy*extent/16);
+				gc.fillRectangle(xi, yi, extent/16+1, extent/16+1);
+			}
+			
+			gc.setLineWidth(1);
+	
+			paintRegions(x, y, extent, gc);
+		}/* else if (netblock.getCIDR() == 8) {
+			gc.setAlpha(150);
+			int net = netblock.getNetworkAddress().toInteger();
+			for (int i=0; i<=255; i++) {
+				int h = hilbertCurve[i];
+				
+				net = (net & 0xff000000) | ((h & 0xff) << 16);
+				String country1 = getCountry(net | 0x00000101);
+				if (country1 == null) continue;
+				String country2 = getCountry(net | 0x00008001);
+				if (country2 == null) continue;
+				String country3 = getCountry(net | 0x0000ff01);
+				if (country3 == null) continue;
 
-		paintRegions(x, y, extent, gc);
+				if (!country1.equals(country2) || !country1.equals(country3)) continue;
+				
+				int hx = h % 16;
+				int hy = h / 16;
+				int xi = x + (hx*extent/16);
+				int yi = y + (hy*extent/16);
+				gc.drawString(country1, xi, yi);
+			}
+		} else if (netblock.getCIDR() == 16) {
+			gc.setAlpha(150);
+			int net = netblock.getNetworkAddress().toInteger();
+			for (int i=0; i<=255; i++) {
+				int h = hilbertCurve[i];
+				
+				net = (net & 0xffff0000) | ((h & 0xff) << 8);
+				String country1 = getCountry(net | 0x00000001);
+				if (country1 == null) continue;
+				String country2 = getCountry(net | 0x00000080);
+				if (country2 == null) continue;
+				String country3 = getCountry(net | 0x000000ff);
+				if (country3 == null) continue;
+
+				if (!country1.equals(country2) || !country1.equals(country3)) continue;
+				
+				int hx = h % 16;
+				int hy = h / 16;
+				int xi = x + (hx*extent/16);
+				int yi = y + (hy*extent/16);
+				gc.drawString(country1, xi, yi);
+			}
+		} else if (netblock.getCIDR() == 24) {
+			// organization?
+		}*/
+	}
+	
+	private String getCountry(int addressValue) {
+		IPv4Address address = new IPv4Address(addressValue);
+		ILocation location = Activator.getInstance().getGeoIPService().getLocation(address);
+		if (location != null && location.getCountryCode() != null)
+			return location.getCountryCode();
+		return null;
 	}
 }

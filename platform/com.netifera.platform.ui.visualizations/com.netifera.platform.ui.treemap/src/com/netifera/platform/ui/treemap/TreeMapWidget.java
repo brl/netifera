@@ -145,7 +145,6 @@ public class TreeMapWidget extends Canvas {
 		gc.setForeground(getForeground());
 		gc.setBackground(getForeground());
 		
-		curve.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc);
 		treeMap.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve);
 	}
 	

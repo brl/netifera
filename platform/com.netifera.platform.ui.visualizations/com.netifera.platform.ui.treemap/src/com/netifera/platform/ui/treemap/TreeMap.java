@@ -10,6 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 import com.netifera.platform.api.model.IEntity;
@@ -177,18 +178,19 @@ public class TreeMap implements Iterable<IEntity> {
 	}
 	
 	public void paint(int x, int y, int extent, GC gc, IHilbertCurve curve) {
-		if (extent <= 0)// dont draw at subpixel level, avoid unnecesary drawing of details that woudlnt be visible
-			return;
-		
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
 			gc.setAlpha((int)(255 / Math.sqrt(extent+1))); // as we zoom-in the outermost color fades out as the smaller detail is more visible
 			gc.setBackground(getColorForTemperature(temperature));
 			gc.fillRectangle(x, y, extent+1, extent+1);
 		}
-		
-		// draw grid for /0. /8, /16 and /24 (all except individual addresses)
+
+		if (extent <= 0)// dont draw at subpixel level, avoid unnecesary drawing of details that woudlnt be visible
+			return;
+
+		// draw grid and curve regions for /0. /8, /16 and /24 (all except individual addresses)
 		if (netblock.getCIDR() < 32 && extent > 64) { // dont draw grid if the scale is too small
+			
 			gc.setAlpha(Math.min(extent, 256) / 24); // make the grid gradually appear as we zoom-in
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 			for (int i=1; i<16; i++) {
@@ -197,6 +199,8 @@ public class TreeMap implements Iterable<IEntity> {
 				int yi = y + (i*extent/16);
 				gc.drawLine(x, yi, x + extent, yi);
 			}
+			
+			curve.paint(x, y, extent, gc, netblock); // draw curve regions
 		}
 
 		boolean has0 = false;
@@ -209,9 +213,12 @@ public class TreeMap implements Iterable<IEntity> {
 				int subX = x + (xi*extent/16);
 				int subY = y + (yi*extent/16);
 				int subExtent = extent/16;
-				submap.paint(subX, subY, subExtent, gc, curve);
-				if (h == 0)
-					has0 = true;
+				Rectangle subRect = new Rectangle(subX, subY, subExtent, subExtent);
+				if (subRect.intersects(gc.getClipping())) {
+					submap.paint(subX, subY, subExtent, gc, curve);
+					if (h == 0)
+						has0 = true;
+				}
 			}
 		}
 		
