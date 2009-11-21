@@ -1,5 +1,8 @@
 package com.netifera.platform.ui.treemap.curves;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -15,30 +18,30 @@ import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 
-	private static int[] hilbertCurve = new int[256];
-	
-	static {
-		int[] reverseMapping = {
-			0,1,14,15,16,19,20,21,234,235,236,239,240,241,254,255,
-			3,2,13,12,17,18,23,22,233,232,237,238,243,242,253,252,
-			4,7,8,11,30,29,24,25,230,231,226,225,244,247,248,251,
-			5,6,9,10,31,28,27,26,229,228,227,224,245,246,249,250,
-			58,57,54,53,32,35,36,37,218,219,220,223,202,201,198,197,
-			59,56,55,52,33,34,39,38,217,216,221,222,203,200,199,196,
-			60,61,50,51,46,45,40,41,214,215,210,209,204,205,194,195,
-			63,62,49,48,47,44,43,42,213,212,211,208,207,206,193,192,
-			64,67,68,69,122,123,124,127,128,131,132,133,186,187,188,191,
-			65,66,71,70,121,120,125,126,129,130,135,134,185,184,189,190,
-			78,77,72,73,118,119,114,113,142,141,136,137,182,183,178,177,
-			79,76,75,74,117,116,115,112,143,140,139,138,181,180,179,176,
-			80,81,94,95,96,97,110,111,144,145,158,159,160,161,174,175,
-			83,82,93,92,99,98,109,108,147,146,157,156,163,162,173,172,
-			84,87,88,91,100,103,104,107,148,151,152,155,164,167,168,171,
-			85,86,89,90,101,102,105,106,149,150,153,154,165,166,169,170
-		};
+	private static int[] inverseCurve = {
+		0,1,14,15,16,19,20,21,234,235,236,239,240,241,254,255,
+		3,2,13,12,17,18,23,22,233,232,237,238,243,242,253,252,
+		4,7,8,11,30,29,24,25,230,231,226,225,244,247,248,251,
+		5,6,9,10,31,28,27,26,229,228,227,224,245,246,249,250,
+		58,57,54,53,32,35,36,37,218,219,220,223,202,201,198,197,
+		59,56,55,52,33,34,39,38,217,216,221,222,203,200,199,196,
+		60,61,50,51,46,45,40,41,214,215,210,209,204,205,194,195,
+		63,62,49,48,47,44,43,42,213,212,211,208,207,206,193,192,
+		64,67,68,69,122,123,124,127,128,131,132,133,186,187,188,191,
+		65,66,71,70,121,120,125,126,129,130,135,134,185,184,189,190,
+		78,77,72,73,118,119,114,113,142,141,136,137,182,183,178,177,
+		79,76,75,74,117,116,115,112,143,140,139,138,181,180,179,176,
+		80,81,94,95,96,97,110,111,144,145,158,159,160,161,174,175,
+		83,82,93,92,99,98,109,108,147,146,157,156,163,162,173,172,
+		84,87,88,91,100,103,104,107,148,151,152,155,164,167,168,171,
+		85,86,89,90,101,102,105,106,149,150,153,154,165,166,169,170
+	};
 
+	private static int[] curve = new int[256];
+
+	static {
 		for (int i=0; i<=255; i++)
-			hilbertCurve[reverseMapping[i]] = i;
+			curve[inverseCurve[i]] = i;
 	}
 	
 	/*
@@ -138,7 +141,7 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 	}
 
 	public int getIndex(IPv4Netblock netblock, IPv4Netblock subnetblock) {
-		return hilbertCurve[subnetblock.getNetworkAddress().toBytes()[netblock.getCIDR()/8] & 0xff];
+		return curve[subnetblock.getNetworkAddress().toBytes()[netblock.getCIDR()/8] & 0xff];
 	}
 
 	protected void drawRegion(int x, int y, int extent, GC gc, int[] coordinatesArray) {
@@ -162,7 +165,7 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 		int availableSpace = w*extent/16;
 		if (availableSpace < 4)
 			return;
-		int fontSize = availableSpace/label.length();
+		int fontSize = Math.min(availableSpace/label.length(), extent/20 /*extent/16*/);
 		if (fontSize <= 0 || fontSize >= 150)
 			return;
 		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
@@ -180,6 +183,88 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 		font.dispose();
 	}
 
+	private int hxhy2i(int hx, int hy) {
+		int h = hy*16 + hx;
+		return inverseCurve[h];
+	}
+	
+	private int coverCategory(String category, Map<Point,Integer> indices, String[] categories, int hx, int hy) {
+		if (hx < 0 || hx > 15 || hy < 0 || hy > 15)
+			return 0;
+		int i = hxhy2i(hx,hy);
+		if (categories[i] == null || !categories[i].equals(category))
+			return 0;
+		categories[i] = null;
+		int length = coverCategory(category, indices, categories, hx+1, hy)+1;
+		indices.put(new Point(hx, hy), length);
+		coverCategory(category, indices, categories, hx-1, hy);
+		coverCategory(category, indices, categories, hx, hy-1);
+		coverCategory(category, indices, categories, hx, hy+1);
+		return length;
+	}
+	
+	private void drawCategories(int x, int y, int extent, GC gc, String[] categories) {
+		gc.setAlpha(Math.min(extent, 255) / 4); // make the regions borders gradually appear as we zoom-in
+		for (int hx=0; hx<16; hx++) {
+			for (int hy=0; hy<16; hy++) {
+				String category = categories[hxhy2i(hx,hy)];
+				int xi = x + (hx*extent/16);
+				int yi = y + (hy*extent/16);
+				int xiPlus1 = x + ((hx+1)*extent/16);
+				int yiPlus1 = y + ((hy+1)*extent/16);
+				if (hx<15 && category != categories[hxhy2i(hx+1,hy)])
+					gc.drawLine(xiPlus1, yi, xiPlus1, yiPlus1);
+				if (hy<15 && category != categories[hxhy2i(hx,hy+1)])
+					gc.drawLine(xi, yiPlus1, xiPlus1, yiPlus1);
+				if (category != null) {
+					if (hx == 0)
+						gc.drawLine(xi, yi, xi, yiPlus1);
+					if (hx == 15)
+						gc.drawLine(xiPlus1, yi, xiPlus1, yiPlus1);
+					if (hy == 0)
+						gc.drawLine(xi, yi, xiPlus1, yi);
+					if (hy == 15)
+						gc.drawLine(xi, yiPlus1, xiPlus1, yiPlus1);
+				}
+			}
+		}
+		for (int hy=0; hy<16; hy++) {
+			for (int hx=0; hx<16; hx++) {
+				int i = hxhy2i(hx,hy);
+				String category = categories[i];
+				if (category != null) {
+					Map<Point,Integer> indices = new HashMap<Point,Integer>();
+					coverCategory(category,indices,categories,hx,hy);
+					int maxLength = 0;
+					Point bestPoint = null;
+					for (Point point: indices.keySet()) {
+						int length = indices.get(point);
+						if (length > maxLength) {
+							maxLength = length;
+							bestPoint = point;
+						}
+					}
+//					Point secondBestPoint = new Point(bestPoint.x,bestPoint.y+1);
+//					if (indices.get(secondBestPoint) != null && indices.get(secondBestPoint) == maxLength)
+//						bestPoint = secondBestPoint;
+					drawRegionLabel(x, y, extent, gc, category, bestPoint.x, bestPoint.y, maxLength);
+				}
+			}
+		}
+/*		Font font = new Font(Display.getDefault(),"Arial",extent/16/2,SWT.BOLD);
+		gc.setFont(font);
+		for (int i=0; i<=255; i++) {
+			if (categories[i] == null) continue;
+			int h = curve[i];
+			int hx = h % 16;
+			int hy = h / 16;
+			int xi = x + (hx*extent/16);
+			int yi = y + (hy*extent/16);
+			gc.drawString(categories[i], xi, yi, true);
+		}
+		font.dispose();
+*/	}
+	
 	abstract protected void paintRegions(int x, int y, int extent, GC gc);
 	
 	public void paint(int x, int y, int extent, GC gc, IPv4Netblock netblock) {
@@ -188,7 +273,7 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 			gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 			for (int i: new int[] {1, 2, 5, 7, 23, 27, 31, 36, 37, 39, 42, 46, 49, 50, 92, 93, 94, 95, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 197, 223, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255}) {
-				int h = hilbertCurve[i];
+				int h = curve[i];
 				int hx = h % 16;
 				int hy = h / 16;
 				int xi = x + (hx*extent/16);
@@ -199,13 +284,12 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 			gc.setLineWidth(1);
 	
 			paintRegions(x, y, extent, gc);
-		}/* else if (netblock.getCIDR() == 8) {
+		} else if (netblock.getCIDR() == 8) {
 			gc.setAlpha(150);
+			String[] categories = new String[256];
 			int net = netblock.getNetworkAddress().toInteger();
 			for (int i=0; i<=255; i++) {
-				int h = hilbertCurve[i];
-				
-				net = (net & 0xff000000) | ((h & 0xff) << 16);
+				net = (net & 0xff000000) | ((i & 0xff) << 16);
 				String country1 = getCountry(net | 0x00000101);
 				if (country1 == null) continue;
 				String country2 = getCountry(net | 0x00008001);
@@ -215,19 +299,15 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 
 				if (!country1.equals(country2) || !country1.equals(country3)) continue;
 				
-				int hx = h % 16;
-				int hy = h / 16;
-				int xi = x + (hx*extent/16);
-				int yi = y + (hy*extent/16);
-				gc.drawString(country1, xi, yi);
+				categories[i] = country1;
 			}
+			drawCategories(x, y, extent, gc, categories);
 		} else if (netblock.getCIDR() == 16) {
 			gc.setAlpha(150);
+			String[] categories = new String[256];
 			int net = netblock.getNetworkAddress().toInteger();
 			for (int i=0; i<=255; i++) {
-				int h = hilbertCurve[i];
-				
-				net = (net & 0xffff0000) | ((h & 0xff) << 8);
+				net = (net & 0xffff0000) | ((i & 0xff) << 8);
 				String country1 = getCountry(net | 0x00000001);
 				if (country1 == null) continue;
 				String country2 = getCountry(net | 0x00000080);
@@ -236,23 +316,20 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 				if (country3 == null) continue;
 
 				if (!country1.equals(country2) || !country1.equals(country3)) continue;
-				
-				int hx = h % 16;
-				int hy = h / 16;
-				int xi = x + (hx*extent/16);
-				int yi = y + (hy*extent/16);
-				gc.drawString(country1, xi, yi);
+
+				categories[i] = country1;
 			}
+			drawCategories(x, y, extent, gc, categories);
 		} else if (netblock.getCIDR() == 24) {
 			// organization?
-		}*/
+		}
 	}
 	
 	private String getCountry(int addressValue) {
 		IPv4Address address = new IPv4Address(addressValue);
 		ILocation location = Activator.getInstance().getGeoIPService().getLocation(address);
 		if (location != null && location.getCountryCode() != null)
-			return location.getCountryCode();
+			return location.getCountry();
 		return null;
 	}
 }
