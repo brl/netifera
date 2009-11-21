@@ -196,7 +196,6 @@ public class TreeMap implements Iterable<IEntity> {
 
 		// draw grid and curve regions for /0. /8, /16 and /24 (all except individual addresses)
 		if (netblock.getCIDR() < 32 && extent > 64) { // dont draw grid if the scale is too small
-			
 			gc.setAlpha(Math.min(extent, 255) / 24); // make the grid gradually appear as we zoom-in
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 			for (int i=1; i<16; i++) {

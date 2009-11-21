@@ -169,7 +169,10 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 		if (fontSize <= 0 || fontSize >= 150)
 			return;
 		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-		gc.setAlpha(150-fontSize);
+		if (fontSize <= 10)
+			gc.setAlpha(14*fontSize);
+		else
+			gc.setAlpha(150-fontSize);
 		Font font = new Font(Display.getDefault(),"Arial",fontSize,SWT.BOLD);
 		gc.setFont(font);
 		Point labelExtent = gc.stringExtent(label);
@@ -197,6 +200,7 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 		categories[i] = null;
 		int length = coverCategory(category, indices, categories, hx+1, hy)+1;
 		indices.put(new Point(hx, hy), length);
+		//FIXME this is covering all the connected region of this category, but is not properly computing the points of maximum length
 		coverCategory(category, indices, categories, hx-1, hy);
 		coverCategory(category, indices, categories, hx, hy-1);
 		coverCategory(category, indices, categories, hx, hy+1);
@@ -204,7 +208,7 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 	}
 	
 	private void drawCategories(int x, int y, int extent, GC gc, String[] categories) {
-		gc.setAlpha(Math.min(extent, 255) / 4); // make the regions borders gradually appear as we zoom-in
+		gc.setAlpha(Math.min(extent/16, 128)); // make the category borders gradually appear as we zoom-in
 		for (int hx=0; hx<16; hx++) {
 			for (int hy=0; hy<16; hy++) {
 				String category = categories[hxhy2i(hx,hy)];
@@ -244,26 +248,11 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 							bestPoint = point;
 						}
 					}
-//					Point secondBestPoint = new Point(bestPoint.x,bestPoint.y+1);
-//					if (indices.get(secondBestPoint) != null && indices.get(secondBestPoint) == maxLength)
-//						bestPoint = secondBestPoint;
 					drawRegionLabel(x, y, extent, gc, category, bestPoint.x, bestPoint.y, maxLength);
 				}
 			}
 		}
-/*		Font font = new Font(Display.getDefault(),"Arial",extent/16/2,SWT.BOLD);
-		gc.setFont(font);
-		for (int i=0; i<=255; i++) {
-			if (categories[i] == null) continue;
-			int h = curve[i];
-			int hx = h % 16;
-			int hy = h / 16;
-			int xi = x + (hx*extent/16);
-			int yi = y + (hy*extent/16);
-			gc.drawString(categories[i], xi, yi, true);
-		}
-		font.dispose();
-*/	}
+	}
 	
 	abstract protected void paintRegions(int x, int y, int extent, GC gc);
 	
