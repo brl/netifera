@@ -5,7 +5,9 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -145,7 +147,18 @@ public class TreeMapWidget extends Canvas {
 		gc.setForeground(getForeground());
 		gc.setBackground(getForeground());
 		
-		treeMap.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve);
+		Color[] palette = new Color[32];
+		for (int i=0; i<palette.length; i++) {
+			float hue = 270.0f * i / (palette.length-1);
+			palette[palette.length-1-i] = new Color(Display.getDefault(), new RGB(hue, 1.0f, 1.0f));
+//			gc.setBackground(palette[i]);
+//			gc.fillRectangle(rect.x + i*rect.width/palette.length, rect.y, rect.width/palette.length, 100);
+		}
+
+		treeMap.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve, palette);
+
+		for (Color color: palette)
+			color.dispose();
 	}
 	
 	public void add(IPv4Address address, IEntity entity) {

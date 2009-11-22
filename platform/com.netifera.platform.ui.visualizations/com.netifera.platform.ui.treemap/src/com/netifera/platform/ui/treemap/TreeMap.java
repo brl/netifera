@@ -142,20 +142,6 @@ public class TreeMap implements Iterable<IEntity> {
 		submap.add(address, entity/*, color*/);
 	}
 
-	private Color getColorForTemperature(double temperature) {
-		if (temperature <= 0.0)
-			return Display.getDefault().getSystemColor(SWT.COLOR_MAGENTA); // shouldnt happen
-		if (temperature < 0.2)
-			return Display.getDefault().getSystemColor(SWT.COLOR_BLUE);
-		if (temperature < 0.4)
-			return Display.getDefault().getSystemColor(SWT.COLOR_CYAN);
-		if (temperature < 0.6)
-			return Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
-		if (temperature < 0.8)
-			return Display.getDefault().getSystemColor(SWT.COLOR_YELLOW);
-		return Display.getDefault().getSystemColor(SWT.COLOR_RED);
-	}
-
 	private boolean paintLabel(int x, int y, int extent, GC gc) {
 		if (netblock.getCIDR() > 0) {
 			String label = netblock.getCIDR() == 32 ? netblock.getNetworkAddress().toString() : netblock.toString();
@@ -177,21 +163,22 @@ public class TreeMap implements Iterable<IEntity> {
 		return false;
 	}
 	
-	public void paint(int x, int y, int extent, GC gc, IHilbertCurve curve) {
+	public void paint(int x, int y, int extent, GC gc, IHilbertCurve curve, Color palette[]) {
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
-			gc.setAlpha((int)(255 / Math.sqrt(extent+1))); // as we zoom-in the outermost color fades out as the smaller detail is more visible
+			Color color = palette[(int)(temperature*(palette.length-1))];
+			gc.setAlpha((int)(255 / Math.sqrt(extent/8+1))); // as we zoom-in the outermost color fades out as the smaller detail is more visible
 			if (extent > 0) {
-				gc.setBackground(getColorForTemperature(temperature));
+				gc.setBackground(color);
 				gc.fillRectangle(x, y, extent+1, extent+1);
 			} else {
 //				gc.setAlpha(128);
-				gc.setForeground(getColorForTemperature(temperature));
+				gc.setForeground(color);
 				gc.drawPoint(x+1, y+1);
 			}
 		}
 
-		if (extent <= 0)// dont draw at subpixel level, avoid unnecesary drawing of details that woudlnt be visible
+		if (extent <= 0)// dont draw at subpixel level, avoid unnecesary drawing of details that wouldnt be visible
 			return;
 
 		// draw grid and curve regions for /0. /8, /16 and /24 (all except individual addresses)
@@ -220,7 +207,7 @@ public class TreeMap implements Iterable<IEntity> {
 				int subExtent = extent/16;
 				Rectangle subRect = new Rectangle(subX, subY, subExtent, subExtent);
 				if (subRect.intersects(gc.getClipping())) {
-					submap.paint(subX, subY, subExtent, gc, curve);
+					submap.paint(subX, subY, subExtent, gc, curve, palette);
 					if (h == 0)
 						has0 = true;
 				}
