@@ -14,6 +14,7 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.routes.AS;
 import com.netifera.platform.net.routes.IIP2ASService;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.InternetNetblock;
 
 public class IP2ASService implements IIP2ASService {
 	static final private String DB_FILENAME = "GeoIPASNum.dat";
@@ -37,13 +38,33 @@ public class IP2ASService implements IIP2ASService {
 			}
 			public long getNumber() {
 				Matcher matcher = asnumPattern.matcher(as);
-				String asnum = matcher.group(1);
-				if (asnum != null && asnum.length()>0)
-					return Long.parseLong(asnum);
+				if (matcher.matches()) {
+					String asnum = matcher.group(1);
+					if (asnum != null && asnum.length()>0)
+						return Long.parseLong(asnum);
+				}
 				return 0;
 			}
 		};
 	}
+	
+	public AS getAS(InternetNetblock netblock) {
+		//FIXME this could probably be made more accurate exploiting the internal structure of the maxmind database, maybe it contains the BGP prefix
+		
+		AS as = getAS(netblock.itemAt(0));
+		long number = as.getNumber();
+		if (as == null || number == 0)
+			return null;
+		AS as2 = getAS(netblock.itemAt(netblock.itemCount()/2));
+		if (as2 == null || number != as2.getNumber())
+			return null;
+		AS as3 = getAS(netblock.itemAt(netblock.itemCount()-1));
+		if (as3 == null || number != as3.getNumber())
+			return null;
+
+		return as;
+	}
+
 	
 	protected void activate(ComponentContext context) {
 		if (lookupService == null)

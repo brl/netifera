@@ -155,9 +155,9 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 
 	private String getNetblockInformation(NetblockEntity e) {
 		StringBuffer buffer = new StringBuffer();
-		if (e.getNetblock().getCIDR() >= 24) {
+		if (e.getNetblock().getCIDR() >= 16) { //TODO is this too big? might not be accurate
 			if (geoipService != null) {
-				ILocation location = geoipService.getLocation(e.getNetblock().getNetworkAddress());
+				ILocation location = geoipService.getLocation(e.getNetblock());
 				if (location != null) {
 					buffer.append("<p>Location: ");
 					if (location.getCity() != null) {
@@ -167,6 +167,14 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 					} else {
 						buffer.append(location.getPosition()[0]+" "+location.getPosition()[1]);
 					}
+					buffer.append("</p>");
+				}
+			}
+			if (ip2asService != null) {
+				AS as = ip2asService.getAS(e.getNetblock());
+				if (as != null) {
+					buffer.append("<p>AS: ");
+					buffer.append(escape(as.getDescription()));
 					buffer.append("</p>");
 				}
 			}
