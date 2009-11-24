@@ -30,15 +30,14 @@ public class FlatWorld extends Canvas {
 	private QuadTree<String> labels;
 	
 	class Frame {
-		double scale = 1.0;
-		int offsetX = 0, offsetY = 0;
+		double scale = 1.0, offsetX = 0, offsetY = 0;
 		
 		void adjust() {
 			Rectangle textureBounds = texture.getBounds();
-			int srcX = textureBounds.x + frame.offsetX;
-			int srcY = textureBounds.y + frame.offsetY;
-			int srcWidth = (int)(textureBounds.width / frame.scale);
-			int srcHeight = (int)(textureBounds.height / frame.scale);
+			double srcX = textureBounds.x + frame.offsetX;
+			double srcY = textureBounds.y + frame.offsetY;
+			double srcWidth = textureBounds.width / frame.scale;
+			double srcHeight = textureBounds.height / frame.scale;
 			if (srcX + srcWidth > textureBounds.x + textureBounds.width)
 				offsetX -= srcX + srcWidth - (textureBounds.x + textureBounds.width);
 			if (srcY + srcHeight > textureBounds.y + textureBounds.height)
@@ -75,8 +74,7 @@ public class FlatWorld extends Canvas {
 		
 		Listener mouseListener = new Listener() {
 			Integer clickX, clickY;
-			double originalScale;
-			int originalOffsetX, originalOffsetY;
+			double originalScale, originalOffsetX, originalOffsetY;
 			
 			boolean panning = false;
 			boolean zooming = false;
@@ -113,8 +111,8 @@ public class FlatWorld extends Canvas {
 					if (panning) {
 						Rectangle rect = getClientArea();
 						Rectangle textureBounds = texture.getBounds();
-						frame.offsetX = originalOffsetX + (int)((clickX - event.x)/frame.scale*textureBounds.width/rect.width);
-						frame.offsetY = originalOffsetY + (int)((clickY - event.y)/frame.scale*textureBounds.height/rect.height);
+						frame.offsetX = originalOffsetX + ((clickX - event.x)/frame.scale)*textureBounds.width/rect.width;
+						frame.offsetY = originalOffsetY + ((clickY - event.y)/frame.scale)*textureBounds.height/rect.height;
 						frame.adjust();
 						redraw();
 					}
@@ -123,8 +121,8 @@ public class FlatWorld extends Canvas {
 						double lambda = 1.0/originalScale - 1.0/frame.scale;
 						Rectangle rect = getClientArea();
 						Rectangle textureBounds = texture.getBounds();
-						frame.offsetX = originalOffsetX + (int)(clickX*textureBounds.width/rect.width*lambda);
-						frame.offsetY = originalOffsetY + (int)(clickY*textureBounds.height/rect.height*lambda);
+						frame.offsetX = originalOffsetX + (clickX*textureBounds.width*lambda)/rect.width;
+						frame.offsetY = originalOffsetY + (clickY*textureBounds.height*lambda)/rect.height;
 						frame.adjust();
 						redraw();
 					}
@@ -134,6 +132,17 @@ public class FlatWorld extends Canvas {
 					clickY = null;
 					panning = false;
 					zooming = false;
+					break;
+				case SWT.MouseWheel:
+					originalScale = frame.scale;
+					frame.scale = Math.max(1.0, originalScale * Math.pow(2.0, event.count / 10.0));
+					double lambda = 1.0/originalScale - 1.0/frame.scale;
+					Rectangle rect = getClientArea();
+					Rectangle textureBounds = texture.getBounds();
+					frame.offsetX = frame.offsetX + (event.x*textureBounds.width*lambda)/rect.width;
+					frame.offsetY = frame.offsetY + (event.y*textureBounds.height*lambda)/rect.height;
+					frame.adjust();
+					redraw();
 				}
 			}
 		};
@@ -142,6 +151,7 @@ public class FlatWorld extends Canvas {
 		addListener(SWT.MouseDown, mouseListener);
 		addListener(SWT.MouseMove, mouseListener);
 		addListener(SWT.MouseUp, mouseListener);
+		addListener(SWT.MouseWheel, mouseListener);
 	}
 
 	private void initializeTexture() {
@@ -165,8 +175,8 @@ public class FlatWorld extends Canvas {
 //		gc.setBackground(getForeground());
 
 		Rectangle textureBounds = texture.getBounds();
-		int srcX = textureBounds.x + frame.offsetX;
-		int srcY = textureBounds.y + frame.offsetY;
+		int srcX = (int)(textureBounds.x + frame.offsetX);
+		int srcY = (int)(textureBounds.y + frame.offsetY);
 		int srcWidth = (int)(textureBounds.width / frame.scale);
 		int srcHeight = (int)(textureBounds.height / frame.scale);
 		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x, rect.y, rect.width, rect.height);

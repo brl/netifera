@@ -20,20 +20,20 @@ import com.netifera.platform.ui.treemap.curves.RegistriesHilbertCurve;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
-public class TreeMapWidget extends Canvas {
+public class TreeMapControl extends Canvas {
 
 	private TreeMap treeMap;
 	private IHilbertCurve curve = new RegistriesHilbertCurve();
 
 	class TreeMapFrame {
 		double scale = 1.0;
-		int offsetX = 0, offsetY = 0;
+		double offsetX = 0, offsetY = 0;
 		
 		void adjust() {
 			Rectangle rect = getClientArea();
 			int extent = (int) (Math.min(rect.width,rect.height) * scale);
-			int w = extent - offsetX;
-			int h = extent - offsetY;
+			double w = extent - offsetX;
+			double h = extent - offsetY;
 			if (w < rect.width)
 				offsetX -= rect.width - w;
 			if (h < rect.height)
@@ -47,7 +47,7 @@ public class TreeMapWidget extends Canvas {
 
 	private TreeMapFrame frame = new TreeMapFrame();
 	
-	public TreeMapWidget(Composite parent, int style) {
+	public TreeMapControl(Composite parent, int style) {
 		super(parent, style);
 
 		initializeTreeMap();
@@ -69,8 +69,7 @@ public class TreeMapWidget extends Canvas {
 		
 		Listener mouseListener = new Listener() {
 			Integer clickX, clickY;
-			double originalScale;
-			int originalOffsetX, originalOffsetY;
+			double originalScale, originalOffsetX, originalOffsetY;
 			
 			boolean panning = false;
 			boolean zooming = false;
@@ -112,8 +111,8 @@ public class TreeMapWidget extends Canvas {
 					}
 					if (zooming) {
 						frame.scale = Math.max(1.0, originalScale * Math.pow(2.0, (clickY - event.y) / 10.0));
-						frame.offsetX = (int)((clickX + originalOffsetX)*frame.scale/originalScale - clickX);
-						frame.offsetY = (int)((clickY + originalOffsetY)*frame.scale/originalScale - clickY);
+						frame.offsetX = (clickX + originalOffsetX)*frame.scale/originalScale - clickX;
+						frame.offsetY = (clickY + originalOffsetY)*frame.scale/originalScale - clickY;
 						frame.adjust();
 						redraw();
 					}
@@ -123,6 +122,14 @@ public class TreeMapWidget extends Canvas {
 					clickY = null;
 					panning = false;
 					zooming = false;
+					break;
+				case SWT.MouseWheel:
+					originalScale = frame.scale;
+					frame.scale = Math.max(1.0, originalScale * Math.pow(2.0, event.count / 10.0));
+					frame.offsetX = (event.x + frame.offsetX)*frame.scale/originalScale - event.x;
+					frame.offsetY = (event.y + frame.offsetY)*frame.scale/originalScale - event.y;
+					frame.adjust();
+					redraw();
 				}
 			}
 		};
@@ -131,6 +138,7 @@ public class TreeMapWidget extends Canvas {
 		addListener(SWT.MouseDown, mouseListener);
 		addListener(SWT.MouseMove, mouseListener);
 		addListener(SWT.MouseUp, mouseListener);
+		addListener(SWT.MouseWheel, mouseListener);
 	}
 
 	private void initializeTreeMap() {
@@ -155,7 +163,7 @@ public class TreeMapWidget extends Canvas {
 //			gc.fillRectangle(rect.x + i*rect.width/palette.length, rect.y, rect.width/palette.length, 100);
 		}
 
-		treeMap.paint(rect.x - frame.offsetX, rect.y - frame.offsetY, (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve, palette);
+		treeMap.paint((int)(rect.x - frame.offsetX), (int)(rect.y - frame.offsetY), (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve, palette);
 
 		for (Color color: palette)
 			color.dispose();

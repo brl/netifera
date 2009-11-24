@@ -34,11 +34,11 @@ public class TreeMapView extends ViewPart {
 	private ISpace space;
 	private IEventHandler spaceChangeListener;
 
-	private TreeMapWidget treeMapWidget;
+	private TreeMapControl treeMapWidget;
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		treeMapWidget = new TreeMapWidget(parent, SWT.BORDER);
+		treeMapWidget = new TreeMapControl(parent, SWT.BORDER);
 		treeMapWidget.setLayout(new FillLayout());
 		
 		IPageListener pageListener = new IPageListener() {
