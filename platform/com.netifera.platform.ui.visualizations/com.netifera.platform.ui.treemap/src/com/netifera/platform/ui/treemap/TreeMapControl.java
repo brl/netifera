@@ -71,7 +71,8 @@ public class TreeMapControl extends Canvas {
 		Listener mouseListener = new Listener() {
 			Integer clickX, clickY;
 			double originalScale, originalOffsetX, originalOffsetY;
-			
+
+			boolean prePanning = false;
 			boolean panning = false;
 			boolean zooming = false;
 			
@@ -94,7 +95,7 @@ public class TreeMapControl extends Canvas {
 						originalOffsetX = frame.offsetX;
 						originalOffsetY = frame.offsetY;
 						originalScale = frame.scale;
-						panning = true;
+						prePanning = true;
 					}
 					if (!zooming && event.button == 3) {
 						clickX = event.x;
@@ -106,12 +107,11 @@ public class TreeMapControl extends Canvas {
 					}
 					break;
 				case SWT.MouseMove:
-					TreeMap item = getItem(new Point(event.x, event.y));
-					if (item != null) {
-						selection = new TreeMap[] {item};
-						redraw();
+					if (prePanning && Math.max(Math.abs(clickX - event.x),Math.abs(clickY - event.y)) > 3) {
+						panning = true;
+						prePanning = false;
 					}
-					if (panning) {
+					if (panning ) {
 						frame.offsetX = originalOffsetX + (clickX - event.x);
 						frame.offsetY = originalOffsetY + (clickY - event.y);
 						frame.adjust();
@@ -123,18 +123,25 @@ public class TreeMapControl extends Canvas {
 						frame.offsetY = (clickY + originalOffsetY)*frame.scale/originalScale - clickY;
 						frame.adjust();
 						redraw();
-					}
+/*					} else {
+						TreeMap item = getItem(new Point(event.x, event.y));
+						if (item != null) {
+							selection = new TreeMap[] {item};
+							redraw();
+						}
+*/					}
 					break;
 				case SWT.MouseUp:
-/*					if (event.button == 1 && originalOffsetX == frame.offsetX && originalOffsetY == frame.offsetY) {
+					if (event.button == 1 && !panning) {
 						TreeMap item = getItem(new Point(event.x, event.y));
 						if (item != null) {
 							selection = new TreeMap[] {item};
 							redraw();
 						}
 					}
-*/					clickX = null;
+					clickX = null;
 					clickY = null;
+					prePanning = false;
 					panning = false;
 					zooming = false;
 					break;
@@ -229,9 +236,9 @@ public class TreeMapControl extends Canvas {
 	
 	public Rectangle getItemBounds(TreeMap subtree) {
 		Rectangle rect = getClientArea();
-		double x = rect.x - frame.offsetX;
-		double y = rect.y - frame.offsetY;
-		double extent = Math.min(rect.width,rect.height) * frame.scale;
+		int x = rect.x - (int)frame.offsetX;
+		int y = rect.y - (int)frame.offsetY;
+		int extent = (int)(Math.min(rect.width,rect.height) * frame.scale);
 		
 		TreeMap tree = treeMap;
 		while (!tree.getNetblock().equals(subtree.getNetblock())) {
@@ -243,7 +250,7 @@ public class TreeMapControl extends Canvas {
 			extent = extent/16;
 			tree = tree.getSubTree(subtree.getNetblock());
 		}
-		return new Rectangle((int)x, (int)y, (int)extent, (int)extent);
+		return new Rectangle(x, y, extent, extent);
 	}
 
 	public TreeMap[] getSelection() {
