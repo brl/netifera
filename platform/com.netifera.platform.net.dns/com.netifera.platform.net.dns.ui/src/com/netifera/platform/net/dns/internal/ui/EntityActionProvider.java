@@ -17,6 +17,7 @@ import com.netifera.platform.net.dns.tools.HostNamesBruteforcer;
 import com.netifera.platform.net.dns.tools.MXLookup;
 import com.netifera.platform.net.dns.tools.NSLookup;
 import com.netifera.platform.net.model.ServiceEntity;
+import com.netifera.platform.tools.options.BooleanOption;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IterableOption;
 import com.netifera.platform.tools.options.StringOption;
@@ -45,6 +46,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			ToolAction hostNamesBruteforcer = new ToolAction("Lookup Common Host Names *."+domain, HostNamesBruteforcer.class.getName());
 			hostNamesBruteforcer.addFixedOption(new StringOption("domain", "Domain", "Target domain", domain));
 			hostNamesBruteforcer.addOption(new GenericOption(DNS.class, "dns", "Name Server", "Target Name Server", null));
+			hostNamesBruteforcer.addOption(new BooleanOption("tryTLDs", "Try alternative TLDs", "Try alternative TLDs like "+domain.substring(0, domain.lastIndexOf("."))+".*", false));
 			answer.add(hostNamesBruteforcer);
 		}
 

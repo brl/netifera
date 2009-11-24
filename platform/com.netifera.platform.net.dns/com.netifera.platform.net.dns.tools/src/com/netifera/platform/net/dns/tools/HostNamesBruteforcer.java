@@ -3,6 +3,7 @@ package com.netifera.platform.net.dns.tools;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.xbill.DNS.AAAARecord;
@@ -38,10 +39,11 @@ public class HostNamesBruteforcer implements ITool {
 	private long realm;
 
 	private InternetAddress ignoreAddress = null;
+	private boolean tryTLDs = false;
 
 	private AtomicInteger activeRequests;
 	
-	private static String[] commonNames = {"www", "www2", "web", "ssl", "static", "main", "home", "go",
+	private static String[] hostNames = {"www", "www2", "web", "ssl", "static", "main", "home", "go",
 			"ftp", "image", "images", "photo", "photos", "img", "pictures", "search",
 			"mail", "webmail", "email", "mymail", "mx", "snmp", "pop", "pop3", "imap", "exchange",
 			"ns", "dns", "mdns", "nameserver", "fw", "firewall", "router",
@@ -49,7 +51,7 @@ public class HostNamesBruteforcer implements ITool {
 			"vpn", "proxy", "cache", "upload", "download",
 			"private", "partner", "partners", "customer", "customers", "member", "members", "user", "users",
 			"b2b", "erp",
-			"global", "us", "mx", "fr", "it", "usa", "de", "uk", "ca", "tw", "cn", "kr", "jp", "hk", "sg", "th", "my", "is", "in",
+			"global", "usa", "us", "europe", "asia",
 			"forum", "forums", "bbs", "blog", "blogs", "weblog", "weblogs", "wiki", "media", "video", "videos", "movie", "movies", "music", "tv", "community",
 			"support", "network", "admin", "security", "secure", "sec", "manager", "manage", "management",
 			"news", "feeds", "service", "sevices", "game", "games", "help", "list", "lists", "archive", "archives",
@@ -59,6 +61,10 @@ public class HostNamesBruteforcer implements ITool {
 			"sms", "mobile", "phone",
 			"stats", "localhost"
 	};
+
+	private static String[] gTLDs = {"com", "org", "net", "edu", /*"gov", "mil", "aero",*/ "biz", "info"};
+	private static String[] ccTLDs = {"ac", "ad", "ae", "af", "ag", "ai", "al", "am", "an", "ao", "aq", "ar", "as", "at", "au", "aw", "ax", "az", "ba", "bb", "bd", "be", "bf", "bg", "bh", "bi", "bj", "bm", "bn", "bo", "br", "bs", "bt", "bw", "by", "bz", "ca", "cc", "cd", "cf", "cg", "ch", "ci", "ck", "cl", "cm", "cn", "co", "cr", "cu", "cv", "cx", "cy", "cz", "de", "dj", "dk", "dm", "do", "dz", "ec", "ee", "eg", "er", "es", "et", "eu", "fi", "fj", "fk", "fm", "fo", "fr", "ga", "gd", "ge", "gf", "gg", "gh", "gi", "gl", "gm", "gn", "gp", "gq", "gr", "gs", "gt", "gu", "gw", "gy", "hk", "hm", "hn", "hr", "ht", "hu", "id", "ie", "il", "im", "in", "io", "iq", "ir", "is", "it", "je", "jm", "jo", "jp", "ke", "kg", "kh", "ki", "km", "kn", "kp", "kr", "kw", "ky", "kz", "la", "lb", "lc", "li", "lk", "lr", "ls", "lt", "lu", "lv", "ly", "ma", "mc", "md", "me", "mg", "mh", "mk", "ml", "mm", "mn", "mo", "mp", "mq", "mr", "ms", "mt", "mu", "mv", "mw", "mx", "my", "mz", "na", "nc", "ne", "nf", "ng", "ni", "nl", "no", "np", "nr", "nu", "nz", "om", "pa", "pe", "pf", "pg", "ph", "pk", "pl", "pn", "pr", "ps", "pt", "pw", "py", "qa", "re", "ro", "rs", "ru", "rw", "sa", "sb", "sc", "sd", "se", "sg", "sh", "si", "sk", "sl", "sm", "sn", "sr", "st", "su", "sv", "sy", "sz", "tc", "td", "tf", "tg", "th", "tj", "tk", "tl", "tm", "tn", "to", "tr", "tt", "tv", "tw", "tz", "ua", "ug", "uk", "us", "uy", "uz", "va", "vc", "ve", "vg", "vi", "vn", "vu", "wf", "ws", "ye", "za", "zm", "zw"};
+	private static String[] countryCodePrefixes = {"co", "com", "net", "org", "ac", "edu"};
 	
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
@@ -70,7 +76,11 @@ public class HostNamesBruteforcer implements ITool {
 		setupToolOptions();
 
 		context.setTitle("Bruteforce host names *."+domain);
-		context.setTotalWork(commonNames.length);
+		
+		int totalWork = hostNames.length;
+		if (tryTLDs)
+			totalWork += gTLDs.length + ccTLDs.length * (countryCodePrefixes.length+1);
+		context.setTotalWork(totalWork);
 
 		if (dns != null)
 			try {
@@ -96,7 +106,14 @@ public class HostNamesBruteforcer implements ITool {
 		try {
 
 			try {
-				ignoreAddress = resolver.getAddressByName("kjhakjsd."+domain.toString());
+				Random random = new Random();
+				random.setSeed(System.currentTimeMillis());
+				String randomName = "";
+				String alphabet = "abcdefghijklmnopqrstuvwxyz";
+				int length = random.nextInt(10)+5;
+				for (int i=0; i<length; i++)
+					randomName += alphabet.charAt(random.nextInt(alphabet.length()));
+				ignoreAddress = resolver.getAddressByName(randomName+"."+domain.toString());
 			} catch (UnknownHostException e) {
 			}
 
@@ -104,10 +121,30 @@ public class HostNamesBruteforcer implements ITool {
 				context.warning("The DNS server resolves non-existent names");
 
 			activeRequests = new AtomicInteger(0);
-			resolveHostName(domain.toString());
-			for (String each : commonNames) {
-				resolveHostName(each + "." + domain.toString());
+			resolve(domain.toString());
+			for (String each : hostNames) {
+				resolve(each + "." + domain.toString());
 				Thread.sleep(100);
+			}
+
+			if (tryTLDs) {
+				String name = domain.toString();
+				name = name.substring(0, name.lastIndexOf("."));
+				
+				context.setStatus("Lookup "+name+".*");
+
+				for (String tld: gTLDs) {
+					resolve(name + "." + tld);
+					Thread.sleep(100);
+				}
+				
+				for (String cc: ccTLDs) {
+					resolve(name + "." + cc);
+					for (String prefix: countryCodePrefixes) {
+						Thread.sleep(100);
+						resolve(name + "." + prefix + "." + cc);
+					}
+				}
 			}
 			
 			while (activeRequests.get() > 0) {
@@ -130,7 +167,7 @@ public class HostNamesBruteforcer implements ITool {
 	}
 
 	// TODO only bruteforcing Type.A, what about Type.AAAA?
-	private void resolveHostName(final String fqdm) {
+	private void resolve(final String fqdm) {
 		try {
 			final AsynchronousLookup lookup = new AsynchronousLookup(fqdm);
 			lookup.setResolver(resolver.getExtendedResolver());
@@ -230,5 +267,8 @@ public class HostNamesBruteforcer implements ITool {
 		} catch (TextParseException e) {
 			throw new ToolException("Malformed domain name: '"+domainString+"'", e);
 		}
+		
+		Boolean tryTLDs = (Boolean) context.getConfiguration().get("tryTLDs");
+		this.tryTLDs = tryTLDs == true;
 	}
 }
