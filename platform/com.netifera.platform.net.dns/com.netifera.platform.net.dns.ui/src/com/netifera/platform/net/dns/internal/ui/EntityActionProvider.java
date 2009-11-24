@@ -16,16 +16,12 @@ import com.netifera.platform.net.dns.tools.DNSZoneTransfer;
 import com.netifera.platform.net.dns.tools.HostNamesBruteforcer;
 import com.netifera.platform.net.dns.tools.MXLookup;
 import com.netifera.platform.net.dns.tools.NSLookup;
-import com.netifera.platform.net.dns.tools.NetOpGeoLocalizer;
-import com.netifera.platform.net.model.HostEntity;
-import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IterableOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.actions.IEntityActionProvider;
-import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class EntityActionProvider implements IEntityActionProvider {
@@ -78,6 +74,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			reverseLookup.addOption(new GenericOption(DNS.class, "dns", "Name Server", "Target Name Server", dns));
 			answer.add(reverseLookup);
 
+/* we have geoip db, dont need this
 			addresses = getIPv4AddressIndexedIterable(entity);
 			if (addresses != null && !(entity instanceof NetblockEntity) && (!(entity instanceof HostEntity) || ((HostEntity)entity).getDefaultAddress().getNamedAttribute("country") == null)) {
 				if (addresses.itemCount() > 1 || (addresses.itemAt(0).isUniCast() && !addresses.itemAt(0).isPrivate())) {
@@ -86,7 +83,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 					answer.add(geoLocalizer);
 				}
 			}
-		}
+*/		}
 		return answer;
 	}
 
@@ -100,8 +97,9 @@ public class EntityActionProvider implements IEntityActionProvider {
 		return (IndexedIterable<InternetAddress>) entity.getIterableAdapter(InternetAddress.class);
 	}
 
-	@SuppressWarnings("unchecked")
+/*	@SuppressWarnings("unchecked")
 	private IndexedIterable<InternetAddress> getIPv4AddressIndexedIterable(IEntity entity) {
 		return (IndexedIterable<InternetAddress>) entity.getIterableAdapter(IPv4Address.class);
 	}
+*/
 }
