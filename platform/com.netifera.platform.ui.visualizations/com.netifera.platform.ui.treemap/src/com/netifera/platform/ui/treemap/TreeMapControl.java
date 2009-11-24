@@ -77,12 +77,14 @@ public class TreeMapControl extends Canvas {
 			public void handleEvent(Event event) {
 				switch (event.type) {
 				case SWT.MouseDoubleClick:
-					frame.offsetX = 0;
-					frame.offsetY = 0;
-					frame.scale = 1.0;
-					redraw();
-					zooming = false;
-					panning = false;
+					if (event.button == 2 || event.button == 3) {
+						frame.offsetX = 0;
+						frame.offsetY = 0;
+						frame.scale = 1.0;
+						redraw();
+						zooming = false;
+						panning = false;
+					}
 					break;
 				case SWT.MouseDown:
 					if (!panning && event.button == 1) {
