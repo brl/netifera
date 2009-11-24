@@ -144,6 +144,11 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 		return curve[subnetblock.getNetworkAddress().toBytes()[netblock.getCIDR()/8] & 0xff];
 	}
 
+	public IPv4Netblock getSubNetblock(IPv4Netblock netblock, int index) {
+		IPv4Address subnetAddress = new IPv4Address(netblock.getNetworkAddress().toInteger() | (inverseCurve[index] << (24-netblock.getCIDR())));
+		return new IPv4Netblock(subnetAddress, netblock.getCIDR()+8);
+	}
+
 	protected void drawRegion(int x, int y, int extent, GC gc, int[] coordinatesArray) {
 		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
 		gc.setAlpha(255);

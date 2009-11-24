@@ -1,11 +1,17 @@
 package com.netifera.platform.ui.treemap;
 
 
+import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPageListener;
@@ -24,6 +30,8 @@ import com.netifera.platform.api.model.ISpaceContentChangeEvent;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.actions.EntityHover;
+import com.netifera.platform.ui.util.MouseTracker;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
@@ -34,12 +42,12 @@ public class TreeMapView extends ViewPart {
 	private ISpace space;
 	private IEventHandler spaceChangeListener;
 
-	private TreeMapControl treeMapWidget;
+	private TreeMapControl control;
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		treeMapWidget = new TreeMapControl(parent, SWT.BORDER);
-		treeMapWidget.setLayout(new FillLayout());
+		control = new TreeMapControl(parent, SWT.BORDER);
+		control.setLayout(new FillLayout());
 		
 		IPageListener pageListener = new IPageListener() {
 			IPartListener partListener = new IPartListener() {
@@ -87,7 +95,7 @@ public class TreeMapView extends ViewPart {
 						if(sel instanceof IStructuredSelection && !sel.isEmpty()) {
 							Object o = ((IStructuredSelection)sel).iterator().next();
 							if(o instanceof IEntity) {
-//								focusEntity((IEntity)o);
+								focusEntity((IEntity)o);
 							}
 						}
 					}
@@ -99,6 +107,107 @@ public class TreeMapView extends ViewPart {
 */	
 	
 		initializeToolBar();
+		
+		
+		/* implement the mouse tracker the action hover handlers*/
+		final MouseTracker mouseTracker = new MouseTracker(control) {
+			private PopupDialog informationControl;
+
+			@Override
+			protected Object getItemAt(Point point) {
+				TreeMap subtree = control.getItem(point);
+				if (subtree == null)
+					return null;
+//				if (subtree.size() != 1)
+//					return null;
+//				IShadowEntity targetEntity = (IShadowEntity)subtree.getData();
+	
+				for (IEntity entity: subtree)
+					return entity;
+				
+/*				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+				List<IShadowEntity> selectionList = selection.toList();
+				if (selectionList.contains(targetEntity) && selectionList.size()>1) {
+					FolderEntity folder = new FolderEntity(targetEntity.getRealmId(), null, "Selection");
+					IShadowEntity folderShadow = TreeStructureContext.createRoot(folder);
+					for (IShadowEntity entity: selectionList)
+						((TreeStructureContext)folderShadow.getStructureContext()).addChild(entity);
+					return folderShadow;
+				}
+*/				
+				return null;
+			}
+
+			@Override
+			protected Rectangle getAreaOfItemAt(Point point) {
+				Rectangle subtreeArea = control.getItemBounds(control.getItem(point));
+				if (subtreeArea != null) {
+					return subtreeArea;
+//					return expandedItemArea(subtreeArea);
+				}
+				return super.getAreaOfItemAt(point);
+			}
+			
+			@Override
+			protected Rectangle getAreaOfSelectedItem() {
+				TreeMap[] selection = control.getSelection();
+				if(selection != null && selection.length > 0) {
+					return control.getItemBounds(selection[0]);
+				}
+				return null;
+			}
+			
+			private Rectangle expandedItemArea(Rectangle itemArea) {
+				return new Rectangle(Math.max(itemArea.x - 12, 2), Math.max(itemArea.y
+						- EPSILON * 2, 0), itemArea.width + 12 * 2, itemArea.height
+						+ EPSILON * 2 * 2);
+			}
+			
+			@Override
+			protected void showInformationControl(Shell parent, Point location,
+					Object input, Object item) {
+				informationControl = new EntityHover(parent, location, input, item);
+				informationControl.open();
+			}
+			@Override
+			protected void hideInformationControl() {
+				if(informationControl != null) {
+					informationControl.close();
+				}
+			}
+			@Override
+			protected boolean focusInformationControl() {
+				if(informationControl != null) {
+					Shell shell = informationControl.getShell();
+					if(shell != null) {
+						return shell.setFocus();
+					}
+				}
+				return false;
+			}
+			
+			@Override
+			protected Rectangle getInformationControlArea() {
+				if(informationControl != null) {
+					Shell shell = informationControl.getShell();
+					if(shell != null) {
+						return shell.getBounds();
+					}
+				}
+				return null;
+			}
+			
+			@Override
+			public Object getInput() {
+				return space;
+			}
+		};
+		
+		control.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent event) {
+				mouseTracker.stop();
+			}
+		});
 	}
 
 	private void initializeToolBar() {
@@ -134,7 +243,7 @@ public class TreeMapView extends ViewPart {
 		if (this.space != null)
 			this.space.removeChangeListener(spaceChangeListener);
 
-		treeMapWidget.reset();
+		control.reset();
 
 		this.space = space;
 		spaceChangeListener = new IEventHandler() {
@@ -173,7 +282,7 @@ public class TreeMapView extends ViewPart {
 			if (address instanceof IPv4Address)
 				Display.getDefault().syncExec(new Runnable() {
 					public void run() {
-						treeMapWidget.add((IPv4Address)address, addressEntity.getHost());
+						control.add((IPv4Address)address, addressEntity.getHost());
 					}
 				});
 		} else if (entity instanceof HostEntity) {
@@ -189,33 +298,7 @@ public class TreeMapView extends ViewPart {
 	private synchronized void removeEntity(IEntity entity) {
 	}
 
-/*	public IGroupLayerProvider getColorLayer() {
-		return colorLayerProvider;
+	private void focusEntity(IEntity o) {
+		// TODO Auto-generated method stub
 	}
-	
-	public void setColorLayer(IGroupLayerProvider layerProvider) {
-		colorLayerProvider = layerProvider;
-		treeMapWidget.setColorProvider(new IColorProvider() {
-			Color[] palette = {Display.getDefault().getSystemColor(SWT.COLOR_BLUE),
-					Display.getDefault().getSystemColor(SWT.COLOR_GREEN),
-					Display.getDefault().getSystemColor(SWT.COLOR_YELLOW),
-					Display.getDefault().getSystemColor(SWT.COLOR_RED)};
-			
-			public Color getBackground(Object element) {
-				return getForeground(element);
-			}
-
-			public Color getForeground(Object element) {
-				for (String group: colorLayerProvider.getGroups((IEntity)element)) {
-					int v = group.hashCode();
-					if (v < 0) v = -v;
-					return palette[v % palette.length];
-				}
-				return Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
-			}
-		});
-		setSpace(space);//to repopulate
-	}
-*/
-	
 }

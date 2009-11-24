@@ -19,7 +19,7 @@ import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 public class TreeMap implements Iterable<IEntity> {
 		
-	final private TreeMap[] submaps = new TreeMap[256];
+	final private TreeMap[] subtrees = new TreeMap[256];
 	final private IPv4Netblock netblock;
 	final private Set<IEntity> entities = new HashSet<IEntity>();
 
@@ -30,9 +30,9 @@ public class TreeMap implements Iterable<IEntity> {
 		TreeMapIterator(TreeMap treeMap) {
 			entitiesIterator = treeMap.entities.iterator();
 			List<TreeMap> treeMaps = new ArrayList<TreeMap>();
-			for (TreeMap submap: treeMap.submaps) {
-				if (submap != null)
-					treeMaps.add(submap);
+			for (TreeMap subtree: treeMap.subtrees) {
+				if (subtree != null)
+					treeMaps.add(subtree);
 			}
 			treeMapsIterator = treeMaps.iterator();
 		}
@@ -55,11 +55,15 @@ public class TreeMap implements Iterable<IEntity> {
 		this.netblock = netblock;
 	}
 
+	public IPv4Netblock getNetblock() {
+		return netblock;
+	}
+		
 	public int size() {
 		int answer = entities.size();
-		for (TreeMap submap: submaps) {
-			if (submap != null)
-				answer += submap.size();
+		for (TreeMap subtree: subtrees) {
+			if (subtree != null)
+				answer += subtree.size();
 		}
 		return answer;
 	}
@@ -68,15 +72,37 @@ public class TreeMap implements Iterable<IEntity> {
 		return new TreeMapIterator(this);
 	}
 	
-/*	private double density() {
-		if (netblock.getCIDR() == 0)
-			return 0.0;
-		if (netblock.getCIDR() == 32)
-			return 1.0;
-		
-		return Math.min(1.0, (double)size()) / ((double)netblock.itemCount());
+	public TreeMap getSubTree(IPv4Netblock subnet) {
+		if (!netblock.contains(subnet.getNetworkAddress()))
+			return null;
+		TreeMap subtree = subtrees[subnet.getNetworkAddress().toBytes()[netblock.getCIDR()/8] & 0xff];
+		return subtree != null ? subtree : new TreeMap(subnet);
 	}
-*/
+
+	private int getIndex(IPv4Address address) {
+		return address.toBytes()[netblock.getCIDR()/8] & 0xff;
+	}
+	
+	public void add(IPv4Address address, IEntity entity) {
+		if (!netblock.contains(address))
+			return;
+
+		if (netblock.getCIDR() == 32) {
+			entities.add(entity);
+			return;
+		}
+		
+		int index = getIndex(address);
+		TreeMap subtree = subtrees[index];
+			
+		if (subtree == null) {
+			subtree = new TreeMap(new IPv4Netblock(address, netblock.getCIDR()+8));
+			subtrees[index] = subtree;
+		}
+
+		subtree.add(address, entity/*, color*/);
+	}
+
 	private double temperature() {
 		if (netblock.getCIDR() == 0)
 			return 0.0;
@@ -97,51 +123,13 @@ public class TreeMap implements Iterable<IEntity> {
 			return temperature();
 
 		double temperature = temperature();
-		for (TreeMap submap: submaps) {
-			if (submap != null)
-				temperature = Math.max(temperature, submap.maximumTemperature());
+		for (TreeMap subtree: subtrees) {
+			if (subtree != null)
+				temperature = Math.max(temperature, subtree.maximumTemperature());
 		}
 		return temperature;
 	}
 	
-/*	private double surfaceDensity() {
-		if (netblock.getCIDR() == 0)
-			return 0.0;
-		if (netblock.getCIDR() == 32)
-			return 1.0;
-		
-		int count = 0;
-		for (TreeMap submap: submaps)
-			if (submap != null)
-				count += 1;
-		return ((double) count) / 256.0;
-	}
-*/
-
-	private int getIndex(IPv4Address address) {
-		return address.toBytes()[netblock.getCIDR()/8] & 0xff;
-	}
-	
-	public void add(IPv4Address address, IEntity entity) {
-		if (!netblock.contains(address))
-			return;
-
-		if (netblock.getCIDR() == 32) {
-			entities.add(entity);
-			return;
-		}
-		
-		int index = getIndex(address);
-		TreeMap submap = submaps[index];
-			
-		if (submap == null) {
-			submap = new TreeMap(new IPv4Netblock(address, netblock.getCIDR()+8));
-			submaps[index] = submap;
-		}
-
-		submap.add(address, entity/*, color*/);
-	}
-
 	private boolean paintLabel(int x, int y, int extent, GC gc) {
 		if (netblock.getCIDR() > 0) {
 			String label = netblock.getCIDR() == 32 ? netblock.getNetworkAddress().toString() : netblock.toString();
@@ -195,11 +183,11 @@ public class TreeMap implements Iterable<IEntity> {
 			curve.paint(x, y, extent, gc, netblock); // draw curve regions
 		}
 
-		boolean has0 = false;
+//		boolean has0 = false;
 		for (int i=0; i<256; i++) {
-			TreeMap submap = submaps[i];
-			if (submap != null) {
-				int h = curve.getIndex(netblock, submap.netblock);
+			TreeMap subtree = subtrees[i];
+			if (subtree != null) {
+				int h = curve.getIndex(netblock, subtree.netblock);
 				int xi = h % 16;
 				int yi = h / 16;
 				int subX = x + (xi*extent/16);
@@ -207,14 +195,14 @@ public class TreeMap implements Iterable<IEntity> {
 				int subExtent = extent/16;
 				Rectangle subRect = new Rectangle(subX, subY, subExtent, subExtent);
 				if (subRect.intersects(gc.getClipping())) {
-					submap.paint(subX, subY, subExtent, gc, curve, palette);
-					if (h == 0)
-						has0 = true;
+					subtree.paint(subX, subY, subExtent, gc, curve, palette);
+//					if (h == 0)
+//						has0 = true;
 				}
 			}
 		}
 		
-		if (!has0 || extent < 16*(gc.stringExtent("0").y+3))
-			paintLabel(x, y, extent, gc);
+//		if (!has0 || extent < 16*(gc.stringExtent("0").y+3))
+		paintLabel(x, y, extent, gc);
 	}
 }

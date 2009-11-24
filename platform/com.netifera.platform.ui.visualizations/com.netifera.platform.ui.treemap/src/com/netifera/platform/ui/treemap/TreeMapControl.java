@@ -7,6 +7,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
@@ -24,6 +25,8 @@ public class TreeMapControl extends Canvas {
 
 	private TreeMap treeMap;
 	private IHilbertCurve curve = new RegistriesHilbertCurve();
+	
+	private TreeMap[] selection = new TreeMap[0];
 
 	class TreeMapFrame {
 		double scale = 1.0;
@@ -43,8 +46,6 @@ public class TreeMapControl extends Canvas {
 		}
 	};
 	
-//	private List<TreeMapFrame> frameStack = new ArrayList<TreeMapFrame>();
-
 	private TreeMapFrame frame = new TreeMapFrame();
 	
 	public TreeMapControl(Composite parent, int style) {
@@ -105,6 +106,11 @@ public class TreeMapControl extends Canvas {
 					}
 					break;
 				case SWT.MouseMove:
+					TreeMap item = getItem(new Point(event.x, event.y));
+					if (item != null) {
+						selection = new TreeMap[] {item};
+						redraw();
+					}
 					if (panning) {
 						frame.offsetX = originalOffsetX + (clickX - event.x);
 						frame.offsetY = originalOffsetY + (clickY - event.y);
@@ -120,7 +126,14 @@ public class TreeMapControl extends Canvas {
 					}
 					break;
 				case SWT.MouseUp:
-					clickX = null;
+/*					if (event.button == 1 && originalOffsetX == frame.offsetX && originalOffsetY == frame.offsetY) {
+						TreeMap item = getItem(new Point(event.x, event.y));
+						if (item != null) {
+							selection = new TreeMap[] {item};
+							redraw();
+						}
+					}
+*/					clickX = null;
 					clickY = null;
 					panning = false;
 					zooming = false;
@@ -169,6 +182,15 @@ public class TreeMapControl extends Canvas {
 
 		for (Color color: palette)
 			color.dispose();
+		
+		if (selection.length > 0) {
+			gc.setLineWidth(1);
+			gc.setAlpha(255);
+			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_LIST_SELECTION));
+			for (TreeMap subtree: selection) {
+				gc.drawRectangle(getItemBounds(subtree));
+			}
+		}
 	}
 	
 	public void add(IPv4Address address, IEntity entity) {
@@ -177,7 +199,54 @@ public class TreeMapControl extends Canvas {
 	}
 	
 	public void reset() {
+		selection = new TreeMap[0];
 		initializeTreeMap();
 		redraw();
+	}
+
+	public TreeMap getItem(Point point) {
+		Rectangle rect = getClientArea();
+		double extent = Math.min(rect.width,rect.height) * frame.scale;
+		
+		// normalized coordinates in the interval [0,1)
+		double x0 = (point.x - (rect.x - frame.offsetX)) / extent;
+		double y0 = (point.y - (rect.y - frame.offsetY)) / extent;
+		
+		TreeMap tree = treeMap;
+		while (extent > 128 && tree != null && tree.getNetblock().getCIDR() < 32) {
+			x0 *= 16;
+			y0 *= 16;
+			int xi = (int) x0;
+			int yi = (int) y0;
+			x0 -= xi;
+			y0 -= yi;
+			IPv4Netblock subnet = curve.getSubNetblock(tree.getNetblock(), yi * 16 + xi);
+			tree = tree.getSubTree(subnet);
+			extent = extent / 16;
+		}
+		return tree;
+	}
+	
+	public Rectangle getItemBounds(TreeMap subtree) {
+		Rectangle rect = getClientArea();
+		double x = rect.x - frame.offsetX;
+		double y = rect.y - frame.offsetY;
+		double extent = Math.min(rect.width,rect.height) * frame.scale;
+		
+		TreeMap tree = treeMap;
+		while (!tree.getNetblock().equals(subtree.getNetblock())) {
+			int h = curve.getIndex(tree.getNetblock(), subtree.getNetblock());
+			int xi = h % 16;
+			int yi = h / 16;
+			x = x + (xi*extent/16);
+			y = y + (yi*extent/16);
+			extent = extent/16;
+			tree = tree.getSubTree(subtree.getNetblock());
+		}
+		return new Rectangle((int)x, (int)y, (int)extent, (int)extent);
+	}
+
+	public TreeMap[] getSelection() {
+		return selection;
 	}
 }
