@@ -218,6 +218,11 @@ public class TreeMapControl extends Canvas {
 		// normalized coordinates in the interval [0,1)
 		double x0 = (point.x - (rect.x - frame.offsetX)) / extent;
 		double y0 = (point.y - (rect.y - frame.offsetY)) / extent;
+
+		if (x0 > 1.0 || x0 < 0)
+			return null;
+		if (y0 > 1.0 || y0 < 0)
+			return null;
 		
 		TreeMap tree = treeMap;
 		while (extent > 128 && tree != null && tree.getNetblock().getCIDR() < 32) {
