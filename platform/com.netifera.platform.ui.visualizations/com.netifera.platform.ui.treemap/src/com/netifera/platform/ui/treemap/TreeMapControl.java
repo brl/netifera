@@ -213,14 +213,22 @@ public class TreeMapControl extends Canvas {
 
 		frame.adjust();
 		
-		treeMap.paint((int)(rect.x - frame.offsetX), (int)(rect.y - frame.offsetY), (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve, palette);
+		int x = (int)(rect.x - frame.offsetX);
+		int y = (int)(rect.y - frame.offsetY);
+		int extent = (int) (Math.min(rect.width,rect.height) * frame.scale);
+		treeMap.paint(x, y, extent, gc, curve, palette);
 
 		for (Color color: palette)
 			color.dispose();
-		
+
+		gc.setAlpha(255);
+		gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+		gc.setLineStyle(SWT.LINE_DASHDOT);
+		gc.setLineWidth(1);
+		gc.drawRectangle(x-1, y-1, extent+2, extent+2);
+
 		if (selection.size() > 0) {
-			gc.setLineWidth(1);
-			gc.setAlpha(255);
+			gc.setLineStyle(SWT.LINE_SOLID);
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_LIST_SELECTION));
 			for (TreeMap subtree: selection) {
 				gc.drawRectangle(getItemBounds(subtree));
