@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.interoperability-service">
+	<implementation class="com.netifera.platform.ui.interop.InterOpService" />
+
+	 <reference
+    	name="LOGGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
+
+</component>

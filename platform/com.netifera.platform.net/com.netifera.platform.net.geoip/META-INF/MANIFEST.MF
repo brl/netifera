@@ -11,6 +11,6 @@ Import-Package: com.netifera.platform.api.model,
  com.netifera.platform.util.addresses,
  com.netifera.platform.util.addresses.inet
 Export-Package: com.netifera.platform.net.geoip
-Service-Component: OSGI-INF/hosts-geographical-layer-provider.xml,
- OSGI-INF/country-layer-provider.xml,
- OSGI-INF/city-layer-provider.xml
+Service-Component: OSGI-INF/hosts-geographical-layer.xml,
+ OSGI-INF/country-group-layer.xml,
+ OSGI-INF/city-group-layer.xml

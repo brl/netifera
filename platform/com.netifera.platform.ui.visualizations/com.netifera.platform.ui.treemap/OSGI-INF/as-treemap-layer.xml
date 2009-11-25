@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.as-treemap-layer">
+	<implementation class="com.netifera.platform.ui.treemap.layers.ASTreeMapLayer" />
+	<service>
+		<provide interface="com.netifera.platform.api.model.layers.ISemanticLayer" />
+	</service>
+</component>

@@ -31,7 +31,7 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.ISpaceContentChangeEvent;
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.ui.internal.treemap.Activator;
@@ -222,21 +222,21 @@ public class TreeMapView extends ViewPart {
 		
 		toolbarManager.add(new ChooseLayerAction() {
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getInstance().getModel().getLayerProviders()) {
-					if (layerProvider instanceof ITreeMapLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof ITreeMapLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected ILayerProvider getActiveLayer() {
+			protected ISemanticLayer getActiveLayer() {
 				return control.getLayer();
 			}
 			@Override
-			protected void setActiveLayer(ILayerProvider provider) {
-				control.setLayer((ITreeMapLayerProvider)provider);
+			protected void setActiveLayer(ISemanticLayer provider) {
+				control.setLayer((ITreeMapLayer)provider);
 			}
 		});
 	}

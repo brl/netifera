@@ -10,4 +10,4 @@ Import-Package: com.netifera.platform.api.model,
  com.netifera.platform.net.model,
  com.netifera.platform.util.addresses.inet
 Export-Package: com.netifera.platform.net.routes
-Service-Component: OSGI-INF/as-layer-provider.xml
+Service-Component: OSGI-INF/as-group-layer.xml

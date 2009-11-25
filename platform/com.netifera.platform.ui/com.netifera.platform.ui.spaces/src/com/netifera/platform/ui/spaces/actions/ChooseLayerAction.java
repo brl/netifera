@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
 public abstract class ChooseLayerAction extends Action {
@@ -28,12 +28,12 @@ public abstract class ChooseLayerAction extends Action {
 	@Override
 	public void run() {
         Menu menu = new Menu(Display.getDefault().getActiveShell(), SWT.POP_UP);
-		for (final ILayerProvider provider: getLayers()) {
-			if (provider.getLayerName() == null)
+		for (final ISemanticLayer provider: getLayers()) {
+			if (provider.getName() == null)
 				continue;
 			MenuItem item = new MenuItem(menu, SWT.RADIO);
 			item.setSelection(getActiveLayer() == provider);
-	        item.setText(provider.getLayerName());
+	        item.setText(provider.getName());
 	        item.addListener(SWT.Selection, new Listener() {
 	          public void handleEvent(Event e) {
 	        	  if (getActiveLayer() == provider) {
@@ -48,7 +48,7 @@ public abstract class ChooseLayerAction extends Action {
         menu.setVisible(true);
 	}
 	
-	protected abstract List<ILayerProvider> getLayers();
-	protected abstract ILayerProvider getActiveLayer();
-	protected abstract void setActiveLayer(ILayerProvider provider);
+	protected abstract List<ISemanticLayer> getLayers();
+	protected abstract ISemanticLayer getActiveLayer();
+	protected abstract void setActiveLayer(ISemanticLayer provider);
 }

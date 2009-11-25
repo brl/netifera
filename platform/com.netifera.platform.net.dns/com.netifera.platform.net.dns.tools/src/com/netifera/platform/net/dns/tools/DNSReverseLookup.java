@@ -28,7 +28,7 @@ import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class DNSReverseLookup implements ITool {
 	private static final boolean DEBUG = false;
-	private static final int DEFAULT_DNS_INTERVAL = 200; // 200 milliseconds between requests
+	private static final int DEFAULT_DNS_INTERVAL = 200; // milliseconds between requests
 	private DNS dns;
 	private IndexedIterable<InternetAddress> addresses;
 	private INameResolver resolver;
@@ -125,6 +125,7 @@ public class DNSReverseLookup implements ITool {
 			return DEFAULT_DNS_INTERVAL;
 		}
 	}
+	
 	private void reverseLookup(final InternetAddress address, final IToolContext toolContext) {
 			Name name = ReverseMap.fromAddress(address.toBytes());
 			

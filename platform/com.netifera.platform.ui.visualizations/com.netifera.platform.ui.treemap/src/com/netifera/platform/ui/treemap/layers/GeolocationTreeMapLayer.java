@@ -18,7 +18,7 @@ public class GeolocationTreeMapLayer extends AbstractXKCDTreeMapLayer {
 		return location.getContinent();
 	}
 	
-	public String getLayerName() {
+	public String getName() {
 		return "Geolocation";
 	}
 

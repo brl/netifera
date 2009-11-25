@@ -12,7 +12,7 @@ public class ASTreeMapLayer extends AbstractXKCDTreeMapLayer {
 		return as == null ? null : as.getDescription();
 	}
 
-	public String getLayerName() {
+	public String getName() {
 		return "AS";
 	}
 

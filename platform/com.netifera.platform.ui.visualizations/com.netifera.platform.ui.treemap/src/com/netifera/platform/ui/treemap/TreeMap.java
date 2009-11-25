@@ -151,7 +151,7 @@ public class TreeMap implements Iterable<IEntity> {
 		return false;
 	}
 	
-	public void paint(int x, int y, int extent, GC gc, ITreeMapLayerProvider curve, Color palette[]) {
+	public void paint(int x, int y, int extent, GC gc, ITreeMapLayer curve, Color palette[]) {
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
 			Color color = palette[(int)(temperature*(palette.length-1))];

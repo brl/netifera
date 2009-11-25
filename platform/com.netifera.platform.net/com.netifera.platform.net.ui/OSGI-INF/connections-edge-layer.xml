@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.connections-edge-layerr">
+	<implementation class="com.netifera.platform.net.internal.ui.layers.ConnectionsEdgeLayer" />
+	<service>
+		<provide interface="com.netifera.platform.api.model.layers.ISemanticLayer" />
+	</service>
+</component>

@@ -9,12 +9,12 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
-import com.netifera.platform.ui.treemap.ITreeMapLayerProvider;
+import com.netifera.platform.ui.treemap.ITreeMapLayer;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 
-public abstract class AbstractXKCDTreeMapLayer implements ITreeMapLayerProvider {
+public abstract class AbstractXKCDTreeMapLayer implements ITreeMapLayer {
 
 	private static int[] inverseCurve = {
 		0,1,14,15,16,19,20,21,234,235,236,239,240,241,254,255,

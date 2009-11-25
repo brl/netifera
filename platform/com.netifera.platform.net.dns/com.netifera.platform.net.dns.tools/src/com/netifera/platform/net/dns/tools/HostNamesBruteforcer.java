@@ -31,6 +31,8 @@ import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class HostNamesBruteforcer implements ITool {
 	private final static boolean DEBUG = false;
+	private static final int DEFAULT_DNS_INTERVAL = 200; // milliseconds between requests
+
 	private DNS dns;
 	private Name domain;
 	private INameResolver resolver;
@@ -68,6 +70,8 @@ public class HostNamesBruteforcer implements ITool {
 	
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
+		
+		final int sendDelay = getSendDelay();
 
 		// XXX hardcode local probe as realm
 		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
@@ -77,7 +81,7 @@ public class HostNamesBruteforcer implements ITool {
 
 		context.setTitle("Bruteforce host names *."+domain);
 		
-		int totalWork = hostNames.length;
+		int totalWork = hostNames.length + ccTLDs.length;
 		if (tryTLDs)
 			totalWork += gTLDs.length + ccTLDs.length * (countryCodePrefixes.length+1);
 		context.setTotalWork(totalWork);
@@ -122,9 +126,13 @@ public class HostNamesBruteforcer implements ITool {
 
 			activeRequests = new AtomicInteger(0);
 			resolve(domain.toString());
-			for (String each : hostNames) {
+			for (String each :hostNames) {
 				resolve(each + "." + domain.toString());
-				Thread.sleep(100);
+				Thread.sleep(sendDelay);
+			}
+			for (String each :ccTLDs) {
+				resolve(each + "." + domain.toString());
+				Thread.sleep(sendDelay);
 			}
 
 			if (tryTLDs) {
@@ -135,13 +143,13 @@ public class HostNamesBruteforcer implements ITool {
 
 				for (String tld: gTLDs) {
 					resolve(name + "." + tld);
-					Thread.sleep(100);
+					Thread.sleep(sendDelay);
 				}
 				
 				for (String cc: ccTLDs) {
 					resolve(name + "." + cc);
 					for (String prefix: countryCodePrefixes) {
-						Thread.sleep(100);
+						Thread.sleep(sendDelay);
 						resolve(name + "." + prefix + "." + cc);
 					}
 				}
@@ -270,5 +278,21 @@ public class HostNamesBruteforcer implements ITool {
 		
 		Boolean tryTLDs = (Boolean) context.getConfiguration().get("tryTLDs");
 		this.tryTLDs = tryTLDs == true;
+	}
+	
+	private int getSendDelay() {
+		final String property = System.getProperty("netifera.dns.delay");
+		if(property == null) {
+			return DEFAULT_DNS_INTERVAL;
+		}
+		try {
+			final int delay = Integer.parseInt(property);
+			if(delay < 0 || delay > 10000) {
+				return DEFAULT_DNS_INTERVAL;
+			}
+			return delay;
+		} catch(NumberFormatException e) {
+			return DEFAULT_DNS_INTERVAL;
+		}
 	}
 }

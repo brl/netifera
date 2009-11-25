@@ -28,4 +28,5 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.4.0",
 Service-Component: OSGI-INF/entity-action-provider.xml,
  OSGI-INF/label-provider.xml,
  OSGI-INF/inputbar-action-provider.xml,
- OSGI-INF/tree-layer-provider.xml
+ OSGI-INF/domains-tree-layer.xml,
+ OSGI-INF/emails-layer.xml

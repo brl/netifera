@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
 public abstract class SelectLayersAction extends Action {
@@ -27,14 +27,14 @@ public abstract class SelectLayersAction extends Action {
 	
 	@Override
 	public void run() {
-		final List<ILayerProvider> activeLayerProviders = getActiveLayers();
+		final List<ISemanticLayer> activeLayerProviders = getActiveLayers();
         Menu menu = new Menu(Display.getDefault().getActiveShell(), SWT.POP_UP);
-		for (final ILayerProvider provider: getLayers()) {
-			if (provider.getLayerName() == null)
+		for (final ISemanticLayer provider: getLayers()) {
+			if (provider.getName() == null)
 				continue;
 			MenuItem item = new MenuItem(menu, SWT.CHECK);
 			item.setSelection(activeLayerProviders.contains(provider));
-	        item.setText(provider.getLayerName());
+	        item.setText(provider.getName());
 	        item.addListener(SWT.Selection, new Listener() {
 	          public void handleEvent(Event e) {
 	        	  if (activeLayerProviders.contains(provider)) {
@@ -49,8 +49,8 @@ public abstract class SelectLayersAction extends Action {
         menu.setVisible(true);
 	}
 	
-	protected abstract List<ILayerProvider> getLayers();
-	protected abstract List<ILayerProvider> getActiveLayers();
-	protected abstract void enableLayer(ILayerProvider provider);
-	protected abstract void disableLayer(ILayerProvider provider);
+	protected abstract List<ISemanticLayer> getLayers();
+	protected abstract List<ISemanticLayer> getActiveLayers();
+	protected abstract void enableLayer(ISemanticLayer provider);
+	protected abstract void disableLayer(ISemanticLayer provider);
 }

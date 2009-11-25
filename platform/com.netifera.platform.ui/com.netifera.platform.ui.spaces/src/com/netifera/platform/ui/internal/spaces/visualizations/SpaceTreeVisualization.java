@@ -30,9 +30,9 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.layers.IGroupLayerProvider;
-import com.netifera.platform.api.model.layers.ILayerProvider;
-import com.netifera.platform.api.model.layers.ITreeLayerProvider;
+import com.netifera.platform.api.model.layers.IGroupLayer;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
+import com.netifera.platform.api.model.layers.ITreeLayer;
 import com.netifera.platform.model.FolderEntity;
 import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
@@ -62,27 +62,27 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 	public void addContributions(IContributionManager contributions) {
 		contributions.add(new SelectLayersAction() {
 			@Override
-			protected void disableLayer(ILayerProvider provider) {
+			protected void disableLayer(ISemanticLayer provider) {
 				contentProvider.removeLayer(provider);
 			}
 			@Override
-			protected void enableLayer(ILayerProvider provider) {
+			protected void enableLayer(ISemanticLayer provider) {
 				contentProvider.addLayer(provider);
 			}
 			@Override
-			protected List<ILayerProvider> getActiveLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: contentProvider.getLayers()) {
-					if (layerProvider instanceof ITreeLayerProvider)
+			protected List<ISemanticLayer> getActiveLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: contentProvider.getLayers()) {
+					if (layerProvider instanceof ITreeLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof ITreeLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof ITreeLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
@@ -91,27 +91,27 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 
 		contributions.add(new SelectLayersAction("Select Folders", Activator.getDefault().getImageCache().getDescriptor("icons/folders.png")) {
 			@Override
-			protected void disableLayer(ILayerProvider provider) {
+			protected void disableLayer(ISemanticLayer provider) {
 				contentProvider.removeLayer(provider);
 			}
 			@Override
-			protected void enableLayer(ILayerProvider provider) {
+			protected void enableLayer(ISemanticLayer provider) {
 				contentProvider.addLayer(provider);
 			}
 			@Override
-			protected List<ILayerProvider> getActiveLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: contentProvider.getLayers()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+			protected List<ISemanticLayer> getActiveLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: contentProvider.getLayers()) {
+					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
 				return answer;

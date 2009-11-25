@@ -10,45 +10,45 @@ import java.util.Set;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.api.model.layers.IGroupLayerProvider;
-import com.netifera.platform.api.model.layers.ILayerProvider;
-import com.netifera.platform.api.model.layers.ITreeLayerProvider;
+import com.netifera.platform.api.model.layers.IGroupLayer;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
+import com.netifera.platform.api.model.layers.ITreeLayer;
 import com.netifera.platform.model.FolderEntity;
 import com.netifera.platform.model.TreeStructureContext;
 
 public class TreeBuilder {
 	private volatile IShadowEntity root;
-	private final List<ITreeLayerProvider> treeProviders;
-	private final List<IGroupLayerProvider> groupProviders;
+	private final List<ITreeLayer> treeProviders;
+	private final List<IGroupLayer> groupProviders;
 	private Map<Long,List<IShadowEntity>> shadowsMap;
 	private Map<Long,Map<String,IShadowEntity>> foldersMap;
 	
 	private ITreeBuilderListener updateListener;
 	
-	public TreeBuilder(List<ILayerProvider> providers) {
-		treeProviders = new ArrayList<ITreeLayerProvider>();
-		groupProviders = new ArrayList<IGroupLayerProvider>();
-		for (ILayerProvider layerProvider: providers) {
+	public TreeBuilder(List<ISemanticLayer> providers) {
+		treeProviders = new ArrayList<ITreeLayer>();
+		groupProviders = new ArrayList<IGroupLayer>();
+		for (ISemanticLayer layerProvider: providers) {
 			addLayer(layerProvider);
 		}
 	}
 
-	public synchronized List<ILayerProvider> getLayers() {
-		List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
+	public synchronized List<ISemanticLayer> getLayers() {
+		List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
 		answer.addAll(treeProviders);
 		answer.addAll(groupProviders);
 		return answer;
 	}
 	
-	public synchronized void addLayer(ILayerProvider layerProvider) {
-		if (layerProvider instanceof ITreeLayerProvider) {
-			treeProviders.add((ITreeLayerProvider) layerProvider);
-		} else if (layerProvider instanceof IGroupLayerProvider) {
-			groupProviders.add((IGroupLayerProvider) layerProvider);
+	public synchronized void addLayer(ISemanticLayer layerProvider) {
+		if (layerProvider instanceof ITreeLayer) {
+			treeProviders.add((ITreeLayer) layerProvider);
+		} else if (layerProvider instanceof IGroupLayer) {
+			groupProviders.add((IGroupLayer) layerProvider);
 		}
 	}
 	
-	public synchronized void removeLayer(ILayerProvider layerProvider) {
+	public synchronized void removeLayer(ISemanticLayer layerProvider) {
 		if (!treeProviders.remove(layerProvider))
 			groupProviders.remove(layerProvider);
 	}
@@ -96,7 +96,7 @@ public class TreeBuilder {
 			addChildEntity(entity, folder);
 		}
 	
-		for (ITreeLayerProvider provider: treeProviders) {
+		for (ITreeLayer provider: treeProviders) {
 			if (provider.isRealmRoot(entity) && groups.size() == 0) {
 				// if it's not in any folder, add it to the realm root
 				addChildEntity(entity, realmEntity);
@@ -173,7 +173,7 @@ public class TreeBuilder {
 
 	private Set<String> getGroups(IEntity entity) {
 		Set<String> answer = new HashSet<String>();
-		for (IGroupLayerProvider provider: groupProviders)
+		for (IGroupLayer provider: groupProviders)
 			answer.addAll(provider.getGroups(entity));
 		return answer;
 	}

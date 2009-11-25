@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.netifera.platform.api.model.IEntity;
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.ui.internal.treemap.Activator;
 import com.netifera.platform.ui.treemap.layers.GeolocationTreeMapLayer;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
@@ -30,7 +30,7 @@ import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 public class TreeMapControl extends Canvas {
 
 	private TreeMap treeMap;
-	private ITreeMapLayerProvider curve;
+	private ITreeMapLayer curve;
 	
 	private List<TreeMap> selection = new ArrayList<TreeMap>();
 
@@ -65,9 +65,9 @@ public class TreeMapControl extends Canvas {
 	public TreeMapControl(Composite parent, int style) {
 		super(parent, style);
 
-		for (ILayerProvider layer: Activator.getInstance().getModel().getLayerProviders()) {
+		for (ISemanticLayer layer: Activator.getInstance().getModel().getSemanticLayers()) {
 			if (layer instanceof GeolocationTreeMapLayer) {
-				curve = (ITreeMapLayerProvider) layer;
+				curve = (ITreeMapLayer) layer;
 				break;
 			}
 		}
@@ -236,11 +236,11 @@ public class TreeMapControl extends Canvas {
 		}
 	}
 
-	public ITreeMapLayerProvider getLayer() {
+	public ITreeMapLayer getLayer() {
 		return curve;
 	}
 
-	public void setLayer(ITreeMapLayerProvider layer) {
+	public void setLayer(ITreeMapLayer layer) {
 		this.curve = layer;
 		redraw();
 	}

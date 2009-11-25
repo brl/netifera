@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.geolocation-treemap-layer">
-	<implementation class="com.netifera.platform.ui.treemap.layers.GeolocationTreeMapLayer" />
-	<service>
-		<provide interface="com.netifera.platform.api.model.layers.ILayerProvider" />
-	</service>
-</component>

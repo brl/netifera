@@ -60,10 +60,10 @@ import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.IEdge;
-import com.netifera.platform.api.model.layers.IEdgeLayerProvider;
-import com.netifera.platform.api.model.layers.IGroupLayerProvider;
-import com.netifera.platform.api.model.layers.ILayerProvider;
-import com.netifera.platform.net.geoip.IGeographicalLayerProvider;
+import com.netifera.platform.api.model.layers.IEdgeLayer;
+import com.netifera.platform.api.model.layers.IGroupLayer;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
+import com.netifera.platform.net.geoip.IGeographicalLayer;
 import com.netifera.platform.net.geoip.ILocation;
 import com.netifera.platform.ui.api.model.IEdgeWithStyle;
 import com.netifera.platform.ui.internal.world.Activator;
@@ -97,8 +97,8 @@ public class GlobeWorldView extends ViewPart {
 	private volatile boolean followNewEntities = true;
 	private IEntity focusEntity;
 
-	private List<ILayerProvider> layerProviders = new ArrayList<ILayerProvider>();
-	private IGroupLayerProvider colorLayerProvider;
+	private List<ISemanticLayer> layerProviders = new ArrayList<ISemanticLayer>();
+	private IGroupLayer colorLayerProvider;
 
 	private ISpace space;
 	private IEventHandler spaceChangeListener;
@@ -203,9 +203,9 @@ public class GlobeWorldView extends ViewPart {
 		polylineLayer = new ConcurrentRenderableLayer();
 		this.layerList.add(polylineLayer);
 		
-		for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
+		for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
 			if (layerProvider.isDefaultEnabled() &&
-					(layerProvider instanceof IGeographicalLayerProvider || layerProvider instanceof IEdgeLayerProvider))
+					(layerProvider instanceof IGeographicalLayer || layerProvider instanceof IEdgeLayer))
 				layerProviders.add(layerProvider);
 		}
 	}
@@ -368,22 +368,22 @@ public class GlobeWorldView extends ViewPart {
 				.getToolBarManager();
 		toolbarManager.add(new SelectLayersAction() {
 			@Override
-			protected void disableLayer(ILayerProvider provider) {
+			protected void disableLayer(ISemanticLayer provider) {
 				removeLayer(provider);
 			}
 			@Override
-			protected void enableLayer(ILayerProvider provider) {
+			protected void enableLayer(ISemanticLayer provider) {
 				addLayer(provider);
 			}
 			@Override
-			protected List<ILayerProvider> getActiveLayers() {
+			protected List<ISemanticLayer> getActiveLayers() {
 				return GlobeWorldView.this.getLayers();
 			}
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGeographicalLayerProvider || layerProvider instanceof IEdgeLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof IGeographicalLayer || layerProvider instanceof IEdgeLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
@@ -392,21 +392,21 @@ public class GlobeWorldView extends ViewPart {
 		
 		toolbarManager.add(new ChooseLayerAction("Set Color", Activator.getDefault().getImageCache().getDescriptor("icons/colors.png")) {
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected ILayerProvider getActiveLayer() {
+			protected ISemanticLayer getActiveLayer() {
 				return getColorLayer();
 			}
 			@Override
-			protected void setActiveLayer(ILayerProvider provider) {
-				setColorLayer((IGroupLayerProvider)provider);
+			protected void setActiveLayer(ISemanticLayer provider) {
+				setColorLayer((IGroupLayer)provider);
 			}
 		});
 		
@@ -470,9 +470,9 @@ public class GlobeWorldView extends ViewPart {
 			}
 		}
 		
-		for (ILayerProvider layerProvider: layerProviders) {
-			if (layerProvider instanceof IEdgeLayerProvider) {
-				IEdgeLayerProvider edgeLayerProvider = (IEdgeLayerProvider)layerProvider;
+		for (ISemanticLayer layerProvider: layerProviders) {
+			if (layerProvider instanceof IEdgeLayer) {
+				IEdgeLayer edgeLayerProvider = (IEdgeLayer)layerProvider;
 				for (IEdge edge: edgeLayerProvider.getEdges(entity)) {
 					addEdge(edge);
 				}
@@ -484,9 +484,9 @@ public class GlobeWorldView extends ViewPart {
 
 	private synchronized void updateEntity(IEntity entity) {
 		// TODO
-		for (ILayerProvider layerProvider: layerProviders) {
-			if (layerProvider instanceof IEdgeLayerProvider) {
-				IEdgeLayerProvider edgeLayerProvider = (IEdgeLayerProvider)layerProvider;
+		for (ISemanticLayer layerProvider: layerProviders) {
+			if (layerProvider instanceof IEdgeLayer) {
+				IEdgeLayer edgeLayerProvider = (IEdgeLayer)layerProvider;
 				for (IEdge edge: edgeLayerProvider.getEdges(entity)) {
 					addEdge(edge);
 				}
@@ -509,9 +509,9 @@ public class GlobeWorldView extends ViewPart {
 	}
 
 	private ILocation getLocation(IEntity entity) {
-		for (ILayerProvider layerProvider: layerProviders) {
-			if (layerProvider instanceof IGeographicalLayerProvider) {
-				ILocation location = ((IGeographicalLayerProvider)layerProvider).getLocation(entity);
+		for (ISemanticLayer layerProvider: layerProviders) {
+			if (layerProvider instanceof IGeographicalLayer) {
+				ILocation location = ((IGeographicalLayer)layerProvider).getLocation(entity);
 				if (location != null) {
 					return location;
 				}
@@ -678,25 +678,25 @@ public class GlobeWorldView extends ViewPart {
 		worldWindow.repaint();
 	}
 	
-	public void addLayer(ILayerProvider layerProvider) {
+	public void addLayer(ISemanticLayer layerProvider) {
 		layerProviders.add(layerProvider);
 		setSpace(space);//to repopulate
 	}
 	
-	public void removeLayer(ILayerProvider layerProvider) {
+	public void removeLayer(ISemanticLayer layerProvider) {
 		layerProviders.remove(layerProvider);
 		setSpace(space);//to repopulate
 	}
 
-	public List<ILayerProvider> getLayers() {
+	public List<ISemanticLayer> getLayers() {
 		return layerProviders;
 	}
 	
-	public IGroupLayerProvider getColorLayer() {
+	public IGroupLayer getColorLayer() {
 		return colorLayerProvider;
 	}
 	
-	public void setColorLayer(IGroupLayerProvider layerProvider) {
+	public void setColorLayer(IGroupLayer layerProvider) {
 		colorLayerProvider = layerProvider;
 		setSpace(space);//to repopulate
 	}

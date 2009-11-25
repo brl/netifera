@@ -5,17 +5,17 @@ Bundle-SymbolicName: com.netifera.platform.net.ui;singleton:=true
 Bundle-Version: 1.0.0
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime;bundle-version="3.4.0"
-Service-Component: OSGI-INF/tree-layer-provider.xml,
- OSGI-INF/entity-label-provider.xml,
+Service-Component: OSGI-INF/entity-label-provider.xml,
  OSGI-INF/entity-information-provider.xml,
  OSGI-INF/entity-action-provider.xml,
  OSGI-INF/inputbar-action-provider.xml,
- OSGI-INF/netblock-layer-provider.xml,
- OSGI-INF/os-layer-provider.xml,
- OSGI-INF/services-layer-provider.xml,
- OSGI-INF/clients-layer-provider.xml,
- OSGI-INF/connections-layer-provider.xml,
- OSGI-INF/hsc-edge-layer-provider.xml
+ OSGI-INF/network-tree-layer.xml,
+ OSGI-INF/netblock-group-layer.xml,
+ OSGI-INF/os-group-layer.xml,
+ OSGI-INF/services-by-type-group-layer.xml,
+ OSGI-INF/clients-by-type-group-layer.xml,
+ OSGI-INF/connections-edge-layer.xml,
+ OSGI-INF/hsc-edge-layer.xml
 Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.api.model,
  com.netifera.platform.api.model.layers,
