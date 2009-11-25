@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.netifera.platform.api.model.IEntity;
+import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.ui.internal.treemap.Activator;
 import com.netifera.platform.ui.treemap.layers.GeolocationTreeMapLayer;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
@@ -28,7 +30,7 @@ import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 public class TreeMapControl extends Canvas {
 
 	private TreeMap treeMap;
-	private ITreeMapLayerProvider curve = new GeolocationTreeMapLayer();
+	private ITreeMapLayerProvider curve;
 	
 	private List<TreeMap> selection = new ArrayList<TreeMap>();
 
@@ -55,6 +57,12 @@ public class TreeMapControl extends Canvas {
 	public TreeMapControl(Composite parent, int style) {
 		super(parent, style);
 
+		for (ILayerProvider layer: Activator.getInstance().getModel().getLayerProviders()) {
+			if (layer instanceof GeolocationTreeMapLayer) {
+				curve = (ITreeMapLayerProvider) layer;
+				break;
+			}
+		}
 		initializeTreeMap();
 
 		setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
