@@ -41,14 +41,22 @@ public class TreeMapControl extends Canvas {
 		void adjust() {
 			Rectangle rect = getClientArea();
 			int extent = (int) (Math.min(rect.width,rect.height) * scale);
-			double w = extent - offsetX;
-			double h = extent - offsetY;
-			if (w < rect.width)
-				offsetX -= rect.width - w;
-			if (h < rect.height)
-				offsetY -= rect.height - h;
-			if (offsetX < 0) offsetX = 0;
-			if (offsetY < 0) offsetY = 0;
+			if (extent < rect.width) {
+				offsetX = (extent - rect.width) / 2;
+			} else {
+				double w = extent - offsetX;
+				if (w < rect.width)
+					offsetX -= rect.width - w;
+				if (offsetX < 0) offsetX = 0;
+			}
+			if (extent < rect.height) {
+				offsetY = (extent - rect.height) / 2;
+			} else {
+				double h = extent - offsetY;
+				if (h < rect.height)
+					offsetY -= rect.height - h;
+				if (offsetY < 0) offsetY = 0;
+			}
 		}
 	};
 	
@@ -203,6 +211,8 @@ public class TreeMapControl extends Canvas {
 //			gc.fillRectangle(rect.x + i*rect.width/palette.length, rect.y, rect.width/palette.length, 100);
 		}
 
+		frame.adjust();
+		
 		treeMap.paint((int)(rect.x - frame.offsetX), (int)(rect.y - frame.offsetY), (int) (Math.min(rect.width,rect.height) * frame.scale), gc, curve, palette);
 
 		for (Color color: palette)
