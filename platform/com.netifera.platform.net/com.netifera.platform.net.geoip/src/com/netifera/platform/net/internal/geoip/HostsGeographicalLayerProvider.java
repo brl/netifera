@@ -287,6 +287,12 @@ public class HostsGeographicalLayerProvider implements IGeographicalLayerProvide
 				public String getCountryCode() {
 					return countryCode;
 				}
+				public String getContinent() {
+					return null;
+				}
+				public String getContinentCode() {
+					return null;
+				}
 				public double[] getPosition() {
 					double[] pos = countryToPosition.get(countryCode);
 					if (pos != null)

@@ -6,6 +6,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.net.geoip.IGeoIPService;
+import com.netifera.platform.net.routes.IIP2ASService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.images.ImageCache;
 
@@ -24,6 +25,7 @@ public class Activator implements BundleActivator {
 	private ServiceTracker modelTracker;
 	private ServiceTracker modelLabelsTracker;
 	private ServiceTracker geoipServiceTracker;
+	private ServiceTracker ip2asServiceTracker;
 	
 
 	public Activator() {
@@ -42,6 +44,9 @@ public class Activator implements BundleActivator {
 		
 		geoipServiceTracker = new ServiceTracker(context, IGeoIPService.class.getName(), null);
 		geoipServiceTracker.open();
+		
+		ip2asServiceTracker = new ServiceTracker(context, IIP2ASService.class.getName(), null);
+		ip2asServiceTracker.open();
 	}
 	
 	public void stop(BundleContext context) throws Exception {
@@ -61,7 +66,11 @@ public class Activator implements BundleActivator {
 	public IGeoIPService getGeoIPService() {
 		return (IGeoIPService) geoipServiceTracker.getService();
 	}
-	
+
+	public IIP2ASService getIP2ASService() {
+		return (IIP2ASService) ip2asServiceTracker.getService();
+	}
+
 	public ImageCache getImageCache() {
 		return imageCache;
 	}

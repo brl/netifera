@@ -1,5 +1,9 @@
 package com.netifera.platform.ui.treemap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -17,16 +21,16 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import com.netifera.platform.api.model.IEntity;
-import com.netifera.platform.ui.treemap.curves.RegistriesHilbertCurve;
+import com.netifera.platform.ui.treemap.layers.GeolocationTreeMapLayer;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 public class TreeMapControl extends Canvas {
 
 	private TreeMap treeMap;
-	private IHilbertCurve curve = new RegistriesHilbertCurve();
+	private ITreeMapLayerProvider curve = new GeolocationTreeMapLayer();
 	
-	private TreeMap[] selection = new TreeMap[0];
+	private List<TreeMap> selection = new ArrayList<TreeMap>();
 
 	class TreeMapFrame {
 		double scale = 1.0;
@@ -135,7 +139,13 @@ public class TreeMapControl extends Canvas {
 					if (event.button == 1 && !panning) {
 						TreeMap item = getItem(new Point(event.x, event.y));
 						if (item != null) {
-							selection = new TreeMap[] {item};
+							if ((event.stateMask & SWT.CTRL) != 0) {
+								if (!selection.contains(item))
+									selection.add(item);
+							} else {
+								selection = new ArrayList<TreeMap>();
+								selection.add(item);
+							}
 							redraw();
 						}
 					}
@@ -190,7 +200,7 @@ public class TreeMapControl extends Canvas {
 		for (Color color: palette)
 			color.dispose();
 		
-		if (selection.length > 0) {
+		if (selection.size() > 0) {
 			gc.setLineWidth(1);
 			gc.setAlpha(255);
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_LIST_SELECTION));
@@ -199,14 +209,23 @@ public class TreeMapControl extends Canvas {
 			}
 		}
 	}
-	
+
+	public ITreeMapLayerProvider getLayer() {
+		return curve;
+	}
+
+	public void setLayer(ITreeMapLayerProvider layer) {
+		this.curve = layer;
+		redraw();
+	}
+
 	public void add(IPv4Address address, IEntity entity) {
 		treeMap.add(address, entity);
 		redraw();
 	}
 	
 	public void reset() {
-		selection = new TreeMap[0];
+		selection = new ArrayList<TreeMap>();
 		initializeTreeMap();
 		redraw();
 	}
@@ -258,7 +277,7 @@ public class TreeMapControl extends Canvas {
 		return new Rectangle(x, y, extent, extent);
 	}
 
-	public TreeMap[] getSelection() {
-		return selection;
+	public List<TreeMap> getSelection() {
+		return Collections.unmodifiableList(selection);
 	}
 }

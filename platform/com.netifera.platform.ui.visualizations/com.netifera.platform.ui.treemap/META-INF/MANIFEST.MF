@@ -13,6 +13,7 @@ Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.api.model.layers,
  com.netifera.platform.net.geoip,
  com.netifera.platform.net.model,
+ com.netifera.platform.net.routes,
  com.netifera.platform.ui.api.model,
  com.netifera.platform.ui.images,
  com.netifera.platform.ui.spaces,
@@ -21,3 +22,5 @@ Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.util.addresses.inet,
  org.osgi.framework;version="1.3.0"
 Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/geolocation-layer-provider.xml,
+ OSGI-INF/as-layer-provider.xml

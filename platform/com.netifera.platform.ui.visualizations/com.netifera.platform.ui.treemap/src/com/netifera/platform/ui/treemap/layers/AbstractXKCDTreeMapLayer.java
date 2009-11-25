@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.treemap.curves;
+package com.netifera.platform.ui.treemap.layers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,14 +9,12 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
-import com.netifera.platform.net.geoip.ILocation;
-import com.netifera.platform.ui.internal.treemap.Activator;
-import com.netifera.platform.ui.treemap.IHilbertCurve;
+import com.netifera.platform.ui.treemap.ITreeMapLayerProvider;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 
-public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
+public abstract class AbstractXKCDTreeMapLayer implements ITreeMapLayerProvider {
 
 	private static int[] inverseCurve = {
 		0,1,14,15,16,19,20,21,234,235,236,239,240,241,254,255,
@@ -136,10 +134,6 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 240-255: Unallocated
 	*/
 	
-	public String getName() {
-		return "XKCD Map Of The Internet";
-	}
-
 	public int getIndex(IPv4Netblock netblock, IPv4Netblock subnetblock) {
 		return curve[subnetblock.getNetworkAddress().toBytes()[netblock.getCIDR()/8] & 0xff];
 	}
@@ -200,7 +194,7 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 		if (hx < 0 || hx > 15 || hy < 0 || hy > 15)
 			return 0;
 		int i = hxhy2i(hx,hy);
-		if (categories[i] == null || !categories[i].equals(category))
+		if (categories[i] == null || categories[i] != category)
 			return 0;
 		categories[i] = null;
 		int length = coverCategory(category, indices, categories, hx+1, hy)+1;
@@ -259,9 +253,145 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 		}
 	}
 	
-	abstract protected void paintRegions(int x, int y, int extent, GC gc);
+	private void paintTopLevelRegions(int x, int y, int extent, GC gc) {
+		drawRegion(x, y, extent, gc, new int[] {1,0, 0,1, -1,0});
+		drawRegionLabel(x, y, extent, gc, "Local", 0,0, 1);
+		
+		drawRegion(x, y, extent, gc, new int[] {8,0, 0,4, 4,0, 0,-4});
+		drawRegionLabel(x, y, extent, gc, "Multicast", 8,2, 4);
+
+		drawRegion(x, y, extent, gc, new int[] {0,4, 0,3, 2,0, 0,-1, -1,0, 0,-2, -1,0});
+		drawRegionLabel(x, y, extent, gc, "APNIC", 0,6, 2);
+
+		drawRegion(x, y, extent, gc, new int[] {8,4, 0,1, 2,0, 0,1, 2,0, 0,-1, -1,0, 0,-1});
+		drawRegionLabel(x, y, extent, gc, "APNIC", 8,4, 3);
+
+		drawRegion(x, y, extent, gc, new int[] {8,4, 0,1, 2,0, 0,1, 2,0, 0,-1, -1,0, 0,-1});
+		drawRegionLabel(x, y, extent, gc, "APNIC", 8,4, 3);
+
+		drawRegion(x, y, extent, gc, new int[] {8,5, 0,1, 1,0, 0,-1});
+		drawRegionLabel(x, y, extent, gc, "RIPE", 8,5, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {9,6, 1,0});
+		drawRegionLabel(x, y, extent, gc, "ARIN", 9,5, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {8,6, 0,1, 2,0, 0,-1});
+		drawRegionLabel(x, y, extent, gc, "DoD", 8,6, 2);
+
+		drawRegion(x, y, extent, gc, new int[] {8,7, 0,1, 2,0, 0,-1});
+		drawRegionLabel(x, y, extent, gc, "RIPE", 8,7, 2);
+
+		drawRegion(x, y, extent, gc, new int[] {12,4, 0,2, 1,0, 0,-2, -1,0});
+		drawRegionLabel(x, y, extent, gc, "APNIC", 12,4, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {13,4, 0,2, 1,0, 0,-2, -1,0});
+		drawRegionLabel(x, y, extent, gc, "LACNIC", 13,5, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {16,5, -1,0, 0,1, 1,0});
+		drawRegionLabel(x, y, extent, gc, "AfriNIC", 15,5, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {15,5, -1,0, 0,1, 1,0});
+		drawRegionLabel(x, y, extent, gc, "ARIN", 14,5, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {14,4, 1,0, 0,1});
+		drawRegionLabel(x, y, extent, gc, "US & Various", 14,4, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {14,8, 1,0, 0,-1, 1,0});
+		drawRegionLabel(x, y, extent, gc, "RIPE", 14,6, 2);
+
+		drawRegion(x, y, extent, gc, new int[] {14,8, 0,1, 2,0});
+		drawRegionLabel(x, y, extent, gc, "Various", 14,8, 2);
+
+		drawRegion(x, y, extent, gc, new int[] {14,9, 0,1, 2,0});
+		drawRegionLabel(x, y, extent, gc, "LACNIC", 14,9, 2);
+		
+		drawRegion(x, y, extent, gc, new int[] {1,7, 0,1, 1,0, 0,-1});
+		drawRegionLabel(x, y, extent, gc, "RIPE", 1,7, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {2,8, 2,0, 0,4, -3,0, 0,-1, 1,0, 0,-1, -2,0});
+		drawRegionLabel(x, y, extent, gc, "ARIN", 0,9, 4);
+
+		drawRegion(x, y, extent, gc, new int[] {4,16, 0,-2, -2,0, 0,-2});
+		drawRegionLabel(x, y, extent, gc, "RIPE", 0,14, 4);
+
+		drawRegion(x, y, extent, gc, new int[] {4,12, 0,2, 2,0, 0,-2, -2,0});
+		drawRegionLabel(x, y, extent, gc, "ARIN", 4,12, 2);
+
+		drawRegion(x, y, extent, gc, new int[] {4,10, 1,0, 0,-1, 1,0, 0,1, 1,0, 0,-2, -3,0});
+		drawRegionLabel(x, y, extent, gc, "APNIC", 4,8, 3);
+
+		drawRegion(x, y, extent, gc, new int[] {7,9, 1,0, 0,1, -1,0});
+		drawRegionLabel(x, y, extent, gc, "APNIC", 7,9, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {11,8, 1,0, 0,1});
+		drawRegionLabel(x, y, extent, gc, "APNIC", 11,8, 1);
+
+		drawRegion(x, y, extent, gc, new int[] {11,6, 3,0, 0,2, -3,0, 0,-2});
+		drawRegionLabel(x, y, extent, gc, "ARIN", 11,6, 3);
+
+		drawRegion(x, y, extent, gc, new int[] {16,13, -1,0, 0,1, -1,0, 0,-2, -2,0, 0,-3, -1,0, 0,-1, -3,0, 0,8}); // various registrars
+		drawRegionLabel(x, y, extent, gc, "Various Registries", 8,13, 6);
+
+//		drawRegionLabel(x, y, extent, gc, "Public Data Network", 2,0, 1); // reclaimed in 2008
+		drawRegionLabel(x, y, extent, gc, "HP", 3,0, 1);
+		drawRegionLabel(x, y, extent, gc, "DEC", 4,0, 1);
+		drawRegionLabel(x, y, extent, gc, "Ford", 5,0, 1);
+		drawRegionLabel(x, y, extent, gc, "CSC", 6,0, 1);
+		drawRegionLabel(x, y, extent, gc, "DDN-RYN", 7,0, 1);
+		
+		drawRegionLabel(x, y, extent, gc, "GE", 0,1, 1);
+		drawRegionLabel(x, y, extent, gc, "Xerox", 2,1, 1);
+		drawRegionLabel(x, y, extent, gc, "AT&T", 3,1, 1);
+		drawRegionLabel(x, y, extent, gc, "Apple", 4,1, 1);
+		drawRegionLabel(x, y, extent, gc, "MIT", 5,1, 1);
+		drawRegionLabel(x, y, extent, gc, "DISA", 7,1, 1);
+		
+		drawRegionLabel(x, y, extent, gc, "Level3", 0,2, 1);
+		drawRegionLabel(x, y, extent, gc, "Level3", 2,2, 1);
+		drawRegionLabel(x, y, extent, gc, "DoD/Intel", 3,2, 1);
+		drawRegionLabel(x, y, extent, gc, "DISA", 4,2, 2);
+		drawRegionLabel(x, y, extent, gc, "Cable", 6,2, 1);
+		drawRegionLabel(x, y, extent, gc, "UK MoD", 7,2, 1);
+
+		drawRegionLabel(x, y, extent, gc, "US Army", 1,3, 1);
+		drawRegionLabel(x, y, extent, gc, "IBM", 2,3, 1);
+		drawRegionLabel(x, y, extent, gc, "Private", 3,3, 1);
+		drawRegionLabel(x, y, extent, gc, "DSI", 5,3, 1);
+		drawRegionLabel(x, y, extent, gc, "DISA", 7,3, 1);
+
+		drawRegionLabel(x, y, extent, gc, "SITA", 1,4, 1);
+		drawRegionLabel(x, y, extent, gc, "Merck", 2,4, 1);
+		drawRegionLabel(x, y, extent, gc, "Cap Debis CCS", 3,4, 1);
+		drawRegionLabel(x, y, extent, gc, "AT&T", 4,4, 1);
+		drawRegionLabel(x, y, extent, gc, "MERIT", 5,4, 1);
+
+		drawRegionLabel(x, y, extent, gc, "USPS", 1,5, 1);
+		drawRegionLabel(x, y, extent, gc, "DoD NIC", 2,5, 1);
+		drawRegionLabel(x, y, extent, gc, "duPont", 3,5, 1);
+		drawRegionLabel(x, y, extent, gc, "DLA", 4,5, 1);
+		drawRegionLabel(x, y, extent, gc, "Halliburton", 5,5, 1);
+		drawRegionLabel(x, y, extent, gc, "PSI", 7,5, 1);
+
+		drawRegionLabel(x, y, extent, gc, "UK Department for Work and Pensions", 3,6, 1);
+//		drawRegionLabel(x, y, extent, gc, "BB&N", 4,6, 1); // was reclaimed, now unallocated
+		drawRegionLabel(x, y, extent, gc, "INTEROP", 5,6, 1);
+		drawRegionLabel(x, y, extent, gc, "Eli Lily", 6,6, 1);
+		drawRegionLabel(x, y, extent, gc, "AfriNIC", 7,6, 1);
+
+		drawRegionLabel(x, y, extent, gc, "Prudential", 3,7, 1);
+		drawRegionLabel(x, y, extent, gc, "Bell Northern Research", 4,7, 1);
+		drawRegionLabel(x, y, extent, gc, "HAM Radio", 5,7, 1);
+		drawRegionLabel(x, y, extent, gc, "APNIC", 6,7, 1);
+
+		drawRegionLabel(x, y, extent, gc, "Loopback", 7,8, 1);
+	}
 	
 	public void paint(int x, int y, int extent, GC gc, IPv4Netblock netblock) {
+		if (newCache.size() > 4096) {
+			oldCache = newCache;
+			newCache = new HashMap<IPv4Netblock,String>();
+			uniqueStrings = new HashMap<String,String>();
+		}
 		if (netblock.getCIDR() == 0) {
 			gc.setAlpha(50);
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
@@ -277,23 +407,15 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 			
 			gc.setLineWidth(1);
 	
-			paintRegions(x, y, extent, gc);
+			paintTopLevelRegions(x, y, extent, gc);
 		} else if (netblock.getCIDR() == 8) {
 			gc.setAlpha(150);
 			String[] categories = new String[256];
 			int net = netblock.getNetworkAddress().toInteger();
 			for (int i=0; i<=255; i++) {
 				net = (net & 0xff000000) | ((i & 0xff) << 16);
-				String country1 = getCountry(net | 0x00000101);
-				if (country1 == null) continue;
-				String country2 = getCountry(net | 0x00008001);
-				if (country2 == null) continue;
-				String country3 = getCountry(net | 0x0000ff01);
-				if (country3 == null) continue;
-
-				if (!country1.equals(country2) || !country1.equals(country3)) continue;
-				
-				categories[i] = country1;
+				IPv4Netblock subnetblock = new IPv4Netblock(new IPv4Address(net),16);
+				categories[i] = getCacheCategory(subnetblock);
 			}
 			drawCategories(x, y, extent, gc, categories);
 		} else if (netblock.getCIDR() == 16) {
@@ -302,28 +424,33 @@ public abstract class AbstractXKCDHilbertCurve implements IHilbertCurve {
 			int net = netblock.getNetworkAddress().toInteger();
 			for (int i=0; i<=255; i++) {
 				net = (net & 0xffff0000) | ((i & 0xff) << 8);
-				String country1 = getCountry(net | 0x00000001);
-				if (country1 == null) continue;
-				String country2 = getCountry(net | 0x00000080);
-				if (country2 == null) continue;
-				String country3 = getCountry(net | 0x000000ff);
-				if (country3 == null) continue;
-
-				if (!country1.equals(country2) || !country1.equals(country3)) continue;
-
-				categories[i] = country1;
+				IPv4Netblock subnetblock = new IPv4Netblock(new IPv4Address(net),24);
+				categories[i] = getCacheCategory(subnetblock);
 			}
 			drawCategories(x, y, extent, gc, categories);
 		} else if (netblock.getCIDR() == 24) {
 			// organization?
 		}
 	}
+
+	private Map<IPv4Netblock,String> oldCache = new HashMap<IPv4Netblock,String>();
+	private Map<IPv4Netblock,String> newCache = new HashMap<IPv4Netblock,String>();
+	private Map<String,String> uniqueStrings = new HashMap<String,String>();
 	
-	private String getCountry(int addressValue) {
-		IPv4Address address = new IPv4Address(addressValue);
-		ILocation location = Activator.getInstance().getGeoIPService().getLocation(address);
-		if (location != null && location.getCountryCode() != null)
-			return location.getCountry();
-		return null;
+	private String getCacheCategory(IPv4Netblock netblock) {
+		String category = oldCache.get(netblock);
+		if (category == null)
+			category = newCache.get(netblock);
+		if (category == null)
+			category = getCategory(netblock);
+		if (category != null) {
+			String unique = uniqueStrings.get(category);
+			if (unique == null) uniqueStrings.put(category, category);
+			else category = unique;
+		}
+		newCache.put(netblock, category);
+		return category;
 	}
+	
+	abstract protected String getCategory(IPv4Netblock netblock);
 }

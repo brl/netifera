@@ -1,6 +1,10 @@
 package com.netifera.platform.ui.treemap;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
@@ -27,9 +31,12 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.ISpaceContentChangeEvent;
+import com.netifera.platform.api.model.layers.ILayerProvider;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
+import com.netifera.platform.ui.internal.treemap.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.actions.ChooseLayerAction;
 import com.netifera.platform.ui.spaces.actions.EntityHover;
 import com.netifera.platform.ui.util.MouseTracker;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
@@ -101,13 +108,13 @@ public class TreeMapView extends ViewPart {
 					}
 					
 				});
+		
 /*		IWorkbenchPage page = getSite().getWorkbenchWindow().getActivePage();
 		if (page == null)
 			return;
 */	
 	
 		initializeToolBar();
-		
 		
 		/* implement the mouse tracker the action hover handlers*/
 		final MouseTracker mouseTracker = new MouseTracker(control) {
@@ -150,9 +157,9 @@ public class TreeMapView extends ViewPart {
 			
 			@Override
 			protected Rectangle getAreaOfSelectedItem() {
-				TreeMap[] selection = control.getSelection();
-				if(selection != null && selection.length > 0) {
-					return control.getItemBounds(selection[0]);
+				List<TreeMap> selection = control.getSelection();
+				if(selection != null && selection.size() > 0) {
+					return control.getItemBounds(selection.get(0));
 				}
 				return null;
 			}
@@ -211,28 +218,28 @@ public class TreeMapView extends ViewPart {
 	}
 
 	private void initializeToolBar() {
-/*		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
+		IToolBarManager toolbarManager = getViewSite().getActionBars().getToolBarManager();
 		
-		toolbarManager.add(new ChooseLayerAction("Set Color", Activator.getInstance().getImageCache().getDescriptor("icons/colors.png")) {
+		toolbarManager.add(new ChooseLayerAction() {
 			@Override
 			protected List<ILayerProvider> getLayers() {
 				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
 				for (ILayerProvider layerProvider: Activator.getInstance().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+					if (layerProvider instanceof ITreeMapLayerProvider)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
 			protected ILayerProvider getActiveLayer() {
-				return getColorLayer();
+				return control.getLayer();
 			}
 			@Override
 			protected void setActiveLayer(ILayerProvider provider) {
-				setColorLayer((IGroupLayerProvider)provider);
+				control.setLayer((ITreeMapLayerProvider)provider);
 			}
 		});
-*/	}
+	}
 
 	@Override
 	public void setFocus() {

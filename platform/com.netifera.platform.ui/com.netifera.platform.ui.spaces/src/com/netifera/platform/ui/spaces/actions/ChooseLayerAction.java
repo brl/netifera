@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.ui.internal.spaces.Activator;
 
 public abstract class ChooseLayerAction extends Action {
 	
@@ -19,7 +20,11 @@ public abstract class ChooseLayerAction extends Action {
 		super(text, SWT.DROP_DOWN);
 		setImageDescriptor(icon);
 	}
-	
+
+	public ChooseLayerAction() {
+		this("Choose Layer", Activator.getDefault().getImageCache().getDescriptor("icons/layers_16x16.png"));
+	}
+
 	@Override
 	public void run() {
         Menu menu = new Menu(Display.getDefault().getActiveShell(), SWT.POP_UP);

@@ -151,7 +151,7 @@ public class TreeMap implements Iterable<IEntity> {
 		return false;
 	}
 	
-	public void paint(int x, int y, int extent, GC gc, IHilbertCurve curve, Color palette[]) {
+	public void paint(int x, int y, int extent, GC gc, ITreeMapLayerProvider curve, Color palette[]) {
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
 			Color color = palette[(int)(temperature*(palette.length-1))];
@@ -183,7 +183,6 @@ public class TreeMap implements Iterable<IEntity> {
 			curve.paint(x, y, extent, gc, netblock); // draw curve regions
 		}
 
-//		boolean has0 = false;
 		for (int i=0; i<256; i++) {
 			TreeMap subtree = subtrees[i];
 			if (subtree != null) {
@@ -196,13 +195,10 @@ public class TreeMap implements Iterable<IEntity> {
 				Rectangle subRect = new Rectangle(subX, subY, subExtent, subExtent);
 				if (subRect.intersects(gc.getClipping())) {
 					subtree.paint(subX, subY, subExtent, gc, curve, palette);
-//					if (h == 0)
-//						has0 = true;
 				}
 			}
 		}
 		
-//		if (!has0 || extent < 16*(gc.stringExtent("0").y+3))
 		paintLabel(x, y, extent, gc);
 	}
 }
