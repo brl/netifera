@@ -15,7 +15,6 @@ import org.xbill.DNS.Record;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -38,7 +37,6 @@ public class HostNamesBruteforcer implements ITool {
 	private INameResolver resolver;
 	
 	private IToolContext context;
-	private long realm;
 
 	private InternetAddress ignoreAddress = null;
 	private boolean tryTLDs = false;
@@ -73,10 +71,6 @@ public class HostNamesBruteforcer implements ITool {
 		
 		final int sendDelay = getSendDelay();
 
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
-		
 		setupToolOptions();
 
 		context.setTitle("Bruteforce host names *."+domain);
@@ -229,7 +223,7 @@ public class HostNamesBruteforcer implements ITool {
 			if (addr != null) {
 				if (ignoreAddress == null || !ignoreAddress.equals(addr)) {
 					context.info(record.toString());
-					Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), ((ARecord)record).getName().toString(), addr);
+					Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), ((ARecord)record).getName().toString(), addr);
 				}
 			}
 		} else if (record instanceof AAAARecord) {
@@ -237,7 +231,7 @@ public class HostNamesBruteforcer implements ITool {
 			if (addr != null) {
 				if (ignoreAddress == null || !ignoreAddress.equals(addr)) {
 					context.info(record.toString());
-					Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), ((AAAARecord)record).getName().toString(), addr);
+					Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), ((AAAARecord)record).getName().toString(), addr);
 				}
 			}
 		}
@@ -254,10 +248,10 @@ public class HostNamesBruteforcer implements ITool {
 			return false;
 		}
 		// if the domain has ns records, it exists
-		Activator.getInstance().getDomainEntityFactory().createDomain(realm, context.getSpaceId(), domain.toString());
+		Activator.getInstance().getDomainEntityFactory().createDomain(context.getRealm(), context.getSpaceId(), domain.toString());
 		for (int i = 0; i < records.length; i++) {
 			NSRecord ns = (NSRecord) records[i];
-			Activator.getInstance().getDomainEntityFactory().createNSRecord(realm, context.getSpaceId(), domain.toString(), ns.getTarget().toString());
+			Activator.getInstance().getDomainEntityFactory().createNSRecord(context.getRealm(), context.getSpaceId(), domain.toString(), ns.getTarget().toString());
 		}
 		return true;
 	}

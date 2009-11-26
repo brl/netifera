@@ -13,7 +13,6 @@ import org.xbill.DNS.ReverseMap;
 import org.xbill.DNS.Type;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -34,7 +33,6 @@ public class DNSReverseLookup implements ITool {
 	private INameResolver resolver;
 	
 	private IToolContext context;
-	private long realm;
 
 	private AtomicInteger activeRequests;
 	private Queue<Runnable> retryQueue = new LinkedList<Runnable>();
@@ -45,9 +43,6 @@ public class DNSReverseLookup implements ITool {
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
 		final int sendDelay = getSendDelay();
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 		
 		context.setTitle("Reverse lookup");
 		
@@ -62,7 +57,7 @@ public class DNSReverseLookup implements ITool {
 				resolver = Activator.getInstance().getNameResolver();
 			}
 			if (resolver == null) {
-				throw new ToolException("No Name Resolver available on " + probe.getName());
+				throw new ToolException("No Name Resolver available");
 			}
 			
 			activeRequests = new AtomicInteger(0);
@@ -213,7 +208,7 @@ public class DNSReverseLookup implements ITool {
 			context.info(ptr.toString());
 			try {
 				InternetAddress address = InternetAddress.fromARPA(reverseName);
-				Activator.getInstance().getDomainEntityFactory().createPTRRecord(realm, context.getSpaceId(), address, ptr.getTarget().toString());
+				Activator.getInstance().getDomainEntityFactory().createPTRRecord(context.getRealm(), context.getSpaceId(), address, ptr.getTarget().toString());
 				successCount += successCount + 1;
 			} catch(AddressFormatException e) {
 				warnUnknownFormat(reverseName);

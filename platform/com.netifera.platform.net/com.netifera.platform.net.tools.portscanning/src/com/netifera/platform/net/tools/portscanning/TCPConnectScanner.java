@@ -62,7 +62,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 
 						PortSet ports = new PortSet();
 						ports.addPort(locator.getPort());
-						Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(realm, context.getSpaceId(), locator.getAddress(), ports);
+						Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), locator.getAddress(), ports);
 
 						readBanner();
 					}
@@ -113,7 +113,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 						tempBuffer.flip();
 						serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", locator.getPort(), null, tempBuffer);
 						if (serviceInfo != null) {
-							Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), locator, serviceInfo.get("serviceType"), serviceInfo);
+							Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, serviceInfo.get("serviceType"), serviceInfo);
 							done();
 							return;
 						}
@@ -194,7 +194,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 								writeBuffer.rewind();
 								serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", locator.getPort(), writeBuffer, readBuffer);
 								if (serviceInfo != null) {
-									Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), locator, serviceInfo.get("serviceType"), serviceInfo);
+									Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, serviceInfo.get("serviceType"), serviceInfo);
 								}
 								checkUnrecognized();
 								done();

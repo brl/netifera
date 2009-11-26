@@ -27,7 +27,7 @@ public class MSSQLAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	@Override
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
+		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
 		
 		super.authenticationSucceeded(credential);
 	}

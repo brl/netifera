@@ -38,8 +38,8 @@ public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	@Override
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		WebSiteEntity webSiteEntity = Activator.getInstance().getWebEntityFactory().createWebSite(realm, context.getSpaceId(), target.getLocator(), hostname);
-		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), webSiteEntity, up.getUsernameString(), up.getPasswordString());
+		WebSiteEntity webSiteEntity = Activator.getInstance().getWebEntityFactory().createWebSite(context.getRealm(), context.getSpaceId(), target.getLocator(), hostname);
+		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), webSiteEntity, up.getUsernameString(), up.getPasswordString());
 		super.authenticationSucceeded(credential);
 	}
 	

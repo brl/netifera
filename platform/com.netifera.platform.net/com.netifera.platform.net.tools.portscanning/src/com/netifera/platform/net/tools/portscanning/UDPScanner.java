@@ -107,14 +107,14 @@ public class UDPScanner extends AbstractPortscanner {
 				
 				PortSet ports = new PortSet();
 				ports.addPort(peer.getPort());
-				Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(realm, context.getSpaceId(), peer.getAddress(), ports);
+				Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getAddress(), ports);
 				
 				responseBuffer.flip();
 				
 				byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
 				Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp",peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);
 				if (serviceInfo != null) {
-					Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
+					Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
 					context.info(serviceInfo.get("serviceType")+" @ "+peer);
 				} else {
 					context.warning("Unknown service @ " + peer);

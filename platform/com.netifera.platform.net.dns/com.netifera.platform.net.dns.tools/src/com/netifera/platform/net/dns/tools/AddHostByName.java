@@ -6,7 +6,6 @@ import java.util.List;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.TextParseException;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -26,15 +25,10 @@ public class AddHostByName implements ITool {
 	private INameResolver resolver;
 	
 	private IToolContext context;
-	private long realm;
 
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
 
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
-		
 		setupToolOptions();
 
 		context.setTitle("Resolve name "+name);
@@ -42,17 +36,17 @@ public class AddHostByName implements ITool {
 		try {
 			List<String> nameServers = resolver.getNameServersForDomain(name.toString());
 			if (nameServers.size()>0)
-				Activator.getInstance().getDomainEntityFactory().createDomain(realm, context.getSpaceId(), name.toString());
+				Activator.getInstance().getDomainEntityFactory().createDomain(context.getRealm(), context.getSpaceId(), name.toString());
 			List<InternetAddress> addresses = resolver.getAddressesByName(name.toString());
 			for (InternetAddress address: addresses) {
 				context.info(name+" has address "+address);
 	
 				HostEntity entity = null;
 				if (address instanceof IPv6Address) {
-					AAAARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), name.toString(), (IPv6Address)address);
+					AAAARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), name.toString(), (IPv6Address)address);
 					entity = recordEntity.getAddress().getHost();
 				} else {
-					ARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), name.toString(), (IPv4Address)address);
+					ARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), name.toString(), (IPv4Address)address);
 					entity = recordEntity.getAddress().getHost();
 				}
 				entity.addTag("Target");

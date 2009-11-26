@@ -26,10 +26,10 @@ public class FTPAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
+		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
 		String username = up.getUsernameString();
 		if (!username.equals("ftp") && !username.equals("anonymous")) {
-			UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), username);
+			UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getAddress(), username);
 			user.setPassword(up.getPasswordString());
 			user.update();
 		}

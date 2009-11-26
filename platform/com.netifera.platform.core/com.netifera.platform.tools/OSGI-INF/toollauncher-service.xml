@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.tool-launcher">
     <implementation class="com.netifera.platform.tools.internal.ToolLauncher" />
+
+    <reference
+    	name="LOG_MANAGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
      
     <reference
     	name="DISPATCHER"
@@ -24,11 +31,10 @@
         policy="dynamic"
     />
     <reference
-    	name="LOG_MANAGER"
-    	interface="com.netifera.platform.api.log.ILogManager"
-    	bind="setLogManager"
-    	unbind="unsetLogManager"
+        name="PROBE_MANAGER"
+        interface="com.netifera.platform.api.probe.IProbeManagerService"
+        bind="setProbeManagerService"
+        unbind="unsetProbeManagerService"
     />
-   
     
 </component>

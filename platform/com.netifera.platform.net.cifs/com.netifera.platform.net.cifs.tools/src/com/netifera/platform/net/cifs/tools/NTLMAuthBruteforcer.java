@@ -52,9 +52,9 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	@Override
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
+		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
 		
-		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), up.getUsernameString());
+		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getAddress(), up.getUsernameString());
 		user.setPassword(up.getPasswordString());
 		user.update();
 		
@@ -200,7 +200,7 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 								
 								//FIXME should do this only once:
 								
-								InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(realm, context.getSpaceId(), target.getAddress());
+								InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), target.getAddress());
 								addressEntity.addName(machineName);
 								addressEntity.update();
 								

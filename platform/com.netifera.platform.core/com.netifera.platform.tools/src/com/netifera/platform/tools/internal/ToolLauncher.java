@@ -13,6 +13,8 @@ import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessengerException;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
+import com.netifera.platform.api.probe.IProbe;
+import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.api.tasks.ITask;
 import com.netifera.platform.api.tasks.ITaskManagerService;
 import com.netifera.platform.api.tools.ITool;
@@ -23,6 +25,7 @@ public class ToolLauncher {
 	
 	private Map<String, IToolProvider> providerMap = new HashMap<String, IToolProvider>();
 	private ITaskManagerService taskManager;
+	private IProbeManagerService probeManager;
 	private ILogger logger;
 	
 	/* ToolLaunchMessage  handler  */
@@ -65,7 +68,10 @@ public class ToolLauncher {
 	}
 	
 	private ITask createTaskForTool(IMessenger messenger, ToolLaunchMessage message, ITool tool) {
-		final ToolContext ctx = new ToolContext(tool, message.getConfiguration(), message.getSpaceId());
+		//FIXME hardcode local probe realm
+		IProbe probe = probeManager.getLocalProbe();
+		long realm = probe.getEntity().getId();
+		final ToolContext ctx = new ToolContext(tool, message.getConfiguration(), realm, message.getSpaceId());
 		return taskManager.createTask(ctx, messenger);
 	}
 	
@@ -97,16 +103,6 @@ public class ToolLauncher {
 	}
 
 	protected void unsetTaskManagerService(ITaskManagerService taskManager) {
-		
-	}
-
-	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Tool Launcher");
-		logger.enableDebug();
-	}
-	
-	protected void unsetLogManager(ILogManager logManager) {
-		logger = null;
 	}
 
 	protected void setDispatcher(IMessageDispatcherService dispatcherService) {
@@ -114,11 +110,9 @@ public class ToolLauncher {
 	}
 
 	protected void unsetDispatcher(IMessageDispatcherService dispatcherService) {
-		
 	}
 
 	protected void registerToolProvider(IToolProvider toolProvider) {
-	
 		for(String name : toolProvider.getProvidedToolClassNames()) {
 			if(providerMap.containsKey(name)) {
 				logger.warning("Tool provider is trying to register duplicate class: " + name);
@@ -134,7 +128,21 @@ public class ToolLauncher {
 				logger.warning("Trying to remove unregistered tool class: " + className);
 			}
 		}
-		
 	}
 
+	protected void setProbeManagerService(IProbeManagerService probeManager) {
+		this.probeManager = probeManager;
+	}
+
+	protected void unsetProbeManagerService(IProbeManagerService probeManager) {
+	}
+
+	protected void setLogManager(ILogManager logManager) {
+		logger = logManager.getLogger("Tool Launcher");
+		logger.enableDebug();
+	}
+	
+	protected void unsetLogManager(ILogManager logManager) {
+		logger = null;
+	}
 }

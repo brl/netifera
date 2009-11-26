@@ -3,7 +3,6 @@ package com.netifera.platform.net.http.tools;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -23,10 +22,6 @@ public class WebCrawler implements ITool {
 		context.setTitle("Web crawler");
 		setupToolOptions();
 
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		long realm = probe.getEntity().getId();
-		
 		String host = base.getHost();
 		if (host != null && host.compareTo(http.getURIHost()) == 0) {
 			context.setTitle("Crawl "+base);
@@ -37,7 +32,7 @@ public class WebCrawler implements ITool {
 		try {
 			WebSpider spider = new WebSpider();
 			spider.setServices(context.getLogger(), Activator.getInstance().getWebEntityFactory(), Activator.getInstance().getNameResolver());
-			spider.setRealm(realm);
+			spider.setRealm(context.getRealm());
 			spider.setSpaceId(context.getSpaceId());
 			spider.addTarget(http, base.getHost());
 			spider.visit(base);

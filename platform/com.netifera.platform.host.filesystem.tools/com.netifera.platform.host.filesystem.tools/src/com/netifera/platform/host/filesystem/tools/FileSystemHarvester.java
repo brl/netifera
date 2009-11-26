@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -24,15 +23,11 @@ public class FileSystemHarvester implements ITool {
 
 		context.setTitle("File System Harvester");
 		setupToolOptions();
-
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		long realm = probe.getEntity().getId();
 		
 		try {
 			FileSystemSpider spider = new FileSystemSpider(fileSystem);
 			spider.setLogger(context.getLogger());
-			spider.setRealm(realm);
+			spider.setRealm(context.getRealm());
 			spider.setSpaceId(context.getSpaceId());
 			spider.setHostAddress((InternetAddress) context.getConfiguration().get("host"));
 			

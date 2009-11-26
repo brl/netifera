@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -14,9 +13,9 @@ import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.net.ssh.internal.tools.Activator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.probebuild.api.IProbeConfiguration;
 import com.netifera.platform.probebuild.api.IProbeDeployable;
+import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.SCPClient;
 import com.trilead.ssh2.Session;
@@ -24,7 +23,6 @@ import com.trilead.ssh2.Session;
 public class SSHProbeDeployer implements ITool {
 
 	private IToolContext context;
-	private long realm;
 
 	private TCPSocketLocator target;
 	private Credential credential;
@@ -34,10 +32,6 @@ public class SSHProbeDeployer implements ITool {
 	
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
-
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 
 		context.setTitle("Deploy Probe via SSH");
 		
@@ -91,7 +85,7 @@ public class SSHProbeDeployer implements ITool {
 				
 //				context.info("Connecting to the remote probe");
 				
-				InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(realm, context.getSpaceId(), target.getAddress());
+				InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), target.getAddress());
 				String channelConfig = "tcplisten:"+target.getAddress()+":31337";
 				Activator.getInstance().getProbeManager().createProbe(addressEntity.getHost(), probeName != null && probeName.length()>0 ? probeName : "Remote Probe", channelConfig, context.getSpaceId());
 			} finally {
