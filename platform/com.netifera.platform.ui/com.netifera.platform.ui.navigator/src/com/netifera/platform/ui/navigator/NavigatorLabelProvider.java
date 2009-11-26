@@ -10,8 +10,8 @@ import com.netifera.platform.ui.internal.navigator.Activator;
 
 public class NavigatorLabelProvider extends ColumnLabelProvider {
 
-	private final static String OPEN_FOLDER = "icons/open.gif";
-	private final static String CLOSED_FOLDER = "icons/closed.gif";
+	private final static String SPACE_OPENED = "icons/space.png";
+	private final static String SPACE_CLOSED = "icons/space_gray.png";
 	
 	private final static String PROBE_DISCONNECTED = "icons/probe_disconnected.png";
 	private final static String PROBE_CONNECTING = "icons/probe_connecting.png";
@@ -39,9 +39,9 @@ public class NavigatorLabelProvider extends ColumnLabelProvider {
 		if (element instanceof ISpace) {
 			ISpace space = (ISpace) element;
 			if(space.isOpened()) {
-				return Activator.getInstance().getImageCache().get(OPEN_FOLDER);
+				return Activator.getInstance().getImageCache().get(SPACE_OPENED);
 			} else {
-				return Activator.getInstance().getImageCache().get(CLOSED_FOLDER);
+				return Activator.getInstance().getImageCache().get(SPACE_CLOSED);
 			}
 		}
 		if (element instanceof IProbe) {
