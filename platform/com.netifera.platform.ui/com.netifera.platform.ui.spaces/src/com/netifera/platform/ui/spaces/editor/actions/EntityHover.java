@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.actions;
+package com.netifera.platform.ui.spaces.editor.actions;
 
 import java.util.List;
 import java.util.Set;
@@ -58,9 +58,9 @@ public class EntityHover extends PopupDialog {
 
 	public static Image getActionImage(IAction action) {
 		if (action.getImageDescriptor() != null) {
-			return Activator.getDefault().getImageCache().get(action.getImageDescriptor());
+			return Activator.getInstance().getImageCache().get(action.getImageDescriptor());
 		} else {
-			return Activator.getDefault().getImageCache().get("icons/action.png");
+			return Activator.getInstance().getImageCache().get("icons/action.png");
 		}
 	}
 	
@@ -91,13 +91,13 @@ public class EntityHover extends PopupDialog {
 	}
 	
 	private IProbe getCurrentProbe() {
-		return Activator.getDefault().getProbeManager().getProbeById(space.getProbeId());
+		return Activator.getInstance().getProbeManager().getProbeById(space.getProbeId());
 	}
 	
 	private void addProbeConnectAction() {
 		toolkit.createLabel(body, "The probe for this space is currently disconnected so no actions are available.");
 		final ImageHyperlink link = toolkit.createImageHyperlink(body, SWT.NONE);
-		link.setImage(Activator.getDefault().getImageCache().get("icons/action.png"));
+		link.setImage(Activator.getInstance().getImageCache().get("icons/action.png"));
 		link.setText("Connect To Probe");
 		link.addHyperlinkListener(new HyperlinkAdapter() {
 			public void linkActivated(HyperlinkEvent e) {
@@ -143,10 +143,10 @@ public class EntityHover extends PopupDialog {
 //		form.setFont(JFaceResources.getDefaultFont());
 		form.setFont(JFaceResources.getDialogFont());
 		
-		Image icon = Activator.getDefault().getLabelProvider().getImage(entity);
+		Image icon = Activator.getInstance().getLabelProvider().getImage(entity);
 		form.setImage(icon);
 		
-		String text = Activator.getDefault().getLabelProvider().getText(entity);
+		String text = Activator.getInstance().getLabelProvider().getText(entity);
 		form.setText(text);
 		
 		form.setSeparatorVisible(true);
@@ -182,7 +182,7 @@ public class EntityHover extends PopupDialog {
 			addSeparator();
 		}
 		
-		String information = Activator.getDefault().getLabelProvider().getInformation(entity);
+		String information = Activator.getInstance().getLabelProvider().getInformation(entity);
 		if (information != null && information.length()>0) {
 			FormText informationForm = toolkit.createFormText(body, true);
 			informationForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -212,8 +212,8 @@ public class EntityHover extends PopupDialog {
 		
 		ImageHyperlink link = toolkit.createImageHyperlink(c, SWT.NONE);
 		link.setBackground(darkerBackground);
-		link.setImage(Activator.getDefault().getImageCache().get("icons/delete.png"));
-		link.setHoverImage(Activator.getDefault().getImageCache().get("icons/delete_hover.png"));
+		link.setImage(Activator.getInstance().getImageCache().get("icons/delete.png"));
+		link.setHoverImage(Activator.getInstance().getImageCache().get("icons/delete_hover.png"));
 		GridData data = new GridData();
 		data.verticalAlignment = SWT.TOP;
 		link.setLayoutData(data);
@@ -230,12 +230,12 @@ public class EntityHover extends PopupDialog {
 	
 	private void addActions() {
 		try {
-			List<IAction> actions = Activator.getDefault().getActionProvider().getActions(entity);
+			List<IAction> actions = Activator.getInstance().getActionProvider().getActions(entity);
 //			toolkit.createLabel(body, actions.size()==0 ? "No actions available for this entity." : actions.size()+(actions.size()==1 ? " action":" actions")+" available:");
 			for (IAction action: actions)
 				addAction(action, body, false);
 
-			List<IAction> quickActions = Activator.getDefault().getActionProvider().getQuickActions(entity);
+			List<IAction> quickActions = Activator.getInstance().getActionProvider().getQuickActions(entity);
 			if (!(entity instanceof FolderEntity)) {
 				IAction addTagAction = new SpaceAction("Add Tag") {
 					public void run() {
@@ -244,7 +244,7 @@ public class EntityHover extends PopupDialog {
 						EntityHover.this.close();
 					}
 				};
-				addTagAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/tag_blue_add_16x16.png"));
+				addTagAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/tag_blue_add_16x16.png"));
 				quickActions.add(addTagAction);
 				
 				IAction commentAction = new SpaceAction("Comment") {
@@ -254,7 +254,7 @@ public class EntityHover extends PopupDialog {
 						EntityHover.this.close();
 					}
 				};
-				commentAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/comment_edit_16x16.png"));
+				commentAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/comment_edit_16x16.png"));
 				quickActions.add(commentAction);
 
 				IAction removeAction = new SpaceAction("Remove From Space") {
@@ -262,7 +262,7 @@ public class EntityHover extends PopupDialog {
 						getSpace().removeEntity(entity.getRealEntity());
 					}
 				};
-				removeAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/delete_hover.png"));
+				removeAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/delete_hover.png"));
 				quickActions.add(removeAction);
 			}
 			

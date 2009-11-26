@@ -31,7 +31,7 @@ public class SpaceTreeUpdater {
 //		this.viewer = treeViewer;
 		this.updater = StructuredViewerUpdater.get(treeViewer);
 		List<ISemanticLayer> layerProviders = new ArrayList<ISemanticLayer>();
-		for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers())
+		for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers())
 			if (layerProvider.isDefaultEnabled())
 				layerProviders.add(layerProvider);
 		this.treeBuilder = new TreeBuilder(layerProviders);

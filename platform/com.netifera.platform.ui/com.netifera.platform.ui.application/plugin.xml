@@ -19,6 +19,12 @@
             id="com.netifera.platform.ui.perspectives.tool"
             name="Tools">
       </perspective>
+      <perspective
+            class="com.netifera.platform.ui.application.Perspective"
+            icon="icons/internet_perspective.png"
+            id="com.netifera.platform.ui.perspectives.internet"
+            name="Internet">
+      </perspective>
    </extension>
    <extension
          id="product"
@@ -194,6 +200,14 @@
 	  <category
             id="com.netifera.platform.ui.category.tasks"
             name="Tasks">
+      </category>
+      <category
+            id="com.netifera.platform.ui.category.host"
+            name="Host">
+      </category>
+      <category
+            id="com.netifera.platform.ui.category.visualizations"
+            name="Visualizations">
       </category>
    </extension>
 </plugin>

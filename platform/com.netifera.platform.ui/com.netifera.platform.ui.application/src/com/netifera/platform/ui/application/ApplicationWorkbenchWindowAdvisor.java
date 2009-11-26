@@ -42,8 +42,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		// Display all Perspectives by default
 		PlatformUI.getPreferenceStore().setValue(
 				IWorkbenchPreferenceConstants.PERSPECTIVE_BAR_EXTRAS,
-				Perspective.ID + ", com.netifera.platform.ui.perspectives.sniffing");
+				Perspective.ID + ", com.netifera.platform.ui.perspectives.internet, com.netifera.platform.ui.perspectives.sniffing");
     }
+    
     /* 
      * Called when the window is closed with the top-right corner X or keyboard shortcut
      */

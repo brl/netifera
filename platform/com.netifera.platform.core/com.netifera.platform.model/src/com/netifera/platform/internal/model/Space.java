@@ -23,6 +23,7 @@ import com.netifera.platform.model.ProbeEntity;
 
 public class Space implements ISpace {
 	private final static int BACKGROUND_COMMIT_INTERVAL = 5000;
+	
 	/* Unique ID value for this space */
 	private final long id;
 	
@@ -39,8 +40,8 @@ public class Space implements ISpace {
 	private final List<IEntity> spaceEntities;
 	
 	/* The list of tasks which have been executed in this space */
-	
 	private final List<ITaskRecord> spaceTasks;
+	
 	private final SpaceManager manager;
 	private transient boolean isOpened;
 	

@@ -23,7 +23,7 @@ public class SpaceEditorInput implements IEditorInput {
 	}
 	
 	private IProbe findProbeForSpace(ISpace space) {
-		final IProbeManagerService probeManager = Activator.getDefault().getProbeManager();
+		final IProbeManagerService probeManager = Activator.getInstance().getProbeManager();
 		if(probeManager == null) {
 			throw new RuntimeException("Cannot create editor because probe manager service is not available");
 		}

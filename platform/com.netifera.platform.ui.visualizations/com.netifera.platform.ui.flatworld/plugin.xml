@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            category="com.netifera.platform.ui.category.General"
+            category="com.netifera.platform.ui.category.visualizations"
             class="com.netifera.platform.ui.flatworld.FlatWorldView"
             icon="icons/world.png"
             id="com.netifera.platform.views.flatworld"
@@ -16,14 +16,8 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="*">
-         <view
-               id="com.netifera.platform.views.flatworld"
-               minimized="false"
-               ratio="0.55"
-               relationship="fast"
-               relative="com.netifera.platform.ui.views.Tasks">
-         </view>
+            targetID="com.netifera.platform.ui.perspectives.internet">
+         <viewShortcut id="com.netifera.platform.views.flatworld"/>
       </perspectiveExtension>
    </extension>
 

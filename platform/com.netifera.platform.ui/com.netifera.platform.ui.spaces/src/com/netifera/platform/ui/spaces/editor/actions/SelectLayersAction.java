@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.actions;
+package com.netifera.platform.ui.spaces.editor.actions;
 
 import java.util.List;
 
@@ -14,32 +14,33 @@ import org.eclipse.swt.widgets.MenuItem;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
-public abstract class ChooseLayerAction extends Action {
+public abstract class SelectLayersAction extends Action {
 	
-	public ChooseLayerAction(String text, ImageDescriptor icon) {
+	public SelectLayersAction(String text, ImageDescriptor icon) {
 		super(text, SWT.DROP_DOWN);
 		setImageDescriptor(icon);
 	}
-
-	public ChooseLayerAction() {
-		this("Choose Layer", Activator.getDefault().getImageCache().getDescriptor("icons/layers_16x16.png"));
+	
+	public SelectLayersAction() {
+		this("Select Layers", Activator.getInstance().getImageCache().getDescriptor("icons/layers_16x16.png"));
 	}
-
+	
 	@Override
 	public void run() {
+		final List<ISemanticLayer> activeLayerProviders = getActiveLayers();
         Menu menu = new Menu(Display.getDefault().getActiveShell(), SWT.POP_UP);
 		for (final ISemanticLayer provider: getLayers()) {
 			if (provider.getName() == null)
 				continue;
-			MenuItem item = new MenuItem(menu, SWT.RADIO);
-			item.setSelection(getActiveLayer() == provider);
+			MenuItem item = new MenuItem(menu, SWT.CHECK);
+			item.setSelection(activeLayerProviders.contains(provider));
 	        item.setText(provider.getName());
 	        item.addListener(SWT.Selection, new Listener() {
 	          public void handleEvent(Event e) {
-	        	  if (getActiveLayer() == provider) {
-	        		  setActiveLayer(null);
+	        	  if (activeLayerProviders.contains(provider)) {
+	        		  disableLayer(provider);
 	        	  } else {
-	        		  setActiveLayer(provider);
+	        		  enableLayer(provider);
 	        	  }
 	          }
 	        });
@@ -49,6 +50,7 @@ public abstract class ChooseLayerAction extends Action {
 	}
 	
 	protected abstract List<ISemanticLayer> getLayers();
-	protected abstract ISemanticLayer getActiveLayer();
-	protected abstract void setActiveLayer(ISemanticLayer provider);
+	protected abstract List<ISemanticLayer> getActiveLayers();
+	protected abstract void enableLayer(ISemanticLayer provider);
+	protected abstract void disableLayer(ISemanticLayer provider);
 }

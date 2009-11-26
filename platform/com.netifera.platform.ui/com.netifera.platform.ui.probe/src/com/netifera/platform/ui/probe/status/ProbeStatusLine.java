@@ -8,7 +8,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -21,7 +20,7 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.probe.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
-import com.netifera.platform.ui.spaces.actions.EntityHover;
+import com.netifera.platform.ui.spaces.editor.actions.EntityHover;
 
 public class ProbeStatusLine extends ControlContribution {
 

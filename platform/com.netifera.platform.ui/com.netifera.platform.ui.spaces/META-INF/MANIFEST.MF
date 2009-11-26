@@ -32,6 +32,8 @@ Import-Package: com.netifera.platform.api.events,
  org.eclipse.ui.forms.widgets
 Export-Package: com.netifera.platform.ui.spaces,
  com.netifera.platform.ui.spaces.actions,
+ com.netifera.platform.ui.spaces.editor,
+ com.netifera.platform.ui.spaces.editor.actions,
  com.netifera.platform.ui.spaces.inputbar,
  com.netifera.platform.ui.spaces.tree,
  com.netifera.platform.ui.spaces.visualizations

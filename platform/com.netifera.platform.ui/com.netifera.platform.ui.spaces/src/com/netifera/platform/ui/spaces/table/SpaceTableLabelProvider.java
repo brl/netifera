@@ -18,7 +18,7 @@ public class SpaceTableLabelProvider extends LabelProvider implements ITableLabe
 	private final IEntityLabelProviderService entityLabelProvider;
 	
 	public SpaceTableLabelProvider() {
-		entityLabelProvider = Activator.getDefault().getLabelProvider();
+		entityLabelProvider = Activator.getInstance().getLabelProvider();
 	}
 	
 	@Override

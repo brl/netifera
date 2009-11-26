@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.ui.spaces.actions.EntityHover;
+import com.netifera.platform.ui.spaces.editor.actions.EntityHover;
 import com.netifera.platform.ui.spaces.table.SpaceTableContentProvider;
 import com.netifera.platform.ui.spaces.table.SpaceTableLabelProvider;
 import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;

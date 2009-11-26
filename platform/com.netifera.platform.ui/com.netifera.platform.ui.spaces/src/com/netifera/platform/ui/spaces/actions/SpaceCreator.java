@@ -11,7 +11,7 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
-import com.netifera.platform.ui.spaces.editors.SpaceEditor;
+import com.netifera.platform.ui.spaces.editor.SpaceEditor;
 
 public class SpaceCreator {
 	private final IWorkbenchWindow window;
@@ -37,7 +37,7 @@ public class SpaceCreator {
 	 * If there is an active space, copy the probe from that space.  Otherwise use local probe.
 	 */
 	private IProbe getProbeForNewSpace() {
-		final IProbeManagerService probeManager = Activator.getDefault().getProbeManager();
+		final IProbeManagerService probeManager = Activator.getInstance().getProbeManager();
 		final IProbe probe = getProbeForActiveEditor(probeManager);
 		if(probe == null) 
 			return probeManager.getLocalProbe();
@@ -60,7 +60,7 @@ public class SpaceCreator {
 	}
 	
 	private ISpace openSpace(IProbe probe) {
-		final IWorkspace workspace = Activator.getDefault().getModel().getCurrentWorkspace();
+		final IWorkspace workspace = Activator.getInstance().getModel().getCurrentWorkspace();
 		final ISpace space = workspace.createSpace(probe.getEntity(), probe);
 		space.open();
 		return space;

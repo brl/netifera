@@ -12,7 +12,7 @@ public class SpaceTreeLabelProvider extends ColumnLabelProvider {
 	private final IEntityLabelProviderService modelLabelProvider;
 	
 	public SpaceTreeLabelProvider() {
-		modelLabelProvider = Activator.getDefault().getLabelProvider();
+		modelLabelProvider = Activator.getInstance().getLabelProvider();
 	}
 	
 	@Override

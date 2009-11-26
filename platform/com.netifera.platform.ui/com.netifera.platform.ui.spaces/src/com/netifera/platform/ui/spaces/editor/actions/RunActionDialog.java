@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.actions;
+package com.netifera.platform.ui.spaces.editor.actions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class RunActionDialog extends PopupDialog {
 	private final ISpaceAction action;
 	private final List<OptionWidget> widgets = new ArrayList<OptionWidget>();
 	
-	private Image runImage = Activator.getDefault().getImageCache().get("icons/run_exc_16x16.png");
+	private Image runImage = Activator.getInstance().getImageCache().get("icons/run_exc_16x16.png");
 
 	private ImageHyperlink runLink;
 	

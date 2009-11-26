@@ -45,10 +45,10 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.netifera.platform.ui.spaces";
 
 	// The shared instance
-	private static Activator plugin;
+	private static Activator instance;
 
-	public static Activator getDefault() {
-		return plugin;
+	public static Activator getInstance() {
+		return instance;
 	}
 
 	
@@ -102,7 +102,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		instance = this;
 
 		imageCache = new ImageCache(PLUGIN_ID);
 		
@@ -268,7 +268,7 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		imageCache.dispose();
 		imageCache = null;
-		plugin = null;
+		instance = null;
 		super.stop(context);
 	}
 

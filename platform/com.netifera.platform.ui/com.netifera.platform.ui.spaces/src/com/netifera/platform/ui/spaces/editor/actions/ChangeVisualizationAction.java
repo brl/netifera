@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.actions;
+package com.netifera.platform.ui.spaces.editor.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.SWT;
@@ -9,14 +9,14 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import com.netifera.platform.ui.internal.spaces.Activator;
-import com.netifera.platform.ui.spaces.editors.SpaceEditor;
+import com.netifera.platform.ui.spaces.editor.SpaceEditor;
 
 public class ChangeVisualizationAction extends Action {
 	private SpaceEditor editor;
 
 	public ChangeVisualizationAction(SpaceEditor editor) {
 		super("Change Visualization", SWT.DROP_DOWN);
-		setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/visualization.png"));
+		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/visualization.png"));
 		
 		this.editor = editor;
 	}
@@ -24,7 +24,7 @@ public class ChangeVisualizationAction extends Action {
 	@Override
 	public void run() {
         Menu menu = new Menu(Display.getDefault().getActiveShell(), SWT.POP_UP);
-		for (final String name: Activator.getDefault().getVisualizationFactory().getVisualizationNames()) {
+		for (final String name: Activator.getInstance().getVisualizationFactory().getVisualizationNames()) {
 			MenuItem item = new MenuItem(menu, SWT.RADIO);
 			item.setSelection(name.equals(editor.getVisualization()));
 	        item.setText(name);

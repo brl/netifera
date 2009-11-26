@@ -78,11 +78,9 @@ public class ProbeListView extends ViewPart {
 		setActionEnableStates();
 		
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-
 			public void selectionChanged(SelectionChangedEvent event) {
 				setActionEnableStates();
 			}
-			
 		});
 	}
 	

@@ -5,7 +5,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-public class NewSpace implements IWorkbenchWindowActionDelegate {
+public class NewSpaceDelegate implements IWorkbenchWindowActionDelegate {
 
 	private SpaceCreator creator;
 	public void dispose() {

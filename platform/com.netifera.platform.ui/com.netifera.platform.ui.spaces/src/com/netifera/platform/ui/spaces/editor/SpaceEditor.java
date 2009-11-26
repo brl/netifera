@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.editors;
+package com.netifera.platform.ui.spaces.editor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IToolBarManager;
@@ -29,7 +29,7 @@ import com.netifera.platform.api.model.SpaceNameChangeEvent;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.spaces.ISpaceEditor;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
-import com.netifera.platform.ui.spaces.actions.ChangeVisualizationAction;
+import com.netifera.platform.ui.spaces.editor.actions.ChangeVisualizationAction;
 import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
 import com.netifera.platform.ui.util.SelectionProviderProxy;
 
@@ -116,7 +116,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 
 		IToolBarManager contributions = new ToolBarManager(toolBar);
 		contributions.add(new ChangeVisualizationAction(this));
-		currentVisualization = Activator.getDefault().getVisualizationFactory().create(visualizationName, space);
+		currentVisualization = Activator.getInstance().getVisualizationFactory().create(visualizationName, space);
 		viewer = currentVisualization.createViewer(parent);
 		
 		/* set the visualization provide viewer as selection provider*/

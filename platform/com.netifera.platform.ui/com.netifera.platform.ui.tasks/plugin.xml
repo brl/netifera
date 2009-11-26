@@ -41,7 +41,17 @@
                relative="com.netifera.platform.ui.views.Tasks"
                visible="false">
          </view>
-	      </perspectiveExtension>
+	  </perspectiveExtension>
+      <perspectiveExtension
+            targetID="*">
+         <view
+               id="com.netifera.platform.ui.views.Tasks"
+               ratio="0.55"
+               relationship="fast"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <viewShortcut id="com.netifera.platform.ui.views.Tasks"/>
+	  </perspectiveExtension>
    </extension>
 
 </plugin>

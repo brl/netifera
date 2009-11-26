@@ -39,8 +39,8 @@ import com.netifera.platform.ui.api.actions.ISpaceAction;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.dnd.EntityTransfer;
 import com.netifera.platform.ui.internal.spaces.Activator;
-import com.netifera.platform.ui.spaces.actions.EntityHover;
-import com.netifera.platform.ui.spaces.actions.SelectLayersAction;
+import com.netifera.platform.ui.spaces.editor.actions.EntityHover;
+import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeContentProvider;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeLabelProvider;
 import com.netifera.platform.ui.spaces.tree.TreeBuilder;
@@ -81,7 +81,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 			@Override
 			protected List<ISemanticLayer> getLayers() {
 				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
-				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+				for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers()) {
 					if (layerProvider instanceof ITreeLayer)
 						answer.add(layerProvider);
 				}
@@ -89,7 +89,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 			}
 		});
 
-		contributions.add(new SelectLayersAction("Select Folders", Activator.getDefault().getImageCache().getDescriptor("icons/folders.png")) {
+		contributions.add(new SelectLayersAction("Select Folders", Activator.getInstance().getImageCache().getDescriptor("icons/folders.png")) {
 			@Override
 			protected void disableLayer(ISemanticLayer provider) {
 				contentProvider.removeLayer(provider);
@@ -110,7 +110,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 			@Override
 			protected List<ISemanticLayer> getLayers() {
 				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
-				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+				for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers()) {
 					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
@@ -247,7 +247,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 					}
 					return true;
 				} else if (data instanceof String) {
-					IInputBarActionProviderService actionProvider = Activator.getDefault().getInputBarActionProvider();
+					IInputBarActionProviderService actionProvider = Activator.getInstance().getInputBarActionProvider();
 					for (String line: ((String) data).split("[\\r\\n]+")) {
 						List<IAction> actions = actionProvider.getActions(space.getProbeId(), space.getId(), line);
 						if (actions.size() > 0) {

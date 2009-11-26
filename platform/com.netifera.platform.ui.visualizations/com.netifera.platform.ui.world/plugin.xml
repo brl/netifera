@@ -5,13 +5,21 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            category="com.netifera.platform.ui.category.General"
+            category="com.netifera.platform.ui.category.visualizations"
             class="com.netifera.platform.ui.world.GlobeWorldView"
             icon="icons/world.png"
             id="com.netifera.platform.views.world3d"
             name="World 3D"
             restorable="true">
       </view>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="com.netifera.platform.ui.perspectives.internet">
+         <viewShortcut id="com.netifera.platform.views.world3d"/>
+      </perspectiveExtension>
    </extension>
 
 </plugin>

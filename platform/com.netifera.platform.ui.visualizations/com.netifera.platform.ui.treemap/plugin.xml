@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            category="com.netifera.platform.ui.category.General"
+            category="com.netifera.platform.ui.category.visualizations"
             class="com.netifera.platform.ui.treemap.TreeMapView"
             icon="icons/treemap.png"
             id="com.netifera.platform.views.treemap"
@@ -15,13 +15,21 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="*">
+            targetID="com.netifera.platform.ui.perspectives.internet">
+         <viewShortcut id="com.netifera.platform.views.treemap"/>
+<!-- WTF if i put this two views layouts in two different plugins it doesnt work,
+		i had to put them together in this plugin to make it work properly -->
          <view
                id="com.netifera.platform.views.treemap"
-               minimized="false"
                ratio="0.55"
-               relationship="fast"
-               relative="com.netifera.platform.ui.views.Tasks">
+               relationship="right"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="com.netifera.platform.views.flatworld"
+               ratio="0.55"
+               relationship="bottom"
+               relative="com.netifera.platform.views.treemap">
          </view>
       </perspectiveExtension>
    </extension>

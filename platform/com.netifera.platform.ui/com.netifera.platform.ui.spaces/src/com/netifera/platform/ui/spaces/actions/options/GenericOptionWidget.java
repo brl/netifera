@@ -53,7 +53,7 @@ public class GenericOptionWidget extends OptionWidget {
 				entities.add(entity);
 		}
 		for (IEntity e: entities) {
-			combo.add(Activator.getDefault().getLabelProvider().getFullText((IShadowEntity)e));
+			combo.add(Activator.getInstance().getLabelProvider().getFullText((IShadowEntity)e));
 		}
 		
 		toolkit.paintBordersFor(area);

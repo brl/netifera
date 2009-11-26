@@ -14,7 +14,7 @@ import com.netifera.platform.ui.internal.spaces.Activator;
 public class InputBar extends AbstractInputBar {
 	
 	public InputBar(String id) {
-		super(id, Activator.getDefault().getLogManager().getLogger("Input Bar"));
+		super(id, Activator.getInstance().getLogManager().getLogger("Input Bar"));
 	}
 
 	protected String getDefaultToolTipText() {
@@ -29,13 +29,13 @@ public class InputBar extends AbstractInputBar {
 		ISpace space = getActiveSpace();
 		if(space == null) return Collections.emptyList();
 		
-		IProbe probe = Activator.getDefault().getProbeManager().getProbeById(space.getProbeId());
+		IProbe probe = Activator.getInstance().getProbeManager().getProbeById(space.getProbeId());
 		if(probe == null) {
 			logger.warning("No probe found for probe id = " + space.getProbeId());
 			return Collections.emptyList();
 		}
 		
-		final IInputBarActionProviderService actionProvider = Activator.getDefault().getInputBarActionProvider();
+		final IInputBarActionProviderService actionProvider = Activator.getInstance().getInputBarActionProvider();
 		long realm = probe.getEntity().getId();
 		return actionProvider.getActions(realm, space.getId(), content);
 	}

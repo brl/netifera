@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.editors;
+package com.netifera.platform.ui.spaces.editor;
 
 import java.io.Serializable;
 import java.util.Comparator;
