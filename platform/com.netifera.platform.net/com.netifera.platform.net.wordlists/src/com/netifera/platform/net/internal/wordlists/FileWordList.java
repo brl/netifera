@@ -35,7 +35,7 @@ public class FileWordList implements IWordList {
 			return new FiniteIterable<String>() {
 				Integer itemCount = null;
 				
-				public int itemCount() {
+				public int size() {
 					if (itemCount != null)
 						return itemCount;
 					itemCount = 0;

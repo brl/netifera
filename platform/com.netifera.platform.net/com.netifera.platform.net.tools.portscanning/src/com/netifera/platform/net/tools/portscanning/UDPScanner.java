@@ -38,7 +38,7 @@ public class UDPScanner extends AbstractPortscanner {
 	@Override
 	protected void scannerRun() throws ToolException {
 		context.setTitle("UDP scan "+targetNetwork);
-		context.setTotalWork(targetNetwork.itemCount()*targetPorts.itemCount()+1); //+1 in order to account for waiting responses after sending all requests
+		context.setTotalWork(targetNetwork.size()*targetPorts.size()+1); //+1 in order to account for waiting responses after sending all requests
 		try {
 			channel = Activator.getInstance().getSocketEngine().openUDP();
 //			channel.setReuseAddress(true);

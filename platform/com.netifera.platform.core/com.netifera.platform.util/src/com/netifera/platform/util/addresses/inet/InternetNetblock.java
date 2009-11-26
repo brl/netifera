@@ -235,14 +235,8 @@ public abstract class InternetNetblock implements INetblock<InternetAddress>,
 	
 	//public abstract boolean isMulticast();
 	
-	public IndexedIterable<InternetAddress> getIndexedIterable() {
-		if (!isIndexedIterable()) {
-			return null;
-		}
-		return this;
-	}
-	
 	public Iterator<InternetAddress> iterator() {
+		//FIXME what if the netblock is too big for a SequentialIterator?
 		return new SequentialIterator<InternetAddress>(this);
 	}
 }

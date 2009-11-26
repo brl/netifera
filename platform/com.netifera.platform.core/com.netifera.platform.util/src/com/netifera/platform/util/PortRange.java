@@ -73,14 +73,14 @@ public class PortRange implements Comparable<PortRange>, IndexedIterable<Integer
 		return 0;
 	}
 
-	public Integer itemAt(final int index) {
-		if (index < 0 || index >= itemCount()) {
+	public Integer get(final int index) {
+		if (index < 0 || index >= size()) {
 			throw new IndexOutOfBoundsException();
 		}
 		return start + index;
 	}
 
-	public int itemCount() {
+	public int size() {
 		return end - start + 1;
 	}
 

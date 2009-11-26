@@ -76,7 +76,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 						} else if (e instanceof NoRouteToHostException || e instanceof SocketException) {
 							markTargetBad(index, new Runnable() {
 								public void run() {
-									context.worked(targetPorts.itemCount()-1); //XXX is this number ok? might not be the first port we scan
+									context.worked(targetPorts.size()-1); //XXX is this number ok? might not be the first port we scan
 //									context.debug("Skipping unreachable host "+locator.getAddress()+", "+e.getMessage());
 								}
 							});
@@ -255,22 +255,22 @@ public class TCPConnectScanner extends AbstractPortscanner {
 	protected void scannerRun() {
 		outstandingConnects = new AtomicInteger(0);
 
-		int hostCount = targetNetwork.itemCount();
+		int hostCount = targetNetwork.size();
 		badHostSet = new BitSet(hostCount);
 		
-		firstPort = targetPorts.contains(80) ? 80 : targetPorts.itemAt(0);
+		firstPort = targetPorts.contains(80) ? 80 : targetPorts.get(0);
 		context.setTitle("TCP connect scan "+targetNetwork);
 		context.setStatus("Scanning port "+firstPort);
-		context.setTotalWork(targetNetwork.itemCount()*targetPorts.itemCount());
+		context.setTotalWork(targetNetwork.size()*targetPorts.size());
 		
 		try {
 			context.info("Scanning port "+firstPort);
 			if (scanFirstPort(firstPort) == false)
 				return;
 
-			if (targetPorts.itemCount() > 1) {
+			if (targetPorts.size() > 1) {
 				context.info("Scanning the rest of the ports");
-				for (int i = 0; i < targetNetwork.itemCount(); i++)
+				for (int i = 0; i < targetNetwork.size(); i++)
 					if (scanHost(i) == false)
 						return;
 			}
@@ -303,8 +303,8 @@ public class TCPConnectScanner extends AbstractPortscanner {
 	}
 
 	private boolean scanFirstPort(final int port) throws InterruptedException {
-		for (int i = 0; i < targetNetwork.itemCount(); i++) {
-			final TCPSocketLocator locator = new TCPSocketLocator(targetNetwork.itemAt(i),port);
+		for (int i = 0; i < targetNetwork.size(); i++) {
+			final TCPSocketLocator locator = new TCPSocketLocator(targetNetwork.get(i),port);
 			try {
 				ActiveServiceDetector detector = new ActiveServiceDetector(locator, i);
 				detector.connect();
@@ -313,7 +313,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			} catch (SocketException e) {
 				markTargetBad(i, new Runnable() {
 					public void run() {
-						context.worked(targetPorts.itemCount()-1); // remaining ports
+						context.worked(targetPorts.size()-1); // remaining ports
 //						context.debug("Skipping unreachable host " + locator.getAddress());
 					}
 				});
@@ -330,15 +330,15 @@ public class TCPConnectScanner extends AbstractPortscanner {
 	}
 
 	private boolean scanHost(int index) throws InterruptedException {
-		final InternetAddress target = targetNetwork.itemAt(index);
+		final InternetAddress target = targetNetwork.get(index);
 		context.setStatus("Scanning host "+target);
 		
-		for (int i = 0; i < targetPorts.itemCount(); i++) {
+		for (int i = 0; i < targetPorts.size(); i++) {
 			if (isTargetBad(index)) {
 				return true;
 			}
 
-			int port = targetPorts.itemAt(i);
+			int port = targetPorts.get(i);
 			if (port == firstPort)
 				continue; // already scanned before
 			
@@ -350,7 +350,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			} catch (PortUnreachableException e) {
 				continue;
 			} catch (final SocketException e) {
-				final int remainingPorts = targetPorts.itemCount()-i-1;
+				final int remainingPorts = targetPorts.size()-i-1;
 				markTargetBad(index, new Runnable() {
 					public void run() {
 						context.worked(remainingPorts);

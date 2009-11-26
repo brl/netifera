@@ -20,11 +20,11 @@ public class ListIndexedIterable<E> implements IndexedIterable<E> {
 		list.add(element);
 	}
 
-	public E itemAt(int index) {
+	public E get(int index) {
 		return list.get(index);
 	}
 
-	public int itemCount() {
+	public int size() {
 		return list.size();
 	}
 
@@ -41,7 +41,7 @@ public class ListIndexedIterable<E> implements IndexedIterable<E> {
 			if (!isFirst) buffer.append(", ");
 			buffer.append(iterator.next());
 			if (buffer.length() > 20 && iterator.hasNext()) {
-				buffer.append(".. ("+itemCount()+")");
+				buffer.append(".. ("+size()+")");
 				break;
 			}
 			isFirst = false;

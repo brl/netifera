@@ -5,9 +5,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
-
-
-
 public class RandomIterator<E> implements Iterator<E> {
 	private final IndexedIterable<E> base;
 	private Random random;
@@ -16,9 +13,9 @@ public class RandomIterator<E> implements Iterator<E> {
 	
 	public RandomIterator(IndexedIterable<E> base) {
 		this.base = base;
-		history = new BitSet(base.itemCount());
+		history = new BitSet(base.size());
 		random = new Random();
-		countRemaining = base.itemCount();
+		countRemaining = base.size();
 	}
 	
 	public boolean hasNext() {
@@ -29,15 +26,15 @@ public class RandomIterator<E> implements Iterator<E> {
 		if (!hasNext()) throw new NoSuchElementException();
 		int index = 0;
 		for (int r=0; r<8; r++) {
-			index = random.nextInt(base.itemCount());
+			index = random.nextInt(base.size());
 			if (!history.get(index)) break;
 		}
 		index = history.nextClearBit(index);
-		if (index >= base.itemCount())
+		if (index >= base.size())
 			index = history.nextClearBit(0);
 		history.set(index);
 		countRemaining--;
-		return base.itemAt(index);
+		return base.get(index);
 	}
 	
 	public void remove() {

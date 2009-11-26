@@ -51,16 +51,16 @@ public class IP2ASService implements IIP2ASService {
 	public AS getAS(InternetNetblock netblock) {
 		//FIXME this could probably be made more accurate exploiting the internal structure of the maxmind database, maybe it contains the BGP prefix
 		
-		AS as = getAS(netblock.itemAt(0));
+		AS as = getAS(netblock.get(0));
 		if (as == null)
 			return null;
 		long number = as.getNumber();
 		if (number == 0)
 			return null;
-		AS as2 = getAS(netblock.itemAt(netblock.itemCount()/2));
+		AS as2 = getAS(netblock.get(netblock.size()/2));
 		if (as2 == null || number != as2.getNumber())
 			return null;
-		AS as3 = getAS(netblock.itemAt(netblock.itemCount()-1));
+		AS as3 = getAS(netblock.get(netblock.size()-1));
 		if (as3 == null || number != as3.getNumber())
 			return null;
 

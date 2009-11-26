@@ -35,9 +35,9 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 		realm = probe.getEntity().getId();
 
 		setupToolOptions();
-		context.setTotalWork(credentials.itemCount());
+		context.setTotalWork(credentials.size());
 
-		context.info("Trying "+credentials.itemCount()+" credentials...");
+		context.info("Trying "+credentials.size()+" credentials...");
 		
 		try {
 			verifier = createCredentialsVerifier();

@@ -29,8 +29,8 @@ public class UsernameAndPasswordGenerator implements FiniteIterable<Credential> 
 		usernames.add(list);
 	}
 
-	public int itemCount() {
-		return passwords.itemCount() * usernames.itemCount();
+	public int size() {
+		return passwords.size() * usernames.size();
 	}
 
 	public Iterator<Credential> iterator() {

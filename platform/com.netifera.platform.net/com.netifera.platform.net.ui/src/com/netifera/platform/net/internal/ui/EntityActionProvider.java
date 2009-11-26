@@ -56,11 +56,11 @@ public class EntityActionProvider implements IEntityActionProvider {
 	}
 
 	private ToolAction createTCPScanner(IndexedIterable<InternetAddress> addresses) {
-		assert addresses.itemAt(0).isUniCast();
+		assert addresses.get(0).isUniCast();
 		ToolAction tcpConnectScanner = new ToolAction("Discover TCP Services", TCPConnectScanner.class.getName());
 		tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 		PortSet portset = serverDetector.getTriggerablePorts("tcp");
-		assert portset.itemCount() > 0;
+		assert portset.size() > 0;
 		tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
 		tcpConnectScanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
 		return tcpConnectScanner;
@@ -70,7 +70,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		ToolAction udpScanner = new ToolAction("Discover UDP Services", UDPScanner.class.getName());
 		udpScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 		PortSet portset = serverDetector.getTriggerablePorts("udp");
-		assert portset.itemCount() > 0;
+		assert portset.size() > 0;
 		udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
 		udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 10));
 		udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
@@ -82,7 +82,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 
 		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(entity);
 		if(addresses != null) {
-			if (!addresses.itemAt(0).isMultiCast()) {
+			if (!addresses.get(0).isMultiCast()) {
 				answer.add(createTCPScanner(addresses));
 			}
 			answer.add(createUDPScanner(addresses));
@@ -211,7 +211,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			final ToolAction tcpConnectScanner;
 			final ToolAction udpScanner = createUDPScanner(addresses);
 			String actionName;
-			if (addresses.itemAt(0).isMultiCast()) {
+			if (addresses.get(0).isMultiCast()) {
 				tcpConnectScanner = null;
 				actionName = "Scan Common UDP Services";
 			} else {
@@ -234,7 +234,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		if (entity instanceof PortSetEntity) {
 			PortSetEntity portSet = (PortSetEntity)entity;
 			addresses = getInternetAddressIndexedIterable(portSet.getAddress());
-			if (portSet.getProtocol().equals("tcp") && !addresses.itemAt(0).isMultiCast()) {
+			if (portSet.getProtocol().equals("tcp") && !addresses.get(0).isMultiCast()) {
 				ToolAction tcpConnectScanner = new ToolAction("Discover TCP Services On Ports "+portSet.getPorts(), TCPConnectScanner.class.getName());
 				tcpConnectScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 				tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
@@ -256,7 +256,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 			TCPSocketLocator tcpLocator = (TCPSocketLocator) entity.getAdapter(TCPSocketLocator.class);
 			if (tcpLocator != null) {
 				addresses = new ListIndexedIterable<InternetAddress>(tcpLocator.getAddress());
-				assert addresses.itemAt(0).isUniCast();
+				assert addresses.get(0).isUniCast();
 				ToolAction tcpConnectScanner = new ToolAction("Discover Services At "+tcpLocator, TCPConnectScanner.class.getName());
 				tcpConnectScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 				tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));

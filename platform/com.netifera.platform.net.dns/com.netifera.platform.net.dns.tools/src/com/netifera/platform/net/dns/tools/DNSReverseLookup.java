@@ -66,7 +66,7 @@ public class DNSReverseLookup implements ITool {
 			}
 			
 			activeRequests = new AtomicInteger(0);
-			context.setTotalWork(addresses.itemCount());
+			context.setTotalWork(addresses.size());
 			
 			for (InternetAddress address: addresses) {
 				if(DEBUG)

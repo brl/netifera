@@ -29,7 +29,7 @@ public abstract class UsernameAndPasswordBruteforcer extends AuthenticationBrute
 				context.error("Missing wordlist: "+wordlistName);
 			} else {
 				FiniteIterable<String> words = wordlist.getWords();
-				context.info("Added wordlist: "+wordlistName+" ["+words.itemCount()+" usernames]");
+				context.info("Added wordlist: "+wordlistName+" ["+words.size()+" usernames]");
 				usernames.add(words);
 			}
 		}
@@ -40,7 +40,7 @@ public abstract class UsernameAndPasswordBruteforcer extends AuthenticationBrute
 				context.error("Missing wordlist: "+wordlistName);
 			} else {
 				FiniteIterable<String> words = wordlist.getWords();
-				context.info("Added wordlist: "+wordlistName+" ["+words.itemCount()+" passwords]");
+				context.info("Added wordlist: "+wordlistName+" ["+words.size()+" passwords]");
 				passwords.add(words);
 			}
 		}
@@ -65,7 +65,7 @@ public abstract class UsernameAndPasswordBruteforcer extends AuthenticationBrute
 			credentials.add(userpass);
 		}
 
-		if (passwords.itemCount() > 0) {
+		if (passwords.size() > 0) {
 			UsernameAndPasswordGenerator userpass = new UsernameAndPasswordGenerator();
 			userpass.addUsernameList(usernames);
 			userpass.addPasswordList(passwords);

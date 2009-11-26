@@ -323,13 +323,13 @@ public class GeoIPService implements IGeoIPService {
 		if (netblock.getCIDR() < 16) // dont guess the geographical location of too big netblocks
 			return null;
 		
-		final ILocation location = getLocation(netblock.itemAt(0));
+		final ILocation location = getLocation(netblock.get(0));
 		if (location == null)
 			return null;
-		final ILocation location2 = getLocation(netblock.itemAt(netblock.itemCount()/2));
+		final ILocation location2 = getLocation(netblock.get(netblock.size()/2));
 		if (location2 == null)
 			return null;
-		final ILocation location3 = getLocation(netblock.itemAt(netblock.itemCount()-1));
+		final ILocation location3 = getLocation(netblock.get(netblock.size()-1));
 		if (location3 == null)
 			return null;
 

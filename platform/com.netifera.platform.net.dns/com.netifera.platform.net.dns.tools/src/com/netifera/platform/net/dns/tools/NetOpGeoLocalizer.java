@@ -40,12 +40,12 @@ public class NetOpGeoLocalizer implements ITool {
 		resolver = Activator.getInstance().getNameResolver();
 
 		// FIXME
-		if (addresses.itemCount() > 0 && !(addresses.itemAt(0) instanceof IPv4Address)) {
+		if (addresses.size() > 0 && !(addresses.get(0) instanceof IPv4Address)) {
 			context.warning("IPv6 not yet supported by NetOp");
 			context.done();
 			return;
 		}
-		context.setTotalWork(addresses.itemCount());
+		context.setTotalWork(addresses.size());
 		for (InternetAddress address: addresses) {
 			localizate(address);
 		}

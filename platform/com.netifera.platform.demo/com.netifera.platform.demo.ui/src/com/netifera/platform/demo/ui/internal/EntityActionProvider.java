@@ -28,7 +28,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 				TCPSocketLocator tcpLocator = (TCPSocketLocator) entity.getAdapter(TCPSocketLocator.class);
 				if (tcpLocator != null) {
 					ListIndexedIterable<InternetAddress> addresses = new ListIndexedIterable<InternetAddress>(tcpLocator.getAddress());
-					assert addresses.itemAt(0).isUniCast();
+					assert addresses.get(0).isUniCast();
 					ToolAction exploit = new ToolAction("Exploit Test Service At "+tcpLocator, ExploitTestService.class.getName());
 					exploit.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 					exploit.addFixedOption(new StringOption("port", "Port", "Ports to exploit", ((Integer)tcpLocator.getPort()).toString()));

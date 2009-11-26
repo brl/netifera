@@ -111,7 +111,7 @@ public class TreeMap implements Iterable<IEntity> {
 		int n = size();
 		if (n == 0)
 			return 0.0;
-		return Math.log((double)(n+1)) / Math.log((double)(netblock.itemCount()+1));
+		return Math.log((double)(n+1)) / Math.log((double)(netblock.size()+1));
 	}
 
 	private double maximumTemperature() {
