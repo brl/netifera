@@ -8,33 +8,31 @@ import java.io.IOException;
 
 /**
  * Deployable Probe Interface.
- * @see IProbeConfiguration
  */
 public interface IProbeDeployable
 {
 	/**
-	 * Get the Deployable Probe's input stream.
-	 * @param config Configuration object that should be used to
-	 * build the stream.
-	 * @return The input stream.
-	 * @exception IOException
-	 * @see IProbeConfiguration
-	 */
-	public InputStream getInputStream(IProbeConfiguration config) throws IOException;
-
-
-	/**
-	 * Get the name of this Deployable Probe.
+	 * Get the name of this deployable probe.
 	 */
 	public String getName();
 
 
 	/**
-	 * Get the size of this Deployable Probe in number of bytes.
-	 * @param config Configuration object.
-	 * @see IProbeConfiguration
+	 * Get the input stream for this deployable probe.
+	 * @return The input stream.
+	 * @exception IOException If the stream cannot be created.
+	 * @see #getSize()
 	 */
-	public int getSize(IProbeConfiguration config);
-}
+	public InputStream getInputStream() throws IOException;
 
+
+	/**
+	 * Get the size of this deployable probe.
+	 * @return The size of this deployable probe in bytes;
+	 * @exception IOException If something unexpected occurs.
+	 * @see #getInputStream()
+	 */
+	public int getSize();
+
+}
 
