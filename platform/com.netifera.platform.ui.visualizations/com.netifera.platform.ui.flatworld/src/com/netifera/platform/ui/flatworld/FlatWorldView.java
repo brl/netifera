@@ -1,6 +1,5 @@
 package com.netifera.platform.ui.flatworld;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,40 +48,6 @@ public class FlatWorldView extends ViewPart {
 	private IEventHandler spaceChangeListener;
 	
 	static private final long FLY_TIME_MSECS = 2000; // time to fly to focused entity
-	
-	static private final Color[] palette = new Color[] {
-		new Color(255, 255, 150, 192),
-		new Color(202, 62, 94, 192),
-		new Color(255, 152, 213, 192),
-		new Color(83, 140, 208, 192),
-		new Color(178, 220, 205, 192),
-		new Color(146, 248, 70, 192),
-		
-		new Color(255,255,0, 192),
-		new Color(255,200,47, 192),
-		new Color(255,118,0, 192),
-		new Color(255,0,0, 192),
-		new Color(175,13,102, 192),
-		new Color(121,33,135, 192)
-		
-/*		new Color(0xff, 0xc8, 0x00, 0xc0),
-		new Color(0xff, 0x00, 0xc8, 0xc0),
-		new Color(0xc8, 0x00, 0xff, 0xc0),
-		new Color(0x00, 0xc8, 0xff, 0xc0),
-		new Color(0xc8, 0xff, 0x00, 0xc0),
-		new Color(0x00, 0xff, 0xc8, 0xc0),
-
-/*		Color.RED,
-		Color.GREEN,
-		Color.BLUE,
-		Color.YELLOW,
-		Color.MAGENTA,
-		Color.ORANGE,
-		Color.CYAN,
-		Color.PINK
-*/	};
-
-
 	
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -217,8 +182,6 @@ public class FlatWorldView extends ViewPart {
 				}
 			}
 		}
-		
-//		worldWindow.repaint();//XXX is this needed here?
 	}
 
 	private synchronized void updateEntity(IEntity entity) {
@@ -234,8 +197,6 @@ public class FlatWorldView extends ViewPart {
 
 		if (entity == focusEntity)
 			focusEntity(entity); // refocus, update label
-		
-//		worldWindow.repaint();//XXX is this needed here?
 	}
 	
 	private synchronized void removeEntity(IEntity entity) {
