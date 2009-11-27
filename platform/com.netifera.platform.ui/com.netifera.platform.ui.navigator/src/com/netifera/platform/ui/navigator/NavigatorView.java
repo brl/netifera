@@ -110,12 +110,18 @@ public class NavigatorView extends ViewPart {
 
 	private void fillContextMenu(IMenuManager menuMgr) {
 		if (getSelectedSpace() != null) {
+			menuMgr.add(newSpaceAction);
+			menuMgr.add(newIsolatedSpaceAction);
+			menuMgr.add(new Separator("fixedGroup"));
 			menuMgr.add(new RenameSpaceAction(getSelectedSpace()));
 		}
 		if (getSelectedProbe() != null) {
+			menuMgr.add(newSpaceAction);
+			menuMgr.add(newIsolatedSpaceAction);
+//			menuMgr.add(newProbeAction);
+			menuMgr.add(new Separator("fixedGroup"));
 			menuMgr.add(connectProbeAction);
 			menuMgr.add(disconnectProbeAction);
-			menuMgr.add(newProbeAction);
 		}
 	}
 
@@ -171,10 +177,14 @@ public class NavigatorView extends ViewPart {
 	private void initializeToolBar() {
 		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 
-		toolBarManager.add(TreeAction.collapseAll(viewer));
-		toolBarManager.add(TreeAction.expandAll(viewer));
-		
-		toolBarManager.add(new Separator("fixedGroup"));
+		newSpaceAction = new NewSpaceAction(this, viewer);
+		toolBarManager.add(newSpaceAction);
+
+		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
+		toolBarManager.add(newIsolatedSpaceAction);
+
+		newProbeAction = new NewProbeAction(viewer);
+		toolBarManager.add(newProbeAction);
 
 		connectProbeAction = new ConnectProbeAction(viewer);
 		toolBarManager.add(connectProbeAction);
@@ -182,14 +192,10 @@ public class NavigatorView extends ViewPart {
 		disconnectProbeAction = new DisconnectProbeAction(viewer);
 		toolBarManager.add(disconnectProbeAction);
 
-		newProbeAction = new NewProbeAction(viewer);
-		toolBarManager.add(newProbeAction);
-
-		newSpaceAction = new NewSpaceAction(this, viewer);
-		toolBarManager.add(newSpaceAction);
-
-		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
-		toolBarManager.add(newIsolatedSpaceAction);
+		toolBarManager.add(new Separator("fixedGroup"));
+		
+		toolBarManager.add(TreeAction.collapseAll(viewer));
+		toolBarManager.add(TreeAction.expandAll(viewer));
 
 		setActionEnableStates();
 		
