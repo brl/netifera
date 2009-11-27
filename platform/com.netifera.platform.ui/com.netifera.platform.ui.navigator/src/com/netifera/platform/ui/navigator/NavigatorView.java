@@ -31,8 +31,8 @@ import com.netifera.platform.ui.internal.navigator.Activator;
 import com.netifera.platform.ui.probe.actions.ConnectProbeAction;
 import com.netifera.platform.ui.probe.actions.DisconnectProbeAction;
 import com.netifera.platform.ui.probe.actions.NewProbeAction;
-import com.netifera.platform.ui.probe.actions.NewSpaceAction;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.actions.NewSpaceAction;
 import com.netifera.platform.ui.spaces.actions.RenameSpaceAction;
 import com.netifera.platform.ui.spaces.editor.SpaceEditor;
 import com.netifera.platform.ui.util.TreeAction;
@@ -200,7 +200,7 @@ public class NavigatorView extends ViewPart {
 		disconnectProbeAction.setEnabled(getDisconnectActionState());
 		
 		IProbe probe = getSelectedProbe();
-		newProbeAction.setEnabled(probe != null);
+//		newProbeAction.setEnabled(probe != null);
 		newSpaceAction.setEnabled(probe != null);
 	}
 	

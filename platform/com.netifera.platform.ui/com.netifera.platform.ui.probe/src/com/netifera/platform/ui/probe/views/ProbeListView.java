@@ -18,7 +18,7 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.probe.Activator;
 import com.netifera.platform.ui.probe.actions.ConnectProbeAction;
 import com.netifera.platform.ui.probe.actions.DisconnectProbeAction;
-import com.netifera.platform.ui.probe.actions.NewSpaceAction;
+import com.netifera.platform.ui.spaces.actions.NewSpaceAction;
 
 public class ProbeListView extends ViewPart {
 
