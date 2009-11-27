@@ -12,6 +12,7 @@ import com.netifera.platform.ui.probe.wizard.NewProbeWizard;
 
 public class NewProbeDelegate implements IViewActionDelegate {
 	private IViewPart viewPart;
+	
 	public void init(IViewPart view) {
 		viewPart = view;
 	}
@@ -21,6 +22,7 @@ public class NewProbeDelegate implements IViewActionDelegate {
 		WizardDialog dialog  = new WizardDialog(getWindow().getShell(), wizard);
 		dialog.open();
 	}
+	
 	private IWorkbenchWindow getWindow() {
 		IWorkbenchPartSite site = viewPart.getSite();
 		if(site == null) {
@@ -28,9 +30,7 @@ public class NewProbeDelegate implements IViewActionDelegate {
 		}
 		return site.getWorkbenchWindow();
 	}
-	public void selectionChanged(IAction action, ISelection selection) {
-
-	}
 	
-
+	public void selectionChanged(IAction action, ISelection selection) {
+	}
 }
