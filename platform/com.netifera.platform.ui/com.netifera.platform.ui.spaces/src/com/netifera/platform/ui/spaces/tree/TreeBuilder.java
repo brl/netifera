@@ -73,7 +73,7 @@ public class TreeBuilder {
 		IShadowEntity realmEntity = getShadow(entity.getRealmId());
 		if(realmEntity == null) {
 			System.err.println("Realm entity not found for entity: "  + entity);
-			return;
+			realmEntity = root;
 		}
 		
 		if (getShadow(entity.getId()) != null) return;
@@ -109,14 +109,13 @@ public class TreeBuilder {
 	}
 
 	public synchronized void updateEntity(IEntity entity) {
-
 		IShadowEntity shadow = getShadow(entity.getId());
 		if (shadow == null) return;
 
 		IShadowEntity realmEntity = getShadow(entity.getRealmId());
 		if(realmEntity == null) {
 			System.err.println("Realm entity not found for entity: " + entity);
-			return;
+			realmEntity = root;
 		}
 
 		// if some group was removed, make sure the entity is not included in the folder
