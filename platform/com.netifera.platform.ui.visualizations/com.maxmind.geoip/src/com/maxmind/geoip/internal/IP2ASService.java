@@ -48,7 +48,7 @@ public class IP2ASService implements IIP2ASService {
 		};
 	}
 	
-	public AS getAS(InternetNetblock netblock) {
+	public synchronized AS getAS(InternetNetblock netblock) {
 		//FIXME this could probably be made more accurate exploiting the internal structure of the maxmind database, maybe it contains the BGP prefix
 		
 		AS as = getAS(netblock.get(0));
