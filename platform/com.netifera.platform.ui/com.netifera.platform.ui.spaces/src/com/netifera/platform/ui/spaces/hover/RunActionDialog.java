@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.editor.actions;
+package com.netifera.platform.ui.spaces.hover;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,7 +101,7 @@ public class RunActionDialog extends PopupDialog {
 
 	private void setHeader() {
 		form.setFont(JFaceResources.getDialogFont());
-		form.setImage(EntityHover.getActionImage(action));
+		form.setImage(ActionHover.getActionImage(action));
 		form.setText(action.getText());
 //		form.setSeparatorVisible(true);
 //		toolkit.decorateFormHeading(form);

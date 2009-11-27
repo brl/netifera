@@ -1,8 +1,11 @@
-package com.netifera.platform.ui.spaces.editor.actions;
+package com.netifera.platform.ui.spaces.hover;
+
+import java.util.Set;
 
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -16,7 +19,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.HyperlinkSettings;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
@@ -30,7 +32,7 @@ import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
-public class CommentDialog extends PopupDialog {
+public class AddTagDialog extends PopupDialog {
 	
 	private FormToolkit toolkit;
 	private Form form;
@@ -39,12 +41,12 @@ public class CommentDialog extends PopupDialog {
 	private final ISpace space;
 	private final IShadowEntity entity;
 
-	private Text text;
+	private CCombo combo;
 
 	private Image addImage = Activator.getInstance().getImageCache().get("icons/add.png");
 	private ImageHyperlink addLink;
 	
-	public CommentDialog(Shell parent, Point location, ISpace space, IShadowEntity entity) {
+	public AddTagDialog(Shell parent, Point location, ISpace space, IShadowEntity entity) {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP, true, false, false, false, false, null, "Press ESC to exit");
 		this.space = space;
 		this.entity = entity;
@@ -89,7 +91,7 @@ public class CommentDialog extends PopupDialog {
 		form.setImage(icon);
 		
 		String text = Activator.getInstance().getLabelProvider().getText(entity);
-		form.setText("Comment "+text);
+		form.setText("Tag "+text);
 		
 		form.setSeparatorVisible(true);
 		
@@ -97,27 +99,36 @@ public class CommentDialog extends PopupDialog {
 	}
 
 	private void addOptions() {
-		String comment = ((AbstractEntity)entity).getNamedAttribute("comment");
-		if (comment == null) comment = "";
-		
-		text = toolkit.createText(body, comment, SWT.BORDER);
+		combo = new CCombo(body, SWT.BORDER);
+		combo.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TEXT_BORDER);
 		GridData gd = new GridData(SWT.BEGINNING, SWT.FILL, true, false);
 		gd.widthHint = 200;
-		text.setLayoutData(gd);
-		text.setToolTipText("Type A Comment");
+		combo.setLayoutData(gd);
+		combo.setEditable(true);
+		combo.setToolTipText("Add Tag");
+		combo.setText("");
 
-		text.addModifyListener(new ModifyListener() {
+		Set<String> entityTags = entity.getRealEntity().getTags();
+		Set<String> spaceTags = space.getTags();
+		if (!entityTags.contains("Target"))
+			combo.add("Target"); // at index 0
+		for (String tag: spaceTags) {
+			if (!tag.equals("Target") && !entityTags.contains(tag))
+				combo.add(tag);
+		}
+
+		combo.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				updateAddButton();
 			}
 		});
-		text.addKeyListener(new KeyListener() {
+		combo.addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent e) {
 			}
 			public void keyReleased(KeyEvent e) {
 				updateAddButton();
 				if (e.character == SWT.CR)
-					doSetComment();
+					doAddTag();
 			}
 		});
 
@@ -125,18 +136,18 @@ public class CommentDialog extends PopupDialog {
 //		addLink.setFont(JFaceResources.getHeaderFont());
 		addLink.setImage(addImage);
 		addLink.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
-		addLink.setText("Set Comment");
+		addLink.setText("Add");
 		updateAddButton();
 
 		addLink.addHyperlinkListener(new HyperlinkAdapter() {
 			public void linkActivated(HyperlinkEvent e) {
-				doSetComment();
+				doAddTag();
 			}
 		});
 	}
 
 	private void updateAddButton() {
-		if (!isValidComment(text.getText())) {
+		if (!isValidTag(combo.getText())) {
 			addLink.setVisible(false);
 			addLink.setEnabled(false);
 		} else {
@@ -145,15 +156,17 @@ public class CommentDialog extends PopupDialog {
 		}
 	}
 	
-	private boolean isValidComment(String comment) {
-		return comment.length() > 0;
+	private boolean isValidTag(String tag) {
+		if (entity.getTags().contains(tag))
+			return false;
+		return tag.length() > 0;
 	}
 	
-	private void doSetComment() {
+	private void doAddTag() {
 		if (!addLink.isEnabled())
 			return;
 		final AbstractEntity realEntity = (AbstractEntity) entity.getRealEntity();
-		realEntity.setNamedAttribute("comment",text.getText());
+		realEntity.addTag(combo.getText());
 		realEntity.update();
 		close();
 	}
@@ -168,7 +181,7 @@ public class CommentDialog extends PopupDialog {
 	
 	@Override
 	protected Control getFocusControl() {
-		return text;
+		return combo;
 	}
 
 	@Override

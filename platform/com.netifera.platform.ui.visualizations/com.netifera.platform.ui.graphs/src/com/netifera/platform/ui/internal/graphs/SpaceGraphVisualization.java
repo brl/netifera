@@ -29,9 +29,9 @@ import com.netifera.platform.ui.graphs.actions.ToggleImagesAction;
 import com.netifera.platform.ui.graphs.actions.ToggleLabelsAction;
 import com.netifera.platform.ui.graphs.actions.ToggleOverviewAction;
 import com.netifera.platform.ui.spaces.editor.actions.ChooseLayerAction;
-import com.netifera.platform.ui.spaces.editor.actions.EntityHover;
 import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
 import com.netifera.platform.ui.spaces.graphs.SpaceGraphContentProvider;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeLabelProvider;
 import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
 
@@ -128,7 +128,7 @@ public class SpaceGraphVisualization implements ISpaceVisualization {
 			private void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {
 				hideInformationControl();
-				informationControl = new EntityHover(parent, location, input, item);
+				informationControl = new ActionHover(parent, location, input, item);
 				informationControl.open();
 			}
 			

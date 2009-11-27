@@ -39,8 +39,8 @@ import com.netifera.platform.ui.api.actions.ISpaceAction;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.dnd.EntityTransfer;
 import com.netifera.platform.ui.internal.spaces.Activator;
-import com.netifera.platform.ui.spaces.editor.actions.EntityHover;
 import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeContentProvider;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeLabelProvider;
 import com.netifera.platform.ui.spaces.tree.TreeBuilder;
@@ -200,7 +200,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 			@Override
 			protected void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {
-				informationControl = new EntityHover(parent, location, input, item);
+				informationControl = new ActionHover(parent, location, input, item);
 				informationControl.open();
 			}
 			@Override

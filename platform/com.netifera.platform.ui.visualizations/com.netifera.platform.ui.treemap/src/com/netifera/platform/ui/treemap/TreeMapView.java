@@ -37,7 +37,7 @@ import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.ui.internal.treemap.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.editor.actions.ChooseLayerAction;
-import com.netifera.platform.ui.spaces.editor.actions.EntityHover;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.util.MouseTracker;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
@@ -173,7 +173,7 @@ public class TreeMapView extends ViewPart {
 			@Override
 			protected void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {
-				informationControl = new EntityHover(parent, location, input, item);
+				informationControl = new ActionHover(parent, location, input, item);
 				informationControl.open();
 			}
 			@Override

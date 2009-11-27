@@ -20,7 +20,7 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.probe.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
-import com.netifera.platform.ui.spaces.editor.actions.EntityHover;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 
 public class ProbeStatusLine extends ControlContribution {
 
@@ -66,7 +66,7 @@ public class ProbeStatusLine extends ControlContribution {
 					ISpace space = ((SpaceEditorInput)input).getSpace();
 					if (space.getProbeId() != probe.getProbeId())
 						return;
-					EntityHover hover = new EntityHover(label.getShell(), label.toDisplay(e.x,e.y), space, probe.getEntity());
+					ActionHover hover = new ActionHover(label.getShell(), label.toDisplay(e.x,e.y), space, probe.getEntity());
 					hover.open();
 				}
 			}

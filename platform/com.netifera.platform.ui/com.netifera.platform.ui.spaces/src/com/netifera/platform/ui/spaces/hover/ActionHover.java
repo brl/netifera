@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.spaces.editor.actions;
+package com.netifera.platform.ui.spaces.hover;
 
 import java.util.List;
 import java.util.Set;
@@ -42,8 +42,8 @@ import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
-public class EntityHover extends PopupDialog {
-	private final IShadowEntity entity;
+public class ActionHover extends PopupDialog {
+	private final Object object;
 	private ISpace space;
 
 	private FormToolkit toolkit;
@@ -64,15 +64,13 @@ public class EntityHover extends PopupDialog {
 		}
 	}
 	
-	public EntityHover(Shell parent, Point location, Object input, Object item) {
+	public ActionHover(Shell parent, Point location, Object input, Object item) {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP , false, false, false, false, false, 
 				/*ModelPlugin.getPlugin().getLabelProvider().getText(entity.getRealEntity())*/ null, null);
 		if(!(input instanceof ISpace))
 			throw new IllegalArgumentException("EntityHover input is "+input);
-		if(!(item instanceof IShadowEntity))
-			throw new IllegalArgumentException("EntityHover item is "+item);
 		this.location = location;
-		this.entity = (IShadowEntity)item;
+		this.object = item;
 		this.space = (ISpace) input;
 		show();
 	}
@@ -142,12 +140,16 @@ public class EntityHover extends PopupDialog {
 	private void setHeader() {
 //		form.setFont(JFaceResources.getDefaultFont());
 		form.setFont(JFaceResources.getDialogFont());
-		
-		Image icon = Activator.getInstance().getLabelProvider().getImage(entity);
-		form.setImage(icon);
-		
-		String text = Activator.getInstance().getLabelProvider().getText(entity);
-		form.setText(text);
+
+		if (object instanceof IShadowEntity) {
+			Image icon = Activator.getInstance().getLabelProvider().getImage((IShadowEntity) object);
+			form.setImage(icon);
+			
+			String text = Activator.getInstance().getLabelProvider().getText((IShadowEntity) object);
+			form.setText(text);
+		} else {
+			form.setText(object.toString());
+		}
 		
 		form.setSeparatorVisible(true);
 		toolkit.decorateFormHeading(form);
@@ -159,8 +161,10 @@ public class EntityHover extends PopupDialog {
 	}
 	
 	private void addInformation() {
-		if (!(entity instanceof AbstractEntity)) return;
-		Set<String> tags = ((AbstractEntity)entity.getRealEntity()).getTags();
+		if (!(object instanceof AbstractEntity)) return;
+		AbstractEntity entity = (AbstractEntity) object;
+		
+		Set<String> tags = entity.getRealEntity().getTags();
 		if (tags.size() > 0) {
 			Composite tagsArea = toolkit.createComposite(body, SWT.NONE);
 			tagsArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -172,7 +176,7 @@ public class EntityHover extends PopupDialog {
 			addSeparator();
 		}
 
-		String comment = ((AbstractEntity)entity).getNamedAttribute("comment");
+		String comment = entity.getNamedAttribute("comment");
 		if (comment != null && comment.length()>0) {
 			FormText commentForm = toolkit.createFormText(body, true);
 			commentForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -197,6 +201,9 @@ public class EntityHover extends PopupDialog {
 	}
 
 	private void addTag(Composite parent, final String tag) {
+		if (!(object instanceof IShadowEntity)) return;
+		IShadowEntity entity = (IShadowEntity) object;
+
 		final AbstractEntity realEntity = (AbstractEntity) entity.getRealEntity();
 		final Composite c = toolkit.createComposite(parent, SWT.BORDER);
 		c.setBackground(darkerBackground);
@@ -230,40 +237,44 @@ public class EntityHover extends PopupDialog {
 	
 	private void addActions() {
 		try {
-			List<IAction> actions = Activator.getInstance().getActionProvider().getActions(entity);
+			List<IAction> actions = Activator.getInstance().getActionProvider().getActions(object);
 //			toolkit.createLabel(body, actions.size()==0 ? "No actions available for this entity." : actions.size()+(actions.size()==1 ? " action":" actions")+" available:");
 			for (IAction action: actions)
 				addAction(action, body, false);
 
-			List<IAction> quickActions = Activator.getInstance().getActionProvider().getQuickActions(entity);
-			if (!(entity instanceof FolderEntity)) {
-				IAction addTagAction = new SpaceAction("Add Tag") {
-					public void run() {
-						AddTagDialog addTagDialog = new AddTagDialog(getParentShell(), getShell().getLocation(), space, entity);
-						addTagDialog.open();
-						EntityHover.this.close();
-					}
-				};
-				addTagAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/tag_blue_add_16x16.png"));
-				quickActions.add(addTagAction);
-				
-				IAction commentAction = new SpaceAction("Comment") {
-					public void run() {
-						CommentDialog commentDialog = new CommentDialog(getParentShell(), getShell().getLocation(), space, entity);
-						commentDialog.open();
-						EntityHover.this.close();
-					}
-				};
-				commentAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/comment_edit_16x16.png"));
-				quickActions.add(commentAction);
-
-				IAction removeAction = new SpaceAction("Remove From Space") {
-					public void run() {
-						getSpace().removeEntity(entity.getRealEntity());
-					}
-				};
-				removeAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/delete_hover.png"));
-				quickActions.add(removeAction);
+			List<IAction> quickActions = Activator.getInstance().getActionProvider().getQuickActions(object);
+			
+			if (object instanceof IShadowEntity) {
+				final IShadowEntity entity = (IShadowEntity) object;
+				if (!(entity instanceof FolderEntity)) {
+					IAction addTagAction = new SpaceAction("Add Tag") {
+						public void run() {
+							AddTagDialog addTagDialog = new AddTagDialog(getParentShell(), getShell().getLocation(), space, entity);
+							addTagDialog.open();
+							ActionHover.this.close();
+						}
+					};
+					addTagAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/tag_blue_add_16x16.png"));
+					quickActions.add(addTagAction);
+					
+					IAction commentAction = new SpaceAction("Comment") {
+						public void run() {
+							CommentDialog commentDialog = new CommentDialog(getParentShell(), getShell().getLocation(), space, entity);
+							commentDialog.open();
+							ActionHover.this.close();
+						}
+					};
+					commentAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/comment_edit_16x16.png"));
+					quickActions.add(commentAction);
+	
+					IAction removeAction = new SpaceAction("Remove From Space") {
+						public void run() {
+							getSpace().removeEntity(entity.getRealEntity());
+						}
+					};
+					removeAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/delete_hover.png"));
+					quickActions.add(removeAction);
+				}
 			}
 			
 			if (quickActions.size()>0 && actions.size() > 0)
