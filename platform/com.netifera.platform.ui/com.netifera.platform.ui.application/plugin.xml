@@ -115,7 +115,7 @@
                   style="push">
                   <parameter
                         name="org.eclipse.ui.views.showView.viewId"
-                        value="com.netifera.platform.views.spaceList">
+                        value="com.netifera.platform.views.navigator">
                   </parameter>
                   <parameter
                         name="org.eclipse.ui.views.showView.makeFast"
