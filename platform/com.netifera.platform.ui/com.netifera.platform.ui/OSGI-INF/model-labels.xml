@@ -14,13 +14,4 @@
 		policy="dynamic"
 	/>
 	
-	<reference 
-		name="INFO_PROVIDERS"
-		interface="com.netifera.platform.ui.api.model.IEntityInformationProvider"
-		bind="registerInformationProvider"
-		unbind="unregisterInformationProvider"
-		cardinality="0..n"
-		policy="dynamic"
-	/>
-	
 </component>

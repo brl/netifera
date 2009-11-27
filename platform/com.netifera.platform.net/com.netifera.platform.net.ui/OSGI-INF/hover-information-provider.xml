@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <component name="netifera.net-info">
-	<implementation class="com.netifera.platform.net.internal.ui.EntityInformationProvider" />
+	<implementation class="com.netifera.platform.net.internal.ui.HoverInformationProvider" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.model.IEntityInformationProvider" />
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverInformationProvider" />
 	</service>
 	
 	<reference 

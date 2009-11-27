@@ -21,11 +21,11 @@ import com.netifera.platform.net.http.web.model.WebFormAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.model.HostEntity;
-import com.netifera.platform.ui.api.model.IEntityInformationProvider;
+import com.netifera.platform.ui.api.hover.IHoverInformationProvider;
 import com.netifera.platform.ui.api.model.IEntityLabelProvider;
 import com.netifera.platform.ui.images.ImageCache;
 
-public class EntityLabelProvider implements IEntityLabelProvider, IEntityInformationProvider {
+public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformationProvider {
 	private final static String PLUGIN_ID = "com.netifera.platform.net.http.ui";
 
 	private ImageCache images = new ImageCache(PLUGIN_ID);
@@ -223,9 +223,9 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 		logger = null;
 	}
 
-	public String getInformation(IShadowEntity e) {
-		if (e instanceof WebPageEntity) {
-			WebPageEntity page = (WebPageEntity)e;
+	public String getInformation(Object o) {
+		if (o instanceof WebPageEntity) {
+			WebPageEntity page = (WebPageEntity)o;
 			if (page.getContentType() != null) {
 				return "<p>Content-Type: "+escape(page.getContentType())+"</p>";
 			}

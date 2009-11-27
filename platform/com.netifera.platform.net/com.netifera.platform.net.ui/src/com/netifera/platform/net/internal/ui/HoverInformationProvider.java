@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.net.geoip.IGeoIPService;
 import com.netifera.platform.net.geoip.ILocation;
 import com.netifera.platform.net.model.ClientEntity;
@@ -20,11 +19,12 @@ import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.routes.AS;
 import com.netifera.platform.net.routes.IIP2ASService;
-import com.netifera.platform.ui.api.model.IEntityInformationProvider;
+import com.netifera.platform.ui.api.hover.IHoverInformationProvider;
 import com.netifera.platform.util.addresses.INetworkAddress;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.InternetNetblock;
 
-public class EntityInformationProvider implements IEntityInformationProvider {
+public class HoverInformationProvider implements IHoverInformationProvider {
 
 	private volatile IGeoIPService geoipService;
 	private volatile IIP2ASService ip2asService;
@@ -45,21 +45,23 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 		this.ip2asService = null;
 	}
 
-	public String getInformation(IShadowEntity e) {
-		if(e instanceof HostEntity) {
-			return getHostInformation((HostEntity)e);
-		} else if (e instanceof NetblockEntity) {
-			return getNetblockInformation((NetblockEntity)e);
-		} else if (e instanceof ServiceEntity) {
-			return getServiceInformation((ServiceEntity)e);
-		} else if (e instanceof ClientEntity) {
-			return getClientInformation((ClientEntity)e);
-		} else if (e instanceof ClientServiceConnectionEntity) {
-			return getServiceInformation(((ClientServiceConnectionEntity)e).getService());
-		} else if (e instanceof PortSetEntity) {
-			return getPortSetInformation((PortSetEntity)e);
-		} else if (e instanceof UserEntity) {
-			return getUserInformation((UserEntity)e);
+	public String getInformation(Object o) {
+		if(o instanceof HostEntity) {
+			return getHostInformation((HostEntity)o);
+		} else if (o instanceof InternetNetblock) {
+			return getNetblockInformation((InternetNetblock)o);
+		} else if (o instanceof NetblockEntity) {
+			return getNetblockInformation(((NetblockEntity)o).getNetblock());
+		} else if (o instanceof ServiceEntity) {
+			return getServiceInformation((ServiceEntity)o);
+		} else if (o instanceof ClientEntity) {
+			return getClientInformation((ClientEntity)o);
+		} else if (o instanceof ClientServiceConnectionEntity) {
+			return getServiceInformation(((ClientServiceConnectionEntity)o).getService());
+		} else if (o instanceof PortSetEntity) {
+			return getPortSetInformation((PortSetEntity)o);
+		} else if (o instanceof UserEntity) {
+			return getUserInformation((UserEntity)o);
 		}
 		return null;
 	}
@@ -153,11 +155,11 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 		return buffer.toString();
 	}
 
-	private String getNetblockInformation(NetblockEntity e) {
+	private String getNetblockInformation(InternetNetblock netblock) {
 		StringBuffer buffer = new StringBuffer();
-		if (e.getNetblock().getCIDR() >= 16) { //TODO is this too big? might not be accurate
+		if (netblock.getCIDR() >= 16) { //TODO is this too big? might not be accurate
 			if (geoipService != null) {
-				ILocation location = geoipService.getLocation(e.getNetblock());
+				ILocation location = geoipService.getLocation(netblock);
 				if (location != null) {
 					buffer.append("<p>Location: ");
 					if (location.getCity() != null) {
@@ -171,7 +173,7 @@ public class EntityInformationProvider implements IEntityInformationProvider {
 				}
 			}
 			if (ip2asService != null) {
-				AS as = ip2asService.getAS(e.getNetblock());
+				AS as = ip2asService.getAS(netblock);
 				if (as != null) {
 					buffer.append("<p>AS: ");
 					buffer.append(escape(as.getDescription()));

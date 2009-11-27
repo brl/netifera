@@ -21,7 +21,7 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.ui.api.hover.IHoverActionProviderService;
+import com.netifera.platform.ui.api.hover.IHoverService;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.application.ApplicationPlugin;
@@ -55,7 +55,7 @@ public class Activator extends AbstractUIPlugin {
 	private ServiceTracker modelTracker;
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker modelLabelsTracker;
-	private ServiceTracker actionProviderServiceTracker;
+	private ServiceTracker hoverServiceTracker;
 	private ServiceTracker inputBarActionProviderTracker;
 	private ServiceTracker logManagerTracker;
 	private ServiceTracker visualizationFactoryTracker;
@@ -115,8 +115,8 @@ public class Activator extends AbstractUIPlugin {
 		modelLabelsTracker = new ServiceTracker(context, IEntityLabelProviderService.class.getName(), null);
 		modelLabelsTracker.open();
 		
-		actionProviderServiceTracker = new ServiceTracker(context, IHoverActionProviderService.class.getName(), null);
-		actionProviderServiceTracker.open();
+		hoverServiceTracker = new ServiceTracker(context, IHoverService.class.getName(), null);
+		hoverServiceTracker.open();
 		
 		inputBarActionProviderTracker = new ServiceTracker(context, IInputBarActionProviderService.class.getName(), null);
 		inputBarActionProviderTracker.open();
@@ -296,8 +296,8 @@ public class Activator extends AbstractUIPlugin {
 		return (IEntityLabelProviderService) modelLabelsTracker.getService();
 	}
 	
-	public IHoverActionProviderService getActionProvider() {
-		return (IHoverActionProviderService) actionProviderServiceTracker.getService();
+	public IHoverService getHoverService() {
+		return (IHoverService) hoverServiceTracker.getService();
 	}
 	
 	public IInputBarActionProviderService getInputBarActionProvider() {

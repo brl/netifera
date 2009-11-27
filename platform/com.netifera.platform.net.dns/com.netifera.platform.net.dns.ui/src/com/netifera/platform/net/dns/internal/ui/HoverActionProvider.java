@@ -1,7 +1,6 @@
 package com.netifera.platform.net.dns.internal.ui;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
@@ -25,15 +24,24 @@ import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.InternetNetblock;
 
 public class HoverActionProvider implements IHoverActionProvider {
 
 	public List<IAction> getActions(Object o) {
-		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
-		IShadowEntity entity = (IShadowEntity) o;
-		
 		List<IAction> answer = new ArrayList<IAction>();
-		
+
+		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(o);
+		if (addresses != null) {
+			ToolAction reverseLookup = new ToolAction("Reverse DNS Lookup", DNSReverseLookup.class.getName());
+			reverseLookup.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Addresses to reverse-lookup", addresses));
+			reverseLookup.addOption(new GenericOption(DNS.class, "dns", "Name Server", "Target Name Server", null));
+			answer.add(reverseLookup);
+		}
+
+		if (!(o instanceof IShadowEntity)) return answer;
+		IShadowEntity entity = (IShadowEntity) o;
+
 		if (entity instanceof DomainEntity) {
 			String domain = ((DomainEntity)entity).getFQDM();
 			
@@ -73,23 +81,6 @@ public class HoverActionProvider implements IHoverActionProvider {
 			}
 		}
 		
-		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(entity);
-		if (addresses != null) {
-			ToolAction reverseLookup = new ToolAction("Reverse DNS Lookup", DNSReverseLookup.class.getName());
-			reverseLookup.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Addresses to reverse-lookup", addresses));
-			reverseLookup.addOption(new GenericOption(DNS.class, "dns", "Name Server", "Target Name Server", dns));
-			answer.add(reverseLookup);
-
-/* we have geoip db, dont need this
-			addresses = getIPv4AddressIndexedIterable(entity);
-			if (addresses != null && !(entity instanceof NetblockEntity) && (!(entity instanceof HostEntity) || ((HostEntity)entity).getDefaultAddress().getNamedAttribute("country") == null)) {
-				if (addresses.itemCount() > 1 || (addresses.itemAt(0).isUniCast() && !addresses.itemAt(0).isPrivate())) {
-					ToolAction geoLocalizer = new ToolAction("Lookup Country by Address", NetOpGeoLocalizer.class.getName());
-					geoLocalizer.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Addresses to geo-localize", addresses));
-					answer.add(geoLocalizer);
-				}
-			}
-*/		}
 		return answer;
 	}
 
@@ -99,8 +90,12 @@ public class HoverActionProvider implements IHoverActionProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	private IndexedIterable<InternetAddress> getInternetAddressIndexedIterable(IEntity entity) {
-		return (IndexedIterable<InternetAddress>) entity.getIterableAdapter(InternetAddress.class);
+	private IndexedIterable<InternetAddress> getInternetAddressIndexedIterable(Object o) {
+		if (o instanceof InternetNetblock)
+			return (InternetNetblock) o;
+		if (o instanceof IEntity)
+			return (IndexedIterable<InternetAddress>) ((IEntity)o).getIterableAdapter(InternetAddress.class);
+		return null;
 	}
 
 /*	@SuppressWarnings("unchecked")

@@ -1,7 +1,6 @@
 package com.netifera.platform.net.internal.ui;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
@@ -52,8 +51,12 @@ public class HoverActionProvider implements IHoverActionProvider {
 	private IWordListManager wordListManager;
 	
 	@SuppressWarnings("unchecked")
-	private IndexedIterable<InternetAddress> getInternetAddressIndexedIterable(IEntity entity) {
-		return (IndexedIterable<InternetAddress>) entity.getIterableAdapter(InternetAddress.class);
+	private IndexedIterable<InternetAddress> getInternetAddressIndexedIterable(Object o) {
+		if (o instanceof InternetNetblock)
+			return (InternetNetblock) o;
+		if (o instanceof IEntity)
+			return (IndexedIterable<InternetAddress>) ((IEntity)o).getIterableAdapter(InternetAddress.class);
+		return null;
 	}
 
 	private ToolAction createTCPScanner(IndexedIterable<InternetAddress> addresses) {
@@ -79,19 +82,20 @@ public class HoverActionProvider implements IHoverActionProvider {
 	}
 	
 	public List<IAction> getActions(Object o) {
-		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
-		IShadowEntity entity = (IShadowEntity) o;
 
 		List<IAction> answer = new ArrayList<IAction>();
 
-		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(entity);
+		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(o);
 		if(addresses != null) {
 			if (!addresses.get(0).isMultiCast()) {
 				answer.add(createTCPScanner(addresses));
 			}
 			answer.add(createUDPScanner(addresses));
 		}
-		
+
+		if (!(o instanceof IShadowEntity)) return answer;
+		IShadowEntity entity = (IShadowEntity) o;
+
 		FTP ftp = (FTP) entity.getAdapter(FTP.class);
 		if (ftp != null) {
 			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", FTPAuthBruteforcer.class.getName());
@@ -208,12 +212,10 @@ public class HoverActionProvider implements IHoverActionProvider {
 	}
 
 	public List<IAction> getQuickActions(Object o) {
-		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
-		IShadowEntity entity = (IShadowEntity) o;
 		
 		List<IAction> answer = new ArrayList<IAction>();
 
-		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(entity);
+		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(o);
 		if(addresses != null) {
 			final ToolAction tcpConnectScanner;
 			final ToolAction udpScanner = createUDPScanner(addresses);
@@ -237,6 +239,9 @@ public class HoverActionProvider implements IHoverActionProvider {
 			quickScan.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 			answer.add(quickScan);
 		}
+
+		if (!(o instanceof IShadowEntity)) return answer;
+		IShadowEntity entity = (IShadowEntity) o;
 
 		if (entity instanceof PortSetEntity) {
 			PortSetEntity portSet = (PortSetEntity)entity;

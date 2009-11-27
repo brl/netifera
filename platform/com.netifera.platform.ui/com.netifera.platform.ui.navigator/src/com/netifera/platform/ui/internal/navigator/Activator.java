@@ -8,7 +8,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.ui.api.hover.IHoverActionProviderService;
+import com.netifera.platform.ui.api.hover.IHoverService;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.images.ImageCache;
@@ -57,7 +57,7 @@ public class Activator extends AbstractUIPlugin {
 		modelLabelsTracker = new ServiceTracker(context, IEntityLabelProviderService.class.getName(), null);
 		modelLabelsTracker.open();
 		
-		actionProviderServiceTracker = new ServiceTracker(context, IHoverActionProviderService.class.getName(), null);
+		actionProviderServiceTracker = new ServiceTracker(context, IHoverService.class.getName(), null);
 		actionProviderServiceTracker.open();
 		
 		inputBarActionProviderTracker = new ServiceTracker(context, IInputBarActionProviderService.class.getName(), null);
@@ -95,8 +95,8 @@ public class Activator extends AbstractUIPlugin {
 		return (IEntityLabelProviderService) modelLabelsTracker.getService();
 	}
 	
-	public IHoverActionProviderService getActionProvider() {
-		return (IHoverActionProviderService) actionProviderServiceTracker.getService();
+	public IHoverService getActionProvider() {
+		return (IHoverService) actionProviderServiceTracker.getService();
 	}
 	
 	public IInputBarActionProviderService getInputBarActionProvider() {

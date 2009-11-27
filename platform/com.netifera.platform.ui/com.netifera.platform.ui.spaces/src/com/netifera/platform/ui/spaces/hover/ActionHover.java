@@ -161,32 +161,33 @@ public class ActionHover extends PopupDialog {
 	}
 	
 	private void addInformation() {
-		if (!(object instanceof AbstractEntity)) return;
-		AbstractEntity entity = (AbstractEntity) object;
-		
-		Set<String> tags = entity.getRealEntity().getTags();
-		if (tags.size() > 0) {
-			Composite tagsArea = toolkit.createComposite(body, SWT.NONE);
-			tagsArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			RowLayout layout = new RowLayout();
-			layout.wrap = true;
-			tagsArea.setLayout(layout);
-			for (String tag: tags)
-				addTag(tagsArea, tag);
-			addSeparator();
+		if (object instanceof AbstractEntity) {
+			AbstractEntity entity = (AbstractEntity) object;
+			
+			Set<String> tags = entity.getRealEntity().getTags();
+			if (tags.size() > 0) {
+				Composite tagsArea = toolkit.createComposite(body, SWT.NONE);
+				tagsArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+				RowLayout layout = new RowLayout();
+				layout.wrap = true;
+				tagsArea.setLayout(layout);
+				for (String tag: tags)
+					addTag(tagsArea, tag);
+				addSeparator();
+			}
+	
+			String comment = entity.getNamedAttribute("comment");
+			if (comment != null && comment.length()>0) {
+				FormText commentForm = toolkit.createFormText(body, true);
+				commentForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+				commentForm.setFont(JFaceResources.getDefaultFont());
+				commentForm.setParagraphsSeparated(false);
+				commentForm.setText(comment, false, false);
+				addSeparator();
+			}
 		}
-
-		String comment = entity.getNamedAttribute("comment");
-		if (comment != null && comment.length()>0) {
-			FormText commentForm = toolkit.createFormText(body, true);
-			commentForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			commentForm.setFont(JFaceResources.getDefaultFont());
-			commentForm.setParagraphsSeparated(false);
-			commentForm.setText(comment, false, false);
-			addSeparator();
-		}
 		
-		String information = Activator.getInstance().getLabelProvider().getInformation(entity);
+		String information = Activator.getInstance().getHoverService().getInformation(object);
 		if (information != null && information.length()>0) {
 			FormText informationForm = toolkit.createFormText(body, true);
 			informationForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -237,12 +238,12 @@ public class ActionHover extends PopupDialog {
 	
 	private void addActions() {
 		try {
-			List<IAction> actions = Activator.getInstance().getActionProvider().getActions(object);
+			List<IAction> actions = Activator.getInstance().getHoverService().getActions(object);
 //			toolkit.createLabel(body, actions.size()==0 ? "No actions available for this entity." : actions.size()+(actions.size()==1 ? " action":" actions")+" available:");
 			for (IAction action: actions)
 				addAction(action, body, false);
 
-			List<IAction> quickActions = Activator.getInstance().getActionProvider().getQuickActions(object);
+			List<IAction> quickActions = Activator.getInstance().getHoverService().getQuickActions(object);
 			
 			if (object instanceof IShadowEntity) {
 				final IShadowEntity entity = (IShadowEntity) object;

@@ -125,23 +125,30 @@ public class TreeMapView extends ViewPart {
 				TreeMap subtree = control.getItem(point);
 				if (subtree == null)
 					return null;
-//				if (subtree.size() != 1)
-//					return null;
-//				IShadowEntity targetEntity = (IShadowEntity)subtree.getData();
-	
-				for (IEntity entity: subtree)
-					return entity;
 				
-/*				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-				List<IShadowEntity> selectionList = selection.toList();
-				if (selectionList.contains(targetEntity) && selectionList.size()>1) {
-					FolderEntity folder = new FolderEntity(targetEntity.getRealmId(), null, "Selection");
-					IShadowEntity folderShadow = TreeStructureContext.createRoot(folder);
-					for (IShadowEntity entity: selectionList)
-						((TreeStructureContext)folderShadow.getStructureContext()).addChild(entity);
-					return folderShadow;
+				List<TreeMap> selection = control.getSelection();
+				if (selection.contains(subtree)) {
+					if (selection.size() > 1)
+						return null; // multiple netblocks not yet implemented
+					return subtree.getNetblock();
+				} else {
+	//				if (subtree.size() != 1)
+	//					return null;
+		
+					for (IEntity entity: subtree)
+						return entity;
+					
+	/*				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+					List<IShadowEntity> selectionList = selection.toList();
+					if (selectionList.contains(targetEntity) && selectionList.size()>1) {
+						FolderEntity folder = new FolderEntity(targetEntity.getRealmId(), null, "Selection");
+						IShadowEntity folderShadow = TreeStructureContext.createRoot(folder);
+						for (IShadowEntity entity: selectionList)
+							((TreeStructureContext)folderShadow.getStructureContext()).addChild(entity);
+						return folderShadow;
+					}
+	*/				
 				}
-*/				
 				return null;
 			}
 
