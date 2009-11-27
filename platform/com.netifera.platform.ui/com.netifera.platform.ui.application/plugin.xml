@@ -21,9 +21,9 @@
       </perspective>
       <perspective
             class="com.netifera.platform.ui.application.Perspective"
-            icon="icons/internet_perspective.png"
-            id="com.netifera.platform.ui.perspectives.internet"
-            name="Internet">
+            icon="icons/explore_perspective.png"
+            id="com.netifera.platform.ui.perspectives.explore"
+            name="Explore">
       </perspective>
    </extension>
    <extension

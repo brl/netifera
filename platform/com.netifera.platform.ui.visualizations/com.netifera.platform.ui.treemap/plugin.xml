@@ -15,7 +15,7 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="com.netifera.platform.ui.perspectives.internet">
+            targetID="com.netifera.platform.ui.perspectives.explore">
          <viewShortcut id="com.netifera.platform.views.treemap"/>
 <!-- WTF if i put this two views layouts in two different plugins it doesnt work,
 		i had to put them together in this plugin to make it work properly -->
@@ -30,6 +30,16 @@
                ratio="0.55"
                relationship="bottom"
                relative="com.netifera.platform.views.treemap">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="*">
+         <viewShortcut id="com.netifera.platform.views.treemap"/>
+         <view
+               id="com.netifera.platform.views.treemap"
+               ratio="0.55"
+               relationship="fast"
+               relative="org.eclipse.ui.editorss">
          </view>
       </perspectiveExtension>
    </extension>

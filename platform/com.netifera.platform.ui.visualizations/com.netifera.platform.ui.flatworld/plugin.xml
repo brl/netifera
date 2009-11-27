@@ -16,8 +16,28 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="com.netifera.platform.ui.perspectives.internet">
+            targetID="com.netifera.platform.ui.perspectives.explore">
          <viewShortcut id="com.netifera.platform.views.flatworld"/>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="com.netifera.platform.ui.perspectives.sniffing">
+         <viewShortcut id="com.netifera.platform.views.flatworld"/>
+         <view
+               id="com.netifera.platform.views.flatworld"
+               ratio="0.55"
+               relationship="fast"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="com.netifera.platform.ui.perspectives.tool">
+         <viewShortcut id="com.netifera.platform.views.flatworld"/>
+         <view
+               id="com.netifera.platform.views.flatworld"
+               ratio="0.55"
+               relationship="fast"
+               relative="org.eclipse.ui.editorss">
+         </view>
       </perspectiveExtension>
    </extension>
 

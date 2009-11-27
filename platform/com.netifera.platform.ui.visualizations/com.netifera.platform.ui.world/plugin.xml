@@ -17,7 +17,7 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="com.netifera.platform.ui.perspectives.internet">
+            targetID="*">
          <viewShortcut id="com.netifera.platform.views.world3d"/>
       </perspectiveExtension>
    </extension>

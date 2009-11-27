@@ -16,12 +16,23 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="*">
+            targetID="com.netifera.platform.ui.perspectives.explore">
          <view
                id="com.netifera.platform.views.navigator"
                minimized="false"
                ratio="0.20"
                relationship="left"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="*">
+         <viewShortcut id="com.netifera.platform.views.navigator"/>
+         <view
+               id="com.netifera.platform.views.navigator"
+               minimized="false"
+               ratio="0.20"
+               relationship="fast"
                relative="org.eclipse.ui.editorss">
          </view>
       </perspectiveExtension>

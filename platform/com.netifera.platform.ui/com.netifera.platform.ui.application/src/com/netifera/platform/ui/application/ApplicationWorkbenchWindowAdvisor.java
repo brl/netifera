@@ -42,7 +42,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		// Display all Perspectives by default
 		PlatformUI.getPreferenceStore().setValue(
 				IWorkbenchPreferenceConstants.PERSPECTIVE_BAR_EXTRAS,
-				Perspective.ID + ", com.netifera.platform.ui.perspectives.internet, com.netifera.platform.ui.perspectives.sniffing");
+				Perspective.ID + ", com.netifera.platform.ui.perspectives.explore, com.netifera.platform.ui.perspectives.sniffing");
     }
     
     /* 
