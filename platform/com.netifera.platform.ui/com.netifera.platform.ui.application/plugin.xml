@@ -50,7 +50,7 @@
          </property>
       </product>
    </extension>
-   <extension
+<!--   <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
             id="com.netifera.platform.actionset.workspace"
@@ -76,6 +76,7 @@
          </action>
       </actionSet>
    </extension>
+-->
    <extension
          point="org.eclipse.ui.commands">
       <command
