@@ -190,7 +190,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		}
 		update();
 	}
-		
+	
 	public synchronized void update() {
 		if(!canSave()) {
 			throw new IllegalStateException("IEntity#update() called on an entity that cannot be saved.");

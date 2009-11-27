@@ -15,7 +15,7 @@ public interface IEntity {
 
 	/**
 	 * Get the workspace this entity belongs to.
-	 * @return The workspace thise entity belongs to.
+	 * @return The workspace this entity belongs to.
 	 */
 	IWorkspace getWorkspace();
 

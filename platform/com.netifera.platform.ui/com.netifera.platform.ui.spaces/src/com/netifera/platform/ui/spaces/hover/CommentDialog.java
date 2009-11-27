@@ -152,7 +152,7 @@ public class CommentDialog extends PopupDialog {
 	private void doSetComment() {
 		if (!addLink.isEnabled())
 			return;
-		final AbstractEntity realEntity = (AbstractEntity) entity.getRealEntity();
+		AbstractEntity realEntity = (AbstractEntity)entity.getRealEntity();
 		realEntity.setAttribute("comment",text.getText());
 		realEntity.update();
 		close();
