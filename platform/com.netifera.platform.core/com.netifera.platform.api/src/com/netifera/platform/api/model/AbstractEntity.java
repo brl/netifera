@@ -1,7 +1,6 @@
 package com.netifera.platform.api.model;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
