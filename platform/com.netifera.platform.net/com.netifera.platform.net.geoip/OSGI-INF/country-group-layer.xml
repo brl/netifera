@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.country-group-layer">
+	<implementation class="com.netifera.platform.net.internal.geoip.CountryGroupLayer" />
+	<service>
+		<provide interface="com.netifera.platform.api.model.layers.ISemanticLayer" />
+	</service>
+	
+	<reference 
+		name="GEOIP_SERVICE"
+		interface="com.netifera.platform.net.geoip.IGeoIPService"
+		bind="setGeoIPService"
+		unbind="unsetGeoIPService"
+	/>
+</component>

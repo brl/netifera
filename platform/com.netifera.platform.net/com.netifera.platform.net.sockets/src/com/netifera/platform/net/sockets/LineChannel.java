@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
+import com.netifera.platform.util.asynchronous.CompletionHandler;
+
 public class LineChannel extends AsynchronousSocketChannel {
 	final private AsynchronousByteChannel channel;
 	private String separator = "\r\n";

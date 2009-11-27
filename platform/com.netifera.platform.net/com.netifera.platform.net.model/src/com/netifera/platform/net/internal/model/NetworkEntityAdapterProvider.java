@@ -49,8 +49,9 @@ public class NetworkEntityAdapterProvider implements IEntityAdapterProvider {
 		if (iterableType.isAssignableFrom(InternetAddress.class) &&
 				entity instanceof NetblockEntity) {
 			NetblockEntity netblockEntity = (NetblockEntity)entity;
-			return InternetNetblock.fromData(netblockEntity.getData(),
-					netblockEntity.getMaskBitCount()).getIndexedIterable();
+			InternetNetblock netblock = InternetNetblock.fromData(netblockEntity.getData(),
+					netblockEntity.getMaskBitCount());
+			if (netblock.isIndexedIterable()) return netblock;
 		}
 		return null;
 	}

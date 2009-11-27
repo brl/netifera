@@ -14,12 +14,14 @@ public class ToolContext implements IToolContext, ITaskRunnable, ITaskMessenger 
 	private ITool toolInstance;
 	private IToolConfiguration configuration;
 	private ITask task;
+	private final long realm;
 	private final long spaceId;
 	private boolean debugEnabled;
 	
-	ToolContext(ITool tool, IToolConfiguration configuration, long spaceId) {
+	ToolContext(ITool tool, IToolConfiguration configuration, long realm, long spaceId) {
 		toolInstance = tool;
 		this.configuration = configuration;
+		this.realm = realm;
 		this.spaceId = spaceId;
 		this.debugEnabled = false;
 	}
@@ -32,6 +34,10 @@ public class ToolContext implements IToolContext, ITaskRunnable, ITaskMessenger 
 		task.setStatus(status);
 	}
 
+	public long getRealm() {
+		return realm;
+	}
+	
 	public long getSpaceId() {
 		return spaceId;
 	}

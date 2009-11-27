@@ -34,8 +34,8 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	@Override
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
-		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(realm, context.getSpaceId(), target.getAddress(), up.getUsernameString());
+		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
+		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getAddress(), up.getUsernameString());
 		user.setPassword(up.getPasswordString());
 		user.update();
 		super.authenticationSucceeded(credential);
@@ -86,7 +86,8 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 												authenticationFailed(credential);
 											}
 										} catch (IOException e) {
-											// e.printStackTrace();
+											context.error(e.getMessage() + (e.getCause() != null ? " ("+e.getCause().getMessage()+")" : ""));
+//											e.printStackTrace();
 											errorCount = errorCount + 1;
 											authenticationError(credential, e);
 											connection.close();
@@ -102,7 +103,8 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 										}
 									}
 								} catch (IOException e) {
-									// e.printStackTrace();
+									context.error(e.getMessage() + (e.getCause() != null ? " ("+e.getCause().getMessage()+")" : ""));
+//									e.printStackTrace();
 									errorCount = errorCount + 1;
 									if (errorCount / (successCount + 1) > 2) {
 										context.error("Too many errors, aborting.");

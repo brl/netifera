@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.ssh-action-provider">
+	<implementation class="com.netifera.platform.net.ssh.internal.ui.HoverActionProvider" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProvider" />
+	</service>
+	
+	<reference 
+		name="WORDLISTS"
+		interface="com.netifera.platform.net.wordlists.IWordListManager"
+		bind="setWordListManager"
+		unbind="unsetWordListManager"
+	/>
+	
+	<reference 
+		name="PROBE_BUILDER"
+		interface="com.netifera.platform.probebuild.api.IProbeBuilderService"
+		bind="setProbeBuilder"
+		unbind="unsetProbeBuilder"
+	/>
+</component>

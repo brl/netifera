@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.netifera.platform.util.asynchronous.CompletionHandler;
+
 public interface AsynchronousByteChannel extends AsynchronousChannel {
 	Future<Integer> read(ByteBuffer dst);
 	

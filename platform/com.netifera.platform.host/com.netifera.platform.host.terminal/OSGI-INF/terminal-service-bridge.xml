@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.terminal-service-bridge">
+	<implementation class="com.netifera.platform.host.terminal.probe.TerminalServiceBridge"/>
+	
+	<reference
+		name="LOG_MANAGER"
+		interface="com.netifera.platform.api.log.ILogManager"
+		bind="setLogManager"
+		unbind="unsetLogManager"
+	/>
+	
+	<reference
+		name="DISPATCHER"
+		interface="com.netifera.platform.api.dispatcher.IMessageDispatcherService"
+		bind="setMessageDispatcher"
+		unbind="unsetMessageDispatcher"
+	/>
+
+	<reference
+		name="SERVICE_FACTORY"
+		interface="com.netifera.platform.services.IServiceFactory"
+		bind="setServiceFactory"
+		unbind="unsetServiceFactory"
+	/>
+	
+</component>

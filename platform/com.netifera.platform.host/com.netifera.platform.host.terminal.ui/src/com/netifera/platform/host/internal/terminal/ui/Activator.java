@@ -6,7 +6,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.netifera.platform.host.terminal.ITerminalManagerFactory;
+import com.netifera.platform.services.IServiceFactory;
 import com.netifera.platform.ui.images.ImageCache;
 
 public class Activator extends AbstractUIPlugin {
@@ -17,7 +17,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private final ImageCache imageCache = new ImageCache(PLUGIN_ID);
 
-	private ServiceTracker terminalManagerFactoryTracker;
+	private ServiceTracker serviceFactoryTracker;
 	
 	public static Activator getInstance() {
 		return instance;
@@ -28,8 +28,8 @@ public class Activator extends AbstractUIPlugin {
 		instance = this;
 		super.start(context);
 		
-		terminalManagerFactoryTracker = new ServiceTracker(context, ITerminalManagerFactory.class.getName(), null);
-		terminalManagerFactoryTracker.open();
+		serviceFactoryTracker = new ServiceTracker(context, IServiceFactory.class.getName(), null);
+		serviceFactoryTracker.open();
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class Activator extends AbstractUIPlugin {
 		return imageCache;
 	}
 	
-	public ITerminalManagerFactory getTerminalManagerFactory() {
-		return (ITerminalManagerFactory) terminalManagerFactoryTracker.getService();
+	public IServiceFactory getServiceFactory() {
+		return (IServiceFactory) serviceFactoryTracker.getService();
 	}
 }

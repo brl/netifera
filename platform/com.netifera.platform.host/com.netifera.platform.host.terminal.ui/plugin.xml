@@ -19,16 +19,12 @@
 <plugin>
    <extension
          point="org.eclipse.ui.views">
-      <category
-            name="Host"
-            id="Host">
-      </category>
       <view
             allowMultiple="true"
             restorable="false"
             class="com.netifera.platform.host.terminal.ui.view.TerminalView"
             icon="icons/terminal_view.png"
-            category="Host"
+            category="com.netifera.platform.ui.category.host"
             name="Terminal"
             id="org.eclipse.tm.terminal.view.TerminalView">
       </view>

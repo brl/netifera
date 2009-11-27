@@ -17,10 +17,10 @@ import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.IEdge;
-import com.netifera.platform.api.model.layers.IEdgeLayerProvider;
-import com.netifera.platform.api.model.layers.IGroupLayerProvider;
-import com.netifera.platform.api.model.layers.ILayerProvider;
-import com.netifera.platform.api.model.layers.ITreeLayerProvider;
+import com.netifera.platform.api.model.layers.IEdgeLayer;
+import com.netifera.platform.api.model.layers.IGroupLayer;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
+import com.netifera.platform.api.model.layers.ITreeLayer;
 import com.netifera.platform.ui.graphs.GraphViewer;
 import com.netifera.platform.ui.graphs.IGraphContentProvider;
 
@@ -32,12 +32,12 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 	private IEventHandler spaceListener;
 	private ISpace space;
 
-	private List<ILayerProvider> layerProviders = new ArrayList<ILayerProvider>();
+	private List<ISemanticLayer> layerProviders = new ArrayList<ISemanticLayer>();
 
 	private Graph graph;
 	private Map<IEntity, Node> nodeMap;
-	private volatile IGroupLayerProvider colorLayerProvider;
-	private volatile IGroupLayerProvider shapeLayerProvider;
+	private volatile IGroupLayer colorLayerProvider;
+	private volatile IGroupLayer shapeLayerProvider;
 
 	static private Schema schema;
 	static public synchronized Schema getNodeSchema() {
@@ -132,16 +132,16 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 	}
 
 	private void addEntity(final IEntity entity) {
-		for (ILayerProvider layerProvider: layerProviders) {
-			if (layerProvider instanceof IEdgeLayerProvider) {
-				IEdgeLayerProvider edgeLayerProvider = (IEdgeLayerProvider)layerProvider;
+		for (ISemanticLayer layerProvider: layerProviders) {
+			if (layerProvider instanceof IEdgeLayer) {
+				IEdgeLayer edgeLayerProvider = (IEdgeLayer)layerProvider;
 				for (IEdge edge: edgeLayerProvider.getEdges(entity)) {
 					addEdge(edge);
 					viewer.update();
 				}
 			}
-			if (layerProvider instanceof ITreeLayerProvider) {
-				ITreeLayerProvider treeLayerProvider = (ITreeLayerProvider)layerProvider;
+			if (layerProvider instanceof ITreeLayer) {
+				ITreeLayer treeLayerProvider = (ITreeLayer)layerProvider;
 				for (final IEntity parent: treeLayerProvider.getParents(entity)) {
 					addEdge(new IEdge() {
 						public IEntity getSource() {
@@ -233,28 +233,28 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 		return answer;
 	}
 */
-	public List<ILayerProvider> getLayers() {
+	public List<ISemanticLayer> getLayers() {
 		return layerProviders;
 	}
 	
-	public synchronized void addLayer(ILayerProvider layerProvider) {
+	public synchronized void addLayer(ISemanticLayer layerProvider) {
 		layerProviders.add(layerProvider);
 		updateGraph();
 		viewer.update();
 	}
 	
-	public synchronized void removeLayer(ILayerProvider layerProvider) {
+	public synchronized void removeLayer(ISemanticLayer layerProvider) {
 		layerProviders.remove(layerProvider);
 		initializeGraph();
 		updateGraph();
 		viewer.refresh();
 	}
 	
-	public IGroupLayerProvider getColorLayer() {
+	public IGroupLayer getColorLayer() {
 		return colorLayerProvider;
 	}
 	
-	public synchronized void setColorLayer(IGroupLayerProvider layerProvider) {
+	public synchronized void setColorLayer(IGroupLayer layerProvider) {
 		colorLayerProvider = layerProvider;
 		if (layerProvider == null)
 			initializeGraph();
@@ -262,11 +262,11 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 		viewer.update();
 	}
 	
-	public IGroupLayerProvider getShapeLayer() {
+	public IGroupLayer getShapeLayer() {
 		return shapeLayerProvider;
 	}
 	
-	public synchronized void setShapeLayer(IGroupLayerProvider layerProvider) {
+	public synchronized void setShapeLayer(IGroupLayer layerProvider) {
 		shapeLayerProvider = layerProvider;
 		if (layerProvider == null)
 			initializeGraph();

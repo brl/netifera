@@ -23,7 +23,7 @@ public class SpaceEditorInput implements IEditorInput {
 	}
 	
 	private IProbe findProbeForSpace(ISpace space) {
-		final IProbeManagerService probeManager = Activator.getDefault().getProbeManager();
+		final IProbeManagerService probeManager = Activator.getInstance().getProbeManager();
 		if(probeManager == null) {
 			throw new RuntimeException("Cannot create editor because probe manager service is not available");
 		}
@@ -47,7 +47,11 @@ public class SpaceEditorInput implements IEditorInput {
 	}
 
 	public ImageDescriptor getImageDescriptor() {
-		return null;
+		if (space.isIsolated()) {
+			return Activator.getInstance().getImageCache().getDescriptor("icons/space_isolated.png");
+		} else {
+			return Activator.getInstance().getImageCache().getDescriptor("icons/space.png");
+		}
 	}
 
 	public String getName() {
@@ -56,20 +60,17 @@ public class SpaceEditorInput implements IEditorInput {
 
 	public IPersistableElement getPersistable() {
 		return new IPersistableElement() {
-
 			public String getFactoryId() {
 				return ElementFactory.ID;
 			}
-
 			public void saveState(IMemento memento) {
 				memento.putInteger("space-id", (int) space.getId());				
 			}
-			
 		};
 	}
 
 	public String getToolTipText() {
-		return "Space:  " + space.getName();
+		return "Space: '" + space.getName()+"'";
 	}
 
 	@Override
@@ -89,5 +90,4 @@ public class SpaceEditorInput implements IEditorInput {
 	public Object getAdapter(Class adapter) {
 		return Platform.getAdapterManager().getAdapter(this, adapter);
 	}
-
 }

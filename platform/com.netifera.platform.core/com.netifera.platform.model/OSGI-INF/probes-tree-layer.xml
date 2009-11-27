@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.probes-tree-layer">
+	<implementation class="com.netifera.platform.internal.model.layers.ProbesTreeLayer" />
+	<service>
+		<provide interface="com.netifera.platform.api.model.ISemanticLayer" />
+	</service>
+</component>

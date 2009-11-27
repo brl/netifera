@@ -21,7 +21,7 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.ui.api.actions.IEntityActionProviderService;
+import com.netifera.platform.ui.api.hover.IHoverService;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.application.ApplicationPlugin;
@@ -45,17 +45,17 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.netifera.platform.ui.spaces";
 
 	// The shared instance
-	private static Activator plugin;
+	private static Activator instance;
 
-	public static Activator getDefault() {
-		return plugin;
+	public static Activator getInstance() {
+		return instance;
 	}
 
 	
 	private ServiceTracker modelTracker;
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker modelLabelsTracker;
-	private ServiceTracker actionProviderServiceTracker;
+	private ServiceTracker hoverServiceTracker;
 	private ServiceTracker inputBarActionProviderTracker;
 	private ServiceTracker logManagerTracker;
 	private ServiceTracker visualizationFactoryTracker;
@@ -93,7 +93,7 @@ public class Activator extends AbstractUIPlugin {
 	private void createFirstSpaceIfNeeded(IWorkbenchWindow window) {
 		if(hasSpaces()) return;
 		SpaceCreator creator = new SpaceCreator(window);
-		creator.create();
+		creator.openNewSpace(true);
 	}
 	
 	private boolean hasSpaces() {
@@ -102,7 +102,7 @@ public class Activator extends AbstractUIPlugin {
 	
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		instance = this;
 
 		imageCache = new ImageCache(PLUGIN_ID);
 		
@@ -115,8 +115,8 @@ public class Activator extends AbstractUIPlugin {
 		modelLabelsTracker = new ServiceTracker(context, IEntityLabelProviderService.class.getName(), null);
 		modelLabelsTracker.open();
 		
-		actionProviderServiceTracker = new ServiceTracker(context, IEntityActionProviderService.class.getName(), null);
-		actionProviderServiceTracker.open();
+		hoverServiceTracker = new ServiceTracker(context, IHoverService.class.getName(), null);
+		hoverServiceTracker.open();
 		
 		inputBarActionProviderTracker = new ServiceTracker(context, IInputBarActionProviderService.class.getName(), null);
 		inputBarActionProviderTracker.open();
@@ -268,7 +268,7 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		imageCache.dispose();
 		imageCache = null;
-		plugin = null;
+		instance = null;
 		super.stop(context);
 	}
 
@@ -296,8 +296,8 @@ public class Activator extends AbstractUIPlugin {
 		return (IEntityLabelProviderService) modelLabelsTracker.getService();
 	}
 	
-	public IEntityActionProviderService getActionProvider() {
-		return (IEntityActionProviderService) actionProviderServiceTracker.getService();
+	public IHoverService getHoverService() {
+		return (IHoverService) hoverServiceTracker.getService();
 	}
 	
 	public IInputBarActionProviderService getInputBarActionProvider() {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.local-terminal-service-provider">
+	<implementation class="com.netifera.platform.host.internal.terminal.LocalTerminalServiceProvider" />
+	<service>
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
+	</service>
+	
+	<reference
+		name="LOG_MANAGER"
+		interface="com.netifera.platform.api.log.ILogManager"
+		bind="setLogManager"
+		unbind="unsetLogManager"
+	/>
+	
+	<reference
+		name="SYSTEM"
+		interface="com.netifera.platform.api.system.ISystemService"
+		bind="setSystemService"
+		unbind="unsetSystemService"
+	/>
+	
+</component>

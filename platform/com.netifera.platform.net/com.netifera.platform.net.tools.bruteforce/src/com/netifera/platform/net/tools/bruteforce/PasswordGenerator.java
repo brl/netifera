@@ -20,8 +20,8 @@ public class PasswordGenerator implements FiniteIterable<Credential> {
 		passwords.add(list);
 	}
 
-	public int itemCount() {
-		return passwords.itemCount();
+	public int size() {
+		return passwords.size();
 	}
 
 	public Iterator<Credential> iterator() {

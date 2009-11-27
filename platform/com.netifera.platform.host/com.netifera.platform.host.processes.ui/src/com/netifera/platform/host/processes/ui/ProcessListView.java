@@ -1,6 +1,9 @@
 package com.netifera.platform.host.processes.ui;
 
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -19,8 +22,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.host.internal.processes.ui.Activator;
-import com.netifera.platform.host.processes.IProcessManager;
-import com.netifera.platform.host.processes.IProcessManagerFactory;
+import com.netifera.platform.host.processes.IProcessService;
 import com.netifera.platform.host.processes.Process;
 import com.netifera.platform.host.processes.ui.actions.KillAction;
 import com.netifera.platform.host.processes.ui.actions.ToggleTreeModeAction;
@@ -85,10 +87,13 @@ public class ProcessListView extends ViewPart {
 	}
 	
 	private void setInputToCurrentProbe() {
-		IProcessManagerFactory factory = Activator.getInstance().getProcessManagerFactory();
 		IProbe probe = Activator.getInstance().getCurrentProbe();
-		IProcessManager processManager = factory.createForProbe(probe);
-		setInput(processManager);
+		try {
+			IProcessService processService = (IProcessService) Activator.getInstance().getServiceFactory().create(IProcessService.class, new URI("local:///"), probe);
+			setInput(processService);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private void createActions() {
@@ -155,7 +160,7 @@ public class ProcessListView extends ViewPart {
 	public void setName(String name) {
 		setPartName(name);
 	}
-	public void setInput(IProcessManager input) {
+	public void setInput(IProcessService input) {
 		viewer.setInput(input);
 	}
 

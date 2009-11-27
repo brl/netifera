@@ -6,8 +6,8 @@ Bundle-Version: 1.0.0
 Export-Package: com.netifera.platform.internal.model;x-internal:=true,
  com.netifera.platform.model
 Service-Component: OSGI-INF/model-service.xml,
- OSGI-INF/probes-tree-provider.xml,
- OSGI-INF/tags-layer-provider.xml,
+ OSGI-INF/probes-tree-layer.xml,
+ OSGI-INF/tags-group-layer.xml,
  OSGI-INF/entity-adapter-service.xml,
  OSGI-INF/model-sync.xml
 Eclipse-BuddyPolicy: registered, global

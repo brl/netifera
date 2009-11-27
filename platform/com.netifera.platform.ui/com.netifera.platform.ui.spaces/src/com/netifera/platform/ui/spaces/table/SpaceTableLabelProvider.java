@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
+import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
@@ -18,7 +19,7 @@ public class SpaceTableLabelProvider extends LabelProvider implements ITableLabe
 	private final IEntityLabelProviderService entityLabelProvider;
 	
 	public SpaceTableLabelProvider() {
-		entityLabelProvider = Activator.getDefault().getLabelProvider();
+		entityLabelProvider = Activator.getInstance().getLabelProvider();
 	}
 	
 	@Override
@@ -60,6 +61,8 @@ public class SpaceTableLabelProvider extends LabelProvider implements ITableLabe
 		}
 		if (column == 2)
 			return element.getClass().getSimpleName();
+		if (column == 3)
+			return ((AbstractEntity)element).getModificationTime().toString();
 		return null;
 	}
 }

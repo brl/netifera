@@ -5,11 +5,11 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="com.netifera.platform.ui.spaces.editors.SpaceEditor"
+            class="com.netifera.platform.ui.spaces.editor.SpaceEditor"
             default="false"
             icon="icons/space.png"
             id="com.netifera.platform.editors.spaces"
-            contributorClass="com.netifera.platform.ui.spaces.editors.SpaceEditorActionBarContributor"
+            contributorClass="com.netifera.platform.ui.spaces.editor.SpaceEditorActionBarContributor"
             name="Space Editor">
       </editor>
    </extension>
@@ -20,7 +20,16 @@
             label="Spaces Action Set"
             visible="true">
          <action
-               class="com.netifera.platform.ui.spaces.actions.NewSpace"
+               class="com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceDelegate"
+               definitionId="com.netifera.platform.commands.newIsolatedSpace"
+               icon="icons/new_space_isolated.png"
+               id="com.netifera.platform.actions.newIsolatedSpace"
+               label="New Isolated Space"
+               style="push"
+               toolbarPath="Normal">
+         </action>
+         <action
+               class="com.netifera.platform.ui.spaces.actions.NewSpaceDelegate"
                definitionId="com.netifera.platform.commands.newSpace"
                icon="icons/new_space.png"
                id="com.netifera.platform.actions.newSpace"
@@ -34,7 +43,11 @@
          point="org.eclipse.ui.commands">
       <command
             id="com.netifera.platform.commands.newSpace"
-            name="Open New Space">
+            name="New Space">
+      </command>
+      <command
+            id="com.netifera.platform.commands.newIsolatedSpace"
+            name="New Isolated Space">
       </command>
    </extension>
    <extension
@@ -44,29 +57,11 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+T">
       </key>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
-      <view
-            category="com.netifera.platform.ui.category.general"
-            class="com.netifera.platform.ui.spaces.views.SpaceListView"
-            icon="icons/space_list.png"
-            id="com.netifera.platform.views.spaceList"
-            name="Space List"
-            restorable="true">
-      </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="*">
-         <view
-               id="com.netifera.platform.views.spaceList"
-               minimized="false"
-               ratio="0.30"
-               relationship="fast">
-         </view>
-      </perspectiveExtension>
+      <key
+            commandId="com.netifera.platform.commands.newIsolatedSpace"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+T">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.elementFactories">

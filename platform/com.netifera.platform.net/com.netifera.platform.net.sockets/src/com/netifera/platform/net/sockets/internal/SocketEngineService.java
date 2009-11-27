@@ -24,11 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.sockets.AsynchronousSelectableChannel;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.ISocketEngineService;
 import com.netifera.platform.net.sockets.TCPChannel;
 import com.netifera.platform.net.sockets.UDPChannel;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.locators.UDPSocketLocator;
 

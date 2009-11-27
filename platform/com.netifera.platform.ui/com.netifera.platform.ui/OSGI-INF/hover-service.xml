@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.hover-action-provider-service">
+	<implementation class="com.netifera.platform.ui.internal.HoverService" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverService" />
+	</service>
+	
+	<reference 
+		name="ACTION_PROVIDERS"
+		interface="com.netifera.platform.ui.api.hover.IHoverActionProvider"
+		bind="registerActionProvider"
+		unbind="unregisterActionProvider"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+
+	<reference 
+		name="INFORMATION_PROVIDERS"
+		interface="com.netifera.platform.ui.api.hover.IHoverInformationProvider"
+		bind="registerInformationProvider"
+		unbind="unregisterInformationProvider"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+	
+	<reference
+        name="LOGGER"
+        interface="com.netifera.platform.api.log.ILogManager"
+        bind="setLogManager"
+        unbind="unsetLogManager"
+    />
+</component>

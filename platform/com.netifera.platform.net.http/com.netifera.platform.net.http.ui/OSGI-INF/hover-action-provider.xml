@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.http-action-provider">
+	<implementation class="com.netifera.platform.net.http.internal.ui.HoverActionProvider" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProvider" />
+	</service>
+	
+	<reference 
+		name="WEBSPIDER_MODULES"
+		interface="com.netifera.platform.net.http.spider.IWebSpiderModule"
+		bind="registerWebSpiderModule"
+		unbind="unregisterWebSpiderModule"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+
+	<reference 
+		name="WORDLISTS"
+		interface="com.netifera.platform.net.wordlists.IWordListManager"
+		bind="setWordListManager"
+		unbind="unsetWordListManager"
+	/>
+	
+</component>

@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.Viewer;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.IStructureContext;
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.model.TreeStructureContext;
 
 public class SpaceTreeContentProvider implements ITreeContentProvider {
@@ -117,15 +117,15 @@ public class SpaceTreeContentProvider implements ITreeContentProvider {
 		throw new IllegalStateException("Could not convert node to TreeStructureContext");		
 	}
 	
-	public List<ILayerProvider> getLayers() {
+	public List<ISemanticLayer> getLayers() {
 		return treeUpdater.getLayers();
 	}
 	
-	public void addLayer(ILayerProvider layerProvider) {
+	public void addLayer(ISemanticLayer layerProvider) {
 		treeUpdater.addLayer(layerProvider);
 	}
 	
-	public void removeLayer(ILayerProvider layerProvider) {
+	public void removeLayer(ISemanticLayer layerProvider) {
 		treeUpdater.removeLayer(layerProvider);
 	}
 }

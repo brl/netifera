@@ -12,12 +12,12 @@ public class SingleElementIndexedIterable<E> implements IndexedIterable<E> {
 		this.element = element;
 	}
 	
-	public E itemAt(int index) {
+	public E get(int index) {
 		if (index == 0) return element;
 		throw new IndexOutOfBoundsException();
 	}
 	
-	public int itemCount() {
+	public int size() {
 		return 1;
 	}
 	

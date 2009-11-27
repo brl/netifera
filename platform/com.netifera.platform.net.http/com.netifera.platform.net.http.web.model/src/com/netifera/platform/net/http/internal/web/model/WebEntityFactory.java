@@ -219,7 +219,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 		HTTPRequestEntity answer = new HTTPRequestEntity(getWorkspace(), connection, requestLine);
 		HTTPResponseEntity response = new HTTPResponseEntity(getWorkspace(), connection, responseStatusLine);
 		if (contentType != null)
-			response.setNamedAttribute("Content-Type", contentType);
+			response.setAttribute("Content-Type", contentType);
 		response.save();
 		response.addToSpace(spaceId);
 		answer.setResponse(response);

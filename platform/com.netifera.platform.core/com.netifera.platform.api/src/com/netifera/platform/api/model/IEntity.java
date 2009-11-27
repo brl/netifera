@@ -15,7 +15,7 @@ public interface IEntity {
 
 	/**
 	 * Get the workspace this entity belongs to.
-	 * @return The workspace thise entity belongs to.
+	 * @return The workspace this entity belongs to.
 	 */
 	IWorkspace getWorkspace();
 
@@ -78,5 +78,20 @@ public interface IEntity {
 	 */
 	IndexedIterable<?> getIterableAdapter(Class<?> iterableType);
 
+	/*
+	 * Entity data API (attributes, associations and tags)
+	 */
+	
+	void setAttribute(String name, String value);
+	String getAttribute(String name);
+
+	void setAssociation(String name, IEntity value);
+	IEntity getAssociation(String name);
+	void addAssociation(String name, IEntity value);
+	void removeAssociation(String name, IEntity value);
+	Set<IEntityReference> getAssociations(String name);
+
+	void addTag(String tag);
+	void removeTag(String tag);
 	Set<String> getTags();
 }

@@ -62,13 +62,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		MenuManager winMenu = new MenuManager("&Window",IWorkbenchActionConstants.M_WINDOW);
 		winMenu.add(preferenceAction);
 		
-		MenuManager viewMenu = new MenuManager("Open View");
+		MenuManager viewMenu = new MenuManager("Show View");
 		viewMenu.add(viewList);
 		winMenu.add(viewMenu);
 		
 		MenuManager perspectiveMenu = new MenuManager("Open Perspective");
 		winMenu.add(perspectiveMenu);
-
 		
 		MenuManager helpMenu = new MenuManager("&Help",IWorkbenchActionConstants.M_HELP);
 		helpMenu.add(aboutAction);

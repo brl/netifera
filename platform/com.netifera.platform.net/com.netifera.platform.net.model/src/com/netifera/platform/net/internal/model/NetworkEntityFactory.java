@@ -146,9 +146,9 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		if(!info.containsKey(name))
 			return false;
 		String value = info.get(name);
-		if (value == null || value.equals(e.getNamedAttribute(name)))
+		if (value == null || value.equals(e.getAttribute(name)))
 			return false;
-		e.setNamedAttribute(name, value);
+		e.setAttribute(name, value);
 		return true;
 	}
 
@@ -163,15 +163,15 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	}
 
 	private boolean updateComment(AbstractEntity entity, String newComment) {
-		String oldComment = entity.getNamedAttribute("comment");
+		String oldComment = entity.getAttribute("comment");
 		if (oldComment != null) {
 			if (!oldComment.contains(newComment)) {
 				newComment = oldComment + "\n" + newComment;
-				entity.setNamedAttribute("comment", newComment);
+				entity.setAttribute("comment", newComment);
 				return true;
 			}
 		} else {
-			entity.setNamedAttribute("comment", newComment);
+			entity.setAttribute("comment", newComment);
 			return true;
 		}
 		return false;
@@ -180,8 +180,8 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	public synchronized void setOperatingSystem(long realm, long spaceId, InternetAddress address, String os) {
 		InternetAddressEntity addressEntity = createAddress(realm, spaceId, address);
 		HostEntity hostEntity = addressEntity.getHost();
-		if(os != null && !os.equals(hostEntity.getNamedAttribute("os"))) {
-			hostEntity.setNamedAttribute("os", os);
+		if(os != null && !os.equals(hostEntity.getAttribute("os"))) {
+			hostEntity.setAttribute("os", os);
 			hostEntity.update();
 		}
 	}

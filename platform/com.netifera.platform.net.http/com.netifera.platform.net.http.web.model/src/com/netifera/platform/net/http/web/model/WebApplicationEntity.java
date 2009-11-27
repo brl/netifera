@@ -38,11 +38,11 @@ public class WebApplicationEntity extends AbstractEntity {
 	}
 
 	public void setVersion(String version) {
-		setNamedAttribute("version", version);
+		setAttribute("version", version);
 	}
 	
 	public String getVersion() {
-		return getNamedAttribute("version");
+		return getAttribute("version");
 	}
 
 /*	@Override

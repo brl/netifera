@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.net.sockets.CompletionHandler;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class SelectionFuture<V,A> extends FutureTask<V> {
 

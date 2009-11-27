@@ -4,6 +4,6 @@
 	<implementation class="com.netifera.platform.net.dns.internal.ui.EntityLabelProvider" />
 	<service>
 		<provide interface="com.netifera.platform.ui.api.model.IEntityLabelProvider" />
-		<provide interface="com.netifera.platform.ui.api.model.IEntityInformationProvider" />
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverInformationProvider" />
 	</service>
 </component>

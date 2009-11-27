@@ -5,11 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.netifera.platform.api.iterables.FiniteIterable;
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
-import com.netifera.platform.net.internal.tools.bruteforce.Activator;
 import com.netifera.platform.net.services.auth.AuthenticationListener;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
@@ -22,7 +20,6 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	private boolean singleMode = false;
 
 	protected IToolContext context;
-	protected long realm;
 
 	protected abstract CredentialsVerifier createCredentialsVerifier();
 	protected abstract FiniteIterable<Credential> createCredentials();
@@ -30,14 +27,10 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
 
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
-
 		setupToolOptions();
-		context.setTotalWork(credentials.itemCount());
+		context.setTotalWork(credentials.size());
 
-		context.info("Trying "+credentials.itemCount()+" credentials...");
+		context.info("Trying "+credentials.size()+" credentials...");
 		
 		try {
 			verifier = createCredentialsVerifier();

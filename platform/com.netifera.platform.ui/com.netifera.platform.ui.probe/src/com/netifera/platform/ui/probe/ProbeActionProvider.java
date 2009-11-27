@@ -13,14 +13,14 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbe.ConnectState;
 import com.netifera.platform.model.ProbeEntity;
 import com.netifera.platform.ui.actions.SpaceAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
-public class ProbeActionProvider implements IEntityActionProvider {
+public class ProbeActionProvider implements IHoverActionProvider {
 
 	private ILogger logger;
 	
-	public List<IAction> getActions(IShadowEntity shadow) {
+	public List<IAction> getActions(Object o) {
 		return Collections.emptyList();
 	}
 
@@ -52,7 +52,10 @@ public class ProbeActionProvider implements IEntityActionProvider {
 		}
 	}
 	
-	public List<IAction> getQuickActions(IShadowEntity shadow) {
+	public List<IAction> getQuickActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity shadow = (IShadowEntity) o;
+		
 		List<IAction> actions = new ArrayList<IAction>();
 		if(shadow instanceof ProbeEntity) {
 			addProbeActions(actions, (ProbeEntity) shadow);

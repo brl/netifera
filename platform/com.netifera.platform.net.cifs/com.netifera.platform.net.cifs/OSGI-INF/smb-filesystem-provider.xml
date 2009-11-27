@@ -2,6 +2,6 @@
 <component name="netifera.filesystem-smb">
 	<implementation class="com.netifera.platform.net.cifs.internal.SMBFileSystemProvider" />
 	<service>
-		<provide interface="com.netifera.platform.host.filesystem.IFileSystemProvider" />
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
 	</service>
 </component>

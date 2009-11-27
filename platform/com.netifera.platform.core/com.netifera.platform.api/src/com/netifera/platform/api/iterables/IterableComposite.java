@@ -17,13 +17,13 @@ public class IterableComposite<T> implements FiniteIterable<T> {
 		iterables.add(collection);
 	}
 
-	public int itemCount() {
+	public int size() {
 		int count = 0;
 		for (Iterable<T> iterable: iterables)
 			if (iterable instanceof Collection)
 				count += ((Collection<T>)iterable).size();
 			else //if (iterable instanceof FiniteIterable)
-				count += ((FiniteIterable<T>)iterable).itemCount();
+				count += ((FiniteIterable<T>)iterable).size();
 		return count;
 	}
 

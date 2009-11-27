@@ -4,7 +4,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.netifera.platform.host.filesystem.IFileSystemFactory;
+import com.netifera.platform.services.IServiceFactory;
 import com.netifera.platform.ui.images.ImageCache;
 import com.netifera.platform.ui.util.BalloonManager;
 
@@ -15,7 +15,7 @@ public class Activator implements BundleActivator {
 	private BalloonManager balloonManager;
 	private ImageCache imageCache;
 	
-	private ServiceTracker fileSystemFactoryTracker;
+	private ServiceTracker serviceFactoryTracker;
 
 
 	public static Activator getInstance() {
@@ -30,8 +30,8 @@ public class Activator implements BundleActivator {
 		instance = this;
 		imageCache = new ImageCache(PLUGIN_ID);
 		
-		fileSystemFactoryTracker = new ServiceTracker(context, IFileSystemFactory.class.getName(), null);
-		fileSystemFactoryTracker.open();
+		serviceFactoryTracker = new ServiceTracker(context, IServiceFactory.class.getName(), null);
+		serviceFactoryTracker.open();
 	}
 
 	/*
@@ -54,7 +54,7 @@ public class Activator implements BundleActivator {
 		return imageCache;
 	}
 	
-	public IFileSystemFactory getFileSystemFactory() {
-		return (IFileSystemFactory) fileSystemFactoryTracker.getService();
+	public IServiceFactory getServiceFactory() {
+		return (IServiceFactory) serviceFactoryTracker.getService();
 	}
 }

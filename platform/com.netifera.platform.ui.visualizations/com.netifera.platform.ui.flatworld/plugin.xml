@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="com.netifera.platform.ui.category.visualizations"
+            class="com.netifera.platform.ui.flatworld.FlatWorldView"
+            icon="icons/world.png"
+            id="com.netifera.platform.views.flatworld"
+            name="World"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="com.netifera.platform.ui.perspectives.explore">
+         <viewShortcut id="com.netifera.platform.views.flatworld"/>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="com.netifera.platform.ui.perspectives.sniffing">
+         <viewShortcut id="com.netifera.platform.views.flatworld"/>
+         <view
+               id="com.netifera.platform.views.flatworld"
+               ratio="0.55"
+               relationship="fast"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="com.netifera.platform.ui.perspectives.tool">
+         <viewShortcut id="com.netifera.platform.views.flatworld"/>
+         <view
+               id="com.netifera.platform.views.flatworld"
+               ratio="0.55"
+               relationship="fast"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>

@@ -113,7 +113,7 @@ public class IPv6Netblock extends InternetNetblock {
 		return maskBitCount >= 98; /* to fit java signed integer */
 	}
 	
-	public InternetAddress itemAt(int index) {
+	public InternetAddress get(int index) {
 		byte[] data = new byte[IPv6Address.BYTESLENGTH];
 		System.arraycopy(getNetworkAddress().toBytes(), 0, data, 0, 12);
 		for (int i = 0; i < 4; i++) {
@@ -122,7 +122,7 @@ public class IPv6Netblock extends InternetNetblock {
 		return new IPv6Address(data);
 	}
 
-	public int itemCount() {
+	public int size() {
 		if (!isIndexedIterable()) {
 			return 0;
 		}

@@ -1,6 +1,5 @@
 package com.netifera.platform.net.tools.basic;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -13,20 +12,15 @@ import com.netifera.platform.util.addresses.inet.InternetAddress;
 public class AddHost implements ITool {
 	
 	private IToolContext context;
-	private long realm;
 	private InternetAddress address;
 
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
 
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
-		
 		setupToolOptions();
 
 		context.setTitle("Add host "+address);
-		InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(realm, context.getSpaceId(), address);
+		InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), address);
 		HostEntity entity = addressEntity.getHost();
 		entity.addTag("Target");
 		entity.update();

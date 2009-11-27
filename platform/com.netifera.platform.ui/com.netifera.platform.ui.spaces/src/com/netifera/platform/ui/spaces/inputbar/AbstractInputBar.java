@@ -84,8 +84,8 @@ public abstract class AbstractInputBar extends ControlContribution {
 				if (e.character == SWT.CR) {
 					if (AbstractInputBar.this.isActionEnabled()) {
 						if ((e.stateMask & SWT.SHIFT) != 0) {
-							SpaceCreator creator = new SpaceCreator(Activator.getDefault().getWorkbench().getActiveWorkbenchWindow());
-							creator.create(content);
+							SpaceCreator creator = new SpaceCreator(Activator.getInstance().getWorkbench().getActiveWorkbenchWindow());
+							creator.openNewSpace(content, true);
 						}
 						AbstractInputBar.this.runAction();
 						text.setText(content);
@@ -135,7 +135,7 @@ public abstract class AbstractInputBar extends ControlContribution {
 	}
 	
 	protected ISpace getActiveSpace() {
-		IEditorPart editor = Activator.getDefault().getActiveEditor();
+		IEditorPart editor = Activator.getInstance().getActiveEditor();
 		if(editor == null) {
 			return null;
 		}

@@ -54,7 +54,7 @@ public class ToolClient {
 	
 	private void exchangeMessages(String toolClassName, IToolConfiguration configuration, ISpace space) throws MessengerException {
 		logger.debug("Sending tool launch message to launch: " + toolClassName);
-		IProbeMessage response = probe.getMessenger().exchangeMessage(new ToolLaunchMessage(toolClassName, configuration, space.getId()));
+		IProbeMessage response = probe.getMessenger().exchangeMessage(new ToolLaunchMessage(toolClassName, configuration, probe.isLocalProbe() ? space.getRootEntity().getId() : -1, space.getId()));
 		if (response instanceof ToolLaunchMessage) {
 			ToolLaunchMessage toolLaunchResponse = (ToolLaunchMessage) response;
 			logger.debug("Launch completed, task id = " + toolLaunchResponse.getTaskId());

@@ -19,19 +19,19 @@ import prefuse.visual.VisualItem;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.layers.IEdgeLayerProvider;
-import com.netifera.platform.api.model.layers.IGroupLayerProvider;
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.IEdgeLayer;
+import com.netifera.platform.api.model.layers.IGroupLayer;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.ui.graphs.GraphViewer;
 import com.netifera.platform.ui.graphs.actions.ToggleAnimationAction;
 import com.netifera.platform.ui.graphs.actions.ToggleEnforceBoundsAction;
 import com.netifera.platform.ui.graphs.actions.ToggleImagesAction;
 import com.netifera.platform.ui.graphs.actions.ToggleLabelsAction;
 import com.netifera.platform.ui.graphs.actions.ToggleOverviewAction;
-import com.netifera.platform.ui.spaces.actions.EntityHover;
-import com.netifera.platform.ui.spaces.actions.ChooseLayerAction;
-import com.netifera.platform.ui.spaces.actions.SelectLayersAction;
+import com.netifera.platform.ui.spaces.editor.actions.ChooseLayerAction;
+import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
 import com.netifera.platform.ui.spaces.graphs.SpaceGraphContentProvider;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeLabelProvider;
 import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
 
@@ -128,7 +128,7 @@ public class SpaceGraphVisualization implements ISpaceVisualization {
 			private void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {
 				hideInformationControl();
-				informationControl = new EntityHover(parent, location, input, item);
+				informationControl = new ActionHover(parent, location, input, item);
 				informationControl.open();
 			}
 			
@@ -157,22 +157,22 @@ public class SpaceGraphVisualization implements ISpaceVisualization {
 	public void addContributions(IContributionManager contributions) {
 		contributions.add(new SelectLayersAction() {
 			@Override
-			protected void disableLayer(ILayerProvider provider) {
+			protected void disableLayer(ISemanticLayer provider) {
 				contentProvider.removeLayer(provider);
 			}
 			@Override
-			protected void enableLayer(ILayerProvider provider) {
+			protected void enableLayer(ISemanticLayer provider) {
 				contentProvider.addLayer(provider);
 			}
 			@Override
-			protected List<ILayerProvider> getActiveLayers() {
+			protected List<ISemanticLayer> getActiveLayers() {
 				return contentProvider.getLayers();
 			}
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IEdgeLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof IEdgeLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
@@ -181,42 +181,42 @@ public class SpaceGraphVisualization implements ISpaceVisualization {
 
 		contributions.add(new ChooseLayerAction("Set Color", Activator.getDefault().getImageCache().getDescriptor("icons/colors.png")) {
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected ILayerProvider getActiveLayer() {
+			protected ISemanticLayer getActiveLayer() {
 				return contentProvider.getColorLayer();
 			}
 			@Override
-			protected void setActiveLayer(ILayerProvider provider) {
-				contentProvider.setColorLayer((IGroupLayerProvider) provider);
+			protected void setActiveLayer(ISemanticLayer provider) {
+				contentProvider.setColorLayer((IGroupLayer) provider);
 			}
 			
 		});
 
 		contributions.add(new ChooseLayerAction("Set Shape", Activator.getDefault().getImageCache().getDescriptor("icons/shape.png")) {
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getDefault().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected ILayerProvider getActiveLayer() {
+			protected ISemanticLayer getActiveLayer() {
 				return contentProvider.getShapeLayer();
 			}
 			@Override
-			protected void setActiveLayer(ILayerProvider provider) {
-				contentProvider.setShapeLayer((IGroupLayerProvider) provider);
+			protected void setActiveLayer(ISemanticLayer provider) {
+				contentProvider.setShapeLayer((IGroupLayer) provider);
 			}
 			
 		});

@@ -11,7 +11,7 @@ import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.ISpaceContentChangeEvent;
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.updater.StructuredViewerUpdater;
@@ -30,8 +30,8 @@ public class SpaceTreeUpdater {
 		this.space = space;
 //		this.viewer = treeViewer;
 		this.updater = StructuredViewerUpdater.get(treeViewer);
-		List<ILayerProvider> layerProviders = new ArrayList<ILayerProvider>();
-		for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders())
+		List<ISemanticLayer> layerProviders = new ArrayList<ISemanticLayer>();
+		for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers())
 			if (layerProvider.isDefaultEnabled())
 				layerProviders.add(layerProvider);
 		this.treeBuilder = new TreeBuilder(layerProviders);
@@ -110,16 +110,16 @@ public class SpaceTreeUpdater {
 		return (treeBuilder.getRoot() != null && (treeBuilder.getRoot().getStructureContext() instanceof TreeStructureContext));
 	}
 	
-	public List<ILayerProvider> getLayers() {
+	public List<ISemanticLayer> getLayers() {
 		return treeBuilder.getLayers();
 	}
 	
-	public void addLayer(ILayerProvider layerProvider) {
+	public void addLayer(ISemanticLayer layerProvider) {
 		treeBuilder.addLayer(layerProvider);
 		layersChanged();
 	}
 	
-	public void removeLayer(ILayerProvider layerProvider) {
+	public void removeLayer(ISemanticLayer layerProvider) {
 		treeBuilder.removeLayer(layerProvider);
 		layersChanged();
 	}

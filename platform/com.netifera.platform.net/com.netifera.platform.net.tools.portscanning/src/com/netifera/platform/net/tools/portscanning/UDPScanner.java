@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.net.sockets.UDPChannel;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.UDPSocketLocator;
 
 
@@ -38,7 +38,7 @@ public class UDPScanner extends AbstractPortscanner {
 	@Override
 	protected void scannerRun() throws ToolException {
 		context.setTitle("UDP scan "+targetNetwork);
-		context.setTotalWork(targetNetwork.itemCount()*targetPorts.itemCount()+1); //+1 in order to account for waiting responses after sending all requests
+		context.setTotalWork(targetNetwork.size()*targetPorts.size()+1); //+1 in order to account for waiting responses after sending all requests
 		try {
 			channel = Activator.getInstance().getSocketEngine().openUDP();
 //			channel.setReuseAddress(true);
@@ -107,14 +107,14 @@ public class UDPScanner extends AbstractPortscanner {
 				
 				PortSet ports = new PortSet();
 				ports.addPort(peer.getPort());
-				Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(realm, context.getSpaceId(), peer.getAddress(), ports);
+				Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getAddress(), ports);
 				
 				responseBuffer.flip();
 				
 				byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
 				Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp",peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);
 				if (serviceInfo != null) {
-					Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
+					Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
 					context.info(serviceInfo.get("serviceType")+" @ "+peer);
 				} else {
 					context.warning("Unknown service @ " + peer);

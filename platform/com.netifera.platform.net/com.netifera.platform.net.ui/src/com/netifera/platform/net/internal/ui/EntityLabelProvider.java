@@ -48,6 +48,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String PORTS = "icons/ports.png";
 	private final static String CREDENTIAL = "icons/credential.png";
 	private final static String USER = "icons/user.png";
+	private final static String USER_PRIVILEDGED = "icons/user_priviledged.png";
+	private final static String USER_INACTIVE = "icons/user_inactive.png";
 	
 	private final static String FOLDER = "icons/folder.png";
 	private final static String TARGET = "icons/target.png";
@@ -58,7 +60,9 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String VULNERABLE_OVERLAY = "icons/vulnerable_overlay.png";
 	private final static String CONTROLLED_OVERLAY = "icons/controlled_overlay.png";
 //	private final static String ERROR_OVERLAY = "icons/error_overlay.png";
-	
+
+	private final static String PRIVILEDGED_OVERLAY = "icons/priviledged_overlay.png";
+
 	//private final static String HOST_SERVER_IBM = "icons/host_server_ibm.png";
 	//private final static String HOST_SERVER_HP = "icons/host_server_hp.png";
 	//private final static String HOST_SERVER_AS400 = "icons/host_server_as400.png";
@@ -138,7 +142,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		} else if(e instanceof HostEntity) {
 			return getHostImage((HostEntity)e);
 		} else if(e instanceof UserEntity) {
-			return Activator.getInstance().getImageCache().get(USER);
+			return getUserImage((UserEntity)e);
 		} else if(e instanceof NetblockEntity) {
 			InternetAddress net = ((NetblockEntity)e).getNetblock().getNetworkAddress();
 			if (net.isLinkLocal() || net.isPrivate() || net.isLoopback()) { // TODO use InternetNetblock
@@ -211,7 +215,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 	
 	private Image getHostImage(HostEntity e) {
-		String os = e.getNamedAttribute("os");
+		String os = e.getAttribute("os");
 		if (os == null) os = "";
 		os = os.toLowerCase(Locale.ENGLISH);
 		String base = HOST_WORKSTATION;
@@ -241,7 +245,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 
 	private String getOSDecoration(AbstractEntity e) {
-		String os = e.getNamedAttribute("os");
+		String os = e.getAttribute("os");
 		if (os == null) os = "";
 		os = os.toLowerCase(Locale.ENGLISH);
 		if (os.matches(".*linux.*"))
@@ -271,6 +275,16 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		return null;
 	}
 
+	private Image getUserImage(UserEntity e) {
+		String base = e.isPriviledged() ? USER_PRIVILEDGED : e.isLocked() ? USER_INACTIVE : USER;
+/*		if (e.isPriviledged()) {
+			String overlayKeys[] = new String[5];
+			overlayKeys[IDecoration.BOTTOM_RIGHT] = PRIVILEDGED_OVERLAY;
+			return Activator.getInstance().getImageCache().getDecorated(base, overlayKeys);
+		}
+*/		return Activator.getInstance().getImageCache().get(base);
+	}
+	
 	private Image getServiceImage(ServiceEntity e) {
 		String type = e.getServiceType();
 		String base = SERVICE;

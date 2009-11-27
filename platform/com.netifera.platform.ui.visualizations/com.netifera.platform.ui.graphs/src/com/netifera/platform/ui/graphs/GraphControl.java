@@ -143,14 +143,15 @@ public class GraphControl extends AWTEmbeddedControl {
 		display.addControlListener(new FocusControl());
 		display.addControlListener(new DragControl(true, true));
 		display.addControlListener(new PanControl(Control.LEFT_MOUSE_BUTTON, false));
-		display.addControlListener(new ZoomControl(Control.MIDDLE_MOUSE_BUTTON) {
+		display.addControlListener(new WheelZoomControl());
+		display.addControlListener(new ZoomControl(Control.RIGHT_MOUSE_BUTTON) {
 		    protected int zoom(Display display, Point2D p, double zoom, boolean abs) {
 		    	// reverse the zoom to match wwj: up = zoom in, down = zoom out
 		    	zoom = 1.0 / zoom;
 		    	return super.zoom(display, p, zoom, abs);
 		    }
 		});
-		display.addControlListener(new WheelZoomControl());
+		display.addControlListener(new ZoomToFitControl(Control.RIGHT_MOUSE_BUTTON));
 		display.addControlListener(new ZoomToFitControl(Control.MIDDLE_MOUSE_BUTTON));
 		display.addControlListener(new NeighborHighlightControl());
 		

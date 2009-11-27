@@ -1,12 +1,9 @@
 package com.netifera.platform.api.model;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
@@ -23,6 +20,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	private transient IWorkspace workspace;
 	
 	private String queryKey;
+	
 	/* 
 	 * The id value of this entity instance.  If the id is 0, then
 	 * the entity has not yet been stored permanently in the model.
@@ -31,12 +29,10 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	
 	/* The entity id of the 'realm' this entity belongs to */
 	private long realmId;
-	
-	private Map<String, IEntityReference> namedAssociations;
-	private Map<String, String> namedAttributes;
-	
-	private Set<String> tags;
 
+	/* The object where entity attributes, associations and tags are stored */
+	private EntityData data = new EntityData();
+	
 	/**
 	 * 
 	 * @param typeName A string describing the type of this entity.
@@ -54,49 +50,52 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		this.workspace = null;
 	}
 	
-	private Map<String, IEntityReference> getNamedAssociationsMap() {
-		if(namedAssociations == null) {
-			namedAssociations = new HashMap<String, IEntityReference>();
-		}
-		return namedAssociations;
-	}
-	
-	private Map<String, String> getNamedAttributesMap() {
-		if(namedAttributes == null) {
-			namedAttributes = new HashMap<String, String>();
-		}
-		return namedAttributes;
-	}
-
-	private Set<String> getTagsSet() {
-		if(tags == null) {
-			tags = new HashSet<String>();
-		}
-		return tags;
-	}
-	
 	public void setWorkspace(final IWorkspace workspace) {
 		this.workspace = workspace;
 	}
-		
-	public void setNamedAttribute(final String name, final String value) {
-		getNamedAttributesMap().put(name, value);
+	
+	public void setAttribute(final String name, final String value) {
+		data.setAttribute(name, value);
 	}
 
-	public String getNamedAttribute(final String name) {
-		return getNamedAttributesMap().get(name);
+	public String getAttribute(final String name) {
+		return data.getAttribute(name);
 	}
 
-	public void setNamedAssociation(String name, IEntity value) {
-		getNamedAssociationsMap().put(name, value.createReference());
+	public void setAssociation(String name, IEntity value) {
+		data.setAssociation(name, value);
 	}
 
-	public IEntity getNamedAssociation(final String name) {
-		IEntityReference ref = getNamedAssociationsMap().get(name);
+	public IEntity getAssociation(final String name) {
+		IEntityReference ref = data.getAssociation(name);
 		if (ref == null) return null;
 		return referenceToEntity(ref);
 	}
-	
+
+	public void addAssociation(String name, IEntity value) {
+		data.addAssociation(name, value);
+	}
+
+	public void removeAssociation(String name, IEntity value) {
+		data.removeAssociation(name, value);
+	}
+
+	public Set<IEntityReference> getAssociations(String name) {
+		return data.getAssociations(name);
+	}
+
+	public synchronized void addTag(String tag) {
+		data.addTag(tag);
+	}
+
+	public synchronized void removeTag(String tag) {
+		data.removeTag(tag);
+	}
+
+	public synchronized Set<String> getTags() {
+		return data.getTags();
+	}
+
 	public String getTypeName() {
 		return typeName;
 	}
@@ -119,6 +118,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	public void setRealmId(long id) {
 		this.realmId = id;
 	}
+	
 	public IEntityReference createReference() {
 		if(id == 0) {
 			throw new IllegalStateException("IEntity#createReference called on an entity which has not been saved.");
@@ -186,12 +186,11 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		}
 		synchronized(this) {
 			synchronizeEntity((AbstractEntity) entity);
-			synchronizeTags((AbstractEntity) entity);
-			synchronizeAttributesAndAssociations((AbstractEntity) entity);
+			data.synchronizeData(((AbstractEntity)entity).data);
 		}
 		update();
 	}
-		
+	
 	public synchronized void update() {
 		if(!canSave()) {
 			throw new IllegalStateException("IEntity#update() called on an entity that cannot be saved.");
@@ -213,8 +212,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 				return;
 			}
 			for(IShadowEntity shadow : shadowEntities) {
-				((AbstractEntity)shadow).synchronizeAttributesAndAssociations(this);
-				((AbstractEntity)shadow).synchronizeTags(this);
+				((AbstractEntity)shadow).data.synchronizeData(this.data);
 				((AbstractEntity)shadow).synchronizeEntity(this);
 			}
 		}
@@ -241,7 +239,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		private IStructureContext structureContext;
 		/* used by shadow entities to reference the entity they were cloned from */
 		private AbstractEntity originalEntity;
-		private ISpace view;
+		private ISpace space;
 	}
 	
 	/*
@@ -261,7 +259,6 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	}
 	
 	private void addShadowEntity(final AbstractEntity entity, final IStructureContext structure) {
-	
 		synchronized(getShadowLock()) {
 			if(shadowEntities == null) {
 				shadowEntities = new LinkedList<IShadowEntity>();
@@ -281,45 +278,12 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		// subclass responsibility
 	}
 
-	private void synchronizeTags(AbstractEntity entity) {
-		if(entity.tags == null) 
-			return;
-		for(String tag : entity.tags) {
-			addTag(tag);
-		}
-		//FIXME what if a tag was removed?
-	}
-
-	private void synchronizeAttributesAndAssociations(AbstractEntity masterEntity) {
-		if(masterEntity.namedAttributes != null) {
-			mergeNamedAttributes(masterEntity.namedAttributes, getNamedAttributesMap());
-		}
-		
-		if(masterEntity.namedAssociations != null) {
-			mergeNamedAssociations(masterEntity.namedAssociations, getNamedAssociationsMap());	
-		}	
-	}
-	
-	/* These merge methods replace old information with new information */
-	private void mergeNamedAttributes(Map<String, String> from, Map<String,String> to) {
-		for(String key : from.keySet()) 
-			to.put(key, from.get(key));
-		//FIXME what if an attribute was removed?
-	}
-	
-	private void mergeNamedAssociations(Map<String, IEntityReference> from, Map<String, IEntityReference> to) {
-		for(String key : from.keySet()) 
-			to.put(key, from.get(key));	
-		//FIXME what if an association was removed?
-	}
-	
 	public IShadowEntity shadowClone(final IStructureContext structure) {
 		if(structure == null) {
 			throw new NullPointerException();
 		}
 		AbstractEntity clone = (AbstractEntity) cloneEntity();
-		clone.synchronizeTags(this);
-		clone.synchronizeAttributesAndAssociations(this);
+		clone.data.synchronizeData(this.data);
 		clone.id = id;
 
 		addShadowEntity(clone, structure);
@@ -369,27 +333,11 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		}
 	}
 	
-	public synchronized Set<String> getTags() {
-		if (tags == null)
-			return Collections.emptySet();
-		else
-			return Collections.unmodifiableSet(tags);
-	}
-
-	public synchronized void addTag(String tag) {
-		getTagsSet().add(tag);
-	}
-
-	public synchronized void removeTag(String tag) {
-		if (tags == null) return;
-		tags.remove(tag);
-	}
-
-	public long getViewId() {
+	public long getSpaceId() {
 		if(shadowContext == null) {
 			throw new IllegalStateException();
 		}
-		return shadowContext.view.getId();
+		return shadowContext.space.getId();
 	}
 	
 	public Object getAdapter(final Class<?> adapterType) {
@@ -400,6 +348,10 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	public IndexedIterable<?> getIterableAdapter(final Class<?> iterableType) {
 		if (workspace == null) return null;
 		return workspace.getModel().getAdapterService().getIterableAdapter(this, iterableType);
+	}
+
+	public Date getModificationTime() {
+		return data.getTimestamp();
 	}
 	
 	public String toString() {

@@ -19,6 +19,12 @@
             id="com.netifera.platform.ui.perspectives.tool"
             name="Tools">
       </perspective>
+      <perspective
+            class="com.netifera.platform.ui.application.Perspective"
+            icon="icons/explore_perspective.png"
+            id="com.netifera.platform.ui.perspectives.explore"
+            name="Explore">
+      </perspective>
    </extension>
    <extension
          id="product"
@@ -44,7 +50,7 @@
          </property>
       </product>
    </extension>
-   <extension
+<!--   <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
             id="com.netifera.platform.actionset.workspace"
@@ -70,6 +76,7 @@
          </action>
       </actionSet>
    </extension>
+-->
    <extension
          point="org.eclipse.ui.commands">
       <command
@@ -109,7 +116,7 @@
                   style="push">
                   <parameter
                         name="org.eclipse.ui.views.showView.viewId"
-                        value="com.netifera.platform.views.spaceList">
+                        value="com.netifera.platform.views.navigator">
                   </parameter>
                   <parameter
                         name="org.eclipse.ui.views.showView.makeFast"
@@ -194,6 +201,14 @@
 	  <category
             id="com.netifera.platform.ui.category.tasks"
             name="Tasks">
+      </category>
+      <category
+            id="com.netifera.platform.ui.category.host"
+            name="Host">
+      </category>
+      <category
+            id="com.netifera.platform.ui.category.visualizations"
+            name="Visualizations">
       </category>
    </extension>
 </plugin>

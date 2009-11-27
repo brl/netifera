@@ -44,7 +44,7 @@ public class IterableOptionWidget extends OptionWidget {
 		combo.setEditable(false);
 		combo.setToolTipText(option.getDescription());
 		
-		final IWorkspace workspace = Activator.getDefault().getModel().getCurrentWorkspace();
+		final IWorkspace workspace = Activator.getInstance().getModel().getCurrentWorkspace();
 		if(workspace == null) {
 			throw new IllegalStateException("Cannot create IterableOptionWidget because no workspace is open");
 		}
@@ -54,7 +54,7 @@ public class IterableOptionWidget extends OptionWidget {
 			}
 		});
 		for (IEntity e: entities) {
-			combo.add(Activator.getDefault().getLabelProvider().getText((IShadowEntity)e));
+			combo.add(Activator.getInstance().getLabelProvider().getText((IShadowEntity)e));
 		}
 		
 		toolkit.paintBordersFor(area);

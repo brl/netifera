@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -30,17 +31,17 @@ import org.eclipse.swt.widgets.TreeItem;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.layers.IGroupLayerProvider;
-import com.netifera.platform.api.model.layers.ILayerProvider;
-import com.netifera.platform.api.model.layers.ITreeLayerProvider;
+import com.netifera.platform.api.model.layers.IGroupLayer;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
+import com.netifera.platform.api.model.layers.ITreeLayer;
 import com.netifera.platform.model.FolderEntity;
 import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.dnd.EntityTransfer;
 import com.netifera.platform.ui.internal.spaces.Activator;
-import com.netifera.platform.ui.spaces.actions.EntityHover;
-import com.netifera.platform.ui.spaces.actions.SelectLayersAction;
+import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeContentProvider;
 import com.netifera.platform.ui.spaces.tree.SpaceTreeLabelProvider;
 import com.netifera.platform.ui.spaces.tree.TreeBuilder;
@@ -62,61 +63,63 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 	public void addContributions(IContributionManager contributions) {
 		contributions.add(new SelectLayersAction() {
 			@Override
-			protected void disableLayer(ILayerProvider provider) {
+			protected void disableLayer(ISemanticLayer provider) {
 				contentProvider.removeLayer(provider);
 			}
 			@Override
-			protected void enableLayer(ILayerProvider provider) {
+			protected void enableLayer(ISemanticLayer provider) {
 				contentProvider.addLayer(provider);
 			}
 			@Override
-			protected List<ILayerProvider> getActiveLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: contentProvider.getLayers()) {
-					if (layerProvider instanceof ITreeLayerProvider)
+			protected List<ISemanticLayer> getActiveLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: contentProvider.getLayers()) {
+					if (layerProvider instanceof ITreeLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof ITreeLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof ITreeLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 		});
 
-		contributions.add(new SelectLayersAction("Select Folders", Activator.getDefault().getImageCache().getDescriptor("icons/folders.png")) {
+		contributions.add(new SelectLayersAction("Select Folders", Activator.getInstance().getImageCache().getDescriptor("icons/folders.png")) {
 			@Override
-			protected void disableLayer(ILayerProvider provider) {
+			protected void disableLayer(ISemanticLayer provider) {
 				contentProvider.removeLayer(provider);
 			}
 			@Override
-			protected void enableLayer(ILayerProvider provider) {
+			protected void enableLayer(ISemanticLayer provider) {
 				contentProvider.addLayer(provider);
 			}
 			@Override
-			protected List<ILayerProvider> getActiveLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: contentProvider.getLayers()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+			protected List<ISemanticLayer> getActiveLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: contentProvider.getLayers()) {
+					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 			@Override
-			protected List<ILayerProvider> getLayers() {
-				List<ILayerProvider> answer = new ArrayList<ILayerProvider>();
-				for (ILayerProvider layerProvider: Activator.getDefault().getModel().getLayerProviders()) {
-					if (layerProvider instanceof IGroupLayerProvider)
+			protected List<ISemanticLayer> getLayers() {
+				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
+				for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers()) {
+					if (layerProvider instanceof IGroupLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
 			}
 		});
+
+		contributions.add(new Separator("fixedGroup"));
 
 		contributions.add(TreeAction.collapseAll(viewer));
 		contributions.add(TreeAction.expandAll(viewer));
@@ -200,7 +203,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 			@Override
 			protected void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {
-				informationControl = new EntityHover(parent, location, input, item);
+				informationControl = new ActionHover(parent, location, input, item);
 				informationControl.open();
 			}
 			@Override
@@ -247,7 +250,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 					}
 					return true;
 				} else if (data instanceof String) {
-					IInputBarActionProviderService actionProvider = Activator.getDefault().getInputBarActionProvider();
+					IInputBarActionProviderService actionProvider = Activator.getInstance().getInputBarActionProvider();
 					for (String line: ((String) data).split("[\\r\\n]+")) {
 						List<IAction> actions = actionProvider.getActions(space.getProbeId(), space.getId(), line);
 						if (actions.size() > 0) {
@@ -298,8 +301,17 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 					IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 					Iterator<?> iterator = selection.iterator();
 					while (iterator.hasNext()) {
-						buffer.append(labelProvider.getText(iterator.next()));
-						buffer.append("\n");
+						Object o = iterator.next();
+						if (o instanceof IShadowEntity) {
+							IShadowEntity entity = (IShadowEntity) o;
+							IShadowEntity parent = ((TreeStructureContext)entity.getStructureContext()).getParent();
+							while (parent != null) {
+								parent = ((TreeStructureContext)parent.getStructureContext()).getParent();
+								if (parent != null) buffer.append("\t"); // the top parent is not shown in the tree, so avoid extra indent for it
+							}
+							buffer.append(labelProvider.getText(entity));
+							buffer.append("\n");
+						}
 					}
 					event.data = buffer.toString();
 				}

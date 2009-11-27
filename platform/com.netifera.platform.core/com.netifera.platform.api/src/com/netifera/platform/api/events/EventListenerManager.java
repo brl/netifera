@@ -27,7 +27,12 @@ public class EventListenerManager {
 			handlers.toArray(handlersCopy);
 		}
 		for(IEventHandler handler : handlersCopy) {
-			handler.handleEvent(event);
+			try {
+				handler.handleEvent(event);
+			} catch (Exception e) {
+				//TODO should log
+				e.printStackTrace();
+			}
 		}
 		
 	}

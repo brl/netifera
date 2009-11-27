@@ -30,7 +30,7 @@ import org.xbill.DNS.SetResponse;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
-import com.netifera.platform.net.sockets.CompletionHandler;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 /**
  * The Lookup object issues queries to caching DNS servers. The input consists

@@ -2,7 +2,6 @@ package com.netifera.platform.net.http.tools;
 
 import java.io.IOException;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -22,15 +21,11 @@ public class WebApplicationScanner implements ITool {
 		context.setTitle("Web applications scanner");
 		setupToolOptions();
 
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		long realm = probe.getEntity().getId();
-
 		context.setTitle("Scan web applications at "+http.getLocator());
 		try {
 			WebSpider spider = new WebSpider();
 			spider.setServices(context.getLogger(), Activator.getInstance().getWebEntityFactory(), Activator.getInstance().getNameResolver());
-			spider.setRealm(realm);
+			spider.setRealm(context.getRealm());
 			spider.setSpaceId(context.getSpaceId());
 			spider.addTarget(http, hostname);
 			spider.setFollowLinks(false);

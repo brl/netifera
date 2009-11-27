@@ -5,7 +5,10 @@ import com.netifera.platform.api.tasks.ITaskMessenger;
 
 public interface IToolContext extends ITaskMessenger {
 	IToolConfiguration getConfiguration();
+	
+	long getRealm();
 	long getSpaceId();
+	
 	void setTotalWork(int totalWork);
 	void worked(int work);
 	void done();

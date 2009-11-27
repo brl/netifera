@@ -19,8 +19,12 @@ Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.model,
  com.netifera.platform.ui.actions,
  com.netifera.platform.ui.api.actions,
+ com.netifera.platform.ui.api.hover,
  com.netifera.platform.ui.api.model,
  com.netifera.platform.ui.images,
  com.netifera.platform.ui.spaces,
+ com.netifera.platform.ui.spaces.actions,
+ com.netifera.platform.ui.spaces.hover,
  com.netifera.platform.util.patternmatching
-Export-Package: com.netifera.platform.ui.probe.status;x-internal:=true
+Export-Package: com.netifera.platform.ui.probe.actions,
+ com.netifera.platform.ui.probe.status;x-internal:=true

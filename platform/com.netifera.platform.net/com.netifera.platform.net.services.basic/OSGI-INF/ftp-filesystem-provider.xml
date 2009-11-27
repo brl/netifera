@@ -2,6 +2,6 @@
 <component name="netifera.filesystem-local">
 	<implementation class="com.netifera.platform.net.internal.services.basic.FTPFileSystemProvider" />
 	<service>
-		<provide interface="com.netifera.platform.host.filesystem.IFileSystemProvider" />
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
 	</service>
 </component>

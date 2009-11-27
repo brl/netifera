@@ -13,7 +13,6 @@ import org.xbill.DNS.PTRRecord;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.ZoneTransferException;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -30,14 +29,9 @@ public class DNSZoneTransfer implements ITool {
 	private DNS dns;
 	private Name domain;
 	private IToolContext context;
-	private long realm;
 
 	public void toolRun(IToolContext context) throws ToolException {
 		this.context = context;
-		
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 		
 		context.setTitle("Zone transfer");
 		
@@ -66,10 +60,10 @@ public class DNSZoneTransfer implements ITool {
 		for (Object o: dns.zoneTransfer(domain.toString())) {
 			if (o instanceof ARecord) {
 				ARecord a = (ARecord) o;
-				Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), a.getName().toString(), IPv4Address.fromInetAddress(a.getAddress()));
+				Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), a.getName().toString(), IPv4Address.fromInetAddress(a.getAddress()));
 			} else if (o instanceof AAAARecord) {
 				AAAARecord aaaa = (AAAARecord) o;
-				Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), aaaa.getName().toString(), IPv6Address.fromInetAddress(aaaa.getAddress()));
+				Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), aaaa.getName().toString(), IPv6Address.fromInetAddress(aaaa.getAddress()));
 			} else if (o instanceof PTRRecord) {
 				PTRRecord ptr = (PTRRecord) o;
 				String reverseName = ptr.getName().toString();
@@ -83,14 +77,14 @@ public class DNSZoneTransfer implements ITool {
 				/* verify the hostname is valid before adding it to model
 				 * (avoid configuration errors to pollute the model) */
 				if (HostnameMatcher.matches(hostname)) {
-					Activator.getInstance().getDomainEntityFactory().createPTRRecord(realm, context.getSpaceId(), address, ptr.getTarget().toString());
+					Activator.getInstance().getDomainEntityFactory().createPTRRecord(context.getRealm(), context.getSpaceId(), address, ptr.getTarget().toString());
 				}
 			} else if (o instanceof MXRecord) {
 				MXRecord mx = (MXRecord) o;
-				Activator.getInstance().getDomainEntityFactory().createMXRecord(realm, context.getSpaceId(), domain.toString(), mx.getTarget().toString(), mx.getPriority());
+				Activator.getInstance().getDomainEntityFactory().createMXRecord(context.getRealm(), context.getSpaceId(), domain.toString(), mx.getTarget().toString(), mx.getPriority());
 			} else if (o instanceof NSRecord) {
 				NSRecord ns = (NSRecord) o;
-				Activator.getInstance().getDomainEntityFactory().createNSRecord(realm, context.getSpaceId(), domain.toString(), ns.getTarget().toString());
+				Activator.getInstance().getDomainEntityFactory().createNSRecord(context.getRealm(), context.getSpaceId(), domain.toString(), ns.getTarget().toString());
 			} else {
 				context.warning("Unhandled record: "+o);
 			}

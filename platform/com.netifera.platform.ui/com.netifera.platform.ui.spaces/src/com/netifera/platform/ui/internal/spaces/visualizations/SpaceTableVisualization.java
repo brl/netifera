@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.ui.spaces.actions.EntityHover;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.spaces.table.SpaceTableContentProvider;
 import com.netifera.platform.ui.spaces.table.SpaceTableLabelProvider;
 import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
@@ -43,9 +43,9 @@ public class SpaceTableVisualization implements ISpaceVisualization {
 		tableViewer.setContentProvider(contentProvider);
 		SpaceTableLabelProvider labelProvider = new SpaceTableLabelProvider();
 		tableViewer.setLabelProvider(labelProvider);
-		String[] columnNames = new String[] { "Label", "Tags", "Type" };
-		int[] columnWidth = new int[] { 350, 100, 70 };
-		int[] columnAlign = new int[] { SWT.LEFT, SWT.LEFT, SWT.LEFT };
+		String[] columnNames = new String[] { "Label", "Tags", "Type", "Modification Time" };
+		int[] columnWidth = new int[] { 350, 100, 70, 100 };
+		int[] columnAlign = new int[] { SWT.LEFT, SWT.LEFT, SWT.LEFT, SWT.LEFT };
 		/** get the table widget from the viewer */
 		final Table table = tableViewer.getTable();
 
@@ -110,7 +110,7 @@ public class SpaceTableVisualization implements ISpaceVisualization {
 			@Override
 			protected void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {
-				informationControl = new EntityHover(parent, location, space, item);
+				informationControl = new ActionHover(parent, location, space, item);
 				informationControl.open();
 			}
 			@Override

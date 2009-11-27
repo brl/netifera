@@ -10,6 +10,7 @@ import com.netifera.platform.ui.probe.Activator;
 
 public class ConnectProbeAction extends Action {
 	private final StructuredViewer viewer;
+	
 	public ConnectProbeAction(StructuredViewer viewer) {
 		this.viewer = viewer;
 		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/connect.png"));

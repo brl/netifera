@@ -1,5 +1,6 @@
 package com.netifera.platform.net.cifs.filesystem;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -69,9 +70,20 @@ public class SMBFileSystem implements IFileSystem {
 		}
 	}
 
+	public File stat(String fileName) throws IOException {
+		SmbFile file = (new SmbFile(fileName));
+		if (!file.exists())
+			throw new FileNotFoundException(fileName);
+		return convert(file);
+	}
+
 	public boolean rename(String oldName, String newName) throws IOException {
 		(new SmbFile(oldName)).renameTo(new SmbFile(newName));
 		return true;
+	}
+
+	public void disconnect() throws IOException {
+		// TODO Auto-generated method stub
 	}
 
 	private File[] convert(SmbFile[] smbFiles) throws SmbException {
@@ -85,9 +97,9 @@ public class SMBFileSystem implements IFileSystem {
 	private File convert(SmbFile smbFile) throws SmbException {
 		int attributes = 0;
 		if (smbFile.isDirectory())
-			attributes |= File.DIRECTORY;
+			attributes |= File.S_IFDIR;
 		if (smbFile.isFile())
-			attributes |= File.FILE;
+			attributes |= File.S_IFREG;
 		String fullPath = smbFile.getCanonicalPath();
 //		if (fullPath.endsWith("/"))
 //			fullPath = fullPath.substring(0, fullPath.length()-1);

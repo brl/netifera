@@ -51,5 +51,5 @@ public interface IShadowEntity extends IEntity {
 	 */
 	void dispose();
 	
-	long getViewId();
+	long getSpaceId();
 }

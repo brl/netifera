@@ -2,6 +2,6 @@
 <component name="netifera.filesystem-sftp">
 	<implementation class="com.netifera.platform.net.ssh.internal.filesystem.SFTPFileSystemProvider" />
 	<service>
-		<provide interface="com.netifera.platform.host.filesystem.IFileSystemProvider" />
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
 	</service>
 </component>

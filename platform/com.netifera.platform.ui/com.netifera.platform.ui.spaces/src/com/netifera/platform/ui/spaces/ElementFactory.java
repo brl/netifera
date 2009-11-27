@@ -26,7 +26,7 @@ public class ElementFactory implements IElementFactory {
 	}
 	
 	private ISpace createSpaceFromId(long id) {
-		IModelService model = Activator.getDefault().getModel();
+		IModelService model = Activator.getInstance().getModel();
 		if(model == null) return null;
 		return model.getCurrentWorkspace().findSpaceById(id);
 	}
