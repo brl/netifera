@@ -43,11 +43,11 @@ public class UserEntity extends AbstractEntity {
 	}
 
 	public void setPassword(String password) {
-		setNamedAttribute("password", password);
+		setAttribute("password", password);
 	}
 
 	public String getPassword() {
-		return getNamedAttribute("password");
+		return getAttribute("password");
 	}
 
 	public void setHash(String hashType, String hash) {
@@ -63,11 +63,11 @@ public class UserEntity extends AbstractEntity {
 	}
 
 	public void setHome(String home) {
-		setNamedAttribute("home", home);
+		setAttribute("home", home);
 	}
 
 	public String getHome() {
-		return getNamedAttribute("home");
+		return getAttribute("home");
 	}
 	
 	public void setLocked(boolean locked) {

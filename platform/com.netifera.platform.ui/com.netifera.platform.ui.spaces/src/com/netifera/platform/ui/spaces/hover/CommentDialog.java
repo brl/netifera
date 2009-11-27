@@ -97,7 +97,7 @@ public class CommentDialog extends PopupDialog {
 	}
 
 	private void addOptions() {
-		String comment = ((AbstractEntity)entity).getNamedAttribute("comment");
+		String comment = ((AbstractEntity)entity).getAttribute("comment");
 		if (comment == null) comment = "";
 		
 		text = toolkit.createText(body, comment, SWT.BORDER);
@@ -153,7 +153,7 @@ public class CommentDialog extends PopupDialog {
 		if (!addLink.isEnabled())
 			return;
 		final AbstractEntity realEntity = (AbstractEntity) entity.getRealEntity();
-		realEntity.setNamedAttribute("comment",text.getText());
+		realEntity.setAttribute("comment",text.getText());
 		realEntity.update();
 		close();
 	}

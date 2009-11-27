@@ -215,7 +215,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 	
 	private Image getHostImage(HostEntity e) {
-		String os = e.getNamedAttribute("os");
+		String os = e.getAttribute("os");
 		if (os == null) os = "";
 		os = os.toLowerCase(Locale.ENGLISH);
 		String base = HOST_WORKSTATION;
@@ -245,7 +245,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 
 	private String getOSDecoration(AbstractEntity e) {
-		String os = e.getNamedAttribute("os");
+		String os = e.getAttribute("os");
 		if (os == null) os = "";
 		os = os.toLowerCase(Locale.ENGLISH);
 		if (os.matches(".*linux.*"))

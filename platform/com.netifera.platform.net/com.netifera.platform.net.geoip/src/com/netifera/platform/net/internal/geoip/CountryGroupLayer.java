@@ -19,7 +19,7 @@ public class CountryGroupLayer implements IGroupLayer {
 	
 	public Set<String> getGroups(IEntity entity) {
 		if (entity instanceof HostEntity) {
-			String countryCode = ((AbstractEntity)entity).getNamedAttribute("country");
+			String countryCode = ((AbstractEntity)entity).getAttribute("country");
 			if (countryCode == null && geoipService != null) {
 				InternetAddress address = (InternetAddress) entity.getAdapter(InternetAddress.class);
 				if (address != null) {

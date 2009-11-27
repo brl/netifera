@@ -274,7 +274,7 @@ public class HostsGeographicalLayer implements IGeographicalLayer {
 				}
 		}
 		
-		final String countryCode = ((HostEntity)entity).getNamedAttribute("country");
+		final String countryCode = ((HostEntity)entity).getAttribute("country");
 		if (countryCode != null) {
 			return new ILocation() {
 				public String getCity() {

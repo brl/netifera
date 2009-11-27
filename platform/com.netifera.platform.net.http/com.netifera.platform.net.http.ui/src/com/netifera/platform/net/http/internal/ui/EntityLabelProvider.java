@@ -151,7 +151,7 @@ public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformat
 			return images.get(HTTP_ERROR);
 		if (status > 300)
 			return images.get(HTTP_REDIRECT);
-		return getMIMEImage(response.getNamedAttribute("Content-Type"));
+		return getMIMEImage(response.getAttribute("Content-Type"));
 	}
 	
 	private Image getMIMEImage(String contentType) {

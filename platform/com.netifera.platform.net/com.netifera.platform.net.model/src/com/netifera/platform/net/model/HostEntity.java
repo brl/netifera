@@ -67,8 +67,8 @@ public class HostEntity extends AbstractEntity {
 	}
 	
 	public String getPlatform() {
-		String os = getNamedAttribute("os");
-		String arch = getNamedAttribute("arch");
+		String os = getAttribute("os");
+		String arch = getAttribute("arch");
 		String platformOS = null;
 		String platformArch = null;
 		

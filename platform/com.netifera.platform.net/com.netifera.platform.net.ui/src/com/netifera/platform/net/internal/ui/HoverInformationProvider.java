@@ -82,32 +82,32 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 			}
 			buffer.append("</p>");
 		}
-		if (e.getNamedAttribute("os") != null) {
-			buffer.append("<p>System: "+escape(e.getNamedAttribute("os")));
-			if (e.getNamedAttribute("distribution")!=null)
-				buffer.append(" - "+escape(e.getNamedAttribute("distribution")));
-			if (e.getNamedAttribute("arch") != null) {
-				buffer.append(" ("+escape(e.getNamedAttribute("arch"))+")");
+		if (e.getAttribute("os") != null) {
+			buffer.append("<p>System: "+escape(e.getAttribute("os")));
+			if (e.getAttribute("distribution")!=null)
+				buffer.append(" - "+escape(e.getAttribute("distribution")));
+			if (e.getAttribute("arch") != null) {
+				buffer.append(" ("+escape(e.getAttribute("arch"))+")");
 			}
 			buffer.append("</p>");
 		}
-		if (e.getNamedAttribute("cpu") != null) {
-			buffer.append("<p>CPU: "+escape(e.getNamedAttribute("cpu")));
+		if (e.getAttribute("cpu") != null) {
+			buffer.append("<p>CPU: "+escape(e.getAttribute("cpu")));
 			buffer.append("</p>");
 		}
-		if (e.getNamedAttribute("bogomips") != null) {
-			buffer.append("<p>CPU bogomips: "+escape(e.getNamedAttribute("bogomips")));
+		if (e.getAttribute("bogomips") != null) {
+			buffer.append("<p>CPU bogomips: "+escape(e.getAttribute("bogomips")));
 			buffer.append("</p>");
 		}
-		if (e.getNamedAttribute("memoryTotal") != null) {
-			buffer.append("<p>Memory: "+escape(e.getNamedAttribute("memoryTotal")));
-			if (e.getNamedAttribute("memoryFree") != null) {
-				buffer.append(" ("+escape(e.getNamedAttribute("memoryFree"))+" free)");
+		if (e.getAttribute("memoryTotal") != null) {
+			buffer.append("<p>Memory: "+escape(e.getAttribute("memoryTotal")));
+			if (e.getAttribute("memoryFree") != null) {
+				buffer.append(" ("+escape(e.getAttribute("memoryFree"))+" free)");
 			}
 			buffer.append("</p>");
 		}
-		if (e.getNamedAttribute("workgroup") != null) {
-			buffer.append("<p>Workgroup: "+escape(e.getNamedAttribute("workgroup")));
+		if (e.getAttribute("workgroup") != null) {
+			buffer.append("<p>Workgroup: "+escape(e.getAttribute("workgroup")));
 			buffer.append("</p>");
 		}
 		if (geoipService != null) {

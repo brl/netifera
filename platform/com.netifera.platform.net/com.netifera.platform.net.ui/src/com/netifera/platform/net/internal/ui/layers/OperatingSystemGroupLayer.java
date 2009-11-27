@@ -12,7 +12,7 @@ public class OperatingSystemGroupLayer implements IGroupLayer {
 
 	public Set<String> getGroups(IEntity entity) {
 		if (entity instanceof HostEntity) {
-			String os = ((HostEntity)entity).getNamedAttribute("os");
+			String os = ((HostEntity)entity).getAttribute("os");
 			if (os != null) {
 				Set<String> answer = new HashSet<String>();
 				answer.add(os);

@@ -34,11 +34,11 @@ public class ProcHarvester implements IFileSystemSpiderModule {
 					if (line.startsWith("model name")) {
 						String value = line.substring(line.indexOf(":")+1).trim();
 						context.getLogger().info("CPU: "+value);
-						hostEntity.setNamedAttribute("cpu", value);
+						hostEntity.setAttribute("cpu", value);
 					} else if (line.startsWith("bogomips")) {
 						String value = line.substring(line.indexOf(":")+1).trim();
 						context.getLogger().info("CPU bogomips: "+value);
-						hostEntity.setNamedAttribute("bogomips", value);
+						hostEntity.setAttribute("bogomips", value);
 						break;
 					}
 				}
@@ -55,12 +55,12 @@ public class ProcHarvester implements IFileSystemSpiderModule {
 					HostEntity hostEntity = addressEntity.getHost();
 					String value = line.substring(line.indexOf(":")+1).trim();
 					context.getLogger().info("Memory Total: "+value);
-					hostEntity.setNamedAttribute("memoryTotal", value);
+					hostEntity.setAttribute("memoryTotal", value);
 					line = reader.readLine();
 					if (line.startsWith("MemFree")) {
 						value = line.substring(line.indexOf(":")+1).trim();
 						context.getLogger().info("Memory Free: "+value);
-						hostEntity.setNamedAttribute("memoryFree", value);
+						hostEntity.setAttribute("memoryFree", value);
 					} else {
 						context.getLogger().error("Malformed /proc/meminfo (expected MemFree): "+line);
 					}
@@ -78,7 +78,7 @@ public class ProcHarvester implements IFileSystemSpiderModule {
 				context.getLogger().info("Uptime: "+line);
 				InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), context.getHostAddress());
 				HostEntity hostEntity = addressEntity.getHost();
-				hostEntity.setNamedAttribute("uptime", line);
+				hostEntity.setAttribute("uptime", line);
 				hostEntity.update();
 			} finally {
 				reader.close();

@@ -90,9 +90,9 @@ public class NetOpGeoLocalizer implements ITool {
 							context.info(address.toString() + " is in " + countryName);
 							
 							InternetAddressEntity entity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), address);
-							entity.setNamedAttribute("country", countryCode);
+							entity.setAttribute("country", countryCode);
 							entity.update();
-							entity.getHost().setNamedAttribute("country", countryCode);
+							entity.getHost().setAttribute("country", countryCode);
 //							entity.getHost().addTag(countryName);
 							entity.getHost().update(); //HACK or the tree builder never gets called to update
 							

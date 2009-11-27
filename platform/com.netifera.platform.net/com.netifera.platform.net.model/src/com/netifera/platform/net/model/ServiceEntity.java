@@ -63,27 +63,27 @@ public class ServiceEntity extends AbstractEntity {
 	}
 
 	public String getBanner() {
-		return getNamedAttribute("banner");
+		return getAttribute("banner");
 	}
 
 	public String getProduct() {
-		return getNamedAttribute("product");
+		return getAttribute("product");
 	}
 	
 	public String getVersion() {
-		return getNamedAttribute("version");
+		return getAttribute("version");
 	}
 	
 	public void setBanner(String banner) {
-		setNamedAttribute("banner", banner);
+		setAttribute("banner", banner);
 	}
 
 	public void setProduct(String product) {
-		setNamedAttribute("product", product);
+		setAttribute("product", product);
 	}
 
 	public void setVersion(String version) {
-		setNamedAttribute("version", version);
+		setAttribute("version", version);
 	}
 
 	public boolean isSSL() {

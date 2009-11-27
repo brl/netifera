@@ -176,7 +176,7 @@ public class ActionHover extends PopupDialog {
 				addSeparator();
 			}
 	
-			String comment = entity.getNamedAttribute("comment");
+			String comment = entity.getAttribute("comment");
 			if (comment != null && comment.length()>0) {
 				FormText commentForm = toolkit.createFormText(body, true);
 				commentForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

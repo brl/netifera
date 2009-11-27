@@ -125,7 +125,7 @@ public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformat
 				buffer.append("</p>");
 		}
 
-		String countryCode = e.getDefaultAddress().getNamedAttribute("country");
+		String countryCode = e.getDefaultAddress().getAttribute("country");
 		if (countryCode != null) {
 			Locale locale = new Locale("en", countryCode);
 			String countryName = locale.getDisplayCountry(Locale.ENGLISH);

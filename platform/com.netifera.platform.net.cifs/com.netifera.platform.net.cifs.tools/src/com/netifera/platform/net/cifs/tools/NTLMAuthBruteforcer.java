@@ -205,7 +205,7 @@ public class NTLMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 								addressEntity.update();
 								
 								HostEntity hostEntity = addressEntity.getHost();
-								hostEntity.setNamedAttribute("workgroup", workgroup);
+								hostEntity.setAttribute("workgroup", workgroup);
 //								hostEntity.setNamedAttribute("netbiosname", machineName);
 								hostEntity.update();
 								

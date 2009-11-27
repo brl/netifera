@@ -18,7 +18,7 @@ public class CityGroupLayer implements IGroupLayer {
 	
 	public Set<String> getGroups(IEntity entity) {
 		if (entity instanceof HostEntity) {
-			String city = ((AbstractEntity)entity).getNamedAttribute("city");
+			String city = ((AbstractEntity)entity).getAttribute("city");
 			if (city == null && geoipService != null) {
 				InternetAddress address = (InternetAddress) entity.getAdapter(InternetAddress.class);
 				if (address != null) {
