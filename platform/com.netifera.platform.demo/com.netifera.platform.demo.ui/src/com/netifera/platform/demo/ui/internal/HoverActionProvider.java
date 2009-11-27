@@ -13,15 +13,16 @@ import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.tools.options.IterableOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
-public class EntityActionProvider implements IEntityActionProvider {
+public class HoverActionProvider implements IHoverActionProvider {
 	
-	public List<IAction> getActions(IShadowEntity entity) {
+	public List<IAction> getActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity entity = (IShadowEntity) o;
 		List<IAction> answer = new ArrayList<IAction>();
-
 		if (entity instanceof ServiceEntity) {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
 			if (serviceEntity.getServiceType().equals("TEST")) {
@@ -39,7 +40,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		return answer;
 	}
 
-	public List<IAction> getQuickActions(IShadowEntity entity) {
+	public List<IAction> getQuickActions(Object o) {
 		return Collections.emptyList();
 	}
 }

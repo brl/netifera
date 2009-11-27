@@ -16,7 +16,7 @@ Export-Package: com.netifera.platform.ui,
 Service-Component: OSGI-INF/model-labels.xml,
  OSGI-INF/entity-transfer.xml,
  OSGI-INF/inputbar-action-provider-service.xml,
- OSGI-INF/entity-action-provider-service.xml
+ OSGI-INF/hover-action-provider-service.xml
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: com.netifera.platform.ui.UIPlugin
 Import-Package: com.netifera.platform.api.log,

@@ -17,14 +17,17 @@ import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
-public class EntityActionProvider implements IEntityActionProvider {
+public class HoverActionProvider implements IHoverActionProvider {
 
 	final private List<IFileSystemSpiderModule> modules = new ArrayList<IFileSystemSpiderModule>();
 	
-	public List<IAction> getActions(IShadowEntity shadow) {
+	public List<IAction> getActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity shadow = (IShadowEntity) o;
+		
 		List<IAction> answer = new ArrayList<IAction>();
 		
 		FileSystemServiceLocator fileSystemLocator = (FileSystemServiceLocator) shadow.getAdapter(FileSystemServiceLocator.class);
@@ -48,7 +51,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		return answer;
 	}
 
-	public List<IAction> getQuickActions(IShadowEntity shadow) {
+	public List<IAction> getQuickActions(Object o) {
 		return Collections.emptyList();
 	}
 	

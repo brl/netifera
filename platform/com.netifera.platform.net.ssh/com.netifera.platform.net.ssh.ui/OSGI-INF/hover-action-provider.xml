@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.ssh-action-provider">
-	<implementation class="com.netifera.platform.net.ssh.internal.ui.EntityActionProvider" />
+	<implementation class="com.netifera.platform.net.ssh.internal.ui.HoevrActionProvider" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProvider" />
+		<provide interface="com.netifera.platform.ui.api.actions.IHoverActionProvider" />
 	</service>
 	
 	<reference 

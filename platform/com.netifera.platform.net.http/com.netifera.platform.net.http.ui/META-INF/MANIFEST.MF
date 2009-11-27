@@ -48,7 +48,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.4.0",
  com.netifera.platform.net.dns.service
 Service-Component: OSGI-INF/label-provider.xml,
  OSGI-INF/inputbar-action-provider.xml,
- OSGI-INF/entity-action-provider.xml,
+ OSGI-INF/hover-action-provider.xml,
  OSGI-INF/web-tree-layer.xml,
  OSGI-INF/web-links-edge-layer.xml,
  OSGI-INF/content-type-group-layer.xml

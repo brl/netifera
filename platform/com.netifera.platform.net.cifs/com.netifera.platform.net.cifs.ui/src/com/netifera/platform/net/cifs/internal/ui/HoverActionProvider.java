@@ -18,14 +18,17 @@ import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
-public class EntityActionProvider implements IEntityActionProvider {
+public class HoverActionProvider implements IHoverActionProvider {
 	
 	private IWordListManager wordListManager;
 	
-	public List<IAction> getActions(IShadowEntity entity) {
+	public List<IAction> getActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity entity = (IShadowEntity) o;
+		
 		List<IAction> answer = new ArrayList<IAction>();
 		
 		if (entity instanceof ServiceEntity) {
@@ -88,7 +91,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		return answer;
 	}
 
-	public List<IAction> getQuickActions(IShadowEntity entity) {
+	public List<IAction> getQuickActions(Object o) {
 		return Collections.emptyList();
 	}
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.cifs-entity-action-provider">
-	<implementation class="com.netifera.platform.net.cifs.internal.ui.EntityActionProvider" />
+<component name="netifera.cifs-action-provider">
+	<implementation class="com.netifera.platform.net.cifs.internal.ui.HoverActionProvider" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProvider" />
+		<provide interface="com.netifera.platform.ui.api.actions.IHoverActionProvider" />
 	</service>
 	
 	<reference 

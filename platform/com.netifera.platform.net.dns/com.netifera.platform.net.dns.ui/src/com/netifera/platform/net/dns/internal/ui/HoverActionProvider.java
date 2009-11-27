@@ -1,6 +1,7 @@
 package com.netifera.platform.net.dns.internal.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
@@ -22,12 +23,15 @@ import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IterableOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
-public class EntityActionProvider implements IEntityActionProvider {
+public class HoverActionProvider implements IHoverActionProvider {
 
-	public List<IAction> getActions(IShadowEntity entity) {
+	public List<IAction> getActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity entity = (IShadowEntity) o;
+		
 		List<IAction> answer = new ArrayList<IAction>();
 		
 		if (entity instanceof DomainEntity) {
@@ -89,7 +93,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		return answer;
 	}
 
-	public List<IAction> getQuickActions(IShadowEntity shadow) {
+	public List<IAction> getQuickActions(Object o) {
 		// TODO Auto-generated method stub
 		return null;
 	}

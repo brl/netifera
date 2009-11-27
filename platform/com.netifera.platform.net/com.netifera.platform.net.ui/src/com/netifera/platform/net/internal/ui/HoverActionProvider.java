@@ -1,6 +1,7 @@
 package com.netifera.platform.net.internal.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
@@ -35,7 +36,7 @@ import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
@@ -44,7 +45,7 @@ import com.netifera.platform.util.addresses.inet.InternetNetblock;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.locators.UDPSocketLocator;
 
-public class EntityActionProvider implements IEntityActionProvider {
+public class HoverActionProvider implements IHoverActionProvider {
 
 	private IServerDetectorService serverDetector;
 	private INetworkEntityFactory entityFactory;
@@ -77,7 +78,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 		return udpScanner;
 	}
 	
-	public List<IAction> getActions(IShadowEntity entity) {
+	public List<IAction> getActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity entity = (IShadowEntity) o;
+
 		List<IAction> answer = new ArrayList<IAction>();
 
 		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(entity);
@@ -203,7 +207,10 @@ public class EntityActionProvider implements IEntityActionProvider {
 		answer.add(createNetblock);
 	}
 
-	public List<IAction> getQuickActions(IShadowEntity entity) {
+	public List<IAction> getQuickActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity entity = (IShadowEntity) o;
+		
 		List<IAction> answer = new ArrayList<IAction>();
 
 		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(entity);

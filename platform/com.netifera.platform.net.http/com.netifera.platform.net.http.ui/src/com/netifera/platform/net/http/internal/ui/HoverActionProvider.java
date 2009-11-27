@@ -1,6 +1,7 @@
 package com.netifera.platform.net.http.internal.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,14 +25,17 @@ import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 
-public class EntityActionProvider implements IEntityActionProvider {
+public class HoverActionProvider implements IHoverActionProvider {
 
 	final private List<IWebSpiderModule> modules = new ArrayList<IWebSpiderModule>();
 	private IWordListManager wordListManager;
 
-	public List<IAction> getActions(IShadowEntity entity) {
+	public List<IAction> getActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity entity = (IShadowEntity) o;
+		
 		List<IAction> answer = new ArrayList<IAction>();
 		
 		HTTP http = (HTTP) entity.getAdapter(HTTP.class);
@@ -108,7 +112,7 @@ public class EntityActionProvider implements IEntityActionProvider {
 		answer.add(scanner);
 	}
 
-	public List<IAction> getQuickActions(IShadowEntity shadow) {
+	public List<IAction> getQuickActions(Object o) {
 		// TODO Auto-generated method stub
 		return null;
 	}

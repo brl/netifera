@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.entity-action-provider-service">
-	<implementation class="com.netifera.platform.ui.internal.EntityActionProviderService" />
+<component name="netifera.hover-action-provider-service">
+	<implementation class="com.netifera.platform.ui.internal.HoverActionProviderService" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProviderService" />
+		<provide interface="com.netifera.platform.ui.api.actions.IHoverActionProviderService" />
 	</service>
 	
 	<reference 
 		name="ACTION_PROVIDERS"
-		interface="com.netifera.platform.ui.api.actions.IEntityActionProvider"
+		interface="com.netifera.platform.ui.api.actions.IHoverActionProvider"
 		bind="registerProvider"
 		unbind="unregisterProvider"
 		cardinality="0..n"

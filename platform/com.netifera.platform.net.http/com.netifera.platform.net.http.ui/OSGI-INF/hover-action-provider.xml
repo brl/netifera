@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.http-action-provider">
-	<implementation class="com.netifera.platform.net.http.internal.ui.EntityActionProvider" />
+	<implementation class="com.netifera.platform.net.http.internal.ui.HoverActionProvider" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.actions.IEntityActionProvider" />
+		<provide interface="com.netifera.platform.ui.api.actions.IHoverActionProvider" />
 	</service>
 	
 	<reference 

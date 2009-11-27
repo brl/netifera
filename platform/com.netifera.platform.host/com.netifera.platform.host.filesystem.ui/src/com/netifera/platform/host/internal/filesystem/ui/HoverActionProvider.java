@@ -14,18 +14,21 @@ import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.host.filesystem.FileSystemServiceLocator;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.ui.actions.SpaceAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
+import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 
-public class EntityActionProvider implements IEntityActionProvider {
+public class HoverActionProvider implements IHoverActionProvider {
 
 	private ILogger logger;
 	private IProbeManagerService probeManager;
 	
-	public List<IAction> getActions(IShadowEntity shadow) {
+	public List<IAction> getActions(Object o) {
 		return Collections.emptyList();
 	}
 
-	public List<IAction> getQuickActions(IShadowEntity shadow) {
+	public List<IAction> getQuickActions(Object o) {
+		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
+		IShadowEntity shadow = (IShadowEntity) o;
+
 		List<IAction> answer = new ArrayList<IAction>();
 		
 		final FileSystemServiceLocator fileSystemLocator = (FileSystemServiceLocator) shadow.getAdapter(FileSystemServiceLocator.class);
