@@ -4,6 +4,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.InputDialog;
 
 import com.netifera.platform.api.model.ISpace;
+import com.netifera.platform.ui.internal.spaces.Activator;
 
 public class RenameSpaceAction extends Action {
 	final private ISpace space;
@@ -11,7 +12,8 @@ public class RenameSpaceAction extends Action {
 	public RenameSpaceAction(ISpace space) {
 		this.space = space;
 		setId("renameSpaceAction");
-		setText("Rename space");
+		setText("Rename Space");
+		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/rename.png"));
 	}
 
 	public void run() {
