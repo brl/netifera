@@ -14,7 +14,11 @@ public class NewIsolatedSpaceDelegate implements IWorkbenchWindowActionDelegate 
 	}
 
 	public void run(IAction action) {
-		creator.openNewSpace(true);
+		try {
+			creator.openNewSpace(true);
+		} catch (IllegalArgumentException e) {
+			// it means we tried to open an isolated Space on a remote probe
+		}
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {

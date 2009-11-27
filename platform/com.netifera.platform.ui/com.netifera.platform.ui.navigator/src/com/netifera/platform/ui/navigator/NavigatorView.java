@@ -207,8 +207,8 @@ public class NavigatorView extends ViewPart {
 		IProbe probe = getSelectedProbe();
 		ISpace space = getSelectedSpace();
 //		newProbeAction.setEnabled(probe != null);
-		newSpaceAction.setEnabled(probe != null || (space != null && space.isIsolated()));
-		newIsolatedSpaceAction.setEnabled(probe != null && probe.isLocalProbe() || (space != null && space.isIsolated()));
+		newSpaceAction.setEnabled((probe != null && !probe.isLocalProbe()) || (space != null && space.isIsolated()));
+		newIsolatedSpaceAction.setEnabled((probe != null && probe.isLocalProbe()) || (space != null && space.isIsolated()));
 	}
 	
 	private boolean getConnectActionState() {

@@ -44,6 +44,8 @@ public class SpaceCreator {
 	}
 
 	public void openNewSpace(String name, IProbe probe, boolean isolated) {
+		if (probe.isLocalProbe()) // force isolated spaces on the local probe
+			isolated = true;
 		IEntity rootEntity = isolated ? createSpaceEntity(probe, probe.getEntity()) : probe.getEntity();
 		openNewSpace(name, probe, rootEntity);
 	}
@@ -63,7 +65,7 @@ public class SpaceCreator {
 	private SpaceEntity createSpaceEntity(IProbe probe, IEntity realmEntity) {
 		IWorkspace workspace = Activator.getInstance().getModel().getCurrentWorkspace();
 		if (!probe.isLocalProbe())
-			throw new RuntimeException("Can't create isolated spaces on remote probes");
+			throw new IllegalArgumentException("Can't create isolated spaces on remote probes");
 		SpaceEntity spaceEntity = new SpaceEntity(workspace, realmEntity);
 		spaceEntity.save();
 		return spaceEntity;
