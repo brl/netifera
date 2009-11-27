@@ -121,6 +121,8 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 							buffer.append(escape(location.getCity()+", "+location.getCountry()));
 						} else if (location.getCountry() != null) {
 							buffer.append(escape(location.getCountry()));
+						} else if (location.getContinent() != null) {
+							buffer.append(escape(location.getContinent()));
 						} else {
 							buffer.append(location.getPosition()[0]+" "+location.getPosition()[1]);
 						}
@@ -166,6 +168,8 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 						buffer.append(escape(location.getCity()+", "+location.getCountry()));
 					} else if (location.getCountry() != null) {
 						buffer.append(escape(location.getCountry()));
+					} else if (location.getContinent() != null) {
+						buffer.append(escape(location.getContinent()));
 					} else {
 						buffer.append(location.getPosition()[0]+" "+location.getPosition()[1]);
 					}
