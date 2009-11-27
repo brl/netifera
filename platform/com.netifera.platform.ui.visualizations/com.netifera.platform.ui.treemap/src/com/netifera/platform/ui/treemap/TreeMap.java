@@ -68,6 +68,14 @@ public class TreeMap implements Iterable<IEntity> {
 		return answer;
 	}
 
+	public boolean equals(Object o) {
+		return (o instanceof TreeMap) && netblock.equals(((TreeMap)o).netblock);
+	}
+	
+	public int hashCode() {
+		return netblock.hashCode();
+	}
+	
 	public Iterator<IEntity> iterator() {
 		return new TreeMapIterator(this);
 	}

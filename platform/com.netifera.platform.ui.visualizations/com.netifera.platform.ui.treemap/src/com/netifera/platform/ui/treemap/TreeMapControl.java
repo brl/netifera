@@ -156,11 +156,17 @@ public class TreeMapControl extends Canvas {
 						TreeMap item = getItem(new Point(event.x, event.y));
 						if (item != null) {
 							if ((event.stateMask & SWT.CTRL) != 0) {
-								if (!selection.contains(item))
+								if (selection.contains(item))
+									selection.remove(item);
+								else
 									selection.add(item);
 							} else {
-								selection = new ArrayList<TreeMap>();
-								selection.add(item);
+								if (selection.size() == 1 && selection.contains(item)) {
+									selection = new ArrayList<TreeMap>();
+								} else {
+									selection = new ArrayList<TreeMap>();
+									selection.add(item);
+								}
 							}
 							redraw();
 						}
