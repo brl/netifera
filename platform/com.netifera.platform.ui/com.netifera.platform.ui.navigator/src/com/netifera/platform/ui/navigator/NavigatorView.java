@@ -5,6 +5,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -32,6 +33,7 @@ import com.netifera.platform.ui.probe.actions.DisconnectProbeAction;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.actions.RenameSpaceAction;
 import com.netifera.platform.ui.spaces.editor.SpaceEditor;
+import com.netifera.platform.ui.util.TreeAction;
 
 public class NavigatorView extends ViewPart {
 
@@ -67,18 +69,24 @@ public class NavigatorView extends ViewPart {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-				if (selection.getFirstElement() instanceof ISpace)
+				if (selection.getFirstElement() instanceof ISpace) {
 					handleDoubleClick((ISpace) selection.getFirstElement());
-				else
-					viewer.expandToLevel(selection.getFirstElement(), 1);
+				} else {
+					Object element = selection.getFirstElement();
+					if (viewer.getExpandedState(element)) {
+						viewer.collapseToLevel(element, 1);
+					} else {
+						viewer.expandToLevel(element, 1);						
+					}
+				}
 			}
 		});
 		
 		Activator.getInstance().getProbeManager().addProbeChangeListener(
 				createProbeChangeHandler(parent.getDisplay()));
 
-		createContextMenu();
-		createToolbarButtons();
+		initializeContextMenu();
+		initializeToolBar();
 	}
 	
 	private IEventHandler createProbeChangeHandler(final Display display) {
@@ -104,7 +112,7 @@ public class NavigatorView extends ViewPart {
 		}
 	}
 
-	private void createContextMenu() {
+	private void initializeContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
@@ -153,9 +161,14 @@ public class NavigatorView extends ViewPart {
 		return Activator.getInstance().getWorkbench().getActiveWorkbenchWindow().getActivePage();
 	}
 	
-	private void createToolbarButtons() {
+	private void initializeToolBar() {
 		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+
+		toolBarManager.add(TreeAction.collapseAll(viewer));
+		toolBarManager.add(TreeAction.expandAll(viewer));
 		
+		toolBarManager.add(new Separator("fixedGroup"));
+
 		connectProbeAction = new ConnectProbeAction(viewer);
 		toolBarManager.add(connectProbeAction);
 		

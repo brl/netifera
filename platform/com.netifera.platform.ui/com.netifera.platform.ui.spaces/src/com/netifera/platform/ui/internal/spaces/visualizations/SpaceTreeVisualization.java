@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -117,6 +118,8 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 				return answer;
 			}
 		});
+
+		contributions.add(new Separator("fixedGroup"));
 
 		contributions.add(TreeAction.collapseAll(viewer));
 		contributions.add(TreeAction.expandAll(viewer));
