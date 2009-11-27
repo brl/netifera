@@ -9,16 +9,16 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
-public class NewSpaceAction extends Action {
+public class NewIsolatedSpaceAction extends Action {
 
 	private final StructuredViewer viewer;
 	private final SpaceCreator creator;
 	
-	public NewSpaceAction(IViewPart view, StructuredViewer viewer) {
+	public NewIsolatedSpaceAction(IViewPart view, StructuredViewer viewer) {
 		this.viewer = viewer;
 		this.creator = new SpaceCreator(view.getSite().getWorkbenchWindow());
-		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/new_space.png"));
-		setText("New Space");
+		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/new_space_isolated.png"));
+		setText("New Isolated Space");
 	}
 	
 	public void run() {
@@ -26,10 +26,10 @@ public class NewSpaceAction extends Action {
 		Object element = selection.getFirstElement();
 		if(element instanceof IProbe) {
 			IProbe probe = (IProbe) element;
-			creator.openNewSpace(null, probe, false);
+			creator.openNewSpace(null, probe, true);
 		} else if(element instanceof ISpace) {
 			ISpace space = (ISpace) element;
-			creator.openNewSpace(null, space, false);
+			creator.openNewSpace(null, space, true);
 		}
 	}
 }

@@ -41,18 +41,13 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	private ContentViewer viewer;
 	private ToolBar toolBar;
 	private ISpaceVisualization currentVisualization;
-	public SpaceEditor() {
-		super();
-	}
-
+	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-
 	}
 
 	@Override
 	public void doSaveAs() {
-
 	}
 
 	@Override
@@ -60,6 +55,8 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		setSite(site);
 		setInput(input);
 		setPartName(input.getName());
+		setTitleImage(input.getImageDescriptor().createImage()); //FIXME can this leak memory? is just an icon...
+		
 		if(!(input instanceof SpaceEditorInput)) {
 			throw new PartInitException("SpaceEditor passed unexpected input type");
 		}

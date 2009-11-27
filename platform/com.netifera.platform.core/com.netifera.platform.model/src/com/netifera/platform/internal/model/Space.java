@@ -20,6 +20,7 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.api.tasks.ITaskStatus;
 import com.netifera.platform.model.ProbeEntity;
+import com.netifera.platform.model.SpaceEntity;
 
 public class Space implements ISpace {
 	private final static int BACKGROUND_COMMIT_INTERVAL = 5000;
@@ -169,6 +170,10 @@ public class Space implements ISpace {
 	
 	public IEntity getRootEntity() {
 		return rootEntity;
+	}
+	
+	public boolean isIsolated() {
+		return (rootEntity instanceof SpaceEntity) && (((SpaceEntity)rootEntity).getSpaceId() == id);
 	}
 	
 	public long getId() {

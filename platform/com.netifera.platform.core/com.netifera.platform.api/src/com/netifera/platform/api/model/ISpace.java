@@ -22,6 +22,8 @@ public interface ISpace {
 	List<IEntity> getEntities();
 	int entityCount();
 	IEntity getRootEntity();
+	boolean isIsolated();
+	
 	Set<String> getTags();
 	
 	void addEntity(IEntity entity);

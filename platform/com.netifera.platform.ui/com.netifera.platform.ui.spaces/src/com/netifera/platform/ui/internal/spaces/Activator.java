@@ -93,7 +93,7 @@ public class Activator extends AbstractUIPlugin {
 	private void createFirstSpaceIfNeeded(IWorkbenchWindow window) {
 		if(hasSpaces()) return;
 		SpaceCreator creator = new SpaceCreator(window);
-		creator.create();
+		creator.openNewSpace(true);
 	}
 	
 	private boolean hasSpaces() {

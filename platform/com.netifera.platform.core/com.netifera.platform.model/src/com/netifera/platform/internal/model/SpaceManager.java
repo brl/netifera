@@ -14,6 +14,7 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
+import com.netifera.platform.model.SpaceEntity;
 
 public class SpaceManager {
 	private long currentSpaceId;
@@ -108,6 +109,13 @@ public class SpaceManager {
 	
 	public synchronized ISpace createSpace(IEntity root, IProbe probe) {
 		final long id = generateNewViewId();
+		if (root instanceof SpaceEntity) {
+			SpaceEntity spaceEntity = (SpaceEntity)root;
+			if (spaceEntity.getSpaceId() == -1) {
+				spaceEntity.setSpaceId(id);
+				spaceEntity.save();
+			}
+		}
 		final ISpace space = new Space(id, probe, "Space " + id, root, this);
 		database.store(space);
 		allSpaces.add(space);

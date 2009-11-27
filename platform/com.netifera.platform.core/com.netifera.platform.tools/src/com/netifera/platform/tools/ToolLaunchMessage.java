@@ -12,25 +12,27 @@ public class ToolLaunchMessage extends ProbeMessage {
 	String taskTitle;
 	String className;
 	IToolConfiguration configuration;
+	long realm;
 	long spaceId;
 	long taskId;
 	
-	public ToolLaunchMessage(String className, IToolConfiguration configuration, long spaceId) {
-		this(null, className, configuration, spaceId);
+	public ToolLaunchMessage(String className, IToolConfiguration configuration, long realm, long spaceId) {
+		this(null, className, configuration, realm, spaceId);
 	}
 	
-	public ToolLaunchMessage(String taskTitle, String className, IToolConfiguration configuration, long spaceId) {
+	public ToolLaunchMessage(String taskTitle, String className, IToolConfiguration configuration, long realm, long spaceId) {
 		super(ID);
 		this.taskTitle = taskTitle;
 		this.className = className;
 		this.configuration = configuration;
+		this.realm = realm;
 		this.spaceId = spaceId;
 	}
 	
-	public ToolLaunchMessage(String taskTitle, String className, IToolConfiguration configuration) {
-		this(taskTitle, className, configuration, 0);
+/*	public ToolLaunchMessage(String taskTitle, String className, IToolConfiguration configuration) {
+		this(taskTitle, className, configuration, -1, 0);
 	}
-	
+*/	
 	public ToolLaunchMessage(long taskId, int sequence) {
 		super(ID);
 		this.taskId = taskId;
@@ -45,10 +47,15 @@ public class ToolLaunchMessage extends ProbeMessage {
 	public long getTaskId() {
 		return taskId;
 	}
-	
+
+	public long getRealm() {
+		return realm;
+	}
+
 	public long getSpaceId() {
 		return spaceId;
 	}
+	
 	@Override
 	public String toString() {
 		if(isResponse()) {

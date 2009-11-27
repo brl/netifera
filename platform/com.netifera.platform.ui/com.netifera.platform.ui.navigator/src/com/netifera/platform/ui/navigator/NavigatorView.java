@@ -32,6 +32,7 @@ import com.netifera.platform.ui.probe.actions.ConnectProbeAction;
 import com.netifera.platform.ui.probe.actions.DisconnectProbeAction;
 import com.netifera.platform.ui.probe.actions.NewProbeAction;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceAction;
 import com.netifera.platform.ui.spaces.actions.NewSpaceAction;
 import com.netifera.platform.ui.spaces.actions.RenameSpaceAction;
 import com.netifera.platform.ui.spaces.editor.SpaceEditor;
@@ -45,6 +46,7 @@ public class NavigatorView extends ViewPart {
 	private Action disconnectProbeAction;
 	private Action newProbeAction;
 	private Action newSpaceAction;
+	private Action newIsolatedSpaceAction;
 	
 	public NavigatorView() {
 	}
@@ -185,7 +187,10 @@ public class NavigatorView extends ViewPart {
 
 		newSpaceAction = new NewSpaceAction(this, viewer);
 		toolBarManager.add(newSpaceAction);
-		
+
+		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
+		toolBarManager.add(newIsolatedSpaceAction);
+
 		setActionEnableStates();
 		
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -200,8 +205,10 @@ public class NavigatorView extends ViewPart {
 		disconnectProbeAction.setEnabled(getDisconnectActionState());
 		
 		IProbe probe = getSelectedProbe();
+		ISpace space = getSelectedSpace();
 //		newProbeAction.setEnabled(probe != null);
-		newSpaceAction.setEnabled(probe != null);
+		newSpaceAction.setEnabled(probe != null || (space != null && space.isIsolated()));
+		newIsolatedSpaceAction.setEnabled(probe != null && probe.isLocalProbe() || (space != null && space.isIsolated()));
 	}
 	
 	private boolean getConnectActionState() {

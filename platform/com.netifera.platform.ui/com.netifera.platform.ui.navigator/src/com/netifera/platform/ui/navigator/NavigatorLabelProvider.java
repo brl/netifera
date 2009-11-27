@@ -50,9 +50,9 @@ public class NavigatorLabelProvider extends ColumnLabelProvider {
 
 	private Image getSpaceImage(ISpace space) {
 		if(space.isOpened()) {
-			return spaceImages.get(SPACE_OPEN);
+			return spaceImages.get(space.isIsolated() ? ISOLATED_SPACE_OPEN : SPACE_OPEN);
 		} else {
-			return spaceImages.get(SPACE_CLOSED);
+			return spaceImages.get(space.isIsolated() ? ISOLATED_SPACE_CLOSED : SPACE_CLOSED);
 		}
 	}
 	

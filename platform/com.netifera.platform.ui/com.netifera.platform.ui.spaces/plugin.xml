@@ -20,6 +20,15 @@
             label="Spaces Action Set"
             visible="true">
          <action
+               class="com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceDelegate"
+               definitionId="com.netifera.platform.commands.newIsolatedSpace"
+               icon="icons/new_space_isolated.png"
+               id="com.netifera.platform.actions.newIsolatedSpace"
+               label="New Isolated Space"
+               style="push"
+               toolbarPath="Normal">
+         </action>
+         <action
                class="com.netifera.platform.ui.spaces.actions.NewSpaceDelegate"
                definitionId="com.netifera.platform.commands.newSpace"
                icon="icons/new_space.png"
@@ -34,7 +43,11 @@
          point="org.eclipse.ui.commands">
       <command
             id="com.netifera.platform.commands.newSpace"
-            name="Open New Space">
+            name="New Space">
+      </command>
+      <command
+            id="com.netifera.platform.commands.newIsolatedSpace"
+            name="New Isolated Space">
       </command>
    </extension>
    <extension
@@ -43,6 +56,11 @@
             commandId="com.netifera.platform.commands.newSpace"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+T">
+      </key>
+      <key
+            commandId="com.netifera.platform.commands.newIsolatedSpace"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+T">
       </key>
    </extension>
    <extension

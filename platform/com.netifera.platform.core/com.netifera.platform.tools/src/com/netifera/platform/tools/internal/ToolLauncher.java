@@ -68,11 +68,14 @@ public class ToolLauncher {
 	}
 	
 	private ITask createTaskForTool(IMessenger messenger, ToolLaunchMessage message, ITool tool) {
-		//FIXME hardcode local probe realm
-		IProbe probe = probeManager.getLocalProbe();
-		long realm = probe.getEntity().getId();
-		final ToolContext ctx = new ToolContext(tool, message.getConfiguration(), realm, message.getSpaceId());
-		return taskManager.createTask(ctx, messenger);
+		//FIXME fix this to make remote probes able to receive ToolLaunchMessages with realmId != local probe
+		long realm = message.getRealm();
+		if (realm == -1) {
+			IProbe probe = probeManager.getLocalProbe();
+			realm = probe.getEntity().getId();
+		}
+		final ToolContext context = new ToolContext(tool, message.getConfiguration(), realm, message.getSpaceId());
+		return taskManager.createTask(context, messenger);
 	}
 	
 	/*
