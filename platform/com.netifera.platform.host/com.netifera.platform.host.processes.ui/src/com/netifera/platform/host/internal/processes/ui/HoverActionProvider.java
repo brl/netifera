@@ -13,7 +13,7 @@ import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.host.processes.ProcessServiceLocator;
 import com.netifera.platform.host.processes.ui.OpenProcessListAction;
 import com.netifera.platform.ui.actions.SpaceAction;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
 public class HoverActionProvider implements IHoverActionProvider {
 

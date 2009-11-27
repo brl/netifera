@@ -21,7 +21,7 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.ui.api.actions.IHoverActionProviderService;
+import com.netifera.platform.ui.api.hover.IHoverActionProviderService;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.application.ApplicationPlugin;

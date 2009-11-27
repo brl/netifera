@@ -18,5 +18,6 @@ Import-Package: com.netifera.platform.api.model,
  com.netifera.platform.tools.options,
  com.netifera.platform.ui.actions,
  com.netifera.platform.ui.api.actions,
+ com.netifera.platform.ui.api.hover,
  com.netifera.platform.util.addresses.inet,
  com.netifera.platform.util.locators

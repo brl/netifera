@@ -36,7 +36,7 @@ import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;

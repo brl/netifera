@@ -13,8 +13,8 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbe.ConnectState;
 import com.netifera.platform.model.ProbeEntity;
 import com.netifera.platform.ui.actions.SpaceAction;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
 public class ProbeActionProvider implements IHoverActionProvider {
 

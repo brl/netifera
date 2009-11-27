@@ -2,6 +2,6 @@
 <component name="netifera.dns-action-provider">
 	<implementation class="com.netifera.platform.net.dns.internal.ui.HoverActionProvider" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.actions.IHoverActionProvider" />
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProvider" />
 	</service>
 </component>

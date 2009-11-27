@@ -11,7 +11,7 @@ import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.host.terminal.TerminalServiceLocator;
 import com.netifera.platform.host.terminal.ui.OpenTerminalViewAction;
 import com.netifera.platform.ui.actions.SpaceAction;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
 public class HoverActionProvider implements IHoverActionProvider {
 

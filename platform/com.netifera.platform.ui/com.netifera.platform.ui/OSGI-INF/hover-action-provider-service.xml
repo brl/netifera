@@ -2,12 +2,12 @@
 <component name="netifera.hover-action-provider-service">
 	<implementation class="com.netifera.platform.ui.internal.HoverActionProviderService" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.actions.IHoverActionProviderService" />
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProviderService" />
 	</service>
 	
 	<reference 
 		name="ACTION_PROVIDERS"
-		interface="com.netifera.platform.ui.api.actions.IHoverActionProvider"
+		interface="com.netifera.platform.ui.api.hover.IHoverActionProvider"
 		bind="registerProvider"
 		unbind="unregisterProvider"
 		cardinality="0..n"

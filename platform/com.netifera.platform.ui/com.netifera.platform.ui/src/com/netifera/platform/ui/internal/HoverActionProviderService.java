@@ -8,8 +8,8 @@ import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
-import com.netifera.platform.ui.api.actions.IHoverActionProviderService;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
+import com.netifera.platform.ui.api.hover.IHoverActionProviderService;
 
 public class HoverActionProviderService implements IHoverActionProviderService {
 	private final List<IHoverActionProvider> providers =

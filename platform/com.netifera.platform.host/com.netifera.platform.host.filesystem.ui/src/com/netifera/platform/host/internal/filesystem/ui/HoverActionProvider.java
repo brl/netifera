@@ -14,7 +14,7 @@ import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.host.filesystem.FileSystemServiceLocator;
 import com.netifera.platform.host.filesystem.ui.OpenFileSystemViewAction;
 import com.netifera.platform.ui.actions.SpaceAction;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
 public class HoverActionProvider implements IHoverActionProvider {
 

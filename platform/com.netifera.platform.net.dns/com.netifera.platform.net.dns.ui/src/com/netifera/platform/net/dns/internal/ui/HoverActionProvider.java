@@ -23,7 +23,7 @@ import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.tools.options.IterableOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class HoverActionProvider implements IHoverActionProvider {

@@ -25,7 +25,7 @@ import com.netifera.platform.tools.options.IntegerOption;
 import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
-import com.netifera.platform.ui.api.actions.IHoverActionProvider;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
 public class HoverActionProvider implements IHoverActionProvider {
 

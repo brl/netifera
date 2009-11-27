@@ -2,7 +2,7 @@
 <component name="netifera.process-action-provider">
 	<implementation class="com.netifera.platform.host.internal.processes.ui.HoverActionProvider" />
 	<service>
-		<provide interface="com.netifera.platform.ui.api.actions.IHoverActionProvider" />
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProvider" />
 	</service>
 	
 	 <reference
