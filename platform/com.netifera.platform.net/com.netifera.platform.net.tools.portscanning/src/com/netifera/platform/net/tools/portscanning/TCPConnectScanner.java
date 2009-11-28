@@ -223,10 +223,11 @@ public class TCPConnectScanner extends AbstractPortscanner {
 		}
 		
 		private synchronized void done() {
-			try {
-				channel.close();
-			} catch (IOException e) {
-			}
+			if (channel != null)
+				try {
+					channel.close();
+				} catch (IOException e) {
+				}
 			
 			outstandingConnects.decrementAndGet();
 			detectors.remove(this);
