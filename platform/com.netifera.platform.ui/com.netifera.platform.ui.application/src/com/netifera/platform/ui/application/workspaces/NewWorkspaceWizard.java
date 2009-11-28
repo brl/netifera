@@ -1,16 +1,27 @@
 package com.netifera.platform.ui.application.workspaces;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
+
+import com.netifera.platform.ui.application.ApplicationPlugin;
 
 public class NewWorkspaceWizard extends Wizard {
 	private WorkspaceNamePage firstPage;
 	private LastPage lastPage;
 	private WorkspaceRecord workspaceRecord;
 	private boolean restart = true;
+	
 	public void addPages() {
 		setWindowTitle("Create a new Workspace");
+		
+		ImageDescriptor image = ApplicationPlugin.getImageDescriptor("icons/workspace_wiz.gif");
+
 		firstPage = new WorkspaceNamePage();
+		firstPage.setImageDescriptor(image);
+		
 		lastPage = new LastPage();
+		lastPage.setImageDescriptor(image);
+		
 		addPage(firstPage);
 		addPage(lastPage);
 	}

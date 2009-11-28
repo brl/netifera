@@ -17,7 +17,7 @@ public class NewIsolatedSpaceAction extends Action {
 	public NewIsolatedSpaceAction(IViewPart view, StructuredViewer viewer) {
 		this.viewer = viewer;
 		this.creator = new SpaceCreator(view.getSite().getWorkbenchWindow());
-		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/new_space_isolated.png"));
+		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/add_space_isolated.png"));
 		setText("New Isolated Space");
 	}
 	

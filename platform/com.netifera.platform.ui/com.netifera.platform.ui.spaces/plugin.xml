@@ -22,7 +22,7 @@
          <action
                class="com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceDelegate"
                definitionId="com.netifera.platform.commands.newIsolatedSpace"
-               icon="icons/new_space_isolated.png"
+               icon="icons/add_space_isolated.png"
                id="com.netifera.platform.actions.newIsolatedSpace"
                label="New Isolated Space"
                style="push"
@@ -31,7 +31,7 @@
          <action
                class="com.netifera.platform.ui.spaces.actions.NewSpaceDelegate"
                definitionId="com.netifera.platform.commands.newSpace"
-               icon="icons/new_space.png"
+               icon="icons/add_space.png"
                id="com.netifera.platform.actions.newSpace"
                label="New Space"
                style="push"

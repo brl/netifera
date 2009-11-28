@@ -17,7 +17,7 @@ public class NewSpaceAction extends Action {
 	public NewSpaceAction(IViewPart view, StructuredViewer viewer) {
 		this.viewer = viewer;
 		this.creator = new SpaceCreator(view.getSite().getWorkbenchWindow());
-		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/new_space.png"));
+		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/add_space.png"));
 		setText("New Space");
 	}
 	

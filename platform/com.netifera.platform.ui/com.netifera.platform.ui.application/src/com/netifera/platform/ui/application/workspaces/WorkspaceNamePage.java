@@ -16,9 +16,11 @@ public class WorkspaceNamePage extends WizardPage {
 	
 	WorkspaceNamePage() {
 		super("firstPage");
-		setTitle("Workspace Name");
+		setTitle("Workspace");
+		setDescription("Create a new Workspace.");
 		setPageComplete(false);
 	}
+	
 	public void createControl(Composite parent) {
 		final Composite container = createComposite(parent);
 	    createBanner(container, "Select a name for your new workspace");
@@ -26,10 +28,10 @@ public class WorkspaceNamePage extends WizardPage {
 	    workspaceNameText = createWorkspaceName(container);
 	}
 	
-	
 	public String getWorkspaceName() {
 		return workspaceNameText.getText();
 	}
+	
 	private Text createWorkspaceName(Composite container) {
 		createLabel(container, "Workspace Name:");
 		final Text t = createText(container, 16);

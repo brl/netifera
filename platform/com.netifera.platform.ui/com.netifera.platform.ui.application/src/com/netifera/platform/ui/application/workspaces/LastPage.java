@@ -11,17 +11,16 @@ public class LastPage extends WizardPage {
 	
 	LastPage() {
 		super("lastPage");
-		setTitle("Finish creating workspace");
+		setTitle("Workspace");
+		setDescription("Finish creating workspace");
 	}
 
 	public void createControl(Composite parent) {
 		final Composite container = createComposite(parent);
 	    createBanner(container, "Netifera will now restart with newly created workspace");
 		setPageComplete(true);
-
-		
-		
 	}
+	
 	private void createBanner(Composite container, String text) {
 		final Label label = new Label(container, SWT.NONE);
 		final GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);

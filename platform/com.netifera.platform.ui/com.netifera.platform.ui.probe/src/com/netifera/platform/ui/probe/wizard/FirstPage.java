@@ -22,7 +22,7 @@ public class FirstPage extends WizardPage {
 	public FirstPage() {
 		super("firstPage");
 		setTitle("Probe");
-		setDescription("Create a new probe.");
+		setDescription("Create a new Probe.");
 		
 		setPageComplete(false);
 	}
