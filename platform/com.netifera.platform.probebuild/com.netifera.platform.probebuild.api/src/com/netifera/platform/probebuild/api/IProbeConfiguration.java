@@ -1,178 +1,165 @@
 
 package com.netifera.platform.probebuild.api;
 
-import java.io.IOException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Hashtable;
+
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 
 /**
  * Probe Configuration Interface.
+ * <p>The Probe Configuration interface provides an API allowing users to
+ * define the components to embed into ad-hoc Deployable Probes.</p>
+ * <p>Components are:
+ * <li>OSGi Bundles;</li>
+ * <li>Resources (data files);</li>
+ * <li>Probe Configurations;</li>
+ * <li>Properties (automatically set when a Deployable Probe is launched).</li>
+ * </p>
+ * @see IProbeDeployable
  */
 public interface IProbeConfiguration
 {
 	/**
-	 * Get this Configuration's directory (where data is stored).
+	 * Get the name of this configuration.
 	 */
-	public String getConfigurationDirectory();
+	public String getName();
 
 
 	/**
-	 * Add a new resource into this Probe Configuration.
-	 * Notice that a reference to the resource is added, the actual
-	 * resource should exist when a Deployable Probe is about to be built.
-	 * @param name Name assigned to the resource (this name should be used when
-	 * referencing the resource from within the Deployable Probe);
-	 * @param path Path to the resource in the local file system.
-	 * @see getResourceList()
+	 * Add a new OSGi bundle.
+	 * <p><i>Notice that a reference is added, the actual
+	 * bundle should exist when a probe is being deployed.</i></p>
+	 * @param name Name of the stored jar file containing the bundle.
+	 * @param initLevel Installation level (if <code>0</code>
+	 * the bundle should not be installed during the probe boot sequence);
+	 * @param startLevel Starting level (if <code>0</code>
+	 * the bundle should not be started during the probe boot sequence).
+	 * @see #listBundles()
+	 */
+	public void addBundle(String name, int initLevel, int startLevel);
+
+
+	/**
+	 * Add a new resource into this configuration.
+	 * <p><i>Notice that a reference to the resource is added, the actual
+	 * resource should exist when a probe is being deployed.</i></p>
+	 * @param name Name assigned to the resource (that should be used to
+	 * reference the resource from within the deployed probe);
+	 * @param path Path to the resource in the local system.
+	 * @see #listResources()
 	 */
 	public void addResource(String name, String path);
 
 
 	/**
-	 * Add a new bundle into this Probe Configuration.
-	 * Notice that a reference to the bundle is added, the actual
-	 * bundle should exist when a Deployable Probe is about to be built.
-	 * @param name Name assigned to the bundle (this name should be used when
-	 * referencing the bundle from within the deployable probe);
-	 * @param path Path to the bundle in the local file system;
-	 * @param initLevel Installation level (if <code>0</code>
-	 * the bundle should not be installed);
-	 * @param startLevel Starting level (if <code>0</code>
-	 * the bundle should not be started).
-	 * @see getBundleList()
+	 * Embed a configuration into this configuration as a resource.
+	 * <p>Embedded configurations allow deployed probes to build and deploy
+	 * other probes using such configurations.</p>
+	 * <p><i>Notice that a reference is added, the actual
+	 * configuration should exist when a probe is being deployed.</i></p>
+	 * @param name Name of the configuration to embed.
 	 */
-	public void addBundle(String name, String path, int initLevel, int startLevel);
+	public void addConfiguration(String name);
 
 
 	/**
-	 * Set the command line options for this Probe Configuration.
-	 * The command line options are the same used with a common jvm
-	 * with subtle differences.
-	 * For example, a normal jvm will accept the following options:
-	 * <p>
-	 * <code>-Xmx512 -Dport=12345 -jar osgiFramework.jar -some_java_param</code>
-	 * </p><p>
-	 * On the other hand, a Deployable Probe embeds an osgi framework that
-	 * should not be specified in the command line:
-	 * </p><p>
-	 * <code>-Xmx512 -Dport=12345 -- -some_java_param</code>
-	 * </p><p>
-	 * Notice that in this case the <code>--</code> string is used as a
-	 * separator between the options for the jvm and those intended for the
-	 * main class. This separator is not needed when the main class does not
-	 * receive arguments.
-	 * </p><p>
-	 * It is possible to avoid the execution of the embedded osgi framework
-	 * specifying a custom jar file (that should be embedded into the
-	 * Deployable Probe as a resource), for example:
-	 * </p><p>
-	 * <code>-Xmx512 -Dport=12345 -jar myCustomApplication.jar -some_java_param</code>
-	 * </p>
-	 * <p>The above is very useful for testing purposes.</p>
-	 * @param line Command line to set.
-	 * @see addResource(String, String)
-	 * @see getCommandLine()
+	 * Embed this configuration into itself as a resource.
+	 * <p>The result is that a deployed probe will be able to deploy copies of itself.</p>
+	 * @see #addConfiguration(String)
 	 */
-	public void setCommandLine(String line);
+	public void addConfiguration();
 
 
 	/**
-	 * Get the list of names assigned to the resources into this Probe Configuration.
-	 * @return A string array containing the names assigned to the resources.
-	 * @see addResource(String, String)
-	 * @see getResourcePath(String)
+	 * Add a new property into this configuration.
+	 * If the property already exists its value is updated.
+	 * @param prop Property name;
+	 * @param value Property value. 
 	 */
-	public String[] getResourceList();
+	public void addProperty(String prop, String value);
 
 
 	/**
-	 * Get the local path to the specified resource.
-	 * @param name Name assigned to the resource.
-	 * @return The path.
-	 * @throws FileNotFoundException if the specified resources is not included
-	 * into this Probe Configuration.
-	 * @see addResource(String, String)
-	 * @see getResourceList()
+	 * Get the list of bundles.
+	 * @return A collection of strings containing the names of all bundles.
+	 * @see #addBundle(String, String, int, int)
+	 * @see #getBundleInstallLevel(String)
+	 * @see #getBundlePath(String)
+	 * @see #getBundleStartLevel(String)
 	 */
-	public String getResourcePath(String name) throws FileNotFoundException;
-
-
-	/**
-	 * Get the list of bundle names into this Probe Configuration.
-	 * @return A string array containing all bundle names.
-	 * @see addBundle(String, String, int, int)
-	 * @see getBundleInstallLevel(String)
-	 * @see getBundlePath(String)
-	 * @see getBundleStartLevel(String)
-	 */
-	public String[] getBundleList();
-
-
-	/**
-	 * Get the path of a specified bundle.
-	 * @param name bundle's name.
-	 * @return Path to the bundle in the local file system.
-	 * @throws FileNotFoundException if the specified bundle is not included
-	 * into this Probe Configuration.
-	 * @see addBundle(String, String, int, int)
-	 * @see getBundleList();
-	 */
-	public String getBundlePath(String name) throws FileNotFoundException;
+	public Collection<String> listBundles();
 
 
 	/**
 	 * Get the install level of a specified bundle.
-	 * @param name Bundle's name.
+	 * @param name Name assigned to the bundle.
 	 * @return The install level.
-	 * @exception FileNotFoundException if the specified bundle is not included
+	 * @exception FileNotFoundException If the specified bundle is not included
 	 * into this Probe Configuration.
-	 * @see addBundle(String, String, int, int)
-	 * @see getBundleList()
+	 * @see #addBundle(String, String, int, int)
+	 * @see #listBundles()
 	 */
 	public int getBundleInstallLevel(String name) throws FileNotFoundException;
 
 
 	/**
 	 * Get the start level of a specified bundle.
-	 * @param name Bundle's name.
+	 * @param name Name assigned to the bundle.
 	 * @return The start level.
-	 * @exception FileNotFoundException if the specified bundle is not included
+	 * @exception FileNotFoundException If the specified bundle is not included
 	 * into this Probe Configuration.
-	 * @see addBundle(String, int, int)
-	 * @see getBundleList()
+	 * @see #addBundle(String, int, int)
+	 * @see #listBundles()
 	 */
 	public int getBundleStartLevel(String name) throws FileNotFoundException;
 
 
 	/**
-	 * Get the command line inside this Probe Configuration.
-	 * @see setCommandLine(String)
+	 * Get the list of names assigned to resources.
+	 * @return A collection of strings containing the resource names.
+	 * @see #addResource(String, String)
+	 * @see #getResourcePath(String)
 	 */
-	public String getCommandLine();
+	public Collection<String> listResources();
 
 
 	/**
-	 * Get the Probe's name.
+	 * Get the local path to the specified resource.
+	 * @param name Name assigned to the resource.
+	 * @return Path to the resource in the local system.
+	 * @throws FileNotFoundException If the specified resource is not included
+	 * into this configuration.
+	 * @see #addResource(String, String)
+	 * @see #listResources()
 	 */
-	public String getName();
+	public String getResourcePath(String name) throws FileNotFoundException;
 
 
 	/**
-	 * Save all changes made to this Probe Configuration.
-	 * @exception IOExcepton if this Probe Configuration cannot be saved.
+	 * Get the list of embedded configurations.
+	 * @return A collection of strings containing the names
+	 * of all embedded configurations.
+	 * @see #addConfiguration(String)
+	 * @see #addConfiguration()
 	 */
-	public void save() throws IOException;
+	public Collection<String> listConfigurations();
 
 
 	/**
-	 * Get the signature of this Probe Configuration.
-	 * @return A string with a representation of the signature.
+	 * Get the table of properties.
+	 * @return A table of property name-value pairs.
+	 * @see #addProperty(String, String)
 	 */
-	public String getSignatureString();
+	public Hashtable<String, String> getProperties();
 
 
 	/**
 	 * Resolve bundle dependencies.
+	 * XXX
 	 * A new Probe Configuration object is generated containing also the new
 	 * dependency bundles with correct install and start levels.
 	 * The generated configuration cannot be saved.
@@ -180,7 +167,22 @@ public interface IProbeConfiguration
 	 * @see addBundle(String, int, int)
 	 * @see getBundleList()
 	 */
-	public IProbeConfiguration resolveDependencies();
+	public void resolveDependencies() throws FileNotFoundException, IOException;
+
+
+	/**
+	 * Save this configuration to disk.
+	 * <p>Changes made to this configuration are kept in memory until this method is called.</p>
+	 * @throws IOException If something unexpected happens.
+	 */
+	public void save() throws IOException;
+
+
+	/**
+	 * Get the URL where this configuration is saved.
+	 * @return The URL object.
+	 */
+	public URL getURL();
 
 }
 

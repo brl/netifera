@@ -52,7 +52,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 			deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
 			deployer.addOption(new StringOption("username", "Username", "Username to login to SSH", "root", true));
 			deployer.addOption(new StringOption("password", "Password", "Password to login to SSH", "", true));
-			deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", probeBuilder.listProbeConfigurations()));
+			deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", (String[])(probeBuilder.listProbeConfigurations().toArray(new String[0]))));
 			deployer.addOption(new StringOption("probeName", "Probe Name", "Name to use as label of the probe that will be deployed", "", true));
 			answer.add(deployer);
 		}
@@ -66,7 +66,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 				deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
 				deployer.addFixedOption(new StringOption("username", "Username", "Username to login to SSH", credentialEntity.getUsername(), true));
 				deployer.addFixedOption(new StringOption("password", "Password", "Password to login to SSH", credentialEntity.getPassword(), true));
-				deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", probeBuilder.listProbeConfigurations()));
+				deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", (String[])(probeBuilder.listProbeConfigurations().toArray(new String[0]))));
 				deployer.addOption(new StringOption("probeName", "Probe Name", "Name to use as label of the probe that will be deployed", "", true));
 				answer.add(deployer);
 			}
