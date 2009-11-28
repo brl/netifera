@@ -12,7 +12,7 @@ public class RenameSpaceAction extends Action {
 	public RenameSpaceAction(ISpace space) {
 		this.space = space;
 		setId("renameSpaceAction");
-		setText("Rename Space");
+		setText("Rename");
 		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/rename.png"));
 	}
 

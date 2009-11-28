@@ -32,6 +32,7 @@ import com.netifera.platform.ui.probe.actions.ConnectProbeAction;
 import com.netifera.platform.ui.probe.actions.DisconnectProbeAction;
 import com.netifera.platform.ui.probe.actions.NewProbeAction;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.actions.DeleteSpaceAction;
 import com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceAction;
 import com.netifera.platform.ui.spaces.actions.NewSpaceAction;
 import com.netifera.platform.ui.spaces.actions.RenameSpaceAction;
@@ -41,12 +42,13 @@ import com.netifera.platform.ui.util.TreeAction;
 public class NavigatorView extends ViewPart {
 
 	private TreeViewer viewer;
-	
-	private Action connectProbeAction;
-	private Action disconnectProbeAction;
-	private Action newProbeAction;
+
 	private Action newSpaceAction;
 	private Action newIsolatedSpaceAction;
+
+	private Action newProbeAction;
+	private Action connectProbeAction;
+	private Action disconnectProbeAction;
 	
 	public NavigatorView() {
 	}
@@ -114,6 +116,7 @@ public class NavigatorView extends ViewPart {
 			menuMgr.add(newIsolatedSpaceAction);
 			menuMgr.add(new Separator("fixedGroup"));
 			menuMgr.add(new RenameSpaceAction(getSelectedSpace()));
+			menuMgr.add(new DeleteSpaceAction(getSelectedSpace()));
 		}
 		if (getSelectedProbe() != null) {
 			menuMgr.add(newSpaceAction);

@@ -255,7 +255,7 @@ public class ActionHover extends PopupDialog {
 							ActionHover.this.close();
 						}
 					};
-					addTagAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/tag_blue_add_16x16.png"));
+					addTagAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/tag_orange_add_16x16.png"));
 					quickActions.add(addTagAction);
 					
 					IAction commentAction = new SpaceAction("Comment") {

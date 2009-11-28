@@ -87,7 +87,7 @@ public class AddTagDialog extends PopupDialog {
 	private void setHeader() {
 		form.setFont(JFaceResources.getDialogFont());
 		
-		Image icon = Activator.getInstance().getImageCache().get("icons/tag_blue_add_16x16.png");
+		Image icon = Activator.getInstance().getImageCache().get("icons/tag_orange_add_16x16.png");
 		form.setImage(icon);
 		
 		String text = Activator.getInstance().getLabelProvider().getText(entity);
