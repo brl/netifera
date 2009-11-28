@@ -42,13 +42,13 @@ public class ProbeStatusLine extends ControlContribution {
 	protected Control createControl(Composite parent) {
 		label = new CLabel(parent, SWT.SHADOW_NONE);
 		label.setFont(JFaceResources.getDialogFont());
-		label.setImage(Activator.getDefault().getImageCache().get(PROBE_DISCONNECTED));
+		label.setImage(Activator.getInstance().getImageCache().get(PROBE_DISCONNECTED));
 
 		probeChangeListener = createProbeChangeListener(parent.getDisplay());
 		
 		label.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent arg0) {
-				Activator.getDefault().getProbeManager().removeProbeChangeListener(probeChangeListener);
+				Activator.getInstance().getProbeManager().removeProbeChangeListener(probeChangeListener);
 			}
 		});
 		
@@ -60,7 +60,7 @@ public class ProbeStatusLine extends ControlContribution {
 			}
 
 			public void mouseUp(MouseEvent e) {
-				IEditorPart editor = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+				IEditorPart editor = Activator.getInstance().getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 				IEditorInput input = editor.getEditorInput();
 				if (input instanceof SpaceEditorInput) {
 					ISpace space = ((SpaceEditorInput)input).getSpace();
@@ -72,7 +72,7 @@ public class ProbeStatusLine extends ControlContribution {
 			}
 		});
 
-		Activator.getDefault().getProbeManager().addProbeChangeListener(probeChangeListener);
+		Activator.getInstance().getProbeManager().addProbeChangeListener(probeChangeListener);
 		
 		update();
 
@@ -93,7 +93,7 @@ public class ProbeStatusLine extends ControlContribution {
 	
 	@Override
 	public void dispose() {
-		Activator.getDefault().getProbeManager().removeProbeChangeListener(probeChangeListener);
+		Activator.getInstance().getProbeManager().removeProbeChangeListener(probeChangeListener);
 		super.dispose();
 	}
 
@@ -122,19 +122,19 @@ public class ProbeStatusLine extends ControlContribution {
 		label.setText(probe.getName());
 		switch (probe.getConnectState()) {
 		case DISCONNECTED:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_DISCONNECTED));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_DISCONNECTED));
 			label.setToolTipText("Disconnected");
 			break;
 		case CONNECTING:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_CONNECTING));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_CONNECTING));
 			label.setToolTipText("Connecting");
 			break;
 		case CONNECTED:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_CONNECTED));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_CONNECTED));
 			label.setToolTipText("Connected");
 			break;
 		case CONNECT_FAILED:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_FAILED));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_FAILED));
 			label.setToolTipText(probe.getConnectError());
 		}
 	}

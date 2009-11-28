@@ -21,22 +21,22 @@ public class FirstPage extends WizardPage {
 	
 	public FirstPage() {
 		super("firstPage");
-		setTitle("Basic Probe Information");
+		setTitle("Probe");
+		setDescription("Create a new probe.");
+		
 		setPageComplete(false);
 	}
 	
-
 	public void createControl(Composite parent) {
 		final Composite container = createComposite(parent);
 	    createBanner(container, "Select a name for your new probe");
 	
-
 	    probeNameText = createProbeName(container);
 	    final Group group = createGroup(container, "Probe Channel Type");
 	    
-	   radioButtons = createRadioButtons(group);
-	    
+	    radioButtons = createRadioButtons(group);
 	}
+	
 	@Override
 	public String getName() {
 		return probeNameText.getText();
@@ -117,5 +117,4 @@ public class FirstPage extends WizardPage {
 		b.setText(text);
 		return b;
 	}
-
 }

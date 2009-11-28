@@ -21,7 +21,7 @@ public class OpenSpaceAction extends SpaceAction {
 
 	public OpenSpaceAction(IProbe probe, ILogger logger) {
 		super("Open New Space For This Probe");
-		setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/new_space.png"));
+		setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/new_space.png"));
 		this.probe = probe;
 		this.logger = logger;
 		this.page = getActivePage();
@@ -49,7 +49,7 @@ public class OpenSpaceAction extends SpaceAction {
 			logger.warning("Cannot open editor on probe because no active page was found");
 			return;
 		}
-		final IWorkspace workspace = Activator.getDefault().getModel().getCurrentWorkspace();
+		final IWorkspace workspace = Activator.getInstance().getModel().getCurrentWorkspace();
 		final ISpace space = workspace.createSpace(probe.getEntity(), probe);
 		space.open();
 		

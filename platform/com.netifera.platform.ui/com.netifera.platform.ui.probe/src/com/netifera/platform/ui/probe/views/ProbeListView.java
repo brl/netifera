@@ -33,7 +33,7 @@ public class ProbeListView extends ViewPart {
 	public void createPartControl(final Composite parent) {
 		viewer = createViewer(parent);
 		
-		Activator.getDefault().getProbeManager().addProbeChangeListener(
+		Activator.getInstance().getProbeManager().addProbeChangeListener(
 				createProbeChangeHandler(parent.getDisplay()));
 		
 		createToolbarButtons();
@@ -47,7 +47,7 @@ public class ProbeListView extends ViewPart {
 		column.getColumn().setWidth(380);
 		tv.setContentProvider(new ProbeListContentProvider());
 		tv.setLabelProvider(new ProbeListLabelProvider());
-		tv.setInput(Activator.getDefault().getProbeManager());
+		tv.setInput(Activator.getInstance().getProbeManager());
 		return tv;
 	}
 	

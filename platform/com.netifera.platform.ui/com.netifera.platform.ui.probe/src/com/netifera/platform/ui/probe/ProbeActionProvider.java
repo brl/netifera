@@ -25,7 +25,7 @@ public class ProbeActionProvider implements IHoverActionProvider {
 	}
 
 	private void addProbeActions(List<IAction> actions, ProbeEntity probeEntity) {
-		final IProbe probe = Activator.getDefault().getProbeManager().getProbeById(probeEntity.getProbeId());
+		final IProbe probe = Activator.getInstance().getProbeManager().getProbeById(probeEntity.getProbeId());
 		if(probe == null)
 			return;
 		if(probe.getConnectState() == ConnectState.CONNECTED) {
@@ -34,7 +34,7 @@ public class ProbeActionProvider implements IHoverActionProvider {
 					probe.disconnect();
 				}
 			};
-			disconnectAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/disconnect.png"));
+			disconnectAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/disconnect.png"));
 
 			actions.add(disconnectAction);
 			
@@ -47,7 +47,7 @@ public class ProbeActionProvider implements IHoverActionProvider {
 					probe.connect();
 				}
 			};
-			connectAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/connect.png"));
+			connectAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/connect.png"));
 			actions.add(connectAction);
 		}
 	}
