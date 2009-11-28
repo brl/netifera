@@ -48,12 +48,6 @@ public interface IEntity {
 	IEntityReference createReference();
 	
 	/**
-	 * Return true if this entity type is a 'realm creating' entity.
-	 * @return true if this entity type is a 'realm creating' entity.
-	 */
-	boolean isRealmEntity();
-	
-	/**
 	 * Return the entity id of the <i>realm</i> entity for this entity.
 	 * 
 	 * All entities belong to exactly one <i>realm</i> entity.
@@ -62,6 +56,21 @@ public interface IEntity {
 	 */
 	long getRealmId();
 
+	/**
+	 * Return the <i>realm</i> entity for this entity.
+	 * 
+	 * All entities belong to exactly one <i>realm</i> entity.
+	 * 
+	 * @return The <i>realm</i> entity for this entity.
+	 */
+	IEntity getRealmEntity();
+
+	/**
+	 * Return true if this entity type is a 'realm creating' entity.
+	 * @return true if this entity type is a 'realm creating' entity.
+	 */
+	boolean isRealmEntity();
+	
 	/**
 	 * Attempt to adapt this entity to the specified class or interface.
 	 * 

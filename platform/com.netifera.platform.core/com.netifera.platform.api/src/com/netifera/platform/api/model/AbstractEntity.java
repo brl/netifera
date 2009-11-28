@@ -225,6 +225,10 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	public long getRealmId() {
 		return realmId;
 	}
+
+	public IEntity getRealmEntity() {
+		return workspace.findById(realmId);
+	}
 	
 	public boolean isRealmEntity() {
 		return false;

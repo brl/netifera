@@ -10,6 +10,7 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
+import com.netifera.platform.model.ProbeEntity;
 import com.netifera.platform.model.SpaceEntity;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
@@ -34,7 +35,7 @@ public class SpaceCreator {
 			IEditorInput input = editor.getEditorInput();
 			if(input instanceof SpaceEditorInput)  {
 				ISpace space = ((SpaceEditorInput)input).getSpace();
-				openNewSpace(name, space, isolated);
+				openNewSiblingSpace(name, space, isolated);
 				return;
 			}
 		}
@@ -53,6 +54,15 @@ public class SpaceCreator {
 	public void openNewSpace(String name, ISpace parentOrSibling, boolean isolated) {
 		IProbe probe = Activator.getInstance().getProbeManager().getProbeById(parentOrSibling.getProbeId());
 		IEntity rootEntity = isolated ? createSpaceEntity(probe, parentOrSibling.getRootEntity()) : parentOrSibling.getRootEntity();
+		openNewSpace(name, probe, rootEntity);
+	}
+
+	public void openNewSiblingSpace(String name, ISpace sibling, boolean isolated) {
+		IProbe probe = Activator.getInstance().getProbeManager().getProbeById(sibling.getProbeId());
+		IEntity parentEntity = sibling.isIsolated() ? sibling.getRootEntity().getRealmEntity() : sibling.getRootEntity();
+		if (parentEntity instanceof ProbeEntity && probe.isLocalProbe()) // force isolated spaces on the local probe
+			isolated = true;
+		IEntity rootEntity = isolated ? createSpaceEntity(probe, parentEntity) : parentEntity;
 		openNewSpace(name, probe, rootEntity);
 	}
 
