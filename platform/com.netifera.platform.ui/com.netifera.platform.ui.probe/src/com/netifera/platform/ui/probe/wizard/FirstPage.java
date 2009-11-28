@@ -35,6 +35,7 @@ public class FirstPage extends WizardPage {
 	    final Group group = createGroup(container, "Probe Channel Type");
 	    
 	    radioButtons = createRadioButtons(group);
+	    radioButtons[1].setEnabled(false); //FIXME disable connect-back for now
 	}
 	
 	@Override
