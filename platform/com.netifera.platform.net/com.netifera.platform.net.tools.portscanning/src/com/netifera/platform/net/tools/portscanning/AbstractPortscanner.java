@@ -1,6 +1,7 @@
 package com.netifera.platform.net.tools.portscanning;
 
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
@@ -12,10 +13,11 @@ import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public abstract class AbstractPortscanner implements ITool {
-
 	protected IToolContext context;
 	protected IndexedIterable<InternetAddress> targetNetwork;
 	protected PortSet targetPorts;
+	private int delay = 0;
+	private Random random = new Random(System.currentTimeMillis());
 	final private AtomicInteger outstandingConnects = new AtomicInteger(0);
 
 	public void toolRun(IToolContext context) throws ToolException {
@@ -53,6 +55,13 @@ public abstract class AbstractPortscanner implements ITool {
 			targetPorts = new PortSet(portsString);
 		} catch (IllegalArgumentException e) {
 			throw new ToolException("Invalid ports: "+portsString);
+		}
+	}
+
+	protected void waitDelay() throws InterruptedException {
+		if (delay > 0) {
+			int randomDelay = random.nextInt(delay/2) + delay;
+			Thread.sleep(randomDelay);
 		}
 	}
 	

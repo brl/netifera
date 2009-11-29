@@ -19,9 +19,8 @@ import com.netifera.platform.util.locators.UDPSocketLocator;
 
 
 public class UDPScanner extends AbstractPortscanner {
-	Integer timeout;
-	Integer delay;
-	UDPChannel channel;
+	private Integer timeout;
+	private UDPChannel channel;
 
 	@Override
 	protected void setupToolOptions() throws ToolException {
@@ -30,9 +29,6 @@ public class UDPScanner extends AbstractPortscanner {
 		timeout = (Integer) context.getConfiguration().get("timeout");
 		if (timeout == null)
 			throw new RequiredOptionMissingException("timeout");
-		delay = (Integer) context.getConfiguration().get("delay");
-		if (delay == null)
-			throw new RequiredOptionMissingException("delay");
 	}
 	
 	@Override
@@ -81,7 +77,7 @@ public class UDPScanner extends AbstractPortscanner {
 				try {
 					writeBuffer.rewind();
 					channel.send(writeBuffer, new UDPSocketLocator(address, port)).get();
-					Thread.sleep(delay);
+					waitDelay();
 				} catch (ExecutionException e) {
 					if (e.getCause().getClass() == SocketException.class) {
 						context.warning(e.getCause().getMessage() + " for " +

@@ -66,6 +66,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		PortSet portset = serverDetector.getTriggerablePorts("tcp");
 		assert portset.size() > 0;
 		tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
+		tcpConnectScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between connections", 10));
 		tcpConnectScanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
 		return tcpConnectScanner;
 	}
@@ -251,6 +252,8 @@ public class HoverActionProvider implements IHoverActionProvider {
 				tcpConnectScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 				tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 				tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portSet.getPorts()));
+				tcpConnectScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between connections", 10));
+				tcpConnectScanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
 				answer.add(tcpConnectScanner);
 			}
 			if (portSet.getProtocol().equals("udp")) {

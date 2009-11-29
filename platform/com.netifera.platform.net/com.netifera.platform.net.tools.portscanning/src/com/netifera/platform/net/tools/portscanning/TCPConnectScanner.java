@@ -309,6 +309,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			try {
 				ActiveServiceDetector detector = new ActiveServiceDetector(locator, i);
 				detector.connect();
+				waitDelay();
 			} catch (PortUnreachableException e) {
 				continue;
 			} catch (SocketException e) {
@@ -348,6 +349,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			try {
 				ActiveServiceDetector detector = new ActiveServiceDetector(locator, index);
 				detector.connect();
+				waitDelay();
 			} catch (PortUnreachableException e) {
 				continue;
 			} catch (final SocketException e) {
@@ -387,7 +389,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			return badHostSet.get(index);
 		}
 	}
-	
+
 	protected void setupToolOptions() throws ToolException {
 		context.setTitle("TCP Connect Scan");
 		if (context.getConfiguration().get("skipUnreachable") != null)
