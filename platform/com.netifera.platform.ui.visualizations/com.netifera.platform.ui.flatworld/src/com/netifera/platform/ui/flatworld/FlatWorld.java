@@ -16,6 +16,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPersistable;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.netifera.platform.ui.flatworld.quadtrees.IQuadTreeElementsVisitor;
@@ -24,7 +26,7 @@ import com.netifera.platform.ui.flatworld.support.FloatPoint;
 import com.netifera.platform.ui.flatworld.support.FloatRectangle;
 import com.netifera.platform.ui.internal.flatworld.Activator;
 
-public class FlatWorld extends Canvas {
+public class FlatWorld extends Canvas implements IPersistable {
 
 	private Image texture;
 	private QuadTree<String> labels;
@@ -161,7 +163,19 @@ public class FlatWorld extends Canvas {
 //		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/TrueMarble.32km.1350x675.png");
 		texture = imageDescriptor.createImage();
 	}
-	
+
+	public void saveState(IMemento memento) {
+		memento.putFloat("frameOffsetX", (float)frame.offsetX);
+		memento.putFloat("frameOffsetY", (float)frame.offsetY);
+		memento.putFloat("frameScale", (float)frame.scale);
+	}
+
+	public void restoreState(IMemento memento) {
+		frame.offsetX = memento.getFloat("frameOffsetX");
+		frame.offsetY = memento.getFloat("frameOffsetY");
+		frame.scale = memento.getFloat("frameScale");
+	}
+
 	private void paint(PaintEvent event) {
 		final GC gc = event.gc;
 
@@ -183,8 +197,7 @@ public class FlatWorld extends Canvas {
 		int srcHeight = (int)(textureBounds.height / frame.scale);
 		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x, rect.y, rect.width, rect.height);
 
-
-		final FloatRectangle region = getGeographicalRegionFromTextureRegion(srcX,srcY,srcWidth,srcHeight);
+		final FloatRectangle region = getVisibleGeographicalRegion();
 		labels.visit(region, new IQuadTreeElementsVisitor<String>() {
 			public void visit(QuadTree<String> tree, FloatPoint location, String label) {
 				Point screenCoordinates = getScreenCoordinatesFromLocation(location);
@@ -224,7 +237,15 @@ public class FlatWorld extends Canvas {
 			}
 		});
 */	}
-	
+
+	private FloatRectangle getVisibleGeographicalRegion() {
+		Rectangle textureBounds = texture.getBounds();
+		int srcX = (int)(textureBounds.x + frame.offsetX);
+		int srcY = (int)(textureBounds.y + frame.offsetY);
+		int srcWidth = (int)(textureBounds.width / frame.scale);
+		int srcHeight = (int)(textureBounds.height / frame.scale);
+		return getGeographicalRegionFromTextureRegion(srcX, srcY, srcWidth, srcHeight);
+	}
 	private FloatRectangle getGeographicalRegionFromTextureRegion(int x, int y, int width, int height) {
 		Rectangle textureBounds = texture.getBounds();
 		return new FloatRectangle((x-textureBounds.x)*360/textureBounds.width-180,(y-textureBounds.y)*-180/textureBounds.height+90 - 180*height/textureBounds.height,360*width/textureBounds.width,180*height/textureBounds.height);

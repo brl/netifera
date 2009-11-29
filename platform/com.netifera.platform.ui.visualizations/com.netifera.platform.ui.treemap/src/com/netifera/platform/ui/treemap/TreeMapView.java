@@ -18,11 +18,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPageListener;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import com.netifera.platform.api.events.IEvent;
@@ -46,6 +49,8 @@ public class TreeMapView extends ViewPart {
 
 	public static final String ID = "com.netifera.platform.views.treemap";
 
+	private IMemento memento;
+	
 	private ISpace space;
 	private IEventHandler spaceChangeListener;
 
@@ -55,6 +60,13 @@ public class TreeMapView extends ViewPart {
 	public void createPartControl(final Composite parent) {
 		control = new TreeMapControl(parent, SWT.BORDER);
 		control.setLayout(new FillLayout());
+		
+		if (memento != null) {
+			IMemento treeMapMemento = memento.getChild("TreeMap");
+			if (treeMapMemento != null)
+				control.restoreState(treeMapMemento);
+			memento = null;
+		}
 		
 		IPageListener pageListener = new IPageListener() {
 			IPartListener partListener = new IPartListener() {
@@ -248,6 +260,19 @@ public class TreeMapView extends ViewPart {
 		});
 	}
 
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		this.memento = memento;
+	}
+
+	@Override
+	public void saveState(IMemento memento) {
+		super.saveState(memento);
+		IMemento treeMapMemento = memento.createChild("TreeMap");
+		control.saveState(treeMapMemento);
+	}
+	
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub

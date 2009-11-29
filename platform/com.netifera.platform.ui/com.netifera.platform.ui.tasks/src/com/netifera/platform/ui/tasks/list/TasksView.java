@@ -47,7 +47,7 @@ import com.netifera.platform.ui.util.FieldViewerComparator;
 import com.netifera.platform.ui.util.SelectionProviderProxy;
 import com.netifera.platform.ui.util.ViewerRefreshAction;
 
-public class TasksView extends ViewPart implements IShowInSource{
+public class TasksView extends ViewPart implements IShowInSource {
 
 	public static final String ID = "com.netifera.platform.ui.views.Tasks"; //$NON-NLS-1$
 

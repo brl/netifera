@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPersistable;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
@@ -27,7 +29,7 @@ import com.netifera.platform.ui.treemap.layers.GeolocationTreeMapLayer;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
-public class TreeMapControl extends Canvas {
+public class TreeMapControl extends Canvas implements IPersistable {
 
 	private TreeMap treeMap;
 	private ITreeMapLayer curve;
@@ -197,6 +199,18 @@ public class TreeMapControl extends Canvas {
 
 	private void initializeTreeMap() {
 		treeMap = new TreeMap((IPv4Netblock)IPv4Netblock.fromString("0.0.0.0/0"));
+	}
+	
+	public void saveState(IMemento memento) {
+		memento.putFloat("frameOffsetX", (float)frame.offsetX);
+		memento.putFloat("frameOffsetY", (float)frame.offsetY);
+		memento.putFloat("frameScale", (float)frame.scale);
+	}
+
+	public void restoreState(IMemento memento) {
+		frame.offsetX = memento.getFloat("frameOffsetX");
+		frame.offsetY = memento.getFloat("frameOffsetY");
+		frame.scale = memento.getFloat("frameScale");
 	}
 	
 	private void paint(PaintEvent event) {

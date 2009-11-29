@@ -10,11 +10,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPageListener;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import com.netifera.platform.api.events.IEvent;
@@ -36,6 +39,8 @@ public class FlatWorldView extends ViewPart {
 
 	public static final String ID = "com.netifera.platform.views.flatworld";
 
+	private IMemento memento;
+	
 	private FlatWorld world;
 	
 	private volatile boolean followNewEntities = true;
@@ -59,7 +64,14 @@ public class FlatWorldView extends ViewPart {
 		
 		world = new FlatWorld(parent, SWT.BORDER);
 		world.setLayout(new FillLayout());
-		
+
+		if (memento != null) {
+			IMemento worldMemento = memento.getChild("World");
+			if (worldMemento != null)
+				world.restoreState(worldMemento);
+			memento = null;
+		}
+
 		IPageListener pageListener = new IPageListener() {
 			IPartListener partListener = new IPartListener() {
 				public void partActivated(IWorkbenchPart part) {
@@ -120,6 +132,19 @@ public class FlatWorldView extends ViewPart {
 //		initializeToolBar();
 	}
 
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		this.memento = memento;
+	}
+
+	@Override
+	public void saveState(IMemento memento) {
+		super.saveState(memento);
+		IMemento worldMemento = memento.createChild("World");
+		world.saveState(worldMemento);
+	}
+	
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub

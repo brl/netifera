@@ -34,7 +34,6 @@ public class NewIsolatedSpaceDelegate implements IWorkbenchWindowActionDelegate 
 	public void selectionChanged(IAction action, ISelection selection) {
 		if (selection instanceof IStructuredSelection) {
 			Object element = ((IStructuredSelection)selection).getFirstElement();
-			System.out.println("selected "+element);
 			if (element instanceof IProbe) {
 				selectedProbe = (IProbe) element;
 			} else if (element instanceof ProbeEntity) {
