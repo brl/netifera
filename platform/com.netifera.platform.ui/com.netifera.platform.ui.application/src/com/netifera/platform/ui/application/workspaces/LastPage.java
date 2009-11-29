@@ -11,19 +11,19 @@ public class LastPage extends WizardPage {
 	
 	LastPage() {
 		super("lastPage");
-		setTitle("Workspace");
-		setDescription("Finish creating workspace");
+		setTitle("New Workspace");
+		setDescription("Finish creating the Workspace.");
 	}
 
 	public void createControl(Composite parent) {
 		final Composite container = createComposite(parent);
-	    createBanner(container, "Netifera will now restart with newly created workspace");
+	    createBanner(container, "Netifera will now restart with the newly created Workspace.");
 		setPageComplete(true);
 	}
 	
 	private void createBanner(Composite container, String text) {
 		final Label label = new Label(container, SWT.NONE);
-		final GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+		final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;		
 		label.setLayoutData(gd);
 		label.setText(text);
@@ -38,5 +38,4 @@ public class LastPage extends WizardPage {
 	    setControl(c);
 	    return c;
 	}
-
 }

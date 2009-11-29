@@ -16,15 +16,14 @@ public class WorkspaceNamePage extends WizardPage {
 	
 	WorkspaceNamePage() {
 		super("firstPage");
-		setTitle("Workspace");
+		setTitle("New Workspace");
 		setDescription("Create a new Workspace.");
+		
 		setPageComplete(false);
 	}
 	
 	public void createControl(Composite parent) {
 		final Composite container = createComposite(parent);
-	    createBanner(container, "Select a name for your new workspace");
-	
 	    workspaceNameText = createWorkspaceName(container);
 	}
 	
@@ -36,34 +35,26 @@ public class WorkspaceNamePage extends WizardPage {
 		createLabel(container, "Workspace Name:");
 		final Text t = createText(container, 16);
 		t.addModifyListener(new ModifyListener() {
-
 			public void modifyText(ModifyEvent e) {
 				if(t.getText().length() > 0) {
+					setErrorMessage(null);
 					setPageComplete(true);
 				} else {
+					setErrorMessage("Workspace name is empty.");
 					setPageComplete(false);
 				}
-				
 			}
-	
 		});
 		return t;
 	}
 	
-	
-	private void createBanner(Composite container, String text) {
-		final Label label = new Label(container, SWT.NONE);
-		final GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
-		gd.horizontalSpan = 2;		
-		label.setLayoutData(gd);
-		label.setText(text);
-	}
 	private void createLabel(Composite container, String text) {
 		final Label label = new Label(container, SWT.NONE);
 		final GridData gd = new GridData(SWT.END, SWT.CENTER, false, false);
 		label.setLayoutData(gd);
 		label.setText(text);
 	}
+	
 	private Composite createComposite(Composite parent) {
 		final Composite c = new Composite(parent, SWT.NONE);
 	    final GridLayout gridLayout = new GridLayout();
@@ -75,7 +66,7 @@ public class WorkspaceNamePage extends WizardPage {
 	}
 	private Text createText(Composite container, int limit) {
 		final Text text = new Text(container, SWT.BORDER);
-		final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.widthHint = 10 * limit;
 		text.setLayoutData(gd);
 		text.setTextLimit(limit);

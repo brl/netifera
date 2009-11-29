@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/label-provider.xml,
- OSGI-INF/action-providers.xml,
+ OSGI-INF/action-provider.xml,
  OSGI-INF/status-contribution.xml
 Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.api.log,

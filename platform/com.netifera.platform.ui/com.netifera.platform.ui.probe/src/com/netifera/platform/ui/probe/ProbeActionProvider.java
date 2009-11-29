@@ -8,7 +8,6 @@ import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbe.ConnectState;
 import com.netifera.platform.model.ProbeEntity;
@@ -24,10 +23,14 @@ public class ProbeActionProvider implements IHoverActionProvider {
 		return Collections.emptyList();
 	}
 
-	private void addProbeActions(List<IAction> actions, ProbeEntity probeEntity) {
-		final IProbe probe = Activator.getInstance().getProbeManager().getProbeById(probeEntity.getProbeId());
-		if(probe == null)
-			return;
+	public List<IAction> getQuickActions(Object o) {
+		if (!(o instanceof ProbeEntity)) return Collections.emptyList();
+
+		final IProbe probe = Activator.getInstance().getProbeManager().getProbeById(((ProbeEntity)o).getProbeId());
+		if(probe == null || probe.isLocalProbe()) return Collections.emptyList();
+
+		List<IAction> actions = new ArrayList<IAction>();
+		
 		if(probe.getConnectState() == ConnectState.CONNECTED) {
 			ISpaceAction disconnectAction = new SpaceAction("Disconnect Probe") {
 				public void run() {
@@ -37,8 +40,6 @@ public class ProbeActionProvider implements IHoverActionProvider {
 			disconnectAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/disconnect.png"));
 
 			actions.add(disconnectAction);
-			
-			actions.add(new OpenSpaceAction(probe, logger));
 		}
 		
 		if(probe.getConnectState() != ConnectState.CONNECTED) {
@@ -49,16 +50,6 @@ public class ProbeActionProvider implements IHoverActionProvider {
 			};
 			connectAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/connect.png"));
 			actions.add(connectAction);
-		}
-	}
-	
-	public List<IAction> getQuickActions(Object o) {
-		if (!(o instanceof IShadowEntity)) return Collections.emptyList();
-		IShadowEntity shadow = (IShadowEntity) o;
-		
-		List<IAction> actions = new ArrayList<IAction>();
-		if(shadow instanceof ProbeEntity) {
-			addProbeActions(actions, (ProbeEntity) shadow);
 		}
 		return actions;
 	}
