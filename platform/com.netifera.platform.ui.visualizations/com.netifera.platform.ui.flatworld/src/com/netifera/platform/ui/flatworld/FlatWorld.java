@@ -6,7 +6,7 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -20,8 +20,9 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistable;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import com.netifera.platform.ui.flatworld.quadtrees.IQuadTreeElementsVisitor;
-import com.netifera.platform.ui.flatworld.quadtrees.QuadTree;
+import com.netifera.platform.ui.flatworld.layers.FocusFlatWorldLayer;
+import com.netifera.platform.ui.flatworld.layers.LabelsFlatWorldLayer;
+import com.netifera.platform.ui.flatworld.layers.RaindropFlatWorldLayer;
 import com.netifera.platform.ui.flatworld.support.FloatPoint;
 import com.netifera.platform.ui.flatworld.support.FloatRectangle;
 import com.netifera.platform.ui.internal.flatworld.Activator;
@@ -29,7 +30,12 @@ import com.netifera.platform.ui.internal.flatworld.Activator;
 public class FlatWorld extends Canvas implements IPersistable {
 
 	private Image texture;
-	private QuadTree<String> labels;
+	private LabelsFlatWorldLayer labelsLayer;
+	private RaindropFlatWorldLayer raindropsLayer;
+	private FocusFlatWorldLayer focusLayer;
+
+	private boolean animated = false;
+	private boolean raindropsEnabled = true;
 	
 	class Frame {
 		double scale = 1.0, offsetX = 0, offsetY = 0;
@@ -164,6 +170,12 @@ public class FlatWorld extends Canvas implements IPersistable {
 		texture = imageDescriptor.createImage();
 	}
 
+	public void initializeLayers() {
+		labelsLayer = new LabelsFlatWorldLayer();
+		raindropsLayer = new RaindropFlatWorldLayer();
+		focusLayer = new FocusFlatWorldLayer();
+	}
+	
 	public void saveState(IMemento memento) {
 		memento.putFloat("frameOffsetX", (float)frame.offsetX);
 		memento.putFloat("frameOffsetY", (float)frame.offsetY);
@@ -198,32 +210,12 @@ public class FlatWorld extends Canvas implements IPersistable {
 		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x, rect.y, rect.width, rect.height);
 
 		final FloatRectangle region = getVisibleGeographicalRegion();
-		labels.visit(region, new IQuadTreeElementsVisitor<String>() {
-			public void visit(QuadTree<String> tree, FloatPoint location, String label) {
-				Point screenCoordinates = getScreenCoordinatesFromLocation(location);
-				gc.setAlpha(150);
-				gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
-				
-				int w = (int)(rect.width/(region.width/tree.getBounds().width));
-				int h = (int)(rect.height/(region.height/tree.getBounds().height));
-				int fontSize = (w+h)/2/label.length();
-				if (fontSize <= 0) fontSize = 1;
-				if (fontSize >= 48) fontSize = 48;
-				Font font = new Font(Display.getDefault(),"Arial",fontSize,SWT.BOLD);
-				gc.setAlpha(128-fontSize);
-				gc.setFont(font);
-
-				gc.drawString(label, screenCoordinates.x, screenCoordinates.y, true);
-				font.dispose();
-				
-				gc.setAlpha(64);
-				gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-//				int w = label.length()*2;
-				int d = (int) Math.sqrt(Math.max(w,h));
-				gc.fillOval(screenCoordinates.x-d, screenCoordinates.y-d, d*2, d*2);
-			}
-		});
-
+		labelsLayer.paint(region, rect, gc);
+		if (raindropsLayer.isActive())
+			raindropsLayer.paint(region, rect, gc);
+		if (focusLayer.isActive())
+			focusLayer.paint(region, rect, gc);
+		
 /*		labels.visit(region, new IQuadTreeVisitor<String>() {
 			public boolean visit(QuadTree<String> tree) {
 				if (tree.size() > 0) {
@@ -246,6 +238,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 		int srcHeight = (int)(textureBounds.height / frame.scale);
 		return getGeographicalRegionFromTextureRegion(srcX, srcY, srcWidth, srcHeight);
 	}
+	
 	private FloatRectangle getGeographicalRegionFromTextureRegion(int x, int y, int width, int height) {
 		Rectangle textureBounds = texture.getBounds();
 		return new FloatRectangle((x-textureBounds.x)*360/textureBounds.width-180,(y-textureBounds.y)*-180/textureBounds.height+90 - 180*height/textureBounds.height,360*width/textureBounds.width,180*height/textureBounds.height);
@@ -265,14 +258,51 @@ public class FlatWorld extends Canvas implements IPersistable {
 		return new Rectangle(bottomLeft.x, topRight.y, topRight.x-bottomLeft.x, bottomLeft.y-topRight.y);
 	}
 
-	public void initializeLayers() {
-		labels = new QuadTree<String>(new FloatRectangle(-180,-90,360,180));
+	private void animate() {
+		if (!animated) {
+			animated = true;
+			getDisplay().timerExec(100, new Runnable() {
+				public void run() {
+					if (!isDisposed()) {
+						redraw();
+						if (raindropsLayer.isActive() || focusLayer.isActive())
+							getDisplay().timerExec(100, this);
+						else
+							animated = false;
+					}
+				}
+			});
+		}
 	}
 	
 	public void addLabel(double latitude, double longitude, String label) {
-//		System.out.println(latitude+" "+label);
 		if (label == null) return;
-		labels.put(new FloatPoint((float)longitude, (float)latitude), label);
+		labelsLayer.addLabel(latitude, longitude, label);
+		redraw();
+	}
+
+	public void setRandropsEnabled(boolean enabled) {
+		raindropsEnabled = enabled;
+	}
+	
+	public void addRaindrop(double latitude, double longitude, Color color) {
+		if (!raindropsEnabled)
+			return;
+		raindropsLayer.addRaindrop(latitude, longitude, color);
+		if (raindropsLayer.isActive())
+			animate();
+		redraw();
+	}
+	
+	public void setFocus(double latitude, double longitude) {
+		focusLayer.setFocus(latitude, longitude);
+		if (focusLayer.isActive())
+			animate();
+		redraw();
+	}
+	
+	public void unsetFocus() {
+		focusLayer.unsetFocus();
 		redraw();
 	}
 }

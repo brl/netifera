@@ -96,6 +96,7 @@ public class QuadTree<E> {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void branchIfBig() {
 		if (contents.size() < BRANCH_THRESHOLD)
 			return;

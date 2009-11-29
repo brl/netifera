@@ -43,7 +43,7 @@ public class FlatWorldView extends ViewPart {
 	
 	private FlatWorld world;
 	
-	private volatile boolean followNewEntities = true;
+	private volatile boolean followNewEntities = false;
 	private IEntity focusEntity;
 
 	private List<ISemanticLayer> layerProviders = new ArrayList<ISemanticLayer>();
@@ -51,8 +51,6 @@ public class FlatWorldView extends ViewPart {
 
 	private ISpace space;
 	private IEventHandler spaceChangeListener;
-	
-	static private final long FLY_TIME_MSECS = 2000; // time to fly to focused entity
 	
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -165,7 +163,9 @@ public class FlatWorldView extends ViewPart {
 			}
 		};
 		if (space != null) {
+			world.setRandropsEnabled(false);
 			space.addChangeListenerAndPopulate(spaceChangeListener);
+			world.setRandropsEnabled(true);
 			setPartName(space.getName());
 		} else {
 			setPartName("World");
@@ -235,6 +235,7 @@ public class FlatWorldView extends ViewPart {
 				Display.getDefault().syncExec(new Runnable() {
 					public void run() {
 						world.addLabel(location.getPosition()[0], location.getPosition()[1], label);
+						world.addRaindrop(location.getPosition()[0], location.getPosition()[1], Display.getDefault().getSystemColor(SWT.COLOR_RED));
 					}
 				});
 			}
@@ -261,37 +262,17 @@ public class FlatWorldView extends ViewPart {
 		return null;
 	}
 
-	public void addLayer(ISemanticLayer layerProvider) {
-		layerProviders.add(layerProvider);
-		setSpace(space);//to repopulate
-	}
-	
-	public void removeLayer(ISemanticLayer layerProvider) {
-		layerProviders.remove(layerProvider);
-		setSpace(space);//to repopulate
-	}
-
-	public List<ISemanticLayer> getLayers() {
-		return layerProviders;
-	}
-	
-	public IGroupLayer getColorLayer() {
-		return colorLayerProvider;
-	}
-	
-	public void setColorLayer(IGroupLayer layerProvider) {
-		colorLayerProvider = layerProvider;
-		setSpace(space);//to repopulate
-	}
-
-	public synchronized void setFollowNewEnabled(boolean enabled) {
-		followNewEntities = enabled;
-	}
-
-	public synchronized boolean isFollowNewEnabled() {
-		return followNewEntities;
-	}
-
 	public synchronized void focusEntity(IEntity entity) {
+		System.out.println("focus entity "+entity);
+		final ILocation location = getLocation(entity);
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					if (location != null) {
+						world.setFocus(location.getPosition()[0], location.getPosition()[1]);
+					} else {
+						world.unsetFocus();
+					}
+				}
+			});
 	}
 }
