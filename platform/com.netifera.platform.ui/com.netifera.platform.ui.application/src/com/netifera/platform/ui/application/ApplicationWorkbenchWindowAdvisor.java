@@ -1,7 +1,9 @@
 package com.netifera.platform.ui.application;
 
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPreferenceConstants;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
@@ -43,6 +45,21 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		PlatformUI.getPreferenceStore().setValue(
 				IWorkbenchPreferenceConstants.PERSPECTIVE_BAR_EXTRAS,
 				Perspective.ID + ", com.netifera.platform.ui.perspectives.explore, com.netifera.platform.ui.perspectives.sniffing");
+    }
+    
+    @Override
+    public void postWindowOpen() {
+    	try {
+    		// Activate the Console view so it can show different icons when state changes even if it starts in fastview mode
+    		// Otherwise we must open the fast view first, and then the icon changes will be shown
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
+					"com.netifera.platform.views.console",
+					null,
+					IWorkbenchPage.VIEW_ACTIVATE);
+		} catch (PartInitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
     }
     
     /* 
