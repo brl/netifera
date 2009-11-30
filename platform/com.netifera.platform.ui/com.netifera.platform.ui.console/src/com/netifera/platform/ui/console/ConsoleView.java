@@ -15,6 +15,7 @@ import org.eclipse.ui.part.ViewPart;
 public class ConsoleView extends ViewPart {
 
 	final private static String CONSOLE_ICON = "icons/console.png";
+	final private static String CONSOLE_ATTENTION_ICON = "icons/console_attention.png";
 	final private static String CONSOLE_ALERT_ICON = "icons/console_alert.png";
 	
 	final private static int ALERT_TIME = 4000;
@@ -23,7 +24,9 @@ public class ConsoleView extends ViewPart {
 	private ConsoleLogReader reader;
 	private MenuManager contextMenu;
 	
+	private long lastAttentionTime = System.currentTimeMillis();
 	private long lastAlertTime = System.currentTimeMillis();
+	private boolean attentionState = false;
 	private boolean alertState = false;
 	
 	
@@ -53,8 +56,6 @@ public class ConsoleView extends ViewPart {
 				output.append(message);
 				output.setCaretOffset(output.getCharCount());
 				output.showSelection();
-				
-				showAlert();
 			}
 		});
 	}
@@ -70,21 +71,46 @@ public class ConsoleView extends ViewPart {
 		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 
-	private void showAlert() {
+	private void setStatusIcon() {
+		if (alertState) {
+			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ALERT_ICON));
+		} else if (attentionState) {
+			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ATTENTION_ICON));
+		} else {
+			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ICON));
+		}
+	}
+
+	private void animate() {
+		setStatusIcon();
+		final Display display = Display.getDefault();
+		display.timerExec(ALERT_TIME/2, new Runnable() {
+			public void run() {
+				long now = System.currentTimeMillis();
+				if (lastAlertTime + ALERT_TIME <= now)
+					alertState = false;
+				if (lastAttentionTime + ALERT_TIME <= now)
+					attentionState = false;
+				setStatusIcon();
+				if (alertState || attentionState)
+					display.timerExec(ALERT_TIME/2, this);
+			}
+		});
+	}
+	
+	public void showAlert() {
 		lastAlertTime = System.currentTimeMillis();
 		if (!alertState) {
 			alertState = true;
-			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ALERT_ICON));
-			Display.getDefault().timerExec(ALERT_TIME, new Runnable() {
-				public void run() {
-					if (lastAlertTime + ALERT_TIME <= System.currentTimeMillis()) {
-						alertState = false;
-						setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ICON));
-					} else {
-						Display.getDefault().timerExec(ALERT_TIME, this);
-					}
-				}
-			});
+			animate();
+		}
+	}
+
+	public void showAttention() {
+		lastAttentionTime = System.currentTimeMillis();
+		if (!attentionState) {
+			attentionState = true;
+			animate();
 		}
 	}
 }

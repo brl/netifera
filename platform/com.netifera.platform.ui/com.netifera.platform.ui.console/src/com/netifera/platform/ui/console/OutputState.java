@@ -39,6 +39,4 @@ public class OutputState {
 		printWriter.flush();
 		return stringWriter.toString();
 	}
-	
-
 }

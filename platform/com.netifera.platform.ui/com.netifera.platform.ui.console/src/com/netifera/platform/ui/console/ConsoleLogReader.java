@@ -13,14 +13,13 @@ public class ConsoleLogReader implements ILogReader{
 		this.consoleView = view;
 		this.display = consoleView.getSite().getShell().getDisplay();
 	}
+	
 	public void log(ILogEntry entry) {
-	final OutputState out = new OutputState(entry);
-		
+		OutputState out = new OutputState(entry);
 		addBanner(out);
 		out.println(entry.getMessage());
 		addException(out);
 		printToConsole(out);
-		
 	}
 	
 	public void logRaw(final String message) {
@@ -74,10 +73,13 @@ public class ConsoleLogReader implements ILogReader{
 		display.asyncExec(new Runnable() {
 
 			public void run() {
-				consoleView.addOutput(out.toString());				
+				consoleView.addOutput(out.toString());
+				if (out.getEntry().getLevel() == ILogEntry.LogLevel.ERROR)
+					consoleView.showAlert();
+				else
+					consoleView.showAttention();
 			}
 			
 		});
 	}
-
 }
