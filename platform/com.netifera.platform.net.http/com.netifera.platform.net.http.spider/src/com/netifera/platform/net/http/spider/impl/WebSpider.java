@@ -43,9 +43,10 @@ import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class WebSpider implements IWebSpider {
-	private volatile boolean createWebPageEntities = false;
 	private volatile boolean followLinks = true;
 	private volatile boolean fetchImages = false;
+	private volatile boolean createWebPageEntities = false;
+	private volatile boolean buildLinksGraph = false;
 	private volatile int maximumConnections = 5;
 	private volatile int bufferSize = 1024*16;
 	private volatile int queueSize = 100;
@@ -264,17 +265,17 @@ public class WebSpider implements IWebSpider {
 						if (followLinks) {
 							for (URI link: getLinks(url, content)) {
 								if (interrupted) return;
-/*								if (pageEntity != null) {
+								if (pageEntity != null && buildLinksGraph) {
 									// add links
 									WebPageEntity linkedPageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), link, null);
 									pageEntity.addLink(linkedPageEntity);
 								}
-*/								follow(link);
+								follow(link);
 							}
 							
-/*							if (pageEntity != null)
+							if (pageEntity != null && buildLinksGraph)
 								pageEntity.update();
-*/						}
+						}
 					} else {
 						if (createWebPageEntities && status == 200)
 							pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
@@ -393,6 +394,14 @@ public class WebSpider implements IWebSpider {
 
 	public boolean getCreateWebPageEntities() {
 		return createWebPageEntities;
+	}
+
+	public void setBuildLinksGraph(boolean buildLinksGraph) {
+		this.buildLinksGraph = buildLinksGraph;
+	}
+
+	public boolean getBuildLinksGraph() {
+		return buildLinksGraph;
 	}
 
 	public void setFollowLinks(boolean followLinks) {

@@ -39,6 +39,8 @@ public class WebCrawler implements ITool {
 			
 			if (context.getConfiguration().get("createWebPageEntities") != null)
 				spider.setCreateWebPageEntities((Boolean)context.getConfiguration().get("createWebPageEntities"));
+			if (context.getConfiguration().get("buildLinksGraph") != null)
+				spider.setBuildLinksGraph((Boolean)context.getConfiguration().get("buildLinksGraph"));
 			if (context.getConfiguration().get("followLinks") != null)
 				spider.setFollowLinks((Boolean)context.getConfiguration().get("followLinks"));
 			if (context.getConfiguration().get("fetchImages") != null)

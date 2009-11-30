@@ -95,6 +95,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		crawler.addOption(new StringOption("url", "Base URL", "URL to start to crawl from", startURL));
 		crawler.addOption(new MultipleStringOption("modules", "Modules", "Web Spider modules to activate during this crawling session", "Modules", getAvailableWebSpiderModules()));
 		crawler.addOption(new BooleanOption("createWebPageEntities", "Create web page entities", "Add web page entities to the current space for each visited web page?", false));
+		crawler.addOption(new BooleanOption("buildLinksGraph", "Build links graph", "Add references between web page entities to create the graph of linked pages?", false));
 		crawler.addOption(new BooleanOption("followLinks", "Follow links", "Follow links inside this website?", true));
 		crawler.addOption(new BooleanOption("fetchImages", "Fetch images", "Fetch images following <img> tags?", false));
 		crawler.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 10));

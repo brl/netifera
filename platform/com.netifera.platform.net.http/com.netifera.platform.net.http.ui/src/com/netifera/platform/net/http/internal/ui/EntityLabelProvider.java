@@ -77,7 +77,7 @@ public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformat
 			return "WWW-Authenticate: Basic realm=\""+auth.getAuthenticationRealm()+"\"";
 		} else if (e instanceof WebFormAuthenticationEntity) {
 			WebFormAuthenticationEntity auth = (WebFormAuthenticationEntity)e;
-			return "web forms authentication"; // FIXME caps?
+			return "Web Form Authentication"; // FIXME
 		} else if (e instanceof WebApplicationEntity) {
 			WebApplicationEntity app = (WebApplicationEntity) e;
 			String answer = app.getServiceType();
