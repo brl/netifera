@@ -28,7 +28,6 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.IEdge;
 import com.netifera.platform.api.model.layers.IEdgeLayer;
-import com.netifera.platform.api.model.layers.IGroupLayer;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.net.geoip.IGeographicalLayer;
 import com.netifera.platform.net.geoip.ILocation;
@@ -46,18 +45,17 @@ public class FlatWorldView extends ViewPart {
 	private volatile boolean followNewEntities = false;
 	private IEntity focusEntity;
 
-	private List<ISemanticLayer> layerProviders = new ArrayList<ISemanticLayer>();
-	private IGroupLayer colorLayerProvider;
+	private List<ISemanticLayer> layers = new ArrayList<ISemanticLayer>();
 
 	private ISpace space;
 	private IEventHandler spaceChangeListener;
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers()) {
-			if (layerProvider.isDefaultEnabled() &&
-					(layerProvider instanceof IGeographicalLayer || layerProvider instanceof IEdgeLayer))
-				layerProviders.add(layerProvider);
+		for (ISemanticLayer layer: Activator.getInstance().getModel().getSemanticLayers()) {
+			if (layer.isDefaultEnabled() &&
+					(layer instanceof IGeographicalLayer || layer instanceof IEdgeLayer))
+				layers.add(layer);
 		}
 		
 		world = new FlatWorld(parent, SWT.BORDER);
@@ -199,10 +197,10 @@ public class FlatWorldView extends ViewPart {
 			}
 		}
 		
-		for (ISemanticLayer layerProvider: layerProviders) {
-			if (layerProvider instanceof IEdgeLayer) {
-				IEdgeLayer edgeLayerProvider = (IEdgeLayer)layerProvider;
-				for (IEdge edge: edgeLayerProvider.getEdges(entity)) {
+		for (ISemanticLayer layer: layers) {
+			if (layer instanceof IEdgeLayer) {
+				IEdgeLayer edgeLayer = (IEdgeLayer)layer;
+				for (IEdge edge: edgeLayer.getEdges(entity)) {
 					addEdge(edge);
 				}
 			}
@@ -211,10 +209,10 @@ public class FlatWorldView extends ViewPart {
 
 	private synchronized void updateEntity(IEntity entity) {
 		// TODO
-		for (ISemanticLayer layerProvider: layerProviders) {
-			if (layerProvider instanceof IEdgeLayer) {
-				IEdgeLayer edgeLayerProvider = (IEdgeLayer)layerProvider;
-				for (IEdge edge: edgeLayerProvider.getEdges(entity)) {
+		for (ISemanticLayer layer: layers) {
+			if (layer instanceof IEdgeLayer) {
+				IEdgeLayer edgeLayer = (IEdgeLayer)layer;
+				for (IEdge edge: edgeLayer.getEdges(entity)) {
 					addEdge(edge);
 				}
 			}
@@ -250,9 +248,9 @@ public class FlatWorldView extends ViewPart {
 */	}
 
 	private ILocation getLocation(IEntity entity) {
-		for (ISemanticLayer layerProvider: layerProviders) {
-			if (layerProvider instanceof IGeographicalLayer) {
-				ILocation location = ((IGeographicalLayer)layerProvider).getLocation(entity);
+		for (ISemanticLayer layer: layers) {
+			if (layer instanceof IGeographicalLayer) {
+				ILocation location = ((IGeographicalLayer)layer).getLocation(entity);
 				if (location != null) {
 					return location;
 				}

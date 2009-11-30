@@ -219,6 +219,8 @@ public class DNSReverseLookup implements ITool {
 	private void warnUnknownFormat(String name) {
 		context.warning("Unknown reverse address format: "+ name);
 	}
+	
+	@SuppressWarnings("unchecked")
 	private void setupToolOptions() throws RequiredOptionMissingException {
 		dns = (DNS) context.getConfiguration().get("dns");
 		addresses = (IndexedIterable<InternetAddress>) context.getConfiguration().get("target");

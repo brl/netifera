@@ -29,6 +29,7 @@ import com.netifera.platform.util.addresses.inet.IPv6Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.patternmatching.HostnameMatcher;
 
 public class AddEmailAddress implements ITool {
 	
@@ -87,8 +88,19 @@ public class AddEmailAddress implements ITool {
 			Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), aaaa.getName().toString(), IPv6Address.fromInetAddress(aaaa.getAddress()));
 		} else if (o instanceof PTRRecord) {
 			PTRRecord ptr = (PTRRecord) o;
-//			Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), a.getName().toString(), InternetAddress.fromInetAddress(o..getAddress()));
-//			System.out.println("Unhandled record: "+ptr);
+			String reverseName = ptr.getName().toString();
+			if (!reverseName.endsWith(".in-addr.arpa.")) {
+				context.error("Unknown reverse address format: "+reverseName);
+				return;
+			}
+			String[] octets = reverseName.split("\\.");
+			InternetAddress address = InternetAddress.fromString(octets[3]+"."+octets[2]+"."+octets[1]+"."+octets[0]); // XXX ipv6
+			String hostname = ptr.getTarget().toString();
+			/* verify the hostname is valid before adding it to model
+			 * (avoid configuration errors to pollute the model) */
+			if (HostnameMatcher.matches(hostname)) {
+				Activator.getInstance().getDomainEntityFactory().createPTRRecord(context.getRealm(), context.getSpaceId(), address, ptr.getTarget().toString());
+			}
 		} else if (o instanceof MXRecord) {
 			processMXRecord((MXRecord) o);
 		} else if (o instanceof NSRecord) {

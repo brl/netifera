@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 
-import com.netifera.platform.api.log.ILogManager;
-import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbe.ConnectState;
 import com.netifera.platform.model.ProbeEntity;
@@ -17,8 +15,6 @@ import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
 public class ProbeActionProvider implements IHoverActionProvider {
 
-	private ILogger logger;
-	
 	public List<IAction> getActions(Object o) {
 		return Collections.emptyList();
 	}
@@ -52,13 +48,5 @@ public class ProbeActionProvider implements IHoverActionProvider {
 			actions.add(connectAction);
 		}
 		return actions;
-	}
-	
-	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Probe Action");
-	}
-	
-	protected void unsetLogManager(ILogManager logManager) {
-		
 	}
 }

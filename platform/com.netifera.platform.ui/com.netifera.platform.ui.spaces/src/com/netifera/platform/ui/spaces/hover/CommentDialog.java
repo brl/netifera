@@ -27,7 +27,6 @@ import org.eclipse.ui.forms.widgets.ImageHyperlink;
 
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
 public class CommentDialog extends PopupDialog {
@@ -36,7 +35,6 @@ public class CommentDialog extends PopupDialog {
 	private Form form;
 	private Composite body;
 
-	private final ISpace space;
 	private final IShadowEntity entity;
 
 	private Text text;
@@ -44,9 +42,8 @@ public class CommentDialog extends PopupDialog {
 	private Image addImage = Activator.getInstance().getImageCache().get("icons/add.png");
 	private ImageHyperlink addLink;
 	
-	public CommentDialog(Shell parent, Point location, ISpace space, IShadowEntity entity) {
+	public CommentDialog(Shell parent, Point location, IShadowEntity entity) {
 		super(parent, PopupDialog.INFOPOPUP_SHELLSTYLE | SWT.ON_TOP, true, false, false, false, false, null, "Press ESC to exit");
-		this.space = space;
 		this.entity = entity;
 		
 		create();

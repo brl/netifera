@@ -183,12 +183,6 @@ public class TreeMapView extends ViewPart {
 				return null;
 			}
 			
-			private Rectangle expandedItemArea(Rectangle itemArea) {
-				return new Rectangle(Math.max(itemArea.x - 12, 2), Math.max(itemArea.y
-						- EPSILON * 2, 0), itemArea.width + 12 * 2, itemArea.height
-						+ EPSILON * 2 * 2);
-			}
-			
 			@Override
 			protected void showInformationControl(Shell parent, Point location,
 					Object input, Object item) {

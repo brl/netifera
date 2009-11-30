@@ -148,6 +148,7 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 		final MouseTracker mouseTracker = new MouseTracker(viewer.getTree()) {
 			private PopupDialog informationControl;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			protected Object getItemAt(Point point) {
 				TreeItem treeItem = viewer.getTree().getItem(point);

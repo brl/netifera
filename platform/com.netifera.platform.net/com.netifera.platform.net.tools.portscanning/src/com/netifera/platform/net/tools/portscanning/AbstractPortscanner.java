@@ -39,6 +39,7 @@ public abstract class AbstractPortscanner implements ITool {
 		/* Override me for handling tool specific options */
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void setupPortscannerOptions() throws ToolException {
 		setupToolOptions();
 

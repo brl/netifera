@@ -42,11 +42,16 @@ package com.netifera.platform.util.xml;
  * @author Marc De Scheemaecker
  * @version $Name: RELEASE_2_2_1 $, $Revision: 1.4 $
  */
-public class XMLParseException
-    extends RuntimeException
+public class XMLParseException extends RuntimeException
 {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7132010911265619108L;
+
+
+	/**
      * Indicates that no line number has been associated with this exception.
      */
     public static final int NO_LINE = -1;

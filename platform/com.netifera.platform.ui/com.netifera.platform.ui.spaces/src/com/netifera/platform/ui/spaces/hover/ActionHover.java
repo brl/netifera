@@ -260,7 +260,7 @@ public class ActionHover extends PopupDialog {
 					
 					IAction commentAction = new SpaceAction("Comment") {
 						public void run() {
-							CommentDialog commentDialog = new CommentDialog(getParentShell(), getShell().getLocation(), space, entity);
+							CommentDialog commentDialog = new CommentDialog(getParentShell(), getShell().getLocation(), entity);
 							commentDialog.open();
 							ActionHover.this.close();
 						}
@@ -335,15 +335,17 @@ public class ActionHover extends PopupDialog {
 					ISpaceAction spaceAction = (ISpaceAction) action;
 					spaceAction.setSpace(space);
 					if (((ToolConfiguration) spaceAction.getConfiguration()).isFixed()) {
+						close();
 						spaceAction.run();
 					} else {
 						RunActionDialog runActionDialog = new RunActionDialog(getParentShell(), getShell().getLocation(), spaceAction);
+						close();
 						runActionDialog.open();
 					}
 				} else {
+					close();
 					action.run();
 				}
-				close();
 			}
 		});
 		

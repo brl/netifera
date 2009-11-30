@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.netifera.platform.api.events.IEventHandler;
-import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tasks.ITaskRecord;
 

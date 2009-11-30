@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 
 import com.netifera.platform.host.terminal.ui.preferences.SettingStorePrefixDecorator;

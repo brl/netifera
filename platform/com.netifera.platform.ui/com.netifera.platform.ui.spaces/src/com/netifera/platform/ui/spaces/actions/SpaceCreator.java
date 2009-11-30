@@ -93,7 +93,6 @@ public class SpaceCreator {
 	}
 
 	private ISpace getParentSpace(ISpace space) {
-		IProbe probe = Activator.getInstance().getProbeManager().getProbeById(space.getProbeId());
 		IEntity parentEntity = space.isIsolated() ? space.getRootEntity().getRealmEntity() : space.getRootEntity();
 		if (parentEntity instanceof SpaceEntity)
 			return Activator.getInstance().getModel().getCurrentWorkspace().findSpaceById(((SpaceEntity)parentEntity).getSpaceId());

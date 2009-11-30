@@ -35,11 +35,11 @@ import com.netifera.platform.util.patternmatching.NetblockMatcher;
 
 public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String HOST_WORKSTATION = "icons/host_workstation.png";
-	private final static String HOST_SERVER = "icons/host_server.png";
+//	private final static String HOST_SERVER = "icons/host_server.png";
 //	private final static String HOST_MAINFRAME = "icons/host_mainframe.png";
 	private final static String HOST_ROUTER = "icons/host_router.png";
 //	private final static String HOST_SWITCH = "icons/host_switch.png";
-	private final static String HOST_AP = "icons/host_ap.png";
+//	private final static String HOST_AP = "icons/host_ap.png";
 	private final static String HOST_IPHONE = "icons/host_iphone.png";
 	
 	private final static String ADDRESS = "icons/address.png";
@@ -61,7 +61,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String CONTROLLED_OVERLAY = "icons/controlled_overlay.png";
 //	private final static String ERROR_OVERLAY = "icons/error_overlay.png";
 
-	private final static String PRIVILEDGED_OVERLAY = "icons/priviledged_overlay.png";
+//	private final static String PRIVILEDGED_OVERLAY = "icons/priviledged_overlay.png";
 
 	//private final static String HOST_SERVER_IBM = "icons/host_server_ibm.png";
 	//private final static String HOST_SERVER_HP = "icons/host_server_hp.png";
@@ -482,7 +482,6 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		return buffer.toString();
 	}
 	
-	private final static int PORTS_FORMATTED_LINE_LENGTH = 40;
 	private final static int PORTS_TRUNCATE_LENGTH = 50;
 
 	private String getPortsetText(PortSetEntity portset) {

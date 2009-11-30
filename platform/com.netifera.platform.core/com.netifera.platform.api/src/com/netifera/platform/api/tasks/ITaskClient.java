@@ -1,9 +1,7 @@
 package com.netifera.platform.api.tasks;
 
 import java.util.Collection;
-import java.util.List;
 
-import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 

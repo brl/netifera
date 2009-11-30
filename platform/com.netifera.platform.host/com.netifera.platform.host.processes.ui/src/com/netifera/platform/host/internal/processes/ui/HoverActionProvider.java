@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 
-import com.netifera.platform.api.log.ILogManager;
-import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.host.processes.ProcessServiceLocator;
 import com.netifera.platform.host.processes.ui.OpenProcessListAction;
@@ -17,8 +15,6 @@ import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 
 public class HoverActionProvider implements IHoverActionProvider {
 
-	private ILogger logger;
-	
 	public List<IAction> getActions(Object o) {
 		return Collections.emptyList();
 	}
@@ -41,13 +37,5 @@ public class HoverActionProvider implements IHoverActionProvider {
 		}
 		
 		return answer;
-	}
-	
-	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Process Service");
-	}
-	
-	protected void unsetLogManager(ILogManager logManager) {
-		
 	}
 }

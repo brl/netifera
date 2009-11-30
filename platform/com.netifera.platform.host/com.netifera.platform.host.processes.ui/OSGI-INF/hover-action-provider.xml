@@ -4,11 +4,4 @@
 	<service>
 		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProvider" />
 	</service>
-	
-	 <reference
-    	name="LOG_MANAGER"
-    	interface="com.netifera.platform.api.log.ILogManager"
-    	bind="setLogManager"
-    	unbind="unsetLogManager"
-    />
 </component>

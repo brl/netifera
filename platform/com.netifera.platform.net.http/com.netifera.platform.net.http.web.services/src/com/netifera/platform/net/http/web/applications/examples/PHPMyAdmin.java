@@ -29,7 +29,7 @@ public class PHPMyAdmin extends WebApplication implements IAuthenticable {
 	}
 
 	public CredentialsVerifier createCredentialsVerifier() {
-		URI url = getURL().resolve("index.php");
+//		URI url = getURL().resolve("index.php");
 //		return new HttpFormAuthenticationVerifier(http, "username", "password", url);
 		return null;
 	}

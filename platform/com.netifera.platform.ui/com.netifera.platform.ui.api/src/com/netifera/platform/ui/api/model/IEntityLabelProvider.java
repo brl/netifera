@@ -1,8 +1,5 @@
 package com.netifera.platform.ui.api.model;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.IBaseLabelProvider;
-import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.Image;
 
 import com.netifera.platform.api.model.IShadowEntity;

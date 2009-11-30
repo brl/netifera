@@ -10,7 +10,6 @@ import com.db4o.ObjectContainer;
 import com.db4o.ext.DatabaseClosedException;
 import com.netifera.platform.api.events.EventListenerManager;
 import com.netifera.platform.api.events.IEventHandler;
-import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.IWorkspace;
@@ -57,7 +56,6 @@ public class Space implements ISpace {
 	private transient boolean entitiesDirty;
 	private transient boolean tasksDirty;
 	private transient ObjectContainer database;
-	private transient ILogger logger;
 	
 	/* Create a new space */
 	Space(long id, IProbe probe, String name, IEntity root, SpaceManager manager) {
@@ -70,7 +68,6 @@ public class Space implements ISpace {
 		this.entitySet = Collections.synchronizedSet(new HashSet<IEntity>());
 		this.manager = manager;
 		this.database = manager.getDatabase();
-		this.logger = manager.getLogger().getManager().getLogger("Space : " + name);
 		startCommitThread();
 	}
 	

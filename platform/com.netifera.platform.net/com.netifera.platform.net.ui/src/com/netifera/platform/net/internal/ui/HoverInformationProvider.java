@@ -240,7 +240,6 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 	}
 
 	private final static int PORTS_FORMATTED_LINE_LENGTH = 40;
-	private final static int PORTS_TRUNCATE_LENGTH = 50;
 
 	private List<String> breakIntoLines(String ports) {
 		String remaining = ports;

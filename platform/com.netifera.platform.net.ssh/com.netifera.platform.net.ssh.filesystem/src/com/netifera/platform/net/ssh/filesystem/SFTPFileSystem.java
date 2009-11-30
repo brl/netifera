@@ -53,6 +53,7 @@ public class SFTPFileSystem implements IFileSystem {
 		return new File[] {new File(this, "/", File.S_IFDIR, 0, 0)};
 	}
 
+	@SuppressWarnings("unchecked")
 	public File[] getDirectoryList(String directoryName) throws IOException {
 		SFTPv3Client client = new SFTPv3Client(ssh.createConnection(credential));
 		try {
