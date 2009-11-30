@@ -13,14 +13,14 @@ import com.netifera.platform.ui.internal.spaces.Activator;
 public class NewIsolatedSpaceDelegate implements IWorkbenchWindowActionDelegate {
 
 	private SpaceCreator creator;
-	private IProbe selectedProbe;
+//	private IProbe selectedProbe;
 
 	public void init(IWorkbenchWindow window) {
 		creator = new SpaceCreator(window);
 	}
 
 	public void run(IAction action) {
-		try {
+/*		try {
 			if (selectedProbe != null) {
 				creator.openNewSpace(null, selectedProbe, true);
 			} else {
@@ -29,10 +29,12 @@ public class NewIsolatedSpaceDelegate implements IWorkbenchWindowActionDelegate 
 		} catch (IllegalArgumentException e) {
 			// it means we tried to open an isolated Space on a remote probe
 		}
+*/
+		creator.openNewIsolatedSpace();
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
-		if (selection instanceof IStructuredSelection) {
+/*		if (selection instanceof IStructuredSelection) {
 			Object element = ((IStructuredSelection)selection).getFirstElement();
 			if (element instanceof IProbe) {
 				selectedProbe = (IProbe) element;
@@ -44,7 +46,7 @@ public class NewIsolatedSpaceDelegate implements IWorkbenchWindowActionDelegate 
 		} else {
 			selectedProbe = null;
 		}
-	}
+*/	}
 	
 	public void dispose() {
 	}

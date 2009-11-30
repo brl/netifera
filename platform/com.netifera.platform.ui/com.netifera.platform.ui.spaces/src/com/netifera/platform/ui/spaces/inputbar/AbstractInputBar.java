@@ -85,7 +85,8 @@ public abstract class AbstractInputBar extends ControlContribution {
 					if (AbstractInputBar.this.isActionEnabled()) {
 						if ((e.stateMask & SWT.SHIFT) != 0) {
 							SpaceCreator creator = new SpaceCreator(Activator.getInstance().getWorkbench().getActiveWorkbenchWindow());
-							creator.openNewSpace(content, true);
+							if (creator.openNewSpace(content) == null)
+								creator.openNewIsolatedSpace(content);
 						}
 						AbstractInputBar.this.runAction();
 						text.setText(content);

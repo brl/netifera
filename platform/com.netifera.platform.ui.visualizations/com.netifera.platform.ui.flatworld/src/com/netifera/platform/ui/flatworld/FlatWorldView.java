@@ -263,7 +263,6 @@ public class FlatWorldView extends ViewPart {
 	}
 
 	public synchronized void focusEntity(IEntity entity) {
-		System.out.println("focus entity "+entity);
 		final ILocation location = getLocation(entity);
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
