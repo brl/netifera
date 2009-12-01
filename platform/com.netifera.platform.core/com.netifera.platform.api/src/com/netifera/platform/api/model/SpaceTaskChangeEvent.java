@@ -44,5 +44,4 @@ public class SpaceTaskChangeEvent implements ISpaceTaskChangeEvent {
 	public boolean isOutputEvent() {
 		return output != null;
 	}
-
 }

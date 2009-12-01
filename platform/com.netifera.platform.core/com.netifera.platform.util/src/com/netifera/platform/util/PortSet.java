@@ -108,10 +108,6 @@ public class PortSet implements IndexedIterable<Integer> {
 	
 	@Override
 	public String toString() {
-		return getLabel();
-	}
-	
-	public String getLabel() {
 		final StringBuffer buffer = new StringBuffer();
 		for(PortRange r : ports) {
 			if(buffer.length() > 0) {

@@ -119,7 +119,7 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 	
 	private synchronized void handleSpaceChange(final ISpaceContentChangeEvent event) {
 		try {
-			if(event.isCreationEvent()) {
+			if(event.isAdditionEvent()) {
 				addEntity(event.getEntity());
 			} else if(event.isUpdateEvent()) {
 				addEntity(event.getEntity());

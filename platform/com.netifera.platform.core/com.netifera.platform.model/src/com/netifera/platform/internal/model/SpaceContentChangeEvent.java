@@ -7,7 +7,7 @@ import com.netifera.platform.api.model.ISpaceContentChangeEvent;
 class SpaceContentChangeEvent implements ISpaceContentChangeEvent {
 	
 	private final boolean isUpdate;
-	private final boolean isCreate;
+	private final boolean isAdd;
 	private final boolean isRemove;
 	private final IEntity entity;
 
@@ -15,7 +15,7 @@ class SpaceContentChangeEvent implements ISpaceContentChangeEvent {
 		return new SpaceContentChangeEvent(entity, true, false, false);
 	}
 	
-	public static SpaceContentChangeEvent createCreationEvent(IEntity entity) {
+	public static SpaceContentChangeEvent createAdditionEvent(IEntity entity) {
 		return new SpaceContentChangeEvent(entity, false, true, false);
 	}
 
@@ -23,10 +23,10 @@ class SpaceContentChangeEvent implements ISpaceContentChangeEvent {
 		return new SpaceContentChangeEvent(entity, false, false, true);
 	}
 
-	private SpaceContentChangeEvent(IEntity entity, boolean update, boolean create, boolean remove) {
+	private SpaceContentChangeEvent(IEntity entity, boolean update, boolean add, boolean remove) {
 		this.entity = entity;
 		this.isUpdate = update;
-		this.isCreate = create;
+		this.isAdd = add;
 		this.isRemove = remove;
 	}
 	
@@ -34,8 +34,8 @@ class SpaceContentChangeEvent implements ISpaceContentChangeEvent {
 		return entity;
 	}
 	
-	public boolean isCreationEvent() {
-		return isCreate;
+	public boolean isAdditionEvent() {
+		return isAdd;
 	}
 	
 	public boolean isUpdateEvent() {

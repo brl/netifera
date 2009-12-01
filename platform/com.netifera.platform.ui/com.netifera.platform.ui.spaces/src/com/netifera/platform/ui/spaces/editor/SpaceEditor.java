@@ -95,6 +95,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 				}
 			}
 		});
+		
 		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(
 				new ISelectionListener() {
 					public void selectionChanged(IWorkbenchPart part, org.eclipse.jface.viewers.ISelection sel) {

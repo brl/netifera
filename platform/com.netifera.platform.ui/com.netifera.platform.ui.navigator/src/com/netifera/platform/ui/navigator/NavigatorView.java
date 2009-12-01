@@ -61,19 +61,6 @@ public class NavigatorView extends ViewPart {
 		viewer.setLabelProvider(new NavigatorLabelProvider());
 		viewer.setInput(Activator.getInstance().getModel().getCurrentWorkspace());
 		
-		//FIXME this kind of updates should be done in the content provider
-		Activator.getInstance().getModel().getCurrentWorkspace().addSpaceStatusChangeListener(new IEventHandler() {
-			public void handleEvent(IEvent event) {
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							if(!viewer.getControl().isDisposed()) {
-								viewer.refresh();
-							}
-						}
-					});
-				}
-		});
-
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();

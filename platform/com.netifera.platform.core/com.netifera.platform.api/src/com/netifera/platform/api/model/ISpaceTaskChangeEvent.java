@@ -11,5 +11,4 @@ public interface ISpaceTaskChangeEvent extends IEvent {
 	boolean isCreationEvent();
 	boolean isUpdateEvent();
 	boolean isOutputEvent();
-
 }

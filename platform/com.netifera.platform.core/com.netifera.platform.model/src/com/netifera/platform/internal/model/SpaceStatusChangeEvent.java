@@ -8,7 +8,6 @@ public class SpaceStatusChangeEvent implements ISpaceStatusChangeEvent {
 	final private boolean isNew;
 	final private boolean isChanged;
 	
-	
 	public static SpaceStatusChangeEvent createNewEvent(ISpace space) {
 		return new SpaceStatusChangeEvent(space, true, false);
 	}

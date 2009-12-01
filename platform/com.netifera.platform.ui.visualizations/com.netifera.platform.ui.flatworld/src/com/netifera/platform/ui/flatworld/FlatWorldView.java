@@ -180,7 +180,7 @@ public class FlatWorldView extends ViewPart {
 		if (!(event.getEntity() instanceof AbstractEntity))
 			return;
 		final AbstractEntity entity = (AbstractEntity)event.getEntity();
-		if(event.isCreationEvent()) {
+		if(event.isAdditionEvent()) {
 			addEntity(entity);
 		} else if(event.isUpdateEvent()) {
 			updateEntity(entity);

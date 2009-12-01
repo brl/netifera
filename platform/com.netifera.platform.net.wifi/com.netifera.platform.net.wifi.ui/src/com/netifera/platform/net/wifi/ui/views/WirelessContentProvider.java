@@ -91,7 +91,7 @@ public class WirelessContentProvider implements ITreeContentProvider {
 	}
 	
 	private void handleSpaceChange(ISpaceContentChangeEvent event) {
-		if(event.isCreationEvent() && event.getEntity() instanceof ExtendedServiceSetEntity) {
+		if(event.isAdditionEvent() && event.getEntity() instanceof ExtendedServiceSetEntity) {
 			networks.add((ExtendedServiceSetEntity) event.getEntity());
 			refreshViewer();
 		}

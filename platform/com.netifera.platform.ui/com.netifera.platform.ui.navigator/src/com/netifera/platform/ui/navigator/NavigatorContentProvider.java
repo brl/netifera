@@ -170,7 +170,10 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 	public void handleEvent(final IEvent event) {
 		if(event instanceof ISpaceStatusChangeEvent) {
 			final ISpaceStatusChangeEvent spaceChange = (ISpaceStatusChangeEvent) event;
-			updater.refresh(spaceChange.getSpace());
+			if (spaceChange.isNew())
+				updater.refresh();
+			else
+				updater.refresh(spaceChange.getSpace());
 		}
 	}
 	

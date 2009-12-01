@@ -69,7 +69,7 @@ public class SpaceTreeUpdater {
 	}
 	
 	private void handleSpaceChange(ISpaceContentChangeEvent event) {
-		if(event.isCreationEvent()) {
+		if(event.isAdditionEvent()) {
 			treeBuilder.addEntity(event.getEntity());
 		} else if(event.isUpdateEvent()) {
 			if(treeBuilderHasValidRoot())

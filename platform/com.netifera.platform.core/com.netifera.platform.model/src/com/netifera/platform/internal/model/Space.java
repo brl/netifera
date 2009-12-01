@@ -107,7 +107,7 @@ public class Space implements ISpace {
 			entitySet.add(entity);
 			spaceEntities.add(entity);
 			entitiesDirty = true;
-			getEventManager().fireEvent(SpaceContentChangeEvent.createCreationEvent(entity));
+			getEventManager().fireEvent(SpaceContentChangeEvent.createAdditionEvent(entity));
 			manager.notifySpaceChange(this);
 		}
 	}
@@ -236,7 +236,7 @@ public class Space implements ISpace {
 		getEventManager().addListener(handler);
 		synchronized(spaceEntities) {
 			for(IEntity entity : spaceEntities) {
-				handler.handleEvent(SpaceContentChangeEvent.createCreationEvent(entity));
+				handler.handleEvent(SpaceContentChangeEvent.createAdditionEvent(entity));
 			}
 		}
 	}
