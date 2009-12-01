@@ -54,7 +54,7 @@ public class ConsoleLogReader implements ILogReader {
 	}
 	
 	private void printToConsole(final OutputState out) {
-		if (out.getEntry().getLevel() == ILogEntry.LogLevel.ERROR)
+		if (out.getEntry().getLevel() == ILogEntry.LogLevel.ERROR || out.getEntry().getException() != null)
 			consoleView.printError(out.toString());
 		else
 			consoleView.printOutput(out.toString());

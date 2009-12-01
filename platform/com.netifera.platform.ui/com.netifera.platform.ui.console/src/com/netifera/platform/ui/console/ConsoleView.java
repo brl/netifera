@@ -6,6 +6,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -71,7 +72,7 @@ public class ConsoleView extends ViewPart {
 	}
 
 	public void printError(final String message) {
-		Display display = getSite().getShell().getDisplay();
+		final Display display = getSite().getShell().getDisplay();
 		if (display.isDisposed()) {
 			System.err.print(message);
 		}
@@ -80,6 +81,7 @@ public class ConsoleView extends ViewPart {
 				if(output.isDisposed()) 
 					return;
 				output.append(message);
+				output.setStyleRange(new StyleRange(output.getCharCount()-message.length(), message.length(), display.getSystemColor(SWT.COLOR_RED), null));
 				output.setCaretOffset(output.getCharCount());
 				output.showSelection();
 				
