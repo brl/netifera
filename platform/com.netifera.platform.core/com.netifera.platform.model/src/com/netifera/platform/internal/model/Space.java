@@ -24,8 +24,6 @@ import com.netifera.platform.model.SpaceEntity;
 public class Space implements ISpace {
 	private final static int BACKGROUND_COMMIT_INTERVAL = 5000;
 	
-    public final static int TASK_STATUS_RUNNING = 1; // from TaskStatus class
-
 	/* Unique ID value for this space */
 	private final long id;
 	
@@ -160,7 +158,7 @@ public class Space implements ISpace {
 	 * Return true if the activity status might have changed, false otherwise.
 	 */
 	private synchronized boolean updateActiveStatus(ITaskRecord record) {
-		if (record.getRunState() == TASK_STATUS_RUNNING) {
+		if (record.isRunning()) {
 			if (isActive != null && isActive)
 				return false;
 			isActive = true;
@@ -180,7 +178,7 @@ public class Space implements ISpace {
 			return nonVolatileIsActive;
 		synchronized(this) {
 			for (ITaskRecord record: spaceTasks) {
-				if (record.getRunState() == TASK_STATUS_RUNNING) {
+				if (record.isRunning()) {
 					isActive = true;
 					return isActive;
 				}
