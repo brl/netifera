@@ -1,6 +1,7 @@
 package com.netifera.platform.ui.navigator;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.swt.graphics.Image;
 
 import com.netifera.platform.api.model.ISpace;
@@ -9,15 +10,16 @@ import com.netifera.platform.ui.images.ImageCache;
 
 public class NavigatorLabelProvider extends ColumnLabelProvider {
 
-	private final static String SPACE_OPEN = "icons/space.png";
-	private final static String SPACE_CLOSED = "icons/space_gray.png";
-	private final static String ISOLATED_SPACE_OPEN = "icons/space_isolated.png";
-	private final static String ISOLATED_SPACE_CLOSED = "icons/space_isolated_gray.png";
+	private final static String SPACE_ICON = "icons/space.png";
+	private final static String SPACE_CLOSED_ICON = "icons/space_gray.png";
+	private final static String SPACE_ISOLATED_ICON = "icons/space_isolated.png";
+	private final static String SPACE_ISOLATED_CLOSED_ICON = "icons/space_isolated_gray.png";
+	private final static String SPACE_ACTIVE_OVERLAY = "icons/space_active_overlay.png";
 	
-	private final static String PROBE_DISCONNECTED = "icons/probe_disconnected.png";
-	private final static String PROBE_CONNECTING = "icons/probe_connecting.png";
-	private final static String PROBE_CONNECTED = "icons/probe_connected.png";
-	private final static String PROBE_FAILED = "icons/probe_failed.png";
+	private final static String PROBE_DISCONNECTED_ICON = "icons/probe_disconnected.png";
+	private final static String PROBE_CONNECTING_ICON = "icons/probe_connecting.png";
+	private final static String PROBE_CONNECTED_ICON = "icons/probe_connected.png";
+	private final static String PROBE_FAILED_ICON = "icons/probe_failed.png";
 	
 	public final static String PROBE_PLUGIN_ID = "com.netifera.platform.ui.probe";
 	public final static String SPACES_PLUGIN_ID = "com.netifera.platform.ui.spaces";
@@ -50,22 +52,28 @@ public class NavigatorLabelProvider extends ColumnLabelProvider {
 
 	private Image getSpaceImage(ISpace space) {
 		if(space.isOpened()) {
-			return spaceImages.get(space.isIsolated() ? ISOLATED_SPACE_OPEN : SPACE_OPEN);
+			String baseIcon = space.isIsolated() ? SPACE_ISOLATED_ICON : SPACE_ICON;
+			if (space.isActive()) {
+				String overlayKeys[] = new String[5];
+				overlayKeys[IDecoration.TOP_RIGHT] = SPACE_ACTIVE_OVERLAY;
+				return spaceImages.getDecorated(baseIcon, overlayKeys);
+			}
+			return spaceImages.get(baseIcon);
 		} else {
-			return spaceImages.get(space.isIsolated() ? ISOLATED_SPACE_CLOSED : SPACE_CLOSED);
+			return spaceImages.get(space.isIsolated() ? SPACE_ISOLATED_CLOSED_ICON : SPACE_CLOSED_ICON);
 		}
 	}
 	
 	private Image getProbeStatusImage(IProbe probe) {
 		switch(probe.getConnectState()) {
 		case CONNECTED:
-			return probeImages.get(PROBE_CONNECTED);
+			return probeImages.get(PROBE_CONNECTED_ICON);
 		case CONNECTING:
-			return probeImages.get(PROBE_CONNECTING);
+			return probeImages.get(PROBE_CONNECTING_ICON);
 		case DISCONNECTED:
-			return probeImages.get(PROBE_DISCONNECTED);
+			return probeImages.get(PROBE_DISCONNECTED_ICON);
 		case CONNECT_FAILED:
-			return probeImages.get(PROBE_FAILED);
+			return probeImages.get(PROBE_FAILED_ICON);
 		
 		default:
 			return null;

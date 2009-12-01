@@ -27,7 +27,6 @@ public class SpaceManager {
 	private transient EventListenerManager changeListeners;
 	private transient ILogger logger;
 
-
 	public static SpaceManager getSpaceManager(final ObjectContainer db, final Workspace workspace) {
 		final List<SpaceManager> result = db.query(SpaceManager.class);
 		if(result.isEmpty()) {
@@ -37,7 +36,6 @@ public class SpaceManager {
 		} else {
 			throw new IllegalStateException("Multiple SpaceManager objects found in database");
 		}
-		
 	}
 	
 	ObjectContainer getDatabase() {
@@ -155,5 +153,4 @@ public class SpaceManager {
 		}
 		return changeListeners;
 	}
-
 }

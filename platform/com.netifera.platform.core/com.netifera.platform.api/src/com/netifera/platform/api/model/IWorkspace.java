@@ -105,8 +105,8 @@ public interface IWorkspace {
 	Set<ISpace> getOpenSpaces();
 	Set<ISpace> getAllSpaces();
 	ISpace findSpaceById(long id);
-	void addSpaceCreationListener(IEventHandler handler);
-	void removeSpaceCreationListener(IEventHandler handler);
+	void addSpaceStatusChangeListener(IEventHandler handler);
+	void removeSpaceStatusChangeListener(IEventHandler handler);
 
 	IModelService getModel();
 

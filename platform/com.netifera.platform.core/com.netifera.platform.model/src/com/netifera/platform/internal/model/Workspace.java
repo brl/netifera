@@ -215,11 +215,11 @@ public class Workspace implements IWorkspaceEx {
 		return spaceManager.findSpaceById(id);
 	}
 	
-	public void addSpaceCreationListener(IEventHandler handler) {
+	public void addSpaceStatusChangeListener(IEventHandler handler) {
 		spaceManager.addChangeListener(handler);
 	}
 	
-	public void removeSpaceCreationListener(IEventHandler handler) {
+	public void removeSpaceStatusChangeListener(IEventHandler handler) {
 		spaceManager.removeChangeListener(handler);
 	}
 

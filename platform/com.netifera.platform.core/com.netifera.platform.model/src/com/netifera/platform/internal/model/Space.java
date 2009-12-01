@@ -24,6 +24,8 @@ import com.netifera.platform.model.SpaceEntity;
 public class Space implements ISpace {
 	private final static int BACKGROUND_COMMIT_INTERVAL = 5000;
 	
+    public final static int TASK_STATUS_RUNNING = 1; // from TaskStatus class
+
 	/* Unique ID value for this space */
 	private final long id;
 	
@@ -41,6 +43,7 @@ public class Space implements ISpace {
 	
 	/* The list of tasks which have been executed in this space */
 	private final List<ITaskRecord> spaceTasks;
+	private volatile transient Boolean isActive;
 	
 	private final SpaceManager manager;
 	private transient boolean isOpened;
@@ -140,19 +143,52 @@ public class Space implements ISpace {
 			return;
 		}
 		spaceTasks.add(record);
+		updateActiveStatus(record); // no need to fire a Space Change event because manager.addTaskToSpace will fire it
 		manager.addTaskToSpace(status.getTaskId(), this);
 		tasksDirty = true;
 		getTaskEventManager().fireEvent(SpaceTaskChangeEvent.createCreationEvent(record));
 	}
 	
 	public void updateTaskRecord(ITaskRecord record) {
+		if (updateActiveStatus(record))
+			manager.notifySpaceChange(this);
 		getTaskEventManager().fireEvent(SpaceTaskChangeEvent.createUpdateEvent(record));
+	}
+
+	/*
+	 * Update the activity status, which indicates whether tasks are currently running.
+	 * Return true if the activity status might have changed, false otherwise.
+	 */
+	private synchronized boolean updateActiveStatus(ITaskRecord record) {
+		if (record.getRunState() == TASK_STATUS_RUNNING) {
+			if (isActive != null && isActive)
+				return false;
+			isActive = true;
+		} else {
+			isActive = null;
+		}
+		return true;
 	}
 	
 	public List<ITaskRecord> getTasks() {
 		return Collections.unmodifiableList(spaceTasks);
 	}
 	
+	public boolean isActive() {
+		Boolean nonVolatileIsActive = isActive; 
+		if (nonVolatileIsActive != null)
+			return nonVolatileIsActive;
+		synchronized(this) {
+			for (ITaskRecord record: spaceTasks) {
+				if (record.getRunState() == TASK_STATUS_RUNNING) {
+					isActive = true;
+					return isActive;
+				}
+			}
+			isActive = false;
+			return isActive;
+		}
+	}
 	
 	private void buildEntitySet() {
 		entitySet = new HashSet<IEntity>();
@@ -282,8 +318,6 @@ public class Space implements ISpace {
 		commitThread.start();
 	}
 	
-	
-
 	private synchronized void runCommit() {		
 		if(tasksDirty) {
 			commitTasks();
@@ -300,13 +334,11 @@ public class Space implements ISpace {
 		synchronized(spaceEntities) {
 			database.store(spaceEntities);
 		}
-		
 	}
+	
 	private void commitTasks() {
 		synchronized (spaceTasks) {
 			database.store(spaceTasks);
 		}
-
 	}
-
 }

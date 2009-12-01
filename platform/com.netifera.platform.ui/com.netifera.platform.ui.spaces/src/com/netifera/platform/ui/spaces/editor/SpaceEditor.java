@@ -71,25 +71,30 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 							setPartName(((SpaceNameChangeEvent)event).getName());
 						}
 					});
-				}
+/*				} else if(event instanceof ISpaceStatusChangeEvent) {
+					getSite().getShell().getDisplay().syncExec(new Runnable() {
+						public void run() {
+							setTitleImage();
+						}
+					});
+*/				}
 			}
 		});
-
+		
 		space.addTaskChangeListener(new IEventHandler() {
-			public void handleEvent(IEvent event) {
+			public void handleEvent(final IEvent event) {
 				if(event instanceof ISpaceTaskChangeEvent) {
 					ISpaceTaskChangeEvent taskEvent = (ISpaceTaskChangeEvent) event;
 					if (taskEvent.isCreationEvent() || taskEvent.isUpdateEvent()) {
-						getSite().getShell().getDisplay().syncExec(new Runnable() {
+						getSite().getShell().getDisplay().asyncExec(new Runnable() {
 							public void run() {
 								setTitleImage();
 							}
 						});
 					}
 				}
-			}	
+			}
 		});
-		
 		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(
 				new ISelectionListener() {
 					public void selectionChanged(IWorkbenchPart part, org.eclipse.jface.viewers.ISelection sel) {

@@ -61,8 +61,8 @@ public class NavigatorView extends ViewPart {
 		viewer.setLabelProvider(new NavigatorLabelProvider());
 		viewer.setInput(Activator.getInstance().getModel().getCurrentWorkspace());
 		
-		//XXX this kind of updates should be done in the content provider
-		Activator.getInstance().getModel().getCurrentWorkspace().addSpaceCreationListener(new IEventHandler() {
+		//FIXME this kind of updates should be done in the content provider
+		Activator.getInstance().getModel().getCurrentWorkspace().addSpaceStatusChangeListener(new IEventHandler() {
 			public void handleEvent(IEvent event) {
 					Display.getDefault().asyncExec(new Runnable() {
 						public void run() {

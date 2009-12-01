@@ -41,4 +41,5 @@ public interface ISpace {
 	void addTaskChangeListener(IEventHandler handler);
 	void addTaskChangeListenerAndPopulate(IEventHandler handler);
 	void removeTaskChangeListener(IEventHandler handler);
+	boolean isActive();
 }

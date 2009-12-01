@@ -11,7 +11,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 	private Object currentInput;
 	private volatile boolean refresh;
 	private volatile boolean setInput;
-	Map<Object,Object> refreshElements = new  HashMap<Object,Object>();
+	private Map<Object,Object> refreshElements = new  HashMap<Object,Object>();
 	private Map<Object, Object> updateElements = new HashMap<Object,Object>();
 
 
@@ -84,6 +84,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			viewer.update(element,null);
 		}
 	}
+	
 	/* the following methods are called from content providers */
 
 	public void refresh() {
@@ -110,8 +111,9 @@ public class StructuredViewerUpdater extends ControlUpdater {
 		}
 
 	}
+	
 	//XXX properties are being ignored
-	public synchronized void update(Object element, String prop[]) {
+	public void update(Object element, String prop[]) {
 		update(element);
 	}
 	

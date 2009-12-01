@@ -147,7 +147,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 	public void dispose() {
 		updater = null;
 		if(workspace != null) {
-			workspace.removeSpaceCreationListener(this);
+			workspace.removeSpaceStatusChangeListener(this);
 		}
 	}
 
@@ -157,9 +157,9 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 			final IWorkspace workspace = (IWorkspace) newInput;
 			if(this.workspace != workspace) {
 				if(this.workspace != null) {
-					this.workspace.removeSpaceCreationListener(this);
+					this.workspace.removeSpaceStatusChangeListener(this);
 				}
-				workspace.addSpaceCreationListener(this);
+				workspace.addSpaceStatusChangeListener(this);
 				this.workspace = workspace;
 			} 
 			
