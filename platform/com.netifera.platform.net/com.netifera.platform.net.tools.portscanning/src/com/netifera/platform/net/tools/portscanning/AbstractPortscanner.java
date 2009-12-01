@@ -57,6 +57,11 @@ public abstract class AbstractPortscanner implements ITool {
 		} catch (IllegalArgumentException e) {
 			throw new ToolException("Invalid ports: "+portsString);
 		}
+		
+		Integer delay = (Integer)context.getConfiguration().get("delay");
+		if(delay != null) {
+			this.delay = delay;
+		}
 	}
 
 	protected void waitDelay() throws InterruptedException {

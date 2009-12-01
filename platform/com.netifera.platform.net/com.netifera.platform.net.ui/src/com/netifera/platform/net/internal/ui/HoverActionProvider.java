@@ -77,7 +77,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		PortSet portset = serverDetector.getTriggerablePorts("udp");
 		assert portset.size() > 0;
 		udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
-		udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 100));
+		udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
 		udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
 		return udpScanner;
 	}
@@ -261,7 +261,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 				udpScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 				udpScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 				udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portSet.getPorts()));
-				udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 100));
+				udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
 				udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
 				answer.add(udpScanner);
 			}
@@ -288,7 +288,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 				udpScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 				udpScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 				udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", ((Integer)udpLocator.getPort()).toString()));
-				udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 100));
+				udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
 				udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
 				answer.add(udpScanner);
 			}
