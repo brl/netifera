@@ -15,8 +15,8 @@ import org.eclipse.ui.part.ViewPart;
 public class ConsoleView extends ViewPart {
 
 	final private static String CONSOLE_ICON = "icons/console.png";
-	final private static String CONSOLE_ATTENTION_ICON = "icons/console_attention.png";
-	final private static String CONSOLE_ALERT_ICON = "icons/console_alert.png";
+	final private static String CONSOLE_OUTPUT_ICON = "icons/console_output.png";
+	final private static String CONSOLE_ERROR_ICON = "icons/console_error.png";
 	
 	final private static int ALERT_TIME = 4000;
 	
@@ -24,11 +24,10 @@ public class ConsoleView extends ViewPart {
 	private ConsoleLogReader reader;
 	private MenuManager contextMenu;
 	
-	private long lastAttentionTime = System.currentTimeMillis();
-	private long lastAlertTime = System.currentTimeMillis();
-	private boolean attentionState = false;
-	private boolean alertState = false;
-	
+	private long lastOutputTime = System.currentTimeMillis();
+	private long lastErrorTime = System.currentTimeMillis();
+	private boolean showingOutputIcon = false;
+	private boolean showingErrorIcon = false;
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -46,16 +45,45 @@ public class ConsoleView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+		showingErrorIcon = false;
+		showingOutputIcon = false;
+		setTitleImage();
+		output.setFocus();
 	}
 
-	public void addOutput(final String message) {
-		Display.getDefault().asyncExec(new Runnable() {
+	public void printOutput(final String message) {
+		Display display = getSite().getShell().getDisplay();
+		if (display.isDisposed()) {
+			System.out.print(message);
+		}
+		
+		display.asyncExec(new Runnable() {
 			public void run() {
 				if(output.isDisposed()) 
 					return;
 				output.append(message);
 				output.setCaretOffset(output.getCharCount());
 				output.showSelection();
+				
+				showOutputIcon();
+			}
+		});
+	}
+
+	public void printError(final String message) {
+		Display display = getSite().getShell().getDisplay();
+		if (display.isDisposed()) {
+			System.err.print(message);
+		}
+		display.asyncExec(new Runnable() {
+			public void run() {
+				if(output.isDisposed()) 
+					return;
+				output.append(message);
+				output.setCaretOffset(output.getCharCount());
+				output.showSelection();
+				
+				showErrorIcon();
 			}
 		});
 	}
@@ -71,46 +99,54 @@ public class ConsoleView extends ViewPart {
 		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 
-	private void setStatusIcon() {
-		if (alertState) {
-			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ALERT_ICON));
-		} else if (attentionState) {
-			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ATTENTION_ICON));
+	private void setTitleImage() {
+		if (showingErrorIcon) {
+			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ERROR_ICON));
+		} else if (showingOutputIcon) {
+			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_OUTPUT_ICON));
 		} else {
 			setTitleImage(Activator.getDefault().getImageCache().get(CONSOLE_ICON));
 		}
 	}
 
-	private void animate() {
-		setStatusIcon();
+	private void animateTitleImage() {
+		setTitleImage();
+		
+		/*
+		 * if the Console has the focus, keep the title image static to show output
+		 * or errors until the user gives focus to it, otherwise schedule a reset
+		 * for a few seconds after the last output or error happened
+		 */
+		if (!output.isFocusControl())
+			return;
 		final Display display = Display.getDefault();
 		display.timerExec(ALERT_TIME/2, new Runnable() {
 			public void run() {
 				long now = System.currentTimeMillis();
-				if (lastAlertTime + ALERT_TIME <= now)
-					alertState = false;
-				if (lastAttentionTime + ALERT_TIME <= now)
-					attentionState = false;
-				setStatusIcon();
-				if (alertState || attentionState)
+				if (lastErrorTime + ALERT_TIME <= now)
+					showingErrorIcon = false;
+				if (lastOutputTime + ALERT_TIME <= now)
+					showingOutputIcon = false;
+				setTitleImage();
+				if (showingErrorIcon || showingOutputIcon)
 					display.timerExec(ALERT_TIME/2, this);
 			}
 		});
 	}
 	
-	public void showAlert() {
-		lastAlertTime = System.currentTimeMillis();
-		if (!alertState) {
-			alertState = true;
-			animate();
+	public void showErrorIcon() {
+		lastErrorTime = System.currentTimeMillis();
+		if (!showingErrorIcon) {
+			showingErrorIcon = true;
+			animateTitleImage();
 		}
 	}
 
-	public void showAttention() {
-		lastAttentionTime = System.currentTimeMillis();
-		if (!attentionState) {
-			attentionState = true;
-			animate();
+	public void showOutputIcon() {
+		lastOutputTime = System.currentTimeMillis();
+		if (!showingOutputIcon) {
+			showingOutputIcon = true;
+			animateTitleImage();
 		}
 	}
 }

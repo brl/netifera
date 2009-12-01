@@ -55,7 +55,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
 					"com.netifera.platform.views.console",
 					null,
-					IWorkbenchPage.VIEW_ACTIVATE);
+					IWorkbenchPage.VIEW_CREATE);
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
 					"com.netifera.platform.ui.views.Tasks",
 					null,

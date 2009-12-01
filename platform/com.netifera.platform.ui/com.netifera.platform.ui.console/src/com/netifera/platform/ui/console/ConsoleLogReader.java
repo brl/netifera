@@ -1,17 +1,13 @@
 package com.netifera.platform.ui.console;
 
-import org.eclipse.swt.widgets.Display;
-
 import com.netifera.platform.api.log.ILogEntry;
 import com.netifera.platform.api.log.ILogReader;
 
-public class ConsoleLogReader implements ILogReader{
+public class ConsoleLogReader implements ILogReader {
 	private final ConsoleView consoleView;
-	private final Display display;
 	
 	ConsoleLogReader(ConsoleView view) {
 		this.consoleView = view;
-		this.display = consoleView.getSite().getShell().getDisplay();
 	}
 	
 	public void log(ILogEntry entry) {
@@ -23,19 +19,10 @@ public class ConsoleLogReader implements ILogReader{
 	}
 	
 	public void logRaw(final String message) {
-		if(display.isDisposed()) {
-			return;
-		}
-		display.asyncExec(new Runnable() {
-
-			public void run() {
-				if(message.endsWith("\n"))
-					consoleView.addOutput(message);	
-				else
-					consoleView.addOutput(message + "\n");
-			}
-			
-		});
+		if(message.endsWith("\n"))
+			consoleView.printOutput(message);	
+		else
+			consoleView.printOutput(message + "\n");
 	}
 	
 	private void addBanner(OutputState out) {
@@ -49,7 +36,7 @@ public class ConsoleLogReader implements ILogReader{
 			out.print("INFO");
 			break;
 		case WARNING:
-			out.print("WARN");
+			out.print("WARNING");
 			break;
 		case ERROR:
 			out.print("ERROR");
@@ -67,19 +54,9 @@ public class ConsoleLogReader implements ILogReader{
 	}
 	
 	private void printToConsole(final OutputState out) {
-		if(display.isDisposed()) {
-			return;
-		}
-		display.asyncExec(new Runnable() {
-
-			public void run() {
-				consoleView.addOutput(out.toString());
-				if (out.getEntry().getLevel() == ILogEntry.LogLevel.ERROR)
-					consoleView.showAlert();
-				else
-					consoleView.showAttention();
-			}
-			
-		});
+		if (out.getEntry().getLevel() == ILogEntry.LogLevel.ERROR)
+			consoleView.printError(out.toString());
+		else
+			consoleView.printOutput(out.toString());
 	}
 }
