@@ -50,12 +50,16 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
     @Override
     public void postWindowOpen() {
     	try {
-    		// Activate the Console view so it can show different icons when state changes even if it starts in fastview mode
+    		// Activate the Console and Tasks views so they can show state change in their icons even if they start in fastview mode
     		// Otherwise we must open the fast view first, and then the icon changes will be shown
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
 					"com.netifera.platform.views.console",
 					null,
 					IWorkbenchPage.VIEW_ACTIVATE);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
+					"com.netifera.platform.ui.views.Tasks",
+					null,
+					IWorkbenchPage.VIEW_CREATE);
 		} catch (PartInitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
