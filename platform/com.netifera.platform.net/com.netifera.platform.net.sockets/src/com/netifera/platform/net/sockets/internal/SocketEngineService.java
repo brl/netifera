@@ -230,7 +230,7 @@ public class SocketEngineService implements ISocketEngineService {
 		SelectionFuture<UDPSocketLocator,A> future = new SelectionFuture<UDPSocketLocator,A>(handler, attachment, deadline, logger, new Callable<UDPSocketLocator>() {
 			public UDPSocketLocator call() throws Exception {
 				InetSocketAddress address = (InetSocketAddress) channel.getWrappedChannel().receive(dst);
-				return new UDPSocketLocator(InternetAddress.fromInetAddress(address.getAddress()),address.getPort());
+				return address == null ? null : new UDPSocketLocator(InternetAddress.fromInetAddress(address.getAddress()),address.getPort());
 			}
 		});
 		

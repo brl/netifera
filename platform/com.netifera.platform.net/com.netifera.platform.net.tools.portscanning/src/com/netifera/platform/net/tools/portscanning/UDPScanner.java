@@ -101,21 +101,23 @@ public class UDPScanner extends AbstractPortscanner {
 			public void completed(UDPSocketLocator peer, Void attachment) {
 				context.debug("Received response from "+peer);
 				
-				PortSet ports = new PortSet();
-				ports.addPort(peer.getPort());
-				Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getAddress(), ports);
-				
-				responseBuffer.flip();
-				
-				byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
-				Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp",peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);
-				if (serviceInfo != null) {
-					Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
-					context.info(serviceInfo.get("serviceType")+" @ "+peer);
-				} else {
-					context.warning("Unknown service @ " + peer);
+				if (peer != null) {
+					PortSet ports = new PortSet();
+					ports.addPort(peer.getPort());
+					Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getAddress(), ports);
+					
+					responseBuffer.flip();
+					
+					byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
+					Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp",peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);
+					if (serviceInfo != null) {
+						Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
+						context.info(serviceInfo.get("serviceType")+" @ "+peer);
+					} else {
+						context.warning("Unknown service @ " + peer);
+					}
 				}
-
+	
 				responseBuffer.clear();
 				channel.receive(responseBuffer, 1, TimeUnit.SECONDS, attachment, this);
 			}
