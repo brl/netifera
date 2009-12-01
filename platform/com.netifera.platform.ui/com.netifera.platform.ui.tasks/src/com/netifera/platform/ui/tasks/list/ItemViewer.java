@@ -365,7 +365,8 @@ public class ItemViewer extends StructuredViewer {
 				if(reveal) {
 					reveal(element);
 				}
-				control.setFocus();
+//				NOTE this setFocus() call is evil, made the hover close
+//				control.setFocus();
 			}
 		}
 	}
@@ -377,7 +378,7 @@ public class ItemViewer extends StructuredViewer {
 
 	@SuppressWarnings("unchecked")
 	protected void setSelectionToWidget(List list, boolean reveal) {
-
+		
 		/* restore unselected background colors  */
 		for(Object elm : selection) {
 			if(!list.contains(elm)) {
@@ -402,7 +403,6 @@ public class ItemViewer extends StructuredViewer {
 		if(item != null && !item.isDisposed()) {
 			scrolled.showControl((Control)item);
 		}
-
 	}
 
 	protected Widget doFindInputItem(Object element) {
@@ -417,5 +417,4 @@ public class ItemViewer extends StructuredViewer {
 		itemProvider.updateItem(item, element);
 		control.layout(true,true);	
 	}
-
 }
