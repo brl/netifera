@@ -43,7 +43,7 @@ public class ImageCache {
 		}
 	}
 
-	public Image getDecorated(String key, String overlayKeys[]) {
+	public ImageDescriptor getDecoratedDescriptor(String key, String overlayKeys[]) {
 		Image baseImage = get(key);
 		if (baseImage == null) {
 			return null;
@@ -57,13 +57,16 @@ public class ImageCache {
 
 		for (ImageDescriptor any: overlays)
 			if (any != null) {
-				ImageDescriptor descriptor = new DecorationOverlayIcon(baseImage, overlays);
-				return get(descriptor);
+				return new DecorationOverlayIcon(baseImage, overlays);
 			}
 		
-		return baseImage;
+		return getDescriptor(key);
 	}
 
+	public Image getDecorated(String key, String overlayKeys[]) {
+		return get(getDecoratedDescriptor(key, overlayKeys));
+	}
+	
 	public synchronized void dispose() {
 		for (Image image : imageMap.values()) {
 			image.dispose();

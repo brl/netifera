@@ -2,6 +2,7 @@ package com.netifera.platform.ui.spaces;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
@@ -9,10 +10,17 @@ import org.eclipse.ui.IPersistableElement;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
+import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
 public class SpaceEditorInput implements IEditorInput {
 	public final static String ID = "com.netifera.platform.editors.spaces";
+
+	public final static String SPACE_ICON = "icons/space.png";
+	public final static String SPACE_ISOLATED_ICON = "icons/space_isolated.png";
+	public final static String SPACE_ACTIVE_OVERLAY = "icons/space_active_overlay.png";
+
+    public final static int TASK_STATUS_RUNNING = 1; // from TaskStatus class
 
 	private final ISpace space;
 	private final IProbe probe;
@@ -47,11 +55,15 @@ public class SpaceEditorInput implements IEditorInput {
 	}
 
 	public ImageDescriptor getImageDescriptor() {
-		if (space.isIsolated()) {
-			return Activator.getInstance().getImageCache().getDescriptor("icons/space_isolated.png");
-		} else {
-			return Activator.getInstance().getImageCache().getDescriptor("icons/space.png");
+		String baseIcon = space.isIsolated() ? SPACE_ISOLATED_ICON : SPACE_ICON;
+		for (ITaskRecord task: space.getTasks()) {
+			if (task.getRunState() == TASK_STATUS_RUNNING) {
+				String overlayKeys[] = new String[5];
+				overlayKeys[IDecoration.TOP_RIGHT] = SPACE_ACTIVE_OVERLAY;
+				return Activator.getInstance().getImageCache().getDecoratedDescriptor(baseIcon, overlayKeys);
+			}
 		}
+		return Activator.getInstance().getImageCache().getDescriptor(baseIcon);
 	}
 
 	public String getName() {

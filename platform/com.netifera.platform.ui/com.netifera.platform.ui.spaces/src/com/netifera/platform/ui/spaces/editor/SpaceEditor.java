@@ -25,6 +25,7 @@ import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
+import com.netifera.platform.api.model.ISpaceTaskChangeEvent;
 import com.netifera.platform.api.model.SpaceNameChangeEvent;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.spaces.ISpaceEditor;
@@ -52,25 +53,43 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		setSite(site);
-		setInput(input);
-		setPartName(input.getName());
-		setTitleImage(input.getImageDescriptor().createImage()); //FIXME can this leak memory? is just an icon...
-		
 		if(!(input instanceof SpaceEditorInput)) {
 			throw new PartInitException("SpaceEditor passed unexpected input type");
 		}
-
+		
+		setSite(site);
+		setInput(input);
+		setPartName(input.getName());
+		setTitleImage();
+		
 		space = ((SpaceEditorInput)input).getSpace();
-		space.addChangeListener(
-			new IEventHandler() {
-				public void handleEvent(IEvent event) {
-					if(event instanceof SpaceNameChangeEvent) {
-						setPartName(((SpaceNameChangeEvent)event).getName());
+		space.addChangeListener(new IEventHandler() {
+			public void handleEvent(final IEvent event) {
+				if(event instanceof SpaceNameChangeEvent) {
+					getSite().getShell().getDisplay().syncExec(new Runnable() {
+						public void run() {
+							setPartName(((SpaceNameChangeEvent)event).getName());
+						}
+					});
+				}
+			}
+		});
+
+		space.addTaskChangeListener(new IEventHandler() {
+			public void handleEvent(IEvent event) {
+				if(event instanceof ISpaceTaskChangeEvent) {
+					ISpaceTaskChangeEvent taskEvent = (ISpaceTaskChangeEvent) event;
+					if (taskEvent.isCreationEvent() || taskEvent.isUpdateEvent()) {
+						getSite().getShell().getDisplay().syncExec(new Runnable() {
+							public void run() {
+								setTitleImage();
+							}
+						});
 					}
 				}
-			});
-
+			}	
+		});
+		
 		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(
 				new ISelectionListener() {
 					public void selectionChanged(IWorkbenchPart part, org.eclipse.jface.viewers.ISelection sel) {
@@ -143,6 +162,11 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		}
 		
 	}
+	
+	private void setTitleImage() {
+		setTitleImage(Activator.getInstance().getImageCache().get(getEditorInput().getImageDescriptor()));
+	}
+	
 	public String getVisualization() {
 		return visualizationName;
 	}
@@ -157,8 +181,9 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	}
 
 	public void dispose() {
+		//FIXME remove space listeners
 		super.dispose();
-		space.close();
+		space.close(); //FIXME what if two editors in the same space?
 	}
 
 	@Override
