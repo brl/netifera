@@ -1,7 +1,5 @@
 package com.netifera.platform.ui.application.workspaces;
 
-import java.util.Collection;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
