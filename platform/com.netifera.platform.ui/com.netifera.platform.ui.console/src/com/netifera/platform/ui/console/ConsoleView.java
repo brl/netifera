@@ -53,9 +53,10 @@ public class ConsoleView extends ViewPart {
 	}
 
 	public void printOutput(final String message) {
-		Display display = getSite().getShell().getDisplay();
+		Display display = Display.getDefault();
 		if (display.isDisposed()) {
 			System.out.print(message);
+			return;
 		}
 		
 		display.asyncExec(new Runnable() {
@@ -72,10 +73,12 @@ public class ConsoleView extends ViewPart {
 	}
 
 	public void printError(final String message) {
-		final Display display = getSite().getShell().getDisplay();
+		final Display display = Display.getDefault();
 		if (display.isDisposed()) {
 			System.err.print(message);
+			return;
 		}
+		
 		display.asyncExec(new Runnable() {
 			public void run() {
 				if(output.isDisposed()) 
