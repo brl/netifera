@@ -18,11 +18,14 @@ public class ConsoleLogReader implements ILogReader {
 		printToConsole(out);
 	}
 	
-	public void logRaw(final String message) {
-		if(message.endsWith("\n"))
-			consoleView.printOutput(message);	
+	public void logRaw(String message) {
+		if(!message.endsWith("\n"))
+			message += "\n";
+
+		if (message.matches("(?m)(?i)(?s).*(exception|error).*"))
+			consoleView.printError(message);	
 		else
-			consoleView.printOutput(message + "\n");
+			consoleView.printOutput(message);
 	}
 	
 	private void addBanner(OutputState out) {

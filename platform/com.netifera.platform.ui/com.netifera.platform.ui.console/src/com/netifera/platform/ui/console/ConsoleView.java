@@ -118,9 +118,10 @@ public class ConsoleView extends ViewPart {
 		setTitleImage();
 		
 		/*
-		 * if the Console has the focus, keep the title image static to show output
-		 * or errors until the user gives focus to it, otherwise schedule a reset
-		 * for a few seconds after the last output or error happened
+		 * if the Console doesnt have the focus, keep the title image static to show
+		 * output or errors until the user gives focus to it, otherwise schedule
+		 * a reset of the icon decoration for a few seconds after the last output
+		 * or error happened
 		 */
 		if (!output.isFocusControl())
 			return;
