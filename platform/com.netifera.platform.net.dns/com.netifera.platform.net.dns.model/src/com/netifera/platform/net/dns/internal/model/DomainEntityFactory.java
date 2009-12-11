@@ -73,6 +73,7 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 	private boolean canAddDomainToSpace(DomainEntity e) {
 		return e != null && !e.isTLD() && e.getParent() != null && e.getParent().isTLD();
 	}
+	
 	private DomainEntity findDomain(long realm, String fqdm) {
 		fqdm = normalized(fqdm);
 		return (DomainEntity) getWorkspace().findByKey(DomainEntity.createQueryKey(realm, fqdm));
@@ -188,21 +189,25 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 	private synchronized DNSRecordEntity createAddressRecord(long realm, long spaceId, String fqdm, InternetAddress address) {
 		fqdm = normalized(fqdm);
 		int dotIndex = fqdm.indexOf('.');
-		String domain = new String(fqdm.substring(dotIndex+1));
-		String hostname = new String(fqdm.substring(0, dotIndex));
+		// for hostnames without domain (like 'localhost') dont create DNS record entity nor domain entity, just add the name to the address entity
+		String domain = dotIndex >= 0 ? new String(fqdm.substring(dotIndex+1)) : null;
+		String hostname = dotIndex >= 0 ? new String(fqdm.substring(0, dotIndex)) : fqdm;
 
-		AddressRecordEntity record;
-		if (address instanceof IPv4Address) {
-			record = (ARecordEntity) getWorkspace().findByKey(ARecordEntity.createQueryKey(realm, address.toString(), fqdm));
-		} else {
-			record = (AAAARecordEntity) getWorkspace().findByKey(AAAARecordEntity.createQueryKey(realm, address.toString(), fqdm));
-		}
-		if(record != null) {
-			record.getAddress().getHost().addToSpace(spaceId);
-			record.addToSpace(spaceId);
-			return record;
-		}
+		AddressRecordEntity record = null;
 
+		if (domain != null) {
+			if (address instanceof IPv4Address) {
+				record = (ARecordEntity) getWorkspace().findByKey(ARecordEntity.createQueryKey(realm, address.toString(), fqdm));
+			} else {
+				record = (AAAARecordEntity) getWorkspace().findByKey(AAAARecordEntity.createQueryKey(realm, address.toString(), fqdm));
+			}
+			if(record != null) {
+				record.getAddress().getHost().addToSpace(spaceId);
+				record.addToSpace(spaceId);
+				return record;
+			}
+		}
+		
 		// use spaceId=0 to avoid commiting to the space yet, we'll commit once the entity is tagged
 		InternetAddressEntity addressEntity = networkEntityFactory.createAddress(realm, 0, address);
 		addressEntity.addName(fqdm);
@@ -211,48 +216,57 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 		if (hostEntity.getLabel() == null) { //just set the first name discovered
 			hostEntity.setLabel(fqdm+" ("+address+")");
 		}
+
+		if (domain != null) {
+			DomainEntity domainEntity = findDomain(realm, domain);
+			if (domainEntity == null) {
+				domainEntity = createDomain(realm, spaceId, domain);
+			}
+			
+			if (!domainEntity.isTLD()) {
+				hostEntity.addTag(domainEntity.getLevel(2).getFQDM());
+			} else {
+				hostEntity.addTag(fqdm);
+			}
 		
-		DomainEntity domainEntity = findDomain(realm, domain);
-		if (domainEntity == null) {
-			domainEntity = createDomain(realm, spaceId, domain);
+			if (address instanceof IPv4Address) {
+				record = new ARecordEntity(getWorkspace(), realm, domainEntity.createReference(), hostname, addressEntity.createReference());
+			} else {
+				record = new AAAARecordEntity(getWorkspace(), realm, domainEntity.createReference(), hostname, addressEntity.createReference());
+			}
+			record.save();
+			record.addToSpace(spaceId);
 		}
-		
-		if (!domainEntity.isTLD()) {
-			hostEntity.addTag(domainEntity.getLevel(2).getFQDM());
-		} else {
-			hostEntity.addTag(fqdm);
-		}
-		
+
 		hostEntity.update();
 		hostEntity.addToSpace(spaceId);
-		
-		if (address instanceof IPv4Address) {
-			record = new ARecordEntity(getWorkspace(), realm, domainEntity.createReference(), hostname, addressEntity.createReference());
-		} else {
-			record = new AAAARecordEntity(getWorkspace(), realm, domainEntity.createReference(), hostname, addressEntity.createReference());
-		}
-		record.save();
-		record.addToSpace(spaceId);
+
 		return record;
 	}
 	
 	public synchronized PTRRecordEntity createPTRRecord(long realm, long spaceId, InternetAddress address, String fqdm) {
-		fqdm = normalized(fqdm);;
+		fqdm = normalized(fqdm);
 		int dotIndex = fqdm.indexOf('.');
-		String domain = new String(fqdm.substring(dotIndex+1));
-		String hostname = new String(fqdm.substring(0, dotIndex));
-		
+		// for hostnames without domain (like 'localhost') dont create DNS record entity nor domain entity, just add the name to the address entity
+		String domain = dotIndex >= 0 ? new String(fqdm.substring(dotIndex+1)) : null;
+		String hostname = dotIndex >= 0 ? new String(fqdm.substring(0, dotIndex)) : fqdm;
+
 		if (fqdm.endsWith(".arpa")) { // invalid PTR entry (mostly error in bind zone
 			return null;
 		}
 		String addressString = address.toString();
 
-		PTRRecordEntity ptr = (PTRRecordEntity) getWorkspace().findByKey(PTRRecordEntity.createQueryKey(realm, addressString, fqdm));
-		if(ptr != null) {
-			ptr.getAddress().getHost().addToSpace(spaceId);
-			ptr.addToSpace(spaceId);
-			return ptr;
+		PTRRecordEntity ptr = null;
+
+		if (domain != null) {
+			ptr = (PTRRecordEntity) getWorkspace().findByKey(PTRRecordEntity.createQueryKey(realm, addressString, fqdm));
+			if(ptr != null) {
+				ptr.getAddress().getHost().addToSpace(spaceId);
+				ptr.addToSpace(spaceId);
+				return ptr;
+			}
 		}
+		
 		// use spaceId=0 to avoid commiting to the space yet, we'll commit once the entity is tagged
 		InternetAddressEntity addressEntity = networkEntityFactory.createAddress(realm, 0, address);
 		addressEntity.addName(fqdm);
@@ -261,22 +275,26 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 		if (hostEntity.getLabel() == null) { //just set the first name discovered
 			hostEntity.setLabel(fqdm+" ("+address+")");
 		}
-		DomainEntity domainEntity = findDomain(realm, domain);
-		if (domainEntity == null) {
-			domainEntity = createDomain(realm, spaceId, domain);
+
+		if (domain != null) {
+			DomainEntity domainEntity = findDomain(realm, domain);
+			if (domainEntity == null) {
+				domainEntity = createDomain(realm, spaceId, domain);
+			}
+	
+			if (!domainEntity.isTLD())
+				hostEntity.addTag(domainEntity.getLevel(2).getFQDM());
+			else
+				hostEntity.addTag(fqdm);
+
+			ptr = new PTRRecordEntity(getWorkspace(), realm, domainEntity.createReference(), addressEntity.createReference(), hostname);
+			ptr.save();
+			ptr.addToSpace(spaceId);
 		}
-
-		if (!domainEntity.isTLD())
-			hostEntity.addTag(domainEntity.getLevel(2).getFQDM());
-		else
-			hostEntity.addTag(fqdm);
-
+		
 		hostEntity.update();
 		hostEntity.addToSpace(spaceId);
-		
-		ptr = new PTRRecordEntity(getWorkspace(), realm, domainEntity.createReference(), addressEntity.createReference(), hostname);
-		ptr.save();
-		ptr.addToSpace(spaceId);
+
 		return ptr;
 	}
 	

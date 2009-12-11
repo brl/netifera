@@ -14,6 +14,7 @@ import com.netifera.platform.net.dns.model.AAAARecordEntity;
 import com.netifera.platform.net.dns.model.ARecordEntity;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
 import com.netifera.platform.net.model.HostEntity;
+import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv6Address;
@@ -41,16 +42,23 @@ public class AddHostByName implements ITool {
 			for (InternetAddress address: addresses) {
 				context.info(name+" has address "+address);
 	
-				HostEntity entity = null;
-				if (address instanceof IPv6Address) {
-					AAAARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), name.toString(), (IPv6Address)address);
-					entity = recordEntity.getAddress().getHost();
+				HostEntity hostEntity = null;
+				if (name.toString().contains(".")) {
+					if (address instanceof IPv6Address) {
+						AAAARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), name.toString(), (IPv6Address)address);
+						hostEntity = recordEntity.getAddress().getHost();
+					} else {
+						ARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), name.toString(), (IPv4Address)address);
+						hostEntity = recordEntity.getAddress().getHost();
+					}
 				} else {
-					ARecordEntity recordEntity = Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), name.toString(), (IPv4Address)address);
-					entity = recordEntity.getAddress().getHost();
+					InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), address);
+					addressEntity.addName(name.toString());
+					addressEntity.update();
+					hostEntity = addressEntity.getHost();
 				}
-				entity.addTag("Target");
-				entity.update();
+				hostEntity.addTag("Target");
+				hostEntity.update();
 			}
 		} catch (UnknownHostException e) {
 			context.error("Unknown host: "+name);

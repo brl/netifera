@@ -191,6 +191,9 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		update();
 	}
 	
+	/**
+	 * Save entity information in database notifying listeners and updating shadows
+	 */
 	public synchronized void update() {
 		if(!canSave()) {
 			throw new IllegalStateException("IEntity#update() called on an entity that cannot be saved.");
