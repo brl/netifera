@@ -1,5 +1,6 @@
 package com.netifera.platform.net.dns.internal.tools;
 
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -9,13 +10,12 @@ import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.net.dns.model.IDomainEntityFactory;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
 import com.netifera.platform.net.model.INetworkEntityFactory;
-import com.netifera.platform.net.sockets.ISocketEngineService;
 
 public class Activator implements BundleActivator {
 
 	private ServiceTracker modelTracker;
 	private ServiceTracker probeManagerTracker;
-	private ServiceTracker socketEngineTracker;
+	private ServiceTracker datagramChannelFactoryTracker;
 	private ServiceTracker networkEntityFactoryTracker;
 	private ServiceTracker domainEntityFactoryTracker;
 	private ServiceTracker nameResolverTracker;
@@ -35,8 +35,8 @@ public class Activator implements BundleActivator {
 		probeManagerTracker = new ServiceTracker(context, IProbeManagerService.class.getName(), null);
 		probeManagerTracker.open();
 		
-		socketEngineTracker = new ServiceTracker(context, ISocketEngineService.class.getName(), null);
-		socketEngineTracker.open();
+		datagramChannelFactoryTracker = new ServiceTracker(context, DatagramChannelFactory.class.getName(), null);
+		datagramChannelFactoryTracker.open();
 		
 		networkEntityFactoryTracker = new ServiceTracker(context, INetworkEntityFactory.class.getName(), null);
 		networkEntityFactoryTracker.open();
@@ -61,8 +61,8 @@ public class Activator implements BundleActivator {
 		return (IProbeManagerService) probeManagerTracker.getService();
 	}
 	
-	public ISocketEngineService getSocketEngine() {
-		return (ISocketEngineService) socketEngineTracker.getService();
+	public DatagramChannelFactory getDatagramChannelFactory() {
+		return (DatagramChannelFactory) datagramChannelFactoryTracker.getService();
 	}
 	
 	public INetworkEntityFactory getNetworkEntityFactory() {

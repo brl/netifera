@@ -14,7 +14,7 @@ import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 public abstract class CredentialsVerifier {
 	private Iterator<Credential> credentials;
 	private final Queue<Credential> retryCredentials = new LinkedList<Credential>();
-	private final Set<String> foundUsers = new HashSet<String>();
+	private final Set<String> skipUsers = new HashSet<String>();
 	private AuthenticationListener listener;
 	private boolean canceled = false;
 
@@ -54,14 +54,14 @@ public abstract class CredentialsVerifier {
 
 	private boolean isRepeated(Credential credential) {
 		if (credential instanceof UsernameAndPassword) {
-			return foundUsers.contains(((UsernameAndPassword) credential).getUsernameString());
+			return skipUsers.contains(((UsernameAndPassword) credential).getUsernameString());
 		}
 		return false;
 	}
 
 	public void markBadUser(String username) {
 		synchronized (credentials) {
-			foundUsers.add(username);
+			skipUsers.add(username);
 		}
 	}
 	
@@ -75,7 +75,7 @@ public abstract class CredentialsVerifier {
 		listener.authenticationSucceeded(credential);
 		if (credential instanceof UsernameAndPassword) {
 			synchronized (credentials) {
-				foundUsers.add(((UsernameAndPassword) credential).getUsernameString());
+				skipUsers.add(((UsernameAndPassword) credential).getUsernameString());
 			}
 		}
 	}

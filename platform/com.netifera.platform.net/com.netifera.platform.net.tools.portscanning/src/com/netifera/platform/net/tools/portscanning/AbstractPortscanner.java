@@ -2,7 +2,6 @@ package com.netifera.platform.net.tools.portscanning;
 
 
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
 import com.netifera.platform.api.tools.ITool;
@@ -18,7 +17,6 @@ public abstract class AbstractPortscanner implements ITool {
 	protected PortSet targetPorts;
 	private int delay = 0;
 	private Random random = new Random(System.currentTimeMillis());
-	final private AtomicInteger outstandingConnects = new AtomicInteger(0);
 
 	public void toolRun(IToolContext context) throws ToolException {
 		assert(context != null);
@@ -69,17 +67,5 @@ public abstract class AbstractPortscanner implements ITool {
 			int randomDelay = random.nextInt(delay/2) + delay;
 			Thread.sleep(randomDelay);
 		}
-	}
-	
-	void incrementOutstanding() {
-		outstandingConnects.incrementAndGet();
-	}
-	
-	void decrementOutstanding() {
-		outstandingConnects.decrementAndGet();
-	}
-	
-	int getOutstandingCount() {
-		return outstandingConnects.get();
 	}
 }

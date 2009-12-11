@@ -188,18 +188,22 @@ public class ExtendedResolver implements Resolver {
 		 */
 		public void handleException(Object id, Exception e) {
 			if (Options.check("verbose"))
-				System.err.println("ExtendedResolver: got " + e);
+				System.err.println("ExtendedResolver: got " + e+" from id "+id);
 			synchronized (this) {
 				outstanding--;
 				if (done)
 					return;
 				int n;
 				for (n = 0; n < inprogress.length; n++)
-					if (inprogress[n] == id)
+					if (inprogress[n].equals(id))
 						break;
 				/* If we don't know what this is, do nothing. */
-				if (n == inprogress.length)
+				if (n == inprogress.length) {
+					if (Options.check("verbose"))
+						System.err.println("ExtendedResolver: WTF");
 					return;
+				}
+				
 				boolean startnext = false;
 				/*
 				 * If this is the first response from server n, we should start

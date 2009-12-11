@@ -1,237 +1,167 @@
 package com.netifera.platform.net.tools.portscanning;
 
-import java.io.IOException;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.handler.timeout.ReadTimeoutException;
+import org.jboss.netty.handler.timeout.ReadTimeoutHandler;
+import org.jboss.netty.handler.timeout.WriteTimeoutHandler;
+import org.jboss.netty.util.Timer;
 
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
-import com.netifera.platform.net.sockets.TCPChannel;
-import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public class TCPConnectServiceDetector {
 
 	public final static int CONNECT_TIMEOUT = 5000;
 	public final static int READ_BANNER_TIMEOUT = 100;
-	public final static int WRITE_TRIGGER_TIMEOUT = 5000;
+	public final static int WRITE_TIMEOUT = 5000;
 	public final static int READ_RESPONSE_TIMEOUT = 10000;
 	public final static int SHORT_READ_TIMEOUT = READ_BANNER_TIMEOUT;
 	
 	private final TCPSocketLocator locator;
 	
-	private TCPChannel channel;
-	private final ByteBuffer readBuffer = ByteBuffer.allocate(1024 * 8);
-	private final ByteBuffer writeBuffer = ByteBuffer.allocate(1024 * 4);
-	private Map<String,String> serviceInfo = null;
-	private volatile Future<?> future;
-
+	private final ChannelFactory factory;
+	private final Timer timer;
 	private final ILogger logger;
 	
 	private ITCPConnectServiceDetectorListener listener;
 
-	
-	TCPConnectServiceDetector(TCPSocketLocator locator, ILogger logger) {
+	private volatile Map<String,String> serviceInfo = null;
+
+	TCPConnectServiceDetector(TCPSocketLocator locator, Timer timer, ChannelFactory factory, ILogger logger) {
 		this.locator = locator;
+		this.timer = timer;
+		this.factory = factory;
 		this.logger = logger;
 	}
 	
-	public void detect(ITCPConnectServiceDetectorListener listener) throws IOException, InterruptedException {
+	public void detect(final ITCPConnectServiceDetectorListener listener) {
 		this.listener = listener;
-		connect();
-	}
+		
+		ClientBootstrap bootstrap = new ClientBootstrap(factory);
+		bootstrap.setPipelineFactory(createPipelineFactory());
+		
+		bootstrap.setOption("tcpNoDelay", true);
+		bootstrap.setOption("keepAlive", true);
+		bootstrap.setOption("connectTimeoutMillis", CONNECT_TIMEOUT);
 
-	public synchronized void cancel(boolean mayInterruptIfRunning) {
-		Future<?> future = this.future;
-		if (future != null)
-			future.cancel(mayInterruptIfRunning);
-		logger.debug("Cancelled connection to "+locator);
-	}
-
-	/***************************************************************************?*/
-	
-	private synchronized void connect() throws IOException, InterruptedException {
+		listener.connecting(locator);
 		try {
-			channel = Activator.getInstance().getSocketEngine().openTCP();
-			listener.connecting(locator);
-			future = channel.connect(locator, CONNECT_TIMEOUT, TimeUnit.MILLISECONDS, null, new CompletionHandler<Void,Void>() {
-				public void cancelled(Void attachment) {
-					done();
-				}
-				public void completed(Void result, Void attachment) {
-					logger.debug("Connected to "+locator);
-					listener.connected(locator);
-					readBanner();
-				}
-				public void failed(final Throwable e, Void attachment) {
-					if ((e instanceof ConnectException)
-							|| (e instanceof SocketTimeoutException)) {
-						/*
-						 * ConnectException = closed or rejected
-						 * SocketTimeoutException = filtered or no such host
-						 */
-					} else if (e instanceof NoRouteToHostException || e instanceof SocketException) {
-						listener.badTarget(locator);
-					} else {
-						logger.error("Unexpected exception "+e);
-					}
-					done();
-				}
-			});
-		} catch (IOException e) {
-			done();
-			throw e;
-		} catch (InterruptedException e) {
-			done();
+			bootstrap.connect(locator.toInetSocketAddress());
+		} catch (ChannelException e) {
+			listener.finished(locator);
 			throw e;
 		}
 	}
-	
-	private synchronized void readBanner() {
-		// if we wont send a trigger, wait longer for a banner
-		byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("tcp",locator.getPort());
-		int timeout = trigger.length > 0 ? READ_BANNER_TIMEOUT : READ_RESPONSE_TIMEOUT;
-		future = channel.read(readBuffer, timeout, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
-			public void cancelled(Void attachment) {
-				checkUnrecognized();
-				done();
-			}
-			public void completed(Integer result, Void attachment) {
-				if (result > 0) {
-					ByteBuffer tempBuffer = readBuffer.duplicate();
-					tempBuffer.flip();
-					serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", locator.getPort(), null, tempBuffer);
-					if (serviceInfo != null) {
-						listener.serviceDetected(locator, serviceInfo);
-						done();
-						return;
-					}
-				} else {
-					if (result == -1) {
-//						logger.debug(locator + " disconnected before trigger");
-						done();
-						return;
-					}
 
-//					logger.debug(locator + " zero read (no banner)");
-				}
-
-				writeTrigger();
+	private ChannelPipelineFactory createPipelineFactory() {
+		return new ChannelPipelineFactory() {
+			public ChannelPipeline getPipeline() throws Exception {
+				ChannelPipeline pipeline = Channels.pipeline();
+				pipeline.addLast("handler", new TCPServiceDetectionHandler());
+				return pipeline;
 			}
-			public void failed(Throwable e, Void attachment) {
-				if (e instanceof SocketTimeoutException) {
-					writeTrigger();
-				} else {
-					if (! (e instanceof ClosedChannelException)) {
-						logger.error("Unexpected error reading banner " + locator, e);
-					}
-					done();
-				}
-			}
-		});
+		};
 	}
-	
-	private synchronized void writeTrigger() {
-		byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("tcp",locator.getPort());
-		writeBuffer.clear();
-		writeBuffer.put(trigger);
-		writeBuffer.flip();
 
-		future = channel.write(writeBuffer, WRITE_TRIGGER_TIMEOUT, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
-			public void cancelled(Void attachment) {
-				done();
-			}
-			public void completed(Integer result, Void attachment) {
-				readResponse();
-			}
-			public void failed(Throwable e, Void attachment) {
-				if (! (e instanceof ClosedChannelException)) {
-					logger.error("Unexpected error writting trigger " + locator, e);
-				}
-				checkUnrecognized();
-				done();
-			}
-		});
-	}
-	
-	private synchronized void readResponse() {
-		future = channel.read(readBuffer, READ_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
-			public void cancelled(Void attachment) {
-				checkUnrecognized();
-				done();
-			}
-			public void completed(final Integer result, Void attachment) {
-				if (result > 0) {
-					// read once more, timeout very short
-					// sometimes there's some more data right after, comming in another packet
-					future = channel.read(readBuffer, SHORT_READ_TIMEOUT, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
-						public void cancelled(Void attachment) {
-							detect();
-						}
-						public void completed(Integer result,
-								Void attachment) {
-							detect();
-						}
-						public void failed(Throwable exc, Void attachment) {
-							detect();
-						}
-						private void detect() {
-							readBuffer.flip();
-							writeBuffer.rewind();
-							serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", locator.getPort(), writeBuffer, readBuffer);
-							if (serviceInfo != null) {
-								listener.serviceDetected(locator, serviceInfo);
-							}
-							checkUnrecognized();
-							done();
-						}
-					});
+	@ChannelPipelineCoverage("one")
+	class TCPServiceDetectionHandler extends SimpleChannelHandler {
+		boolean triggerWritten = false;
+		final ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
+		ByteBuffer trigger;
+
+		@Override
+		public void channelConnected(
+				ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+			listener.connected(locator);
+			
+			ChannelPipeline pipeline = e.getChannel().getPipeline();
+			pipeline.addBefore("handler", "readTimeout", new ReadTimeoutHandler(timer, READ_BANNER_TIMEOUT, TimeUnit.MILLISECONDS));
+			pipeline.addBefore("handler", "writeTimeout", new WriteTimeoutHandler(timer, WRITE_TIMEOUT, TimeUnit.MILLISECONDS));
+		}
+
+		@Override
+		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+			buffer.writeBytes((ChannelBuffer)e.getMessage());
+			serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", locator.getPort(), trigger, buffer.toByteBuffer());
+			if (serviceInfo != null) {
+				listener.serviceDetected(locator, serviceInfo);
+				e.getChannel().close();
+			} else {
+				if (!triggerWritten) {
+					writeTrigger(e.getChannel());
 				} else {
-					if (result == -1) {
-//						logger.debug(locator + " disconnected");
-					} else {
-//						logger.debug(locator + " 0 read after trigger");
-					}
+					// unrecognized service
 					checkUnrecognized();
-					done();
+					e.getChannel().close();
 				}
 			}
-			public void failed(Throwable e, Void attachment) {
-				if (e instanceof SocketTimeoutException) {
-//					logger.debug(locator + " trigger timeout");
-				} else if (! (e instanceof ClosedChannelException)) {
-					logger.error("Unexpected error when reading response: " + locator, e);
-				}
-				checkUnrecognized();
-				done();
-			}
-		});
-	}
-	
-	private synchronized void done() {
-		if (channel != null)
-			try {
-				channel.close();
-			} catch (IOException e) {
+		}
+
+		@Override
+		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+//			e.getCause().printStackTrace();
+			
+			if (e.getCause() instanceof ReadTimeoutException && !triggerWritten) {
+				writeTrigger(e.getChannel());
+				return;
 			}
 
-		listener.finished(locator);
-		future = null;
-		
-		if (serviceInfo != null)
-			logger.info(serviceInfo.get("serviceType")+" @ "+locator);
-	}
-	
-	private void checkUnrecognized() {
-		// if the service was not recognized
-		if (serviceInfo == null)
-			logger.warning("Unknown service @ " + locator);
+			// ConnectException = closed or rejected
+			if (e.getCause() instanceof ConnectException) {
+				e.getChannel().close();
+				return;
+			}
+			
+			if (e.getCause() instanceof NoRouteToHostException || e.getCause() instanceof SocketException) {
+//				logger.debug("Bad target: "+locator, e.getCause());
+				listener.badTarget(locator);
+			} else {
+				logger.error("Unexpected exception when scanning "+locator, e.getCause());
+			}
+			e.getChannel().close();
+		}
+
+		@Override
+		public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+			if (serviceInfo != null)
+				logger.info(serviceInfo.get("serviceType")+" @ "+locator);
+			listener.finished(locator);
+		}
+
+		private void writeTrigger(Channel channel) {
+			triggerWritten = true;
+			byte[] triggerBytes = Activator.getInstance().getServerDetector().getTrigger("tcp",locator.getPort());
+			trigger = ByteBuffer.wrap(triggerBytes);
+			if (triggerBytes.length > 0)
+				channel.write(ChannelBuffers.wrappedBuffer(trigger));
+			channel.getPipeline().replace("readTimeout", "readTimeout", new ReadTimeoutHandler(timer, READ_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS));
+		}
+			 	
+	 	private void checkUnrecognized() {
+	 		if (serviceInfo == null)
+	 			logger.warning("Unrecognized service @ " + locator);
+	 	}
 	}
 }

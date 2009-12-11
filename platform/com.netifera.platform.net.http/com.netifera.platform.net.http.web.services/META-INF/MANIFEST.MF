@@ -8,7 +8,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.api.model,
  com.netifera.platform.net.http.service,
- com.netifera.platform.net.http.service.auth,
  com.netifera.platform.net.http.web.model,
  com.netifera.platform.net.model,
  com.netifera.platform.net.services,

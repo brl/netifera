@@ -49,7 +49,7 @@ public class AddDomain implements ITool {
 		
 		try {
 			if (dns != null)
-				resolver = dns.createNameResolver(Activator.getInstance().getSocketEngine());
+				resolver = dns.createNameResolver(Activator.getInstance().getDatagramChannelFactory());
 			else
 				resolver = Activator.getInstance().getNameResolver();
 			getNS();

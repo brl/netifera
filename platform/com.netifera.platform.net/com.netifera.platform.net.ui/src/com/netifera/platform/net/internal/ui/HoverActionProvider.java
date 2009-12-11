@@ -61,25 +61,26 @@ public class HoverActionProvider implements IHoverActionProvider {
 
 	private ToolAction createTCPScanner(IndexedIterable<InternetAddress> addresses) {
 		assert addresses.get(0).isUniCast();
-		ToolAction tcpConnectScanner = new ToolAction("Discover TCP Services", TCPConnectScanner.class.getName());
-		tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
+		ToolAction scanner = new ToolAction("Discover TCP Services", TCPConnectScanner.class.getName());
+		scanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 		PortSet portset = serverDetector.getTriggerablePorts("tcp");
 		assert portset.size() > 0;
-		tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
-		tcpConnectScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between connections", 100));
-		tcpConnectScanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
-		return tcpConnectScanner;
+		scanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
+		scanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between connections", 10));
+		scanner.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 250));
+		scanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
+		return scanner;
 	}
 
 	private ToolAction createUDPScanner(IndexedIterable<InternetAddress> addresses) {
-		ToolAction udpScanner = new ToolAction("Discover UDP Services", UDPScanner.class.getName());
-		udpScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
+		ToolAction scanner = new ToolAction("Discover UDP Services", UDPScanner.class.getName());
+		scanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
 		PortSet portset = serverDetector.getTriggerablePorts("udp");
 		assert portset.size() > 0;
-		udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
-		udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
-		udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
-		return udpScanner;
+		scanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
+		scanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
+		scanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
+		return scanner;
 	}
 	
 	public List<IAction> getActions(Object o) {

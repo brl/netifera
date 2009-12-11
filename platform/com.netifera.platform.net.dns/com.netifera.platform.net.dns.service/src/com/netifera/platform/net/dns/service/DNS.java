@@ -3,6 +3,7 @@ package com.netifera.platform.net.dns.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.ZoneTransferException;
 import org.xbill.DNS.ZoneTransferIn;
@@ -12,8 +13,6 @@ import com.netifera.platform.net.dns.service.client.SimpleResolver;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
 import com.netifera.platform.net.dns.service.nameresolver.NameResolver;
 import com.netifera.platform.net.services.NetworkService;
-import com.netifera.platform.net.sockets.ISocketEngineService;
-import com.netifera.platform.net.sockets.UDPChannel;
 import com.netifera.platform.util.locators.ISocketLocator;
 import com.netifera.platform.util.locators.UDPSocketLocator;
 
@@ -29,20 +28,18 @@ public class DNS extends NetworkService {
 		return (UDPSocketLocator) super.getLocator();
 	}
 
-	private SimpleResolver createSimpleResolver(ISocketEngineService engine) throws IOException {
-		UDPChannel channel = engine.openUDP();
-		channel.connect(getLocator());
-		return new SimpleResolver(channel);
+	private SimpleResolver createSimpleResolver(DatagramChannelFactory channelFactory) throws IOException {
+		return new SimpleResolver(getLocator(), channelFactory);
 	}
 	
-	private ExtendedResolver createExtendedResolver(ISocketEngineService engine) throws IOException {
+	private ExtendedResolver createExtendedResolver(DatagramChannelFactory channelFactory) throws IOException {
 		ExtendedResolver answer = new ExtendedResolver();
-		answer.addResolver(createSimpleResolver(engine));
+		answer.addResolver(createSimpleResolver(channelFactory));
 		return answer;
 	}
 	
-	public INameResolver createNameResolver(ISocketEngineService engine) throws IOException {
-		return new NameResolver(createExtendedResolver(engine));
+	public INameResolver createNameResolver(DatagramChannelFactory channelFactory) throws IOException {
+		return new NameResolver(createExtendedResolver(channelFactory));
 	}
 
 	public List<?> zoneTransfer(String domain) throws IOException, ZoneTransferException {

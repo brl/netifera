@@ -80,6 +80,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 				if(event instanceof ISpaceTaskChangeEvent) {
 					ISpaceTaskChangeEvent taskEvent = (ISpaceTaskChangeEvent) event;
 					if (taskEvent.isCreationEvent() || taskEvent.isUpdateEvent() && !taskEvent.getTask().isRunning()) {
+						//FIXME NPE
 						getSite().getShell().getDisplay().asyncExec(new Runnable() {
 							public void run() {
 								setTitleImage();

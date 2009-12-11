@@ -11,6 +11,10 @@ public class TCPSocketLocator implements ISocketLocator {
 	private final InternetAddress address;
 	private final int port;
 	
+	public TCPSocketLocator(InetSocketAddress socketAddress) {
+		this(InternetAddress.fromInetAddress(socketAddress.getAddress()), socketAddress.getPort());
+	}
+
 	public TCPSocketLocator(InternetAddress address, int port) {
 		this.address = address;
 		this.port = port;

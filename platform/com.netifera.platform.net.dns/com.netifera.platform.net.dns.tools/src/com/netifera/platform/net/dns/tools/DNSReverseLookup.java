@@ -27,7 +27,7 @@ import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class DNSReverseLookup implements ITool {
 	private static final boolean DEBUG = false;
-	private static final int DEFAULT_DNS_INTERVAL = 200; // milliseconds between requests
+	private static final int DEFAULT_DNS_INTERVAL = 10; // milliseconds between requests
 	private DNS dns;
 	private IndexedIterable<InternetAddress> addresses;
 	private INameResolver resolver;
@@ -52,7 +52,7 @@ public class DNSReverseLookup implements ITool {
 		
 		try {
 			if (dns != null) {
-				resolver = dns.createNameResolver(Activator.getInstance().getSocketEngine());
+				resolver = dns.createNameResolver(Activator.getInstance().getDatagramChannelFactory());
 			} else {
 				resolver = Activator.getInstance().getNameResolver();
 			}
@@ -151,7 +151,7 @@ public class DNSReverseLookup implements ITool {
 					if (result == null) {
 						toolContext.worked(1);
 						activeRequests.decrementAndGet();
-						context.error(address+" Reverse lookup failed: "+lookup.getErrorString());
+						context.error(address+" reverse lookup failed: "+lookup.getErrorString());
 						return;
 					}
 					for (Record record: result)
@@ -178,15 +178,14 @@ public class DNSReverseLookup implements ITool {
 							}
 						});
 						return;
-						
 					}
-					context.error("Reverse lookup of "+address+" failed: "+ lookup.getErrorString() );
+					
+					context.error("Reverse lookup of "+address+" failed: "+lookup.getErrorString());
 					
 					/* Test for SERVFAIL */
 					if(lookup.getResult() != AsynchronousLookup.TRY_AGAIN) {
-						context.exception("Unexpected exception in reverse lookup of " + address, exc);
+						context.exception("Reverse lookup of "+address+" failed", exc);
 					}
-					
 				}};
 				
 			activeRequests.incrementAndGet();

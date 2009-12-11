@@ -3,7 +3,6 @@ package com.netifera.platform.net.dns.service.client;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,6 +10,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.DatagramChannel;
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
+import org.jboss.netty.handler.timeout.IdleState;
+import org.jboss.netty.handler.timeout.IdleStateHandler;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 import org.xbill.DNS.Flags;
 import org.xbill.DNS.Header;
 import org.xbill.DNS.Message;
@@ -29,16 +46,18 @@ import org.xbill.DNS.ZoneTransferException;
 import org.xbill.DNS.ZoneTransferIn;
 
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.net.sockets.UDPChannel;
-import com.netifera.platform.util.asynchronous.CompletionHandler;
 import com.netifera.platform.util.locators.UDPSocketLocator;
 
 
 public class SimpleResolver implements Resolver {
 	private final UDPSocketLocator locator;
-	private final UDPChannel channel;
-	private ILogger logger;
+	private DatagramChannel channel;
+	private Timer timer;
+
+	public static final int TIMER_MSECS = 500;
 	
+	private ILogger logger;
+
 	/** The default EDNS payload size */
 	public static final int DEFAULT_EDNS_PAYLOADSIZE = 1280;
 
@@ -79,11 +98,28 @@ public class SimpleResolver implements Resolver {
 		}
 	}
 	
-	public SimpleResolver(UDPChannel channel) {
-		this.channel = channel;
-		this.locator = null;
+	public SimpleResolver(UDPSocketLocator locator, DatagramChannelFactory channelFactory) {
+		this.locator = locator;
 		
-		readResponses();
+		ConnectionlessBootstrap bootstrap = new ConnectionlessBootstrap(channelFactory);
+
+		// Configure the pipeline.
+		ChannelPipeline pipeline = bootstrap.getPipeline();
+		pipeline.addLast("timeout", createChannelIdleHandler());
+		pipeline.addLast("handler", new DNSResponseHandler());
+		
+		// Allow packets as large as up to 4096 bytes (default is 768).
+		// You could increase or decrease this value to avoid truncated packets.
+		bootstrap.setOption(
+				"receiveBufferSizePredictorFactory",
+				new FixedReceiveBufferSizePredictorFactory(4096));
+
+		try {
+			channel = (DatagramChannel) bootstrap.connect(locator.toInetSocketAddress()).await().getChannel();
+		} catch (Exception e) {
+			error("Error while opening UDP connection to DNS server at "+locator, e);
+			e.printStackTrace();
+		}
 	}
 
 	public void setLogger(ILogger logger) {
@@ -97,43 +133,44 @@ public class SimpleResolver implements Resolver {
 			//exception.printStackTrace(System.err);
 		}
 	}
-	
-	private void readResponses() {
-		final ByteBuffer dst = ByteBuffer.allocate(4096);
-		channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
-			public void cancelled(Void attachment) {
-				// TODO Auto-generated method stub
-			}
 
-			public void completed(Integer result, Void attachment) {
-				dst.flip();
-				//XXX do we need to allocate a new array?
-				byte[] in = new byte[dst.remaining()];
-				dst.get(in);
-
-				dst.clear();
-				
-				channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, attachment, this);
-			
-				try {
-					handleResponse(in);
-				} catch (WireParseException e) {
-					error("Parsing exception while processing response", e);
-				}
-			}
-
-			public void failed(Throwable e, Void attachment) {
-				if (e instanceof SocketTimeoutException) {
-					checkTimeOut();
-					channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, attachment, this);
-				} else {
-					channel.read(dst, timeoutValue, TimeUnit.MILLISECONDS, attachment, this);
-					error("Unexpected exception in SimpleResolver while reading responses", e);
-				}
-			}
-		});
+	private ChannelHandler createChannelIdleHandler() {
+		if (timer == null)
+			timer = new HashedWheelTimer();
+		return new IdleStateHandler(timer, TIMER_MSECS, 0, 0, TimeUnit.MILLISECONDS) {
+			@Override
+		    protected void channelIdle(ChannelHandlerContext ctx, IdleState state, long lastActivityTimeMillis) throws Exception {
+		    	checkTimeOut();
+		    }
+		};
 	}
+	
+	@ChannelPipelineCoverage("one")
+	class DNSResponseHandler extends SimpleChannelUpstreamHandler {
+		@Override
+		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
+				throws Exception {
+			ChannelBuffer buffer = (ChannelBuffer) e.getMessage();
+			byte[] in = new byte[buffer.readableBytes()]; //XXX do we really need to allocate a new array?
+			buffer.readBytes(in);
+			try {
+				handleResponse(in);
+			} catch (WireParseException ex) {
+				error("Parsing exception while processing response", ex);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				throw ex;
+			}
+		}
 
+		@Override
+		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+				throws Exception {
+			e.getCause().printStackTrace();
+//			e.getChannel().close();
+			checkTimeOut();
+		}
+	}
 	private void handleResponse(byte[] in) throws WireParseException {
 		/*
 		 * Check that the response is long enough.
@@ -298,6 +335,7 @@ public class SimpleResolver implements Resolver {
 		} catch (InterruptedException e) {
 			//FIXME
 			error("Interrupted while sending query", e);
+			Thread.currentThread().interrupt();
 //			throw new InterruptedIOException("asdfadsF");
 			return null;
 		}
@@ -316,9 +354,11 @@ public class SimpleResolver implements Resolver {
 	 * @return An identifier, which is also a parameter in the callback
 	 */
 	public synchronized Object sendAsync(Message query, ResolverListener listener) {
+		
 		final long deadline = System.currentTimeMillis() + timeoutValue;
 		final int id = getMessageId(query);
 		if(id == -1) {
+			logger.error("SimpleResolver: Couldn't find valid DNS message ID");
 			listener.handleException(null, new RuntimeException("Could not find valid DNS message ID"));
 		} else {
 			contexts.put(id, new ResponseContext(query, listener, deadline));
@@ -331,24 +371,17 @@ public class SimpleResolver implements Resolver {
 			tsig.apply(query, null);
 
 		byte[] out = query.toWire(Message.MAXLENGTH);
-
-
-		ByteBuffer buffer = ByteBuffer.wrap(out);
-		channel.write(buffer, timeoutValue, TimeUnit.MILLISECONDS, null, new CompletionHandler<Integer,Void>() {
-			public void cancelled(Void attachment) {
-				handleException(id, new Exception("Request send cancelled"));
-			}
-
-			public void completed(Integer result, Void attachment) {
-			}
-
-			public void failed(Throwable exc, Void attachment) {
-				if (exc instanceof Exception)
-					handleException(id, (Exception)exc);
-				else
-					handleException(id, new Exception(exc));
-			}
-		});
+		ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(out);
+		try {
+			ChannelFuture future = channel.write(buffer);
+			if (!future.await(timeoutValue))
+				handleException(id, new SocketTimeoutException("Write timeout when attempting to send DNS request"));
+			else if (!future.isSuccess())
+				handleException(id, (Exception)future.getCause());
+		} catch (InterruptedException e) {
+			handleException(id, e);
+			Thread.currentThread().interrupt();
+		}
 		return id;
 	}
 	
@@ -391,6 +424,9 @@ public class SimpleResolver implements Resolver {
 	}
 	
 	public synchronized void checkTimeOut() {
+		if (contexts.size() == 0)
+			return;
+		
 		long now = System.currentTimeMillis();
 		List<Integer> timedOutKeys = new ArrayList<Integer>();
 		for (Integer key: contexts.keySet())
@@ -403,11 +439,16 @@ public class SimpleResolver implements Resolver {
 	}
 	
 	public UDPSocketLocator getRemoteAddress() {
-		return channel.getRemoteAddress();
+		return locator; //new UDPSocketLocator(channel.getRemoteAddress());
 	}
 	
 	public synchronized void shutdown() throws IOException {
-		channel.close();
+		logger.debug("Shutting down resolver, uncomplete requests: "+contexts.size());
+		
+		if (channel != null)
+			channel.close();
+		if (timer != null)
+			timer.stop();
 		for (Integer key: contexts.keySet()) {
 			contexts.get(key).listener.handleException(key, new SocketException("The resolver was shut down"));
 		}

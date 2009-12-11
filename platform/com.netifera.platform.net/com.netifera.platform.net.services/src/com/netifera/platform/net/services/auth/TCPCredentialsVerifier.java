@@ -1,18 +1,40 @@
 package com.netifera.platform.net.services.auth;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.netifera.platform.net.services.credentials.Credential;
-import com.netifera.platform.net.sockets.TCPChannel;
-import com.netifera.platform.util.asynchronous.CompletionHandler;
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.handler.timeout.ReadTimeoutHandler;
+import org.jboss.netty.handler.timeout.WriteTimeoutHandler;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
+
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
-	final private TCPSocketLocator locator;
-	final private AtomicInteger connectionsCount = new AtomicInteger(0);
+	public final static int CONNECT_TIMEOUT = 10000;
+	public final static int READ_TIMEOUT = 5000;
+	public final static int WRITE_TIMEOUT = 5000;
+	
+	final protected TCPSocketLocator locator;
 	private int maximumConnections = 10;
+	
+	final private AtomicInteger connectionsCount = new AtomicInteger(0);
+
+	private ClientSocketChannelFactory channelFactory;
+	private ClientBootstrap bootstrap;
+	private Timer timer;
 
 	public TCPCredentialsVerifier(TCPSocketLocator locator) {
 		this.locator = locator;
@@ -22,79 +44,66 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 		this.maximumConnections = maximumConnections;
 	}
 
-	protected abstract void authenticate(TCPChannel channel, Credential credential, long timeout, TimeUnit unit, CompletionHandler<Boolean,Credential> handler);
-
-	private void spawnConnection() throws IOException, InterruptedException {
-		Credential credential = nextCredentialOrNull();
-		if (credential == null) return;
-		
-		final TCPChannel channel = TCPChannel.open();
-		connectionsCount.incrementAndGet();
-		channel.connect(locator, 5, TimeUnit.SECONDS, credential, new CompletionHandler<Void,Credential>() {
-			private void closeChannel() {
-				connectionsCount.decrementAndGet();
-				try {
-					channel.close();
-				} catch (IOException e) {
-				}
-			}
-			
-			public void cancelled(Credential attachment) {
-				closeChannel();
-			}
-
-			public void completed(Void result, Credential attachment) {
-				authenticate(channel, attachment, 8, TimeUnit.SECONDS, new CompletionHandler<Boolean,Credential>() {
-					public void cancelled(Credential attachment) {
-						closeChannel();
-					}
-					public void completed(Boolean result,
-							Credential attachment) {
-						if (result) {
-							authenticationSucceeded(attachment);
-							
-							// close because now we're logged in, cannot login again with other credential in this connection
-							closeChannel();
-						} else {
-							authenticationFailed(attachment);
-
-							// HACK to deal with socket engine not notifying back when some sockets are closed
-							// once this is fixed, we could reuse connections and try to authenticate again with the next credential
-							if (true) {
-								closeChannel();
-								return;
-							}
-
-							// and try next credential, try to reuse the connection
-							Credential credential = nextCredentialOrNull();
-							if (credential == null) {
-								closeChannel();
-								return;
-							}
-							authenticate(channel, credential, 8, TimeUnit.SECONDS, this);
-						}
-					}
-					public void failed(Throwable exc,
-							Credential attachment) {
-						closeChannel();
-						authenticationError(attachment, exc);
-					}
-				});
-			}
-
-			public void failed(Throwable exc, Credential attachment) {
-				closeChannel();
-				authenticationError(attachment, exc);
-			}
-		});					
-	}
-	
 	@Override
 	public void run() throws IOException, InterruptedException {
-		while (hasNextCredential() || connectionsCount.get() > 0) {
-			while (connectionsCount.get() >= maximumConnections)
-				Thread.sleep(500);
-			if (hasNextCredential() && !Thread.currentThread().isInterrupted()) spawnConnection();
+		try {
+			channelFactory = new NioClientSocketChannelFactory(
+					Executors.newCachedThreadPool(),
+					Executors.newCachedThreadPool());
+			timer = new HashedWheelTimer();
+
+			bootstrap = new ClientBootstrap(channelFactory);
+			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+				public ChannelPipeline getPipeline() throws Exception {
+					ChannelPipeline pipeline = TCPCredentialsVerifier.this.createPipeline();
+					pipeline.addLast("connectAndCloseHandler", new ConnectAndCloseHandler());
+					return pipeline;
+				}
+			});
+			
+			bootstrap.setOption("tcpNoDelay", true);
+			bootstrap.setOption("keepAlive", true);
+			bootstrap.setOption("connectTimeoutMillis", CONNECT_TIMEOUT);
+			
+			while ((hasNextCredential() || connectionsCount.get() > 0) && !Thread.currentThread().isInterrupted()) {
+				while (connectionsCount.get() >= maximumConnections) {
+					Thread.sleep(100);
+				}
+				if (hasNextCredential() && !Thread.currentThread().isInterrupted()) spawnConnection();
+			}
+		} finally {
+			if (timer != null) timer.stop();
+			if (channelFactory != null) channelFactory.releaseExternalResources();
 		}
+	}
+
+	private void spawnConnection() {
+		connectionsCount.incrementAndGet();
+		try {
+			bootstrap.connect(locator.toInetSocketAddress());
+		} catch (ChannelException e) {
+			connectionsCount.decrementAndGet();
+			throw e;
+		}
+	}
+
+	protected abstract ChannelPipeline createPipeline() throws Exception;
+	
+	@ChannelPipelineCoverage("all")
+	class ConnectAndCloseHandler extends SimpleChannelHandler {
+		
+		@Override
+		public void channelConnected(
+				ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+			ChannelPipeline pipeline = e.getChannel().getPipeline();
+			pipeline.addBefore("handler", "readTimeout", new ReadTimeoutHandler(timer, READ_TIMEOUT, TimeUnit.MILLISECONDS));
+			pipeline.addBefore("handler", "writeTimeout", new WriteTimeoutHandler(timer, WRITE_TIMEOUT, TimeUnit.MILLISECONDS));
+		}
+
+		@Override
+	    public void channelClosed(
+	            ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+	    	connectionsCount.decrementAndGet();
+	    }
 	}
 }

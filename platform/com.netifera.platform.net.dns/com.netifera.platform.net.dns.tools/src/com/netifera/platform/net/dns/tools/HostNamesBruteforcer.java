@@ -30,7 +30,7 @@ import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class HostNamesBruteforcer implements ITool {
 	private final static boolean DEBUG = false;
-	private static final int DEFAULT_DNS_INTERVAL = 200; // milliseconds between requests
+	private static final int DEFAULT_DNS_INTERVAL = 10; // milliseconds between requests
 
 	private DNS dns;
 	private Name domain;
@@ -74,6 +74,9 @@ public class HostNamesBruteforcer implements ITool {
 		setupToolOptions();
 
 		context.setTitle("Bruteforce host names *."+domain);
+
+		if (DEBUG)
+			context.enableDebugOutput();
 		
 		int totalWork = hostNames.length + ccTLDs.length;
 		if (tryTLDs)
@@ -82,7 +85,7 @@ public class HostNamesBruteforcer implements ITool {
 
 		if (dns != null)
 			try {
-				resolver = dns.createNameResolver(Activator.getInstance().getSocketEngine());
+				resolver = dns.createNameResolver(Activator.getInstance().getDatagramChannelFactory());
 			} catch (IOException e) {
 				context.exception("I/O Exception", e);
 				context.done();
@@ -181,11 +184,15 @@ public class HostNamesBruteforcer implements ITool {
 					context.worked(1);
 				}
 				public void completed(Record[] result, Void attachment) {
-					if (lookup.getResult() == AsynchronousLookup.TRY_AGAIN && retries < 3) {
-						retries = retries + 1;
-						context.debug("Retrying: "+fqdm+" ("+retries+")");
-						lookup.run(attachment, this);
-						return;
+					if (lookup.getResult() == AsynchronousLookup.TRY_AGAIN) {
+						if (retries < 3) {
+							retries = retries + 1;
+							context.debug("Retrying: "+fqdm+" ("+retries+")");
+							lookup.run(attachment, this);
+							return;
+						} else {
+							context.debug("Tryed 3 times to resolve "+fqdm+", giving up");
+						}
 					}
 					activeRequests.decrementAndGet();
 					context.worked(1);
@@ -204,10 +211,16 @@ public class HostNamesBruteforcer implements ITool {
 						return;
 					}
 					if(exc instanceof SocketTimeoutException) {
-						context.warning("Timeout looking up " + fqdm);
+						context.debug("Timeout looking up " + fqdm);
 						return;
 					}
-					context.exception(fqdm+" lookup failed", exc);
+
+					context.error("Lookup of "+fqdm+" failed: "+lookup.getErrorString());
+
+					/* Test for SERVFAIL */
+					if(lookup.getResult() != AsynchronousLookup.TRY_AGAIN) {
+						context.exception("Lookup of "+fqdm+" failed", exc);
+					}
 				}};
 				
 			activeRequests.incrementAndGet();

@@ -9,6 +9,10 @@ public class UDPSocketLocator implements ISocketLocator {
 	
 	private final InternetAddress address;
 	private final int port;
+
+	public UDPSocketLocator(InetSocketAddress socketAddress) {
+		this(InternetAddress.fromInetAddress(socketAddress.getAddress()), socketAddress.getPort());
+	}
 	
 	public UDPSocketLocator(InternetAddress address, int port) {
 		this.address = address;

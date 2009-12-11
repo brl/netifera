@@ -1,21 +1,13 @@
 package com.netifera.platform.net.http.tools;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.net.services.auth.CredentialsVerifier;
-import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.net.sockets.LineChannel;
-import com.netifera.platform.net.sockets.TCPChannel;
 import com.netifera.platform.net.tools.bruteforce.UsernameAndPasswordBruteforcer;
-import com.netifera.platform.util.Base64;
-import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	private HTTP target;
@@ -45,7 +37,7 @@ public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	
 	@Override
 	public CredentialsVerifier createCredentialsVerifier() {
-		TCPCredentialsVerifier verifier = new TCPCredentialsVerifier(target.getLocator()) {
+/*		TCPCredentialsVerifier verifier = new TCPCredentialsVerifier(target.getLocator()) {
 			@Override
 			protected void authenticate(final TCPChannel channel, final Credential credential,
 					final long timeout, final TimeUnit unit,
@@ -102,5 +94,7 @@ public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 		
 		verifier.setMaximumConnections((Integer) context.getConfiguration().get("maximumConnections"));
 		return verifier;
+*/
+		return null;
 	}
 }

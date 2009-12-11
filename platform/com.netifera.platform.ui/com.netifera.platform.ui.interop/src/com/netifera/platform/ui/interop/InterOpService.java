@@ -164,11 +164,11 @@ public class InterOpService {
 
 			logger.info("Generating probe");
 			
-			IProbeDeployable deployable = Activator.getInstance().getProbeBuilder().getProbeDeployable("ELF32 Executable linux/i386");
+			IProbeDeployable deployable = Activator.getInstance().getProbeBuilder().getProbeDeployable(probeConfig, "linux/i386", "ELF32");
 			
 			byte[] buffer = new byte[1024*1024];
 			try {
-				InputStream inputStream = deployable.getInputStream(probeConfig);
+				InputStream inputStream = deployable.getInputStream();
 				File file = File.createTempFile("probe", "interop");
 				try {
 //					context.setTotalWork(...);

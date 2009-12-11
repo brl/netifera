@@ -5,11 +5,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.netifera.platform.net.model.INetworkEntityFactory;
-import com.netifera.platform.net.sockets.ISocketEngineService;
 
 public class Activator implements BundleActivator {
 
-	private ServiceTracker socketEngineTracker;
 	private ServiceTracker networkEntityFactoryTracker;
 	
 	private static Activator instance;
@@ -21,9 +19,6 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		instance = this;
 		
-		socketEngineTracker = new ServiceTracker(context, ISocketEngineService.class.getName(), null);
-		socketEngineTracker.open();
-		
 		networkEntityFactoryTracker = new ServiceTracker(context, INetworkEntityFactory.class.getName(), null);
 		networkEntityFactoryTracker.open();
 	}
@@ -33,10 +28,6 @@ public class Activator implements BundleActivator {
 		
 	}
 
-	public ISocketEngineService getSocketEngine() {
-		return (ISocketEngineService) socketEngineTracker.getService();
-	}
-	
 	public INetworkEntityFactory getNetworkEntityFactory() {
 		return (INetworkEntityFactory) networkEntityFactoryTracker.getService();
 	}
