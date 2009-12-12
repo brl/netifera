@@ -165,8 +165,10 @@ public class FlatWorld extends Canvas implements IPersistable {
 	}
 
 	private void initializeTexture() {
-		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/TrueMarble.16km.2700x1350.png");
-//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/TrueMarble.32km.1350x675.png");
+//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights.gif");
+//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights_lrg.jpg");
+		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.topo.200408.3x5400x2700.jpg");
+//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/srtm_ramp2.world.5400x2700.jpg");
 		texture = imageDescriptor.createImage();
 	}
 
