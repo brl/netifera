@@ -38,14 +38,14 @@ public class FlatWorld extends Canvas implements IPersistable {
 	private boolean raindropsEnabled = true;
 	
 	class Frame {
-		double scale = 1.0, offsetX = 0, offsetY = 0;
+		float scale = 1.0f, offsetX = 0, offsetY = 0;
 		
 		void adjust() {
 			Rectangle textureBounds = texture.getBounds();
-			double srcX = textureBounds.x + frame.offsetX;
-			double srcY = textureBounds.y + frame.offsetY;
-			double srcWidth = textureBounds.width / frame.scale;
-			double srcHeight = textureBounds.height / frame.scale;
+			float srcX = textureBounds.x + frame.offsetX;
+			float srcY = textureBounds.y + frame.offsetY;
+			float srcWidth = textureBounds.width / frame.scale;
+			float srcHeight = textureBounds.height / frame.scale;
 			if (srcX + srcWidth > textureBounds.x + textureBounds.width)
 				offsetX -= srcX + srcWidth - (textureBounds.x + textureBounds.width);
 			if (srcY + srcHeight > textureBounds.y + textureBounds.height)
@@ -82,7 +82,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 		
 		Listener mouseListener = new Listener() {
 			Integer clickX, clickY;
-			double originalScale, originalOffsetX, originalOffsetY;
+			float originalScale, originalOffsetX, originalOffsetY;
 			
 			boolean panning = false;
 			boolean zooming = false;
@@ -93,7 +93,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 					if (event.button == 2 || event.button == 3) {
 						frame.offsetX = 0;
 						frame.offsetY = 0;
-						frame.scale = 1.0;
+						frame.scale = 1.0f;
 						redraw();
 						zooming = false;
 						panning = false;
@@ -127,8 +127,8 @@ public class FlatWorld extends Canvas implements IPersistable {
 						redraw();
 					}
 					if (zooming) {
-						frame.scale = Math.max(1.0, originalScale * Math.pow(2.0, (clickY - event.y) / 10.0));
-						double lambda = 1.0/originalScale - 1.0/frame.scale;
+						frame.scale = (float) Math.max(1.0, originalScale * Math.pow(2.0, (clickY - event.y) / 10.0));
+						float lambda = 1.0f/originalScale - 1.0f/frame.scale;
 						Rectangle rect = getClientArea();
 						Rectangle textureBounds = texture.getBounds();
 						frame.offsetX = originalOffsetX + (clickX*textureBounds.width*lambda)/rect.width;
@@ -145,8 +145,8 @@ public class FlatWorld extends Canvas implements IPersistable {
 					break;
 				case SWT.MouseWheel:
 					originalScale = frame.scale;
-					frame.scale = Math.max(1.0, originalScale * Math.pow(2.0, event.count / 10.0));
-					double lambda = 1.0/originalScale - 1.0/frame.scale;
+					frame.scale = (float) Math.max(1.0, originalScale * Math.pow(2.0, event.count / 10.0));
+					float lambda = 1.0f/originalScale - 1.0f/frame.scale;
 					Rectangle rect = getClientArea();
 					Rectangle textureBounds = texture.getBounds();
 					frame.offsetX = frame.offsetX + (event.x*textureBounds.width*lambda)/rect.width;
@@ -234,14 +234,14 @@ public class FlatWorld extends Canvas implements IPersistable {
 
 	private FloatRectangle getVisibleGeographicalRegion() {
 		Rectangle textureBounds = texture.getBounds();
-		int srcX = (int)(textureBounds.x + frame.offsetX);
-		int srcY = (int)(textureBounds.y + frame.offsetY);
-		int srcWidth = (int)(textureBounds.width / frame.scale);
-		int srcHeight = (int)(textureBounds.height / frame.scale);
+		float srcX = textureBounds.x + frame.offsetX;
+		float srcY = textureBounds.y + frame.offsetY;
+		float srcWidth = textureBounds.width / frame.scale;
+		float srcHeight = textureBounds.height / frame.scale;
 		return getGeographicalRegionFromTextureRegion(srcX, srcY, srcWidth, srcHeight);
 	}
 	
-	private FloatRectangle getGeographicalRegionFromTextureRegion(int x, int y, int width, int height) {
+	private FloatRectangle getGeographicalRegionFromTextureRegion(float x, float y, float width, float height) {
 		Rectangle textureBounds = texture.getBounds();
 		return new FloatRectangle((x-textureBounds.x)*360/textureBounds.width-180,(y-textureBounds.y)*-180/textureBounds.height+90 - 180*height/textureBounds.height,360*width/textureBounds.width,180*height/textureBounds.height);
 	}
