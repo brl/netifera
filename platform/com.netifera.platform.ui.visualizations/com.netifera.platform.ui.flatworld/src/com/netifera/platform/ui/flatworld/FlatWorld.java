@@ -7,6 +7,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -28,14 +29,18 @@ import com.netifera.platform.ui.flatworld.support.FloatRectangle;
 import com.netifera.platform.ui.internal.flatworld.Activator;
 
 public class FlatWorld extends Canvas implements IPersistable {
-
+	
 	private Image texture;
+	
 	private LabelsFlatWorldLayer labelsLayer;
 	private RaindropFlatWorldLayer raindropsLayer;
 	private FocusFlatWorldLayer focusLayer;
 
 	private boolean animated = false;
 	private boolean raindropsEnabled = true;
+	
+	private Cursor panningCursor;
+	private Cursor zoomingCursor;
 	
 	class Frame {
 		float scale = 1.0f, offsetX = 0, offsetY = 0;
@@ -55,13 +60,12 @@ public class FlatWorld extends Canvas implements IPersistable {
 		}
 	};
 	
-//	private List<TreeMapFrame> frameStack = new ArrayList<TreeMapFrame>();
-
 	private Frame frame = new Frame();
 	
 	public FlatWorld(Composite parent, int style) {
 		super(parent, style);
 
+		initializeCursors();
 		initializeTexture();
 		initializeLayers();
 
@@ -97,6 +101,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 						redraw();
 						zooming = false;
 						panning = false;
+						FlatWorld.this.setCursor(null);
 					}
 					break;
 				case SWT.MouseDown:
@@ -107,6 +112,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 						originalOffsetY = frame.offsetY;
 						originalScale = frame.scale;
 						panning = true;
+						FlatWorld.this.setCursor(panningCursor);
 					}
 					if (!zooming && event.button == 3) {
 						clickX = event.x;
@@ -115,6 +121,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 						originalOffsetY = frame.offsetY;
 						originalScale = frame.scale;
 						zooming = true;
+						FlatWorld.this.setCursor(zoomingCursor);
 					}
 					break;
 				case SWT.MouseMove:
@@ -142,6 +149,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 					clickY = null;
 					panning = false;
 					zooming = false;
+					FlatWorld.this.setCursor(null);
 					break;
 				case SWT.MouseWheel:
 					originalScale = frame.scale;
@@ -165,18 +173,32 @@ public class FlatWorld extends Canvas implements IPersistable {
 	}
 
 	private void initializeTexture() {
-//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights.png");
-//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights_lrg.jpg");
-		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.topo.200408.3x5400x2700.jpg");
-//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/srtm_ramp2.world.5400x2700.jpg");
-//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.shoreline.4000x2000.png");
-		texture = imageDescriptor.createImage();
+		ImageDescriptor textureDescriptor;
+//		textureDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights.png");
+//		textureDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights_lrg.jpg");
+		textureDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.topo.200408.3x5400x2700.jpg");
+//		textureDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/srtm_ramp2.world.5400x2700.jpg");
+//		textureDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.shoreline.4000x2000.png");
+		texture = textureDescriptor.createImage();
 	}
 
-	public void initializeLayers() {
+	private void initializeLayers() {
 		labelsLayer = new LabelsFlatWorldLayer();
 		raindropsLayer = new RaindropFlatWorldLayer();
 		focusLayer = new FocusFlatWorldLayer();
+	}
+
+	private void initializeCursors() {
+		panningCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_HAND);
+		zoomingCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_SIZEALL);
+	}
+
+	@Override
+	public void dispose() {
+		texture.dispose();
+		panningCursor.dispose();
+		zoomingCursor.dispose();
+		super.dispose();
 	}
 	
 	public void saveState(IMemento memento) {
@@ -319,5 +341,9 @@ public class FlatWorld extends Canvas implements IPersistable {
 	public void unsetFocus() {
 		focusLayer.unsetFocus();
 		redraw();
+	}
+	
+	public void reset() {
+		initializeLayers();
 	}
 }

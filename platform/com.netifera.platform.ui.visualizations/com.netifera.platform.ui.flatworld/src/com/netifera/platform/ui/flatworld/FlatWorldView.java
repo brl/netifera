@@ -48,7 +48,14 @@ public class FlatWorldView extends ViewPart {
 	private List<ISemanticLayer> layers = new ArrayList<ISemanticLayer>();
 
 	private ISpace space;
-	private IEventHandler spaceChangeListener;
+	
+	private IEventHandler spaceChangeListener = new IEventHandler() {
+		public void handleEvent(final IEvent event) {
+			if(event instanceof ISpaceContentChangeEvent) {
+				handleSpaceChange((ISpaceContentChangeEvent)event);
+			}
+		}
+	};
 	
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -135,6 +142,14 @@ public class FlatWorldView extends ViewPart {
 	}
 
 	@Override
+	public void dispose() {
+		if (this.space != null)
+			this.space.removeChangeListener(spaceChangeListener);
+		
+		super.dispose();
+	}
+	
+	@Override
 	public void saveState(IMemento memento) {
 		super.saveState(memento);
 		IMemento worldMemento = memento.createChild("World");
@@ -150,16 +165,9 @@ public class FlatWorldView extends ViewPart {
 		if (this.space != null)
 			this.space.removeChangeListener(spaceChangeListener);
 
-		world.initializeLayers();
+		world.reset();
 		
 		this.space = space;
-		spaceChangeListener = new IEventHandler() {
-			public void handleEvent(final IEvent event) {
-				if(event instanceof ISpaceContentChangeEvent) {
-					handleSpaceChange((ISpaceContentChangeEvent)event);
-				}
-			}
-		};
 		if (space != null) {
 			world.setRandropsEnabled(false);
 			space.addChangeListenerAndPopulate(spaceChangeListener);

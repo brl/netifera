@@ -10,6 +10,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
@@ -35,6 +36,9 @@ public class TreeMapControl extends Canvas implements IPersistable {
 	private ITreeMapLayer curve;
 	
 	private List<TreeMap> selection = new ArrayList<TreeMap>();
+
+	private Cursor panningCursor;
+	private Cursor zoomingCursor;
 
 	class TreeMapFrame {
 		double scale = 1.0;
@@ -66,6 +70,8 @@ public class TreeMapControl extends Canvas implements IPersistable {
 	
 	public TreeMapControl(Composite parent, int style) {
 		super(parent, style);
+
+		initializeCursors();
 
 		for (ISemanticLayer layer: Activator.getInstance().getModel().getSemanticLayers()) {
 			if (layer instanceof GeolocationTreeMapLayer) {
@@ -108,6 +114,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 						redraw();
 						zooming = false;
 						panning = false;
+						TreeMapControl.this.setCursor(null);
 					}
 					break;
 				case SWT.MouseDown:
@@ -118,6 +125,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 						originalOffsetY = frame.offsetY;
 						originalScale = frame.scale;
 						prePanning = true;
+						TreeMapControl.this.setCursor(panningCursor);
 					}
 					if (!zooming && event.button == 3) {
 						clickX = event.x;
@@ -126,14 +134,16 @@ public class TreeMapControl extends Canvas implements IPersistable {
 						originalOffsetY = frame.offsetY;
 						originalScale = frame.scale;
 						zooming = true;
+						TreeMapControl.this.setCursor(zoomingCursor);
 					}
 					break;
 				case SWT.MouseMove:
 					if (prePanning && Math.max(Math.abs(clickX - event.x),Math.abs(clickY - event.y)) > 3) {
 						panning = true;
 						prePanning = false;
+						TreeMapControl.this.setCursor(panningCursor);
 					}
-					if (panning ) {
+					if (panning) {
 						frame.offsetX = originalOffsetX + (clickX - event.x);
 						frame.offsetY = originalOffsetY + (clickY - event.y);
 						frame.adjust();
@@ -178,6 +188,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 					prePanning = false;
 					panning = false;
 					zooming = false;
+					TreeMapControl.this.setCursor(null);
 					break;
 				case SWT.MouseWheel:
 					originalScale = frame.scale;
@@ -199,6 +210,18 @@ public class TreeMapControl extends Canvas implements IPersistable {
 
 	private void initializeTreeMap() {
 		treeMap = new TreeMap((IPv4Netblock)IPv4Netblock.fromString("0.0.0.0/0"));
+	}
+
+	private void initializeCursors() {
+		panningCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_HAND);
+		zoomingCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_SIZEALL);
+	}
+
+	@Override
+	public void dispose() {
+		panningCursor.dispose();
+		zoomingCursor.dispose();
+		super.dispose();
 	}
 	
 	public void saveState(IMemento memento) {

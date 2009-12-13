@@ -52,7 +52,14 @@ public class TreeMapView extends ViewPart {
 	private IMemento memento;
 	
 	private ISpace space;
-	private IEventHandler spaceChangeListener;
+	
+	private IEventHandler spaceChangeListener = new IEventHandler() {
+		public void handleEvent(IEvent event) {
+			if(event instanceof ISpaceContentChangeEvent) {
+				handleSpaceChange((ISpaceContentChangeEvent)event);
+			}
+		}
+	};
 
 	private TreeMapControl control;
 	
@@ -261,6 +268,14 @@ public class TreeMapView extends ViewPart {
 	}
 
 	@Override
+	public void dispose() {
+		if (this.space != null)
+			this.space.removeChangeListener(spaceChangeListener);
+		
+		super.dispose();
+	}
+
+	@Override
 	public void saveState(IMemento memento) {
 		super.saveState(memento);
 		IMemento treeMapMemento = memento.createChild("TreeMap");
@@ -279,13 +294,6 @@ public class TreeMapView extends ViewPart {
 		control.reset();
 
 		this.space = space;
-		spaceChangeListener = new IEventHandler() {
-			public void handleEvent(IEvent event) {
-				if(event instanceof ISpaceContentChangeEvent) {
-					handleSpaceChange((ISpaceContentChangeEvent)event);
-				}
-			}
-		};
 		
 		if (space != null) {
 			space.addChangeListenerAndPopulate(spaceChangeListener);
