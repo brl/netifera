@@ -165,10 +165,11 @@ public class FlatWorld extends Canvas implements IPersistable {
 	}
 
 	private void initializeTexture() {
-//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights.gif");
+//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights.png");
 //		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/earth_lights_lrg.jpg");
 		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.topo.200408.3x5400x2700.jpg");
 //		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/srtm_ramp2.world.5400x2700.jpg");
+//		ImageDescriptor imageDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.shoreline.4000x2000.png");
 		texture = imageDescriptor.createImage();
 	}
 
@@ -207,9 +208,21 @@ public class FlatWorld extends Canvas implements IPersistable {
 		Rectangle textureBounds = texture.getBounds();
 		int srcX = (int)(textureBounds.x + frame.offsetX);
 		int srcY = (int)(textureBounds.y + frame.offsetY);
-		int srcWidth = (int)(textureBounds.width / frame.scale);
-		int srcHeight = (int)(textureBounds.height / frame.scale);
-		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x, rect.y, rect.width, rect.height);
+		
+		float pixelWidth = rect.width * frame.scale / textureBounds.width;
+		float pixelHeight = rect.height * frame.scale / textureBounds.height;
+//		float dtw = textureBounds.width / frame.scale - srcWidth;
+//		float dth = textureBounds.height / frame.scale - srcHeight;
+		float dtx = frame.offsetX - (int)(frame.offsetX);
+		float dty = frame.offsetY - (int)(frame.offsetY);
+		int dx = (int) (pixelWidth * dtx);
+		int dy = (int) (pixelHeight * dty);
+//		int dw = (int) (pixelWidth * df)
+		
+		int srcWidth = (int)(textureBounds.width / frame.scale + 0.9999999);
+		int srcHeight = (int)(textureBounds.height / frame.scale + 0.9999999);
+
+		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x-dx, rect.y-dy, rect.width+dx, rect.height+dy);
 
 		final FloatRectangle region = getVisibleGeographicalRegion();
 		labelsLayer.paint(region, rect, gc);
