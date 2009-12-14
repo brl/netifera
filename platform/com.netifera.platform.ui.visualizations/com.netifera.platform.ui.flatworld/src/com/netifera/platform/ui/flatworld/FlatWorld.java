@@ -227,24 +227,27 @@ public class FlatWorld extends Canvas implements IPersistable {
 //		gc.setForeground(getForeground());
 //		gc.setBackground(getForeground());
 
-		Rectangle textureBounds = texture.getBounds();
-		int srcX = (int)(textureBounds.x + frame.offsetX);
-		int srcY = (int)(textureBounds.y + frame.offsetY);
 		
+		Rectangle textureBounds = texture.getBounds();
 		float pixelWidth = rect.width * frame.scale / textureBounds.width;
 		float pixelHeight = rect.height * frame.scale / textureBounds.height;
-//		float dtw = textureBounds.width / frame.scale - srcWidth;
-//		float dth = textureBounds.height / frame.scale - srcHeight;
+
+		int srcX = (int) (textureBounds.x + frame.offsetX);
+		int srcY = (int) (textureBounds.y + frame.offsetY);
+		
 		float dtx = frame.offsetX - (int)(frame.offsetX);
 		float dty = frame.offsetY - (int)(frame.offsetY);
+		
 		int dx = (int) (pixelWidth * dtx);
 		int dy = (int) (pixelHeight * dty);
-//		int dw = (int) (pixelWidth * df)
 		
-		int srcWidth = (int)(textureBounds.width / frame.scale + 0.9999999);
-		int srcHeight = (int)(textureBounds.height / frame.scale + 0.9999999);
+		int srcWidth = Math.min((int)(textureBounds.width / frame.scale + 2), textureBounds.width-srcX);
+		int srcHeight = Math.min((int)(textureBounds.height / frame.scale + 2), textureBounds.height-srcY);
 
-		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x-dx, rect.y-dy, rect.width+dx, rect.height+dy);
+		int w = (int) (pixelWidth * srcWidth);
+		int h = (int) (pixelHeight * srcHeight);
+		
+		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x-dx, rect.y-dy, w, h);
 
 		final FloatRectangle region = getVisibleGeographicalRegion();
 		labelsLayer.paint(region, rect, gc);
