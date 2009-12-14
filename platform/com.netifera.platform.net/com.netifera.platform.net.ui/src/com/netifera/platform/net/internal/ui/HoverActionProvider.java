@@ -66,6 +66,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		PortSet portset = serverDetector.getTriggerablePorts("tcp");
 		assert portset.size() > 0;
 		scanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
+		scanner.addOption(new BooleanOption("randomize", "Randomize scan", "Run the scan randomly instead of sequentially over the target addresses, userful for big scans that might never finish", addresses.size() > 0x10000));
 		scanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between connections", 10));
 		scanner.addOption(new IntegerOption("maximumConnections", "Maximum connections", "Maximum number of simultaneous connections", 250));
 		scanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
@@ -78,6 +79,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		PortSet portset = serverDetector.getTriggerablePorts("udp");
 		assert portset.size() > 0;
 		scanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portset.toString()));
+		scanner.addOption(new BooleanOption("randomize", "Randomize scan", "Run the scan randomly instead of sequentially over the target addresses, userful for big scans that might never finish", addresses.size() > 0x10000));
 		scanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
 		scanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
 		return scanner;

@@ -2,6 +2,7 @@ package com.netifera.platform.net.tools.portscanning;
 
 import java.util.BitSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,28 +18,22 @@ import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.locators.TCPSocketLocator;
 
 public class TCPConnectScanner extends AbstractPortscanner {	
-//	private int errorCount = 0;
-//	private int errorThreshold = 30;
 	private boolean skipUnreachable = true;
 	private int maximumConnections = 250;
 	
 	final private AtomicInteger connectionsCount = new AtomicInteger(0);
 	private BitSet badHostSet;
 
-	private int firstPort;
+	private boolean randomize = false;
 	
 	private ChannelFactory factory;
 	private Timer timer;
 
 	@Override
 	protected void scannerRun() {
-		int hostCount = targetNetwork.size();
-		badHostSet = new BitSet(hostCount);
-		
-		firstPort = targetPorts.contains(80) ? 80 : targetPorts.get(0);
-		context.setTitle("TCP connect scan "+targetNetwork);
-		context.setStatus("Scanning port "+firstPort);
-		context.setTotalWork(targetNetwork.size()*targetPorts.size());
+		if (skipUnreachable) {
+			badHostSet = new BitSet(targetNetwork.size());
+		}
 		
 //		context.enableDebugOutput();
 
@@ -50,15 +45,22 @@ public class TCPConnectScanner extends AbstractPortscanner {
 		
 		try {
 			try {
-				context.info("Scanning port "+firstPort);
-				if (scanFirstPort(firstPort) == false)
-					return;
-	
-				if (targetPorts.size() > 1) {
-					context.info("Scanning the rest of the ports");
-					for (int i = 0; i < targetNetwork.size(); i++)
-						if (scanHost(i) == false)
-							return;
+				if (!randomize) {
+					int firstPort = targetPorts.contains(80) ? 80 : targetPorts.get(0);
+					context.setTitle("TCP connect scan "+targetNetwork);
+					context.setTotalWork(targetNetwork.size()*targetPorts.size());
+					context.info("Scanning port "+firstPort);
+					scanFirstPort(firstPort);
+		
+					if (targetPorts.size() > 1) {
+						context.info("Scanning the rest of the ports");
+						for (int i = 0; i < targetNetwork.size(); i++)
+							scanRemainingPorts(i, firstPort);
+					}
+				} else {
+					context.setTitle("TCP connect random scan "+targetNetwork);
+					context.info("Randomly scanning "+targetNetwork);
+					randomScan();
 				}
 			} catch (InterruptedException e) {
 				context.warning("Interrupted");
@@ -69,7 +71,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 				context.exception("Exception", e);
 			}
 			while (connectionsCount.get() > 0) {
-				context.setStatus("Outstanding connections "+connectionsCount.get());
+				context.setStatus("Waiting "+connectionsCount.get()+" outstanding connections");
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -84,144 +86,97 @@ public class TCPConnectScanner extends AbstractPortscanner {
 		}
 	}
 
-	private boolean scanFirstPort(final int port) throws InterruptedException {
+	/*
+	 * Scan the first port on the given host, and if unreachable hosts
+	 * are chosen to be skipped it will mark them as bad targets so they
+	 * wont be scanned on the next step.
+	 * 
+	 * Return true if the scan is intended to continue, false if it should stop (if it was interrupted)
+	 */
+	private void scanFirstPort(final int port) throws InterruptedException {
 		for (int i = 0; i < targetNetwork.size(); i++) {
-			while (connectionsCount.get() >= maximumConnections && !Thread.currentThread().isInterrupted()) {
-				Thread.sleep(100);
-			}
-			if (Thread.currentThread().isInterrupted())
-				return false;
-			final TCPSocketLocator locator = new TCPSocketLocator(targetNetwork.get(i),port);
-/*			try {
-*/				final int index = i;
-				final TCPConnectServiceDetector detector = new TCPConnectServiceDetector(locator, timer, factory, context.getLogger());
-				detector.detect(new ITCPConnectServiceDetectorListener() {
-					public void connecting(TCPSocketLocator locator) {
-						connectionsCount.incrementAndGet();
-					}
-
-					public void badTarget(final TCPSocketLocator locator) {
-						if (markTargetBad(index)) {
-							context.worked(targetPorts.size()-1); //XXX is this number ok? might not be the first port we scan
-							context.debug("Skipping unreachable host "+locator.getAddress());
-						}
-					}
-
-					public void connected(TCPSocketLocator locator) {
-						PortSet ports = new PortSet();
-						ports.addPort(locator.getPort());
-						Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), locator.getAddress(), ports);
-					}
-
-					public void serviceDetected(TCPSocketLocator locator,
-							Map<String, String> info) {
-						Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, info.get("serviceType"), info);
-					}
-					
-					public void finished(TCPSocketLocator locator) {
-						connectionsCount.decrementAndGet();
-						context.worked(1);
-					}
-				});
-				waitDelay();
-/*			} catch (PortUnreachableException e) {
-				continue;
-			} catch (SocketException e) {
-				markTargetBad(i, new Runnable() {
-					public void run() {
-						context.worked(targetPorts.size()-1); // remaining ports
-						context.debug("Skipping unreachable host " + locator.getAddress());
-					}
-				});
-			} catch (IOException e) {
-				context.debug("Connecting to " + locator + " failed with error " + e);
-				errorCount++;
-				if (errorCount >= errorThreshold) {
-					context.error("Too many errors, aborting.");
-					return false;
-				}
-			}
-*/		}
-		return true;
+			scan(i, port, true);
+			waitDelay();
+		}
 	}
 
-	private boolean scanHost(final int index) throws InterruptedException {
+	/*
+	 * Scan the rest of the ports (all except the first port, which was already scanned) on the given host.
+	 * Return true if the scan is intended to continue, false if it should stop (if it was interrupted)
+	 */
+	private void scanRemainingPorts(final int index, int firstPort) throws InterruptedException {
 		final InternetAddress target = targetNetwork.get(index);
 		context.setStatus("Scanning host "+target);
 		
 		for (int i = 0; i < targetPorts.size(); i++) {
-			if (isTargetBad(index)) {
-				return true;
-			}
+			if (isTargetBad(index))
+				return;
 
 			int port = targetPorts.get(i);
 			if (port == firstPort)
 				continue; // already scanned before
 
-			while (connectionsCount.get() >= maximumConnections && !Thread.currentThread().isInterrupted()) {
-				Thread.sleep(100);
-			}
-			if (Thread.currentThread().isInterrupted())
-				return false;
-
-			final TCPSocketLocator locator = new TCPSocketLocator(target, port);
-
-//			try {
-				final TCPConnectServiceDetector detector = new TCPConnectServiceDetector(locator, timer, factory, context.getLogger());
-				detector.detect(new ITCPConnectServiceDetectorListener() {
-
-					public void connecting(TCPSocketLocator locator) {
-						connectionsCount.incrementAndGet();
-					}
-
-					public void badTarget(final TCPSocketLocator locator) {
-						if (markTargetBad(index)) {
-							context.worked(targetPorts.size()-1); //XXX is this number ok? might not be the first port we scan
-							context.debug("Skipping unreachable host "+locator.getAddress()/*+", "+e.getMessage()*/);
-						}
-					}
-
-					public void connected(TCPSocketLocator locator) {
-						PortSet ports = new PortSet();
-						ports.addPort(locator.getPort());
-						Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), locator.getAddress(), ports);
-					}
-					
-					public void serviceDetected(TCPSocketLocator locator,
-							Map<String, String> info) {
-						Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, info.get("serviceType"), info);
-					}
-
-
-					public void finished(TCPSocketLocator locator) {
-						connectionsCount.decrementAndGet();
-						context.worked(1);
-					}
-				});
-				waitDelay();
-/*			} catch (PortUnreachableException e) {
-				continue;
-			} catch (final SocketException e) {
-				final int remainingPorts = targetPorts.size()-i-1;
-				markTargetBad(index, new Runnable() {
-					public void run() {
-						context.worked(remainingPorts);
-						context.debug("Skipping unreachable host "+target+", "+e.getMessage());
-					}
-				});
-				return true;
-			} catch (IOException e) {
-				context.debug("Connecting to " + locator + " failed, "+e.getMessage());
-				errorCount++;
-				if (errorCount >= errorThreshold) {
-					context.error("Too many errors, aborting.");
-					return false;
-				}
-			}
-*/		}
-		return true;
+			scan(index, port, false); // dont mark unreachable targets as bad in this step
+			waitDelay();
+		}
 	}
 
+	private void randomScan() throws InterruptedException {
+		Random random = new Random(System.currentTimeMillis());
+		
+		while (true) {
+			if (Thread.currentThread().isInterrupted())
+				throw new InterruptedException();
+			int index = random.nextInt(targetNetwork.size());
+			if (isTargetBad(index))
+				continue;
+			int port = targetPorts.get(random.nextInt(targetPorts.size()));
+			scan(index, port, true);
+			waitDelay();
+		}
+	}
+	
+	private void scan(final int index, int port, final boolean markBadTargets) throws InterruptedException {
+		while (connectionsCount.get() >= maximumConnections && !Thread.currentThread().isInterrupted()) {
+			Thread.sleep(100);
+		}
+		if (Thread.currentThread().isInterrupted())
+			throw new InterruptedException();
+		
+		final TCPSocketLocator locator = new TCPSocketLocator(targetNetwork.get(index),port);
+		final TCPConnectServiceDetector detector = new TCPConnectServiceDetector(locator, timer, factory, context.getLogger());
+		detector.detect(new ITCPConnectServiceDetectorListener() {
+			public void connecting(TCPSocketLocator locator) {
+				connectionsCount.incrementAndGet();
+			}
+
+			public void unreachable(TCPSocketLocator locator) {
+				if (markBadTargets) {
+					if (markTargetBad(index)) {
+						context.worked(targetPorts.size()-1); //XXX here we're assuming unreachable hosts are detected on the first port scanned
+						context.debug("Skipping unreachable host "+locator.getAddress());
+					}
+				}
+			}
+
+			public void connected(TCPSocketLocator locator) {
+				PortSet ports = new PortSet();
+				ports.addPort(locator.getPort());
+				Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), locator.getAddress(), ports);
+			}
+
+			public void serviceDetected(TCPSocketLocator locator,
+					Map<String, String> info) {
+				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, info.get("serviceType"), info);
+			}
+			
+			public void finished(TCPSocketLocator locator) {
+				connectionsCount.decrementAndGet();
+				context.worked(1);
+			}
+		});
+	}
+	
 	private boolean markTargetBad(int index) {
 		if (skipUnreachable) {
 			synchronized (badHostSet) {
@@ -235,9 +190,12 @@ public class TCPConnectScanner extends AbstractPortscanner {
 	}
 
 	private boolean isTargetBad(int index) {
-		synchronized (badHostSet) {
-			return badHostSet.get(index);
+		if (skipUnreachable) {
+			synchronized (badHostSet) {
+				return badHostSet.get(index);
+			}
 		}
+		return false;
 	}
 
 	protected void setupToolOptions() throws ToolException {
@@ -246,6 +204,8 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			skipUnreachable = (Boolean) context.getConfiguration().get("skipUnreachable");
 		if (context.getConfiguration().get("maximumConnections") != null)
 			maximumConnections = (Integer) context.getConfiguration().get("maximumConnections");
+		if (context.getConfiguration().get("randomize") != null)
+			randomize = (Boolean) context.getConfiguration().get("randomize");
 		super.setupToolOptions();
 	}
 }

@@ -105,24 +105,15 @@ public class TCPConnectServiceDetector {
 		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 			buffer.writeBytes((ChannelBuffer)e.getMessage());
 			serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", locator.getPort(), trigger, buffer.toByteBuffer());
-			if (serviceInfo != null) {
-				listener.serviceDetected(locator, serviceInfo);
-				e.getChannel().close();
+			if (serviceInfo == null && !triggerWritten) {
+				writeTrigger(e.getChannel());
 			} else {
-				if (!triggerWritten) {
-					writeTrigger(e.getChannel());
-				} else {
-					// unrecognized service
-					checkUnrecognized();
-					e.getChannel().close();
-				}
+				e.getChannel().close();
 			}
 		}
 
 		@Override
 		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-//			e.getCause().printStackTrace();
-			
 			if (e.getCause() instanceof ReadTimeoutException && !triggerWritten) {
 				writeTrigger(e.getChannel());
 				return;
@@ -130,13 +121,14 @@ public class TCPConnectServiceDetector {
 
 			// ConnectException = closed or rejected
 			if (e.getCause() instanceof ConnectException) {
+//				listener.portClosed(locator);
 				e.getChannel().close();
 				return;
 			}
 			
 			if (e.getCause() instanceof NoRouteToHostException || e.getCause() instanceof SocketException) {
-//				logger.debug("Bad target: "+locator, e.getCause());
-				listener.badTarget(locator);
+//				logger.debug(locator+" is unreachable", e.getCause());
+				listener.unreachable(locator);
 			} else {
 				logger.error("Unexpected exception when scanning "+locator, e.getCause());
 			}
@@ -145,8 +137,13 @@ public class TCPConnectServiceDetector {
 
 		@Override
 		public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-			if (serviceInfo != null)
+			if (serviceInfo != null) {
 				logger.info(serviceInfo.get("serviceType")+" @ "+locator);
+				listener.serviceDetected(locator, serviceInfo);
+			} else if (triggerWritten) { // if we were able to send the trigger the port was open
+	 			logger.warning("Unrecognized service @ " + locator);
+//				listener.unknownService(locator);
+			}
 			listener.finished(locator);
 		}
 
@@ -158,10 +155,5 @@ public class TCPConnectServiceDetector {
 				channel.write(ChannelBuffers.wrappedBuffer(trigger));
 			channel.getPipeline().replace("readTimeout", "readTimeout", new ReadTimeoutHandler(timer, READ_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS));
 		}
-			 	
-	 	private void checkUnrecognized() {
-	 		if (serviceInfo == null)
-	 			logger.warning("Unrecognized service @ " + locator);
-	 	}
 	}
 }

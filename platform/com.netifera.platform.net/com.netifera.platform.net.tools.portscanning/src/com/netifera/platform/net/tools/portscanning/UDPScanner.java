@@ -3,6 +3,7 @@ package com.netifera.platform.net.tools.portscanning;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -30,6 +31,7 @@ import com.netifera.platform.util.locators.UDPSocketLocator;
 
 public class UDPScanner extends AbstractPortscanner {
 	private Integer timeout;
+	private boolean randomize = false;
 
 	@Override
 	protected void setupToolOptions() throws ToolException {
@@ -38,13 +40,12 @@ public class UDPScanner extends AbstractPortscanner {
 		timeout = (Integer) context.getConfiguration().get("timeout");
 		if (timeout == null)
 			throw new RequiredOptionMissingException("timeout");
+		if (context.getConfiguration().get("randomize") != null)
+			randomize = (Boolean) context.getConfiguration().get("randomize");
 	}
 	
 	@Override
 	protected void scannerRun() throws ToolException {
-		context.setTitle("UDP scan "+targetNetwork);
-		context.setTotalWork(targetNetwork.size()*targetPorts.size()+1); //+1 in order to account for waiting responses after sending all requests
-
 		DatagramChannelFactory factory =
 			new OioDatagramChannelFactory(Executors.newCachedThreadPool());
 		
@@ -66,8 +67,15 @@ public class UDPScanner extends AbstractPortscanner {
 		try {
 			channel = (DatagramChannel) bootstrap.bind(new InetSocketAddress(0));
 
-			scanAllAddresses(channel);
-
+			if (!randomize) {
+				context.setTitle("UDP scan "+targetNetwork);
+				context.setTotalWork(targetNetwork.size()*targetPorts.size()+1); //+1 in order to account for waiting responses after sending all requests
+				scanAllAddresses(channel);
+			} else {
+				context.setTitle("UDP random scan "+targetNetwork);
+				context.info("Randomly scanning "+targetNetwork);
+				randomScan(channel);
+			}
 /*			// If the channel is not closed within 5 seconds,
 			// print an error message and quit.
 			if (!channel.getCloseFuture().awaitUninterruptibly(5000)) {
@@ -107,6 +115,32 @@ public class UDPScanner extends AbstractPortscanner {
 				} finally {
 					context.worked(1);
 				}
+			}
+		}
+	}
+
+	private void randomScan(DatagramChannel channel) throws InterruptedException {
+		Random random = new Random(System.currentTimeMillis());
+		ChannelBuffer writeBuffer = ChannelBuffers.buffer(4096);
+		while (true) {
+			if (Thread.currentThread().isInterrupted())
+				throw new InterruptedException();
+
+			InternetAddress address = targetNetwork.get(random.nextInt(targetNetwork.size()));
+			int port = targetPorts.get(random.nextInt(targetPorts.size()));
+
+			byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",port);
+//			context.debug("Trigger for port "+port+": "+trigger);
+			writeBuffer.clear();
+			writeBuffer.writeBytes(trigger);
+			
+			try {
+				writeBuffer.resetReaderIndex();
+				ChannelFuture future = channel.write(writeBuffer, new InetSocketAddress(address.toInetAddress(), port));
+				future.await();
+				waitDelay();
+			} finally {
+				context.worked(1);
 			}
 		}
 	}
