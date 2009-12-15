@@ -31,6 +31,7 @@ import com.netifera.platform.ui.internal.flatworld.Activator;
 public class FlatWorld extends Canvas implements IPersistable {
 	
 	private Image texture;
+	private Image textureSmall;
 	
 	private LabelsFlatWorldLayer labelsLayer;
 	private RaindropFlatWorldLayer raindropsLayer;
@@ -180,6 +181,13 @@ public class FlatWorld extends Canvas implements IPersistable {
 //		textureDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/srtm_ramp2.world.5400x2700.jpg");
 //		textureDescriptor = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "textures/world.shoreline.4000x2000.png");
 		texture = textureDescriptor.createImage();
+		
+		Rectangle textureBounds = texture.getBounds();
+		int width = textureBounds.width / 3;
+		int height = textureBounds.height / 3;
+		textureSmall = new Image(getDisplay(), width, height);
+		GC gc = new GC(textureSmall);
+		gc.drawImage(texture, textureBounds.x, textureBounds.y, textureBounds.width, textureBounds.height, 0, 0, width, height);
 	}
 
 	private void initializeLayers() {
@@ -196,6 +204,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 	@Override
 	public void dispose() {
 		texture.dispose();
+		textureSmall.dispose();
 		panningCursor.dispose();
 		zoomingCursor.dispose();
 		super.dispose();
@@ -214,6 +223,13 @@ public class FlatWorld extends Canvas implements IPersistable {
 	}
 
 	private void paint(PaintEvent event) {
+		if (frame.scale > 3)
+			paint(event, texture, 1);
+		else
+			paint(event, textureSmall, 3);
+	}
+	
+	private void paint(PaintEvent event, Image texture, int textureScale) {
 		final GC gc = event.gc;
 
 		gc.setAntialias(SWT.ON);
@@ -227,16 +243,18 @@ public class FlatWorld extends Canvas implements IPersistable {
 //		gc.setForeground(getForeground());
 //		gc.setBackground(getForeground());
 
-		
 		Rectangle textureBounds = texture.getBounds();
 		float pixelWidth = rect.width * frame.scale / textureBounds.width;
 		float pixelHeight = rect.height * frame.scale / textureBounds.height;
 
-		int srcX = (int) (textureBounds.x + frame.offsetX);
-		int srcY = (int) (textureBounds.y + frame.offsetY);
+		float ox = frame.offsetX / textureScale;
+		float oy = frame.offsetY / textureScale;
 		
-		float dtx = frame.offsetX - (int)(frame.offsetX);
-		float dty = frame.offsetY - (int)(frame.offsetY);
+		int srcX = (int) (textureBounds.x + ox);
+		int srcY = (int) (textureBounds.y + oy);
+		
+		float dtx = ox - (int) ox;
+		float dty = oy - (int) oy;
 		
 		int dx = (int) (pixelWidth * dtx);
 		int dy = (int) (pixelHeight * dty);
