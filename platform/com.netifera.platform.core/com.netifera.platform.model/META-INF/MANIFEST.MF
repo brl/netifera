@@ -17,6 +17,7 @@ Import-Package: com.netifera.platform.api.dispatcher,
  com.netifera.platform.api.iterables,
  com.netifera.platform.api.log,
  com.netifera.platform.api.model,
+ com.netifera.platform.api.model.events,
  com.netifera.platform.api.model.layers,
  com.netifera.platform.api.probe,
  com.netifera.platform.api.tasks,
@@ -26,4 +27,5 @@ Bundle-Vendor: netifera
 DynamicImport-Package: *
 Bundle-ClassPath: lib/db4o-7.4.56.11413-java5.jar,
  .
+Bundle-ActivationPolicy: lazy
 

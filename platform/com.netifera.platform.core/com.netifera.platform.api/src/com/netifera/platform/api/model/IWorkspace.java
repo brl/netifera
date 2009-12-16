@@ -19,7 +19,14 @@ public interface IWorkspace {
 	 * @param entity
 	 */
 	<T extends IEntity> void storeEntity(T entity);
-	
+
+	/**
+	 * Delete entity from database.
+	 * @param <T> subclass of IEntity
+	 * @param entity
+	 */
+	<T extends IEntity> void deleteEntity(T entity);
+
 	/**
 	 * Add entity to the given space.
 	 * @param entity
@@ -34,7 +41,7 @@ public interface IWorkspace {
 	 *  @param entity The entity instance to update in the database
 	 */
 	<T extends IEntity> void updateEntity(T entity);
-	
+
 	/**
 	 * Find all entities of a specified class.
 	 * @param <T> subclass of IEntity

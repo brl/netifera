@@ -179,7 +179,6 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		workspace.addEntityToSpace(this, spaceId);
 	}
 	
-	
 	public void updateFromEntity(IEntity entity) {
 		if(!this.getClass().isInstance(entity)) {
 			throw new IllegalArgumentException();			
@@ -219,6 +218,18 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 				((AbstractEntity)shadow).synchronizeEntity(this);
 			}
 		}
+	}
+
+	public void delete() {
+		if(!canSave()) {
+			throw new IllegalStateException("IEntity#delete() called on an entity that cannot be saved.");
+		}
+		
+		if(id == 0) {
+			throw new IllegalStateException("IEntity#delete() called on an entity which has not previously been saved.");
+		}
+
+		workspace.deleteEntity(this);
 	}
 	
 	public IWorkspace getWorkspace() {

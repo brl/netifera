@@ -34,7 +34,7 @@ public class TaskRecord implements ITaskRecord {
 	public void updateTaskStatus(ITaskStatus newStatus) {
 		taskStatus.update(newStatus);
 		space.getDatabase().store(taskStatus);
-		space.updateTaskRecord(this);
+		space.updateTask(this);
 		if(commitThreadActive && (taskStatus.isFinished() || taskStatus.isFailed())) {
 			stopCommitThread();
 		}
@@ -63,7 +63,7 @@ public class TaskRecord implements ITaskRecord {
 		taskOutputDirty = true;
 		if(!commitThreadActive)
 			startCommitThread();
-		space.updateTaskRecord(this);
+		space.updateTask(this);
 		getEventManager().fireEvent(new ITaskOutputEvent() {
 			public ITaskOutput getMessage() {
 				return output;

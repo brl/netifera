@@ -1,5 +1,6 @@
-package com.netifera.platform.api.model;
+package com.netifera.platform.internal.model.events;
 
+import com.netifera.platform.api.model.events.ISpaceTaskChangeEvent;
 import com.netifera.platform.api.tasks.ITaskOutput;
 import com.netifera.platform.api.tasks.ITaskRecord;
 
@@ -33,7 +34,7 @@ public class SpaceTaskChangeEvent implements ISpaceTaskChangeEvent {
 		return output;
 	}
 
-	public boolean isCreationEvent() {
+	public boolean isCreateEvent() {
 		return isCreation;
 	}
 

@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.ui,
  org.prefuse;bundle-version="1.0.0"
 Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.api.model,
+ com.netifera.platform.api.model.events,
  com.netifera.platform.api.model.layers,
  com.netifera.platform.model,
  com.netifera.platform.ui.images,

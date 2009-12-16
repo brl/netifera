@@ -13,8 +13,11 @@ import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceStatusChangeEvent;
 import com.netifera.platform.api.model.IWorkspace;
+import com.netifera.platform.api.model.events.ISpaceChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceEvent;
+import com.netifera.platform.api.model.events.ISpaceLifecycleEvent;
+import com.netifera.platform.api.model.events.ISpaceStatusChangeEvent;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.model.ProbeEntity;
 import com.netifera.platform.model.SpaceEntity;
@@ -168,12 +171,20 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 	}
 	
 	public void handleEvent(final IEvent event) {
-		if(event instanceof ISpaceStatusChangeEvent) {
-			final ISpaceStatusChangeEvent spaceChange = (ISpaceStatusChangeEvent) event;
-			if (spaceChange.isNew())
+		if(event instanceof ISpaceChangeEvent || event instanceof ISpaceStatusChangeEvent) {
+			ISpaceEvent spaceEvent = (ISpaceEvent) event;
+			updater.refresh(spaceEvent.getSpace());
+		} else if (event instanceof ISpaceLifecycleEvent) {
+			ISpaceLifecycleEvent lifecycleEvent = (ISpaceLifecycleEvent) event;
+			if (lifecycleEvent.isCreateEvent()) {
 				updater.refresh();
-			else
-				updater.refresh(spaceChange.getSpace());
+			} else if (lifecycleEvent.isDeleteEvent()) {
+				Object parent = getParent(lifecycleEvent.getSpace());
+				if (parent != null)
+					updater.refresh(parent);
+				else
+					updater.refresh();
+			}
 		}
 	}
 	

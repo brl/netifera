@@ -15,7 +15,7 @@ import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceContentChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.IEdge;
 import com.netifera.platform.api.model.layers.IEdgeLayer;
 import com.netifera.platform.api.model.layers.IGroupLayer;
@@ -119,11 +119,11 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 	
 	private synchronized void handleSpaceChange(final ISpaceContentChangeEvent event) {
 		try {
-			if(event.isAdditionEvent()) {
+			if(event.isEntityAddEvent()) {
 				addEntity(event.getEntity());
-			} else if(event.isUpdateEvent()) {
+			} else if(event.isEntityUpdateEvent()) {
 				addEntity(event.getEntity());
-			} else if(event.isRemovalEvent()) {
+			} else if(event.isEntityRemoveEvent()) {
 				removeEntity(event.getEntity());
 			}
 		} catch (Throwable e) {

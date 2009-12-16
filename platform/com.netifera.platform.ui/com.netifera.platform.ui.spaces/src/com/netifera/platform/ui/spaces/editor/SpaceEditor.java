@@ -25,8 +25,9 @@ import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceTaskChangeEvent;
-import com.netifera.platform.api.model.SpaceNameChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceRenameEvent;
+import com.netifera.platform.api.model.events.ISpaceStatusChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceTaskChangeEvent;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.spaces.ISpaceEditor;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
@@ -42,6 +43,42 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	private ContentViewer viewer;
 	private ToolBar toolBar;
 	private ISpaceVisualization currentVisualization;
+	
+	private IEventHandler changeListener = new IEventHandler() {
+		public void handleEvent(final IEvent event) {
+			if(event instanceof ISpaceRenameEvent) {
+				getSite().getShell().getDisplay().syncExec(new Runnable() {
+					public void run() {
+						setPartName(((ISpaceRenameEvent)event).getName());
+					}
+				});
+			} else if (event instanceof ISpaceStatusChangeEvent) {
+				if (!space.isOpened()) {
+					getSite().getShell().getDisplay().syncExec(new Runnable() {
+						public void run() {
+							getSite().getPage().closeEditor(SpaceEditor.this, false);
+						}
+					});
+				}
+			}
+		}
+	};
+
+	private IEventHandler taskChangeListener = new IEventHandler() {
+		public void handleEvent(final IEvent event) {
+			if(event instanceof ISpaceTaskChangeEvent) {
+				ISpaceTaskChangeEvent taskEvent = (ISpaceTaskChangeEvent) event;
+				if (taskEvent.isCreateEvent() || (taskEvent.isUpdateEvent() && !taskEvent.getTask().isRunning())) {
+					//FIXME NPE
+					getSite().getShell().getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							setTitleImage();
+						}
+					});
+				}
+			}
+		}
+	};
 	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -63,33 +100,8 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		setTitleImage();
 		
 		space = ((SpaceEditorInput)input).getSpace();
-		space.addChangeListener(new IEventHandler() {
-			public void handleEvent(final IEvent event) {
-				if(event instanceof SpaceNameChangeEvent) {
-					getSite().getShell().getDisplay().syncExec(new Runnable() {
-						public void run() {
-							setPartName(((SpaceNameChangeEvent)event).getName());
-						}
-					});
-				}
-			}
-		});
-		
-		space.addTaskChangeListener(new IEventHandler() {
-			public void handleEvent(final IEvent event) {
-				if(event instanceof ISpaceTaskChangeEvent) {
-					ISpaceTaskChangeEvent taskEvent = (ISpaceTaskChangeEvent) event;
-					if (taskEvent.isCreationEvent() || taskEvent.isUpdateEvent() && !taskEvent.getTask().isRunning()) {
-						//FIXME NPE
-						getSite().getShell().getDisplay().asyncExec(new Runnable() {
-							public void run() {
-								setTitleImage();
-							}
-						});
-					}
-				}
-			}
-		});
+		space.addChangeListener(changeListener);
+		space.addTaskChangeListener(taskChangeListener);
 		
 		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(
 				new ISelectionListener() {
@@ -181,7 +193,8 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	}
 
 	public void dispose() {
-		//FIXME remove space listeners
+		space.removeChangeListener(changeListener);
+		space.removeTaskChangeListener(taskChangeListener);
 		super.dispose();
 		space.close(); //FIXME what if two editors in the same space?
 	}

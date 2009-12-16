@@ -58,5 +58,4 @@ public class UpdateRecord implements IUpdateRecord {
 	public IUpdateRecord getTransferRecord() {
 		return new UpdateTransferRecord(getEntity(), spaceId, updateIndex, addToSpace);
 	}
-	
 }

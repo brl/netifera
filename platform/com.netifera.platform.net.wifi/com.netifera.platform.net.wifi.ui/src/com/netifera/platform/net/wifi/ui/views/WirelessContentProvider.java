@@ -10,7 +10,7 @@ import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceContentChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.net.wifi.model.AccessPointEntity;
 import com.netifera.platform.net.wifi.model.ExtendedServiceSetEntity;
 import com.netifera.platform.net.wifi.model.WirelessStationEntity;
@@ -91,7 +91,7 @@ public class WirelessContentProvider implements ITreeContentProvider {
 	}
 	
 	private void handleSpaceChange(ISpaceContentChangeEvent event) {
-		if(event.isAdditionEvent() && event.getEntity() instanceof ExtendedServiceSetEntity) {
+		if(event.isEntityAddEvent() && event.getEntity() instanceof ExtendedServiceSetEntity) {
 			networks.add((ExtendedServiceSetEntity) event.getEntity());
 			refreshViewer();
 		}

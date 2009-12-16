@@ -11,6 +11,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.api.log,
  com.netifera.platform.api.model,
+ com.netifera.platform.api.model.events,
  com.netifera.platform.api.model.layers,
  com.netifera.platform.api.probe,
  com.netifera.platform.api.tasks,

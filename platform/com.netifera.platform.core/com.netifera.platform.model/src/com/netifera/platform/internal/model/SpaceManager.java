@@ -11,9 +11,16 @@ import com.db4o.ObjectContainer;
 import com.netifera.platform.api.events.EventListenerManager;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.log.ILogger;
+import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
+import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.api.probe.IProbe;
+import com.netifera.platform.api.tasks.ITaskRecord;
+import com.netifera.platform.internal.model.events.SpaceChangeEvent;
+import com.netifera.platform.internal.model.events.SpaceCreateEvent;
+import com.netifera.platform.internal.model.events.SpaceDeleteEvent;
+import com.netifera.platform.internal.model.events.SpaceStatusChangeEvent;
 import com.netifera.platform.model.SpaceEntity;
 
 public class SpaceManager {
@@ -87,6 +94,15 @@ public class SpaceManager {
 	public synchronized void notifySpaceChange(ISpace space) {
 		fireSpaceChangeEvent(space);
 	}
+
+	synchronized void notifySpaceContentChange(ISpaceContentChangeEvent event) {
+		getEventManager().fireEvent(event);
+	}
+
+	public synchronized void addEntityToSpace(IEntity entity, long spaceId) {
+		ISpace space = spaceIdToSpace.get(spaceId);
+		space.addEntity(entity); // events will be fired on this call
+	}
 	
 	public synchronized void addTaskToSpace(long taskId, ISpace space) {
 		taskIdToSpace.put(taskId, space);
@@ -96,17 +112,17 @@ public class SpaceManager {
 	
 	synchronized void openSpace(ISpace space) {		
 		openSpaces.add(space);
-		fireSpaceChangeEvent(space);
+		getEventManager().fireEvent(new SpaceStatusChangeEvent(space));
 	}
 	
 	synchronized void closeSpace(ISpace space) {
 		openSpaces.remove(space);
-		fireSpaceChangeEvent(space);
+		getEventManager().fireEvent(new SpaceStatusChangeEvent(space));
 	}
 		
 	
 	public synchronized ISpace createSpace(IEntity root, IProbe probe) {
-		final long id = generateNewViewId();
+		final long id = generateNewSpaceId();
 		if (root instanceof SpaceEntity) {
 			SpaceEntity spaceEntity = (SpaceEntity)root;
 			if (spaceEntity.getSpaceId() == -1) {
@@ -121,14 +137,33 @@ public class SpaceManager {
 		database.store(allSpaces);
 		database.store(spaceIdToSpace);
 		commit();
-		getEventManager().fireEvent(SpaceStatusChangeEvent.createNewEvent(space)); 
+		getEventManager().fireEvent(new SpaceCreateEvent(space)); 
 		return space;
 	}
 	
-	private synchronized long generateNewViewId() {
+	private synchronized long generateNewSpaceId() {
 		currentSpaceId += 1;
 		commit();
 		return currentSpaceId;
+	}
+	
+	public synchronized void deleteSpace(ISpace space) {
+		space.close();
+		//TODO delete subspaces first
+		allSpaces.remove(space);
+		spaceIdToSpace.remove(space.getId());
+		for (ITaskRecord task: space.getTasks()) {
+			taskIdToSpace.remove(task.getTaskId());
+		}
+		if (space.isIsolated()) {
+			((AbstractEntity)space.getRootEntity()).delete();
+		}
+		database.store(allSpaces);
+		database.store(spaceIdToSpace);
+		database.store(taskIdToSpace);
+		database.delete(space);
+		commit();
+		getEventManager().fireEvent(new SpaceDeleteEvent(space)); 
 	}
 	
 	private void commit() {	
@@ -136,9 +171,9 @@ public class SpaceManager {
 	}
 	
 	private void fireSpaceChangeEvent(ISpace space) {
-		getEventManager().fireEvent(SpaceStatusChangeEvent.createChangedEvent(space));
+		getEventManager().fireEvent(new SpaceChangeEvent(space));
 	}
-	
+
 	public void addChangeListener(IEventHandler handler) {
 		getEventManager().addListener(handler);
 	}

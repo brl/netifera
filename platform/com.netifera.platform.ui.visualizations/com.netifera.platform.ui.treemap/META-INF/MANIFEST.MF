@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.4.0",
  org.eclipse.core.runtime;bundle-version="3.4.0"
 Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.api.model,
+ com.netifera.platform.api.model.events,
  com.netifera.platform.api.model.layers,
  com.netifera.platform.net.geoip,
  com.netifera.platform.net.model,

@@ -8,38 +8,59 @@ import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.api.tasks.ITaskStatus;
 
 public interface ISpace {
+	long getId();
+	IWorkspace getWorkspace();
+	
+	long getProbeId();
+	IEntity getRootEntity();
+	boolean isIsolated();
+
+	/*
+	 * Open and close spaces. Fire ISpaceStatusChangeEvent.
+	 */
 	void open();
 	void close();
 	boolean isOpened();
+
+	/*
+	 * Delete a space, closing it first. Fire ISpaceLifecycleEvent.
+	 * When isolated spaces are deleted, also all the entities in its realm and sub-realms are deleted from the workspace, as well as sub-spaces.
+	 */
+	void delete();
 	
-	long getId();
-	long getProbeId();
 	String getName();
-	void setName(String name);
 	
-	IWorkspace getWorkspace();
+	/*
+	 * Rename a space. Fire ISpaceRenameEvent.
+	 */
+	void setName(String name);
 	
 	List<IEntity> getEntities();
 	int entityCount();
-	IEntity getRootEntity();
-	boolean isIsolated();
 	
 	Set<String> getTags();
-	
+
+	/*
+	 * Add, update and remove entities from the space. Fire ISpaceContentChangeEvent.
+	 */
 	void addEntity(IEntity entity);
 	void updateEntity(IEntity entity);
 	void removeEntity(IEntity entity);
-	
-	void addTaskRecord(ITaskStatus record);
-	void updateTaskRecord(ITaskRecord record);
 
 	void addChangeListener(IEventHandler handler);
 	void addChangeListenerAndPopulate(IEventHandler handler);
 	void removeChangeListener(IEventHandler handler);
 	
 	List<ITaskRecord> getTasks();
+	boolean isActive();
+
+	/*
+	 * Add new tasks and update existing tasks. Fire ISpaceTaskChangeEvent.
+	 */
+	void addTask(ITaskStatus record);
+	void updateTask(ITaskRecord record);
+
 	void addTaskChangeListener(IEventHandler handler);
 	void addTaskChangeListenerAndPopulate(IEventHandler handler);
 	void removeTaskChangeListener(IEventHandler handler);
-	boolean isActive();
 }

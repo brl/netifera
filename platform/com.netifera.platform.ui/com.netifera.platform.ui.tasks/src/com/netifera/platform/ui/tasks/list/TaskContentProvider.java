@@ -7,7 +7,7 @@ import org.eclipse.jface.viewers.Viewer;
 import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceTaskChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceTaskChangeEvent;
 import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.ui.updater.StructuredViewerUpdater;
 
@@ -79,7 +79,7 @@ public class TaskContentProvider implements IStructuredContentProvider  {
 			dispose();
 			return;
 		}
-		if(event.isCreationEvent()) {
+		if(event.isCreateEvent()) {
 			updater.refresh();
 		}
 		else if(event.isUpdateEvent()){

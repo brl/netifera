@@ -8,7 +8,7 @@ import org.eclipse.jface.viewers.Viewer;
 import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceContentChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.ui.updater.TableUpdater;
 
 public class SpaceTableContentProvider
@@ -92,7 +92,7 @@ public class SpaceTableContentProvider
 		return new IEventHandler() {
 			public void handleEvent(IEvent event) {
 				if(event instanceof ISpaceContentChangeEvent) {
-					if (!((ISpaceContentChangeEvent)event).isUpdateEvent()) {
+					if (!((ISpaceContentChangeEvent)event).isEntityUpdateEvent()) {
 						updater.setItemCount(space.entityCount());
 					} else {
 //						updater.refresh(); //XXX is this right?

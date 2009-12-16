@@ -33,7 +33,7 @@ import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceContentChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
@@ -307,11 +307,11 @@ public class TreeMapView extends ViewPart {
 		if (!(event.getEntity() instanceof AbstractEntity))
 			return;
 		final AbstractEntity entity = (AbstractEntity)event.getEntity();
-		if(event.isAdditionEvent()) {
+		if(event.isEntityAddEvent()) {
 			addEntity(entity);
-		} else if(event.isUpdateEvent()) {
+		} else if(event.isEntityUpdateEvent()) {
 			updateEntity(entity);
-		} else if(event.isRemovalEvent()) {
+		} else if(event.isEntityRemoveEvent()) {
 			removeEntity(entity);
 		}
 	}

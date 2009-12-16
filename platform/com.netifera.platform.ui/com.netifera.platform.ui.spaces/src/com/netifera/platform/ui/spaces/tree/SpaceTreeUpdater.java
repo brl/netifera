@@ -10,7 +10,7 @@ import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.ISpace;
-import com.netifera.platform.api.model.ISpaceContentChangeEvent;
+import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.ui.internal.spaces.Activator;
@@ -69,12 +69,12 @@ public class SpaceTreeUpdater {
 	}
 	
 	private void handleSpaceChange(ISpaceContentChangeEvent event) {
-		if(event.isAdditionEvent()) {
+		if(event.isEntityAddEvent()) {
 			treeBuilder.addEntity(event.getEntity());
-		} else if(event.isUpdateEvent()) {
+		} else if(event.isEntityUpdateEvent()) {
 			if(treeBuilderHasValidRoot())
 				treeBuilder.updateEntity(event.getEntity());
-		} else if(event.isRemovalEvent()) {
+		} else if(event.isEntityRemoveEvent()) {
 			treeBuilder.removeEntity(event.getEntity());
 		}
 	}

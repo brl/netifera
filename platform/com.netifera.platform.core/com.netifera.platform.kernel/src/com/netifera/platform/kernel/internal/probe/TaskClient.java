@@ -38,7 +38,7 @@ public class TaskClient implements ITaskClient {
 	public void createTask(String instance, long taskId, ISpace space) {
 		logger.debug("Creating task with id = " + taskId);
 		final ITaskStatus taskStatus = new TaskStatus(instance, taskId);
-		space.addTaskRecord(taskStatus);
+		space.addTask(taskStatus);
 	}
 
 	public void startTask(long taskId) {
