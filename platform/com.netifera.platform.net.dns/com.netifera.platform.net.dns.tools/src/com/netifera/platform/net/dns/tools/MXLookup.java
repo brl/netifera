@@ -39,7 +39,7 @@ public class MXLookup implements ITool {
 	
 	private IToolContext context;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 		
 		setupToolOptions();
@@ -60,7 +60,7 @@ public class MXLookup implements ITool {
 	}
 	
 	private void getMX() {
-		context.setStatus("Quering for mail exchangers");
+		context.setSubTitle("Quering for mail exchangers");
 		Lookup lookup = new Lookup(domain, Type.MX);
 		lookup.setResolver(resolver.getExtendedResolver());
 		lookup.setSearchPath((Name[])null);

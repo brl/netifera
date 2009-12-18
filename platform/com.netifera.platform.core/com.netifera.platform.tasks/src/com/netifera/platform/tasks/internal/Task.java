@@ -167,8 +167,8 @@ public class Task implements Runnable, ITaskProgress, ITaskPrompter, ITaskMessen
 		output.changed();
 	}
 	
-	public void setStatus(String status) {
-		this.status.setStatus(status);
+	public void setSubTitle(String subtitle) {
+		this.status.setSubTitle(subtitle);
 		output.changed();
 	}
 	

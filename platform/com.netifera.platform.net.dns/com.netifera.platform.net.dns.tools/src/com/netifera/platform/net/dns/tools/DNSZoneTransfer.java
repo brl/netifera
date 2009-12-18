@@ -30,7 +30,7 @@ public class DNSZoneTransfer implements ITool {
 	private Name domain;
 	private IToolContext context;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 		
 		context.setTitle("Zone transfer");

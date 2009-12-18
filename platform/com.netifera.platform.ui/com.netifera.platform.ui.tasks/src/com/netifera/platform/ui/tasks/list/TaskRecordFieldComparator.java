@@ -34,7 +34,7 @@ public class TaskRecordFieldComparator extends AbstractFieldComparator {
     public int compare(Object o1, Object o2) {
 		int result = 0;
 		
-		if (((o1 instanceof ITaskRecord) == false) || ((o2 instanceof ITaskRecord) == false))
+		if (!(o1 instanceof ITaskRecord) || !(o2 instanceof ITaskRecord))
 			return result;
 		
 		ITaskRecord task1 = (ITaskRecord) o1;

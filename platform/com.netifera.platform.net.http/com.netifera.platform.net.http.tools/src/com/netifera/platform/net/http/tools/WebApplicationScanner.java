@@ -15,7 +15,7 @@ public class WebApplicationScanner implements ITool {
 	private HTTP http;
 	private String hostname;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		context.setTitle("Web applications scanner");

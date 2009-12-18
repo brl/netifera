@@ -91,6 +91,7 @@ public interface IWorkspace {
 	<T extends IEntity> List<T> findByPredicate(Class<T> klass, IModelPredicate<T> predicate);	
 	
 	IEntity findByKey(String key);
+	
 	/**
 	 * Generate unique id.
 	 * @return 64bit id unique in the model

@@ -16,7 +16,7 @@ public class WebCrawler implements ITool {
 	private HTTP http;
 	private URI base;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		context.setTitle("Web crawler");

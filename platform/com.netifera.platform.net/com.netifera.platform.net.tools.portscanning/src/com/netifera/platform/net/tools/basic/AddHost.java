@@ -14,7 +14,7 @@ public class AddHost implements ITool {
 	private IToolContext context;
 	private InternetAddress address;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		setupToolOptions();

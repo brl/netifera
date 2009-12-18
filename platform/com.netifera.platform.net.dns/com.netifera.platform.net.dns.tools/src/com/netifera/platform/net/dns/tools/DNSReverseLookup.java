@@ -40,7 +40,7 @@ public class DNSReverseLookup implements ITool {
 	private int successCount = 0;
 
 	
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 		final int sendDelay = getSendDelay();
 		

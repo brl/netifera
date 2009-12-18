@@ -16,10 +16,11 @@ import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.api.tasks.ITaskStatus;
+import com.netifera.platform.internal.model.events.SpaceActivityEvent;
 import com.netifera.platform.internal.model.events.SpaceContentChangeEvent;
 import com.netifera.platform.internal.model.events.SpaceDeleteEvent;
+import com.netifera.platform.internal.model.events.SpaceOpenCloseEvent;
 import com.netifera.platform.internal.model.events.SpaceRenameEvent;
-import com.netifera.platform.internal.model.events.SpaceStatusChangeEvent;
 import com.netifera.platform.internal.model.events.SpaceTaskChangeEvent;
 import com.netifera.platform.model.ProbeEntity;
 import com.netifera.platform.model.SpaceEntity;
@@ -40,11 +41,11 @@ public class Space implements ISpace {
 	private final ProbeEntity probeEntity;
 	
 	/* The list of entities that are contained in this space. */
-	private final List<IEntity> spaceEntities;
+	private final List<IEntity> entities;
 	
 	/* The list of tasks which have been executed in this space */
-	private final List<ITaskRecord> spaceTasks;
-	private transient volatile Boolean isActive;
+	private final List<ITaskRecord> tasks;
+	private transient Set<ITaskRecord> activeTasks;
 	
 	private final SpaceManager manager;
 	private transient boolean isOpened;
@@ -56,7 +57,7 @@ public class Space implements ISpace {
 	
 	private transient EventListenerManager taskChangeListeners;
 	
-	private transient Thread commitThread;
+	private transient volatile Thread commitThread;
 	private transient volatile boolean entitiesDirty;
 	private transient volatile boolean tasksDirty;
 	private transient ObjectContainer database;
@@ -67,18 +68,18 @@ public class Space implements ISpace {
 		this.probeEntity = (ProbeEntity) probe.getEntity();
 		this.name = name;
 		this.rootEntity = root;
-		this.spaceEntities = Collections.synchronizedList(new ArrayList<IEntity>());
-		this.spaceTasks = Collections.synchronizedList(new ArrayList<ITaskRecord>());
+		this.entities = Collections.synchronizedList(new ArrayList<IEntity>());
+		this.tasks = Collections.synchronizedList(new ArrayList<ITaskRecord>());
+		this.activeTasks = Collections.synchronizedSet(new HashSet<ITaskRecord>());
 		this.entitySet = Collections.synchronizedSet(new HashSet<IEntity>());
 		this.manager = manager;
 		this.database = manager.getDatabase();
-		startCommitThread();
 	}
 	
 	public void objectOnActivate(ObjectContainer container) {
 		this.database = container;
 		buildEntitySet();
-		startCommitThread();
+		buildActiveTasksSet();
 	}
 
 	public boolean isOpened() {
@@ -89,14 +90,17 @@ public class Space implements ISpace {
 		if (!isOpened) {
 			isOpened = true;
 			manager.openSpace(this);
+			startCommitThread();
 		}
 	}
 	
 	public void close() {
 		if (isOpened) {
+			//FIXME should not close active spaces?
+			stopCommitThread();
 			isOpened = false;
 			manager.closeSpace(this);
-			getEventManager().fireEvent(new SpaceStatusChangeEvent(this));
+			getEventManager().fireEvent(new SpaceOpenCloseEvent(this, false));
 		}
 	}
 
@@ -110,13 +114,14 @@ public class Space implements ISpace {
 	}
 	
 	public List<IEntity> getEntities() {
-		return Collections.unmodifiableList(spaceEntities);
+		return Collections.unmodifiableList(entities);
 	}
 	
 	public void addEntity(IEntity entity) {
 		if (!entitySet.contains(entity)) {
+			open();
 			entitySet.add(entity);
-			spaceEntities.add(entity);
+			entities.add(entity);
 			entitiesDirty = true;
 			SpaceContentChangeEvent event = SpaceContentChangeEvent.createAddEvent(this, entity);
 			getEventManager().fireEvent(event);
@@ -132,8 +137,9 @@ public class Space implements ISpace {
 	
 	public void removeEntity(IEntity entity) {
 		if (entitySet.contains(entity)) {
+			open();
 			entitySet.remove(entity);
-			spaceEntities.remove(entity);
+			entities.remove(entity);
 			entitiesDirty = true;
 			SpaceContentChangeEvent event = SpaceContentChangeEvent.createRemoveEvent(this, entity);
 			getEventManager().fireEvent(event);
@@ -150,11 +156,12 @@ public class Space implements ISpace {
 	}
 	
 	public void addTask(ITaskStatus status) {
-		final TaskRecord record = new TaskRecord(status, this);
-		database.store(record); //XXX ?????
-		if(!spaceTasks.contains(record)) {
-			spaceTasks.add(record);
-			updateActiveStatus(record); // no need to fire a Space Change event because manager.addTaskToSpace will fire it
+		open();
+		TaskRecord record = new TaskRecord(status, this);
+		if(!tasks.contains(record)) {
+			database.store(record); //XXX ?????
+			tasks.add(record);
+			updateActiveTasks(record);
 			manager.addTaskToSpace(status.getTaskId(), this);
 			tasksDirty = true;
 			getTaskEventManager().fireEvent(SpaceTaskChangeEvent.createCreationEvent(record));
@@ -162,50 +169,37 @@ public class Space implements ISpace {
 	}
 	
 	public void updateTask(ITaskRecord record) {
-		if (updateActiveStatus(record))
-			manager.notifySpaceChange(this);
+		open();
+		updateActiveTasks(record);
 		getTaskEventManager().fireEvent(SpaceTaskChangeEvent.createUpdateEvent(record));
 	}
 
-	/*
-	 * Update the activity status, which indicates whether tasks are currently running.
-	 * Return true if the activity status might have changed, false otherwise.
-	 */
-	private synchronized boolean updateActiveStatus(ITaskRecord record) {
-		if (record.isRunning()) {
-			if (isActive != null && isActive)
-				return false;
-			isActive = true;
-		} else {
-			isActive = null;
+	private void updateActiveTasks(ITaskRecord record) {
+		if (record.isRunning() ? activeTasks.add(record) : activeTasks.remove(record)) {
+			getEventManager().fireEvent(new SpaceActivityEvent(this, isActive()));
 		}
-		return true;
 	}
 	
 	public List<ITaskRecord> getTasks() {
-		return Collections.unmodifiableList(spaceTasks);
+		return Collections.unmodifiableList(tasks);
 	}
 	
 	public boolean isActive() {
-		Boolean nonVolatileIsActive = isActive; 
-		if (nonVolatileIsActive != null)
-			return nonVolatileIsActive;
-		synchronized(this) {
-			for (ITaskRecord record: spaceTasks) {
-				if (record.isRunning()) {
-					isActive = true;
-					return isActive;
-				}
-			}
-			isActive = false;
-			return isActive;
-		}
+		return activeTasks.size() > 0;
 	}
 	
 	private void buildEntitySet() {
-		entitySet = new HashSet<IEntity>();
-		for(IEntity entity : spaceEntities) {
+		entitySet = Collections.synchronizedSet(new HashSet<IEntity>());
+		for (IEntity entity: entities) {
 			entitySet.add(entity);
+		}
+	}
+
+	private void buildActiveTasksSet() {
+		activeTasks = Collections.synchronizedSet(new HashSet<ITaskRecord>());
+		for (ITaskRecord task: tasks) {
+			if (task.isRunning())
+				activeTasks.add(task);
 		}
 	}
 	
@@ -241,13 +235,13 @@ public class Space implements ISpace {
 	}
 	
 	public int entityCount() {
-		return spaceEntities.size();
+		return entities.size();
 	}
 	
 	public void addChangeListenerAndPopulate(IEventHandler handler) {
 		getEventManager().addListener(handler);
-		synchronized(spaceEntities) {
-			for(IEntity entity : spaceEntities) {
+		synchronized(entities) {
+			for(IEntity entity : entities) {
 				handler.handleEvent(SpaceContentChangeEvent.createAddEvent(this, entity));
 			}
 		}
@@ -270,7 +264,7 @@ public class Space implements ISpace {
 	
 	public void addTaskChangeListenerAndPopulate(IEventHandler handler) {
 		getTaskEventManager().addListener(handler);
-		for(ITaskRecord task : spaceTasks) {
+		for(ITaskRecord task : tasks) {
 			handler.handleEvent(SpaceTaskChangeEvent.createCreationEvent(task));
 		}
 	}
@@ -298,39 +292,59 @@ public class Space implements ISpace {
 		if(!(other instanceof Space)) {
 			return false;
 		}
-		return ((Space)other).getId() == id;
+		return ((Space)other).id == id;
 	}
 	
 	public int hashCode() {
 		return (int) id;
 	}
 	
-	private void startCommitThread() {
+	private synchronized void startCommitThread() {
+		if (commitThread != null)
+			return;
 		commitThread = new Thread(new Runnable() {
-
 			public void run() {
-				while(true) {
-					try {
-						Thread.sleep(BACKGROUND_COMMIT_INTERVAL);
-						if(database.ext().isClosed())
+//				System.out.println("started "+Space.this);
+				try {
+					while(true) {
+						try {
+							Thread.sleep(BACKGROUND_COMMIT_INTERVAL);
+							if(database.ext().isClosed())
+								return;
+							commit();
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
 							return;
-						runCommit();
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-						return;
-					} catch (DatabaseClosedException e) {
-						return;
+						} catch (DatabaseClosedException e) {
+							return;
+						}
 					}
-				}				
+				} finally {
+//					System.out.println("stopped "+Space.this);
+					commitThread = null;
+				}
 			}
-			
 		});
 		commitThread.setDaemon(true);
 		commitThread.setName("Background Commit thread for space [" + name + "]");
 		commitThread.start();
 	}
+
+	private synchronized void stopCommitThread() {
+		Thread nonVolatileCommitThread = commitThread;
+		if (nonVolatileCommitThread == null)
+			return;
+		nonVolatileCommitThread.interrupt();
+		try {
+			while (commitThread != null)
+				Thread.sleep(BACKGROUND_COMMIT_INTERVAL);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		commit();
+	}
 	
-	private synchronized void runCommit() {		
+	private synchronized void commit() {		
 		if(tasksDirty) {
 			commitTasks();
 			tasksDirty = false;
@@ -343,14 +357,14 @@ public class Space implements ISpace {
 	}
 	
 	private void commitEntities() {
-		synchronized(spaceEntities) {
-			database.store(spaceEntities);
+		synchronized(entities) {
+			database.store(entities);
 		}
 	}
 	
 	private void commitTasks() {
-		synchronized (spaceTasks) {
-			database.store(spaceTasks);
+		synchronized (tasks) {
+			database.store(tasks);
 		}
 	}
 }

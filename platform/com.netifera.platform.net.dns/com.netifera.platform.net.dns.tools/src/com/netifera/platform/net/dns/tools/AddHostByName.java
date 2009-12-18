@@ -27,7 +27,7 @@ public class AddHostByName implements ITool {
 	
 	private IToolContext context;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		setupToolOptions();

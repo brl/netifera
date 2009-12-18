@@ -11,15 +11,16 @@ import com.netifera.platform.api.tools.IToolConfiguration;
 import com.netifera.platform.api.tools.IToolContext;
 
 public class ToolContext implements IToolContext, ITaskRunnable, ITaskMessenger {
-	private ITool toolInstance;
-	private IToolConfiguration configuration;
+	final private ITool tool;
+	final private IToolConfiguration configuration;
+	final private long realm;
+	final private long spaceId;
+	
 	private ITask task;
-	private final long realm;
-	private final long spaceId;
 	private boolean debugEnabled;
 	
 	ToolContext(ITool tool, IToolConfiguration configuration, long realm, long spaceId) {
-		toolInstance = tool;
+		this.tool = tool;
 		this.configuration = configuration;
 		this.realm = realm;
 		this.spaceId = spaceId;
@@ -30,8 +31,8 @@ public class ToolContext implements IToolContext, ITaskRunnable, ITaskMessenger 
 		task.setTitle(title);
 	}
 
-	public void setStatus(String status) {
-		task.setStatus(status);
+	public void setSubTitle(String subtitle) {
+		task.setSubTitle(subtitle);
 	}
 
 	public long getRealm() {
@@ -44,16 +45,16 @@ public class ToolContext implements IToolContext, ITaskRunnable, ITaskMessenger 
 	
 	public void run(ITask task) throws TaskException {
 		this.task = task;
-		toolInstance.toolRun(this);
+		tool.run(this);
 	}
 
 	public IToolConfiguration getConfiguration() {
 		return configuration;
 	}
 
-	public void addMessage(ITaskOutput command) {
+	public void addMessage(ITaskOutput message) {
 		ITaskMessenger messenger = (ITaskMessenger) task;
-		messenger.addMessage(command);		
+		messenger.addMessage(message);		
 	}
 
 	public void enableDebugOutput() {
@@ -98,10 +99,6 @@ public class ToolContext implements IToolContext, ITaskRunnable, ITaskMessenger 
 		task.warning(message);
 	}
 
-	public String getClassName() {
-		return toolInstance.getClass().getName();
-	}
-	
 	public ILogger getLogger() {
 		return new ToolLogger(this);
 	}

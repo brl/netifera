@@ -18,7 +18,7 @@ public abstract class AbstractPortscanner implements ITool {
 	private int delay = 0;
 	private Random random = new Random(System.currentTimeMillis());
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		assert(context != null);
 		this.context = context;
 

@@ -73,7 +73,7 @@ public class HTTPProxy implements ITool {
 	private IToolContext context;
 	private int listeningPort;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 		
 		setupToolOptions();

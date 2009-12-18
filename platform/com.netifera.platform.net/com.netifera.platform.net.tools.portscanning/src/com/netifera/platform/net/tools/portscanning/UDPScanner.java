@@ -83,7 +83,7 @@ public class UDPScanner extends AbstractPortscanner {
 				channel.close().awaitUninterruptibly();
 			}
 */
-			context.setStatus("Waiting responses for "+timeout+" seconds...");
+			context.setSubTitle("Waiting responses for "+timeout+" seconds...");
 			Thread.sleep(timeout*1000L);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
@@ -103,7 +103,7 @@ public class UDPScanner extends AbstractPortscanner {
 //			context.debug("Trigger for port "+port+": "+trigger);
 			writeBuffer.clear();
 			writeBuffer.writeBytes(trigger);
-			context.setStatus("Scanning "+targetNetwork+":"+port+"/udp");
+			context.setSubTitle("Scanning "+targetNetwork+":"+port+"/udp");
 			for (InternetAddress address: targetNetwork) {
 				if (Thread.currentThread().isInterrupted())
 					throw new InterruptedException();

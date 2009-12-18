@@ -20,7 +20,7 @@ import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.internal.model.events.SpaceChangeEvent;
 import com.netifera.platform.internal.model.events.SpaceCreateEvent;
 import com.netifera.platform.internal.model.events.SpaceDeleteEvent;
-import com.netifera.platform.internal.model.events.SpaceStatusChangeEvent;
+import com.netifera.platform.internal.model.events.SpaceOpenCloseEvent;
 import com.netifera.platform.model.SpaceEntity;
 
 public class SpaceManager {
@@ -79,7 +79,7 @@ public class SpaceManager {
 		return spaceIdToSpace.get(id);
 	}
 	
-	public Set<ISpace> getAllSpaces() {
+	public synchronized Set<ISpace> getAllSpaces() {
 		return Collections.unmodifiableSet(allSpaces);
 	}
 	
@@ -112,14 +112,13 @@ public class SpaceManager {
 	
 	synchronized void openSpace(ISpace space) {		
 		openSpaces.add(space);
-		getEventManager().fireEvent(new SpaceStatusChangeEvent(space));
+		getEventManager().fireEvent(new SpaceOpenCloseEvent(space, true));
 	}
 	
 	synchronized void closeSpace(ISpace space) {
 		openSpaces.remove(space);
-		getEventManager().fireEvent(new SpaceStatusChangeEvent(space));
+		getEventManager().fireEvent(new SpaceOpenCloseEvent(space, false));
 	}
-		
 	
 	public synchronized ISpace createSpace(IEntity root, IProbe probe) {
 		final long id = generateNewSpaceId();
@@ -147,9 +146,35 @@ public class SpaceManager {
 		return currentSpaceId;
 	}
 	
-	public synchronized void deleteSpace(ISpace space) {
+	private void checkCanDeleteSpace(ISpace space) {
+		// dont delete spaces with running tasks
+		if (space.isActive()) {
+			throw new RuntimeException("Space '"+space.getName()+"' can't be deleted because it is active running tasks");
+		}
+		
+		// if isolated, check if can delete subspaces first
+		if (space.isIsolated()) {
+			for (ISpace subspace: allSpaces) {
+				if (subspace != space && subspace.getRootEntity() == space.getRootEntity())
+					checkCanDeleteSpace(subspace);
+			}
+		}
+	}
+	
+	synchronized void deleteSpace(ISpace space) {
+		checkCanDeleteSpace(space);
+
+		// if isolated, delete subspaces first
+		if (space.isIsolated()) {
+			for (ISpace subspace: allSpaces) {
+				if (subspace != space && subspace.getRootEntity() == space.getRootEntity())
+					subspace.delete();
+			}
+		}
+
+		// close the space and subsequently close any open editors on it
 		space.close();
-		//TODO delete subspaces first
+		
 		allSpaces.remove(space);
 		spaceIdToSpace.remove(space.getId());
 		for (ITaskRecord task: space.getTasks()) {

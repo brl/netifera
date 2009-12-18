@@ -25,7 +25,7 @@ public class NetOpGeoLocalizer implements ITool {
 	private INameResolver resolver;
 	private IndexedIterable<InternetAddress> addresses;
 	
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		setupToolOptions();
@@ -59,7 +59,7 @@ public class NetOpGeoLocalizer implements ITool {
 			return;
 		}
 		
-		context.setStatus("Localizing "+address);
+		context.setSubTitle("Localizing "+address);
 		
 		// XXX lame
 		String[] octets = address.toString().split("\\.");

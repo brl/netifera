@@ -64,14 +64,14 @@ public class TCPConnectScanner extends AbstractPortscanner {
 				}
 			} catch (InterruptedException e) {
 				context.warning("Interrupted");
-				context.setStatus("Cancelling "+connectionsCount.get()+" connections");
+				context.setSubTitle("Cancelling "+connectionsCount.get()+" connections");
 				Thread.currentThread().interrupt();
 				return;
 			} catch (Exception e) {
 				context.exception("Exception", e);
 			}
 			while (connectionsCount.get() > 0) {
-				context.setStatus("Waiting "+connectionsCount.get()+" outstanding connections");
+				context.setSubTitle("Waiting "+connectionsCount.get()+" outstanding connections");
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -106,7 +106,7 @@ public class TCPConnectScanner extends AbstractPortscanner {
 	 */
 	private void scanRemainingPorts(final int index, int firstPort) throws InterruptedException {
 		final InternetAddress target = targetNetwork.get(index);
-		context.setStatus("Scanning host "+target);
+		context.setSubTitle("Scanning host "+target);
 		
 		for (int i = 0; i < targetPorts.size(); i++) {
 			if (isTargetBad(index))

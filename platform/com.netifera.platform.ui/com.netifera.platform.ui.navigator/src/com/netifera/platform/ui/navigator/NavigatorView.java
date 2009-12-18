@@ -155,9 +155,11 @@ public class NavigatorView extends ViewPart {
 				SpaceEditorInput input = (SpaceEditorInput) reference.getEditorInput();
 				if(input.getSpace() == space) {
 					getPage().activate(reference.getEditor(true));
+					return;
 				}
 			}
 		}
+		openEditorForSpace(space);
 	}
 	
 	private IWorkbenchPage getPage() {

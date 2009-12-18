@@ -13,7 +13,7 @@ public class AddNetblock implements ITool {
 	private IToolContext context;
 	private InternetNetblock netblock;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		setupToolOptions();

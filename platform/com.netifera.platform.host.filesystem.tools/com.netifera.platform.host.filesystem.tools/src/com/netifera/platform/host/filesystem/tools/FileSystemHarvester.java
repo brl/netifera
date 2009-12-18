@@ -18,7 +18,7 @@ public class FileSystemHarvester implements ITool {
 	
 	private IFileSystem fileSystem;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		context.setTitle("File System Harvester");

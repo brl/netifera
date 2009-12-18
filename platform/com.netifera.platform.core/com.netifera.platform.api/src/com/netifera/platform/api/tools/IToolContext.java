@@ -14,7 +14,7 @@ public interface IToolContext extends ITaskMessenger {
 	void done();
 	
 	void setTitle(String title);
-	void setStatus(String status);
+	void setSubTitle(String subtitle);
 	
 	void enableDebugOutput();
 	

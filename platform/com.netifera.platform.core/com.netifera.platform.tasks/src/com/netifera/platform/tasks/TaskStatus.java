@@ -6,25 +6,24 @@ import com.netifera.platform.api.tasks.ITaskStatus;
 
 public class TaskStatus implements Serializable, ITaskStatus {
     private static final long serialVersionUID = 5386061977451709956L;
+    
     public final static int WAITING =  0;
     public final static int RUNNING =  1;
     public final static int FINISHED = 2;
     public final static int FAILED =   3;
 
+	final private long taskId;
+	
 	private String title;
-	private String status;
+	private String subtitle;
+	
 	private int runState;
 	
-	/*toolClass could be a hash or id it doesn't need to be explicit, the name to show the user can be mapped */
-	final private String instanceClass;
-	
-	final private long taskId;
 	private long startTime;
 	private int workDone;
 	private long elapsedTime;
 	
-	public TaskStatus(String toolClass, long taskId) {
-		this.instanceClass = toolClass;
+	public TaskStatus(long taskId) {
 		this.taskId = taskId;
 		runState = WAITING;
 		workDone = -1;
@@ -32,30 +31,27 @@ public class TaskStatus implements Serializable, ITaskStatus {
 
 	public void update(ITaskStatus newStatus) {
 		this.title = newStatus.getTitle();
-		this.status = newStatus.getStatus();
+		this.subtitle = newStatus.getSubTitle();
 		this.runState = newStatus.getRunState();
 		this.startTime = newStatus.getStartTime();
 		this.workDone = newStatus.getWorkDone();
 		this.elapsedTime = newStatus.getElapsedTime();
 	}
+	
 	public void setTitle(String title) {
 		this.title = title;
 	}
 	
-	public void setStatus(String status) {
-		this.status = status;
+	public void setSubTitle(String subtitle) {
+		this.subtitle = subtitle;
 	}
 	
 	public String getTitle() {
 		return title;
 	}
 	
-	public String getStatus() {
-		return status;
-	}
-
-	public String getInstanceClass() {
-		return instanceClass;
+	public String getSubTitle() {
+		return subtitle;
 	}
 
 	public long getTaskId() {
@@ -113,9 +109,6 @@ public class TaskStatus implements Serializable, ITaskStatus {
 
     @Override
 	public String toString() {
-    	if(workDone != -1) {
-    		
-    	}
 		return "TaskRecord: taskId=" + getTaskId() +  " '" +  getTitle() + 
 			"'  [" + getStateDescription() + "] " + workToString();
 	}
@@ -137,13 +130,12 @@ public class TaskStatus implements Serializable, ITaskStatus {
 			return true;
 		
 		final TaskStatus other = (TaskStatus)o;
-		return (taskId == other.taskId );
-		
+		return (taskId == other.taskId);
 	}
 	
 	@Override
 	public int hashCode() {
-		return (int) (taskId ^ (taskId >> 16));
+		return (int) (taskId ^ (taskId >> 32));
 	}
 
     public void setFailed() {

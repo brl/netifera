@@ -14,31 +14,34 @@ import com.netifera.platform.api.tasks.ITaskStatus;
 
 public class TaskRecord implements ITaskRecord {
 	private final static int BACKGROUND_COMMIT_INTERVAL = 30000;
-	private final Space space;
-	private final ITaskStatus taskStatus;
-	private final List<ITaskOutput> taskOutput;
+	
 	private final long taskId;
+	private final Space space;
+	private final ITaskStatus status;
+	private final List<ITaskOutput> outputs;
 	private transient EventListenerManager taskChangeListeners;
+	
 	private transient Thread commitThread;
 	private transient volatile boolean commitThreadActive;
 	private transient volatile boolean taskOutputDirty;
 	
 	TaskRecord(ITaskStatus status, Space space) {
 		this.space = space;
-		this.taskStatus = status;
-		this.taskOutput = new ArrayList<ITaskOutput>();
+		this.status = status;
+		this.outputs = new ArrayList<ITaskOutput>();
 		this.taskId = status.getTaskId();
 		this.commitThreadActive = false;
 	}
 
-	public void updateTaskStatus(ITaskStatus newStatus) {
-		taskStatus.update(newStatus);
-		space.getDatabase().store(taskStatus);
+	public void update(ITaskStatus newStatus) {
+		status.update(newStatus);
+		space.getDatabase().store(status);
 		space.updateTask(this);
-		if(commitThreadActive && (taskStatus.isFinished() || taskStatus.isFailed())) {
+		if(commitThreadActive && (status.isFinished() || status.isFailed())) {
 			stopCommitThread();
 		}
 	}
+	
 	public void addTaskOutputListener(IEventHandler handler) {
 		getEventManager().addListener(handler);
 	}
@@ -55,11 +58,11 @@ public class TaskRecord implements ITaskRecord {
 	}
 	
 	public List<ITaskOutput> getTaskOutput() {
-		return Collections.unmodifiableList(taskOutput);
+		return Collections.unmodifiableList(outputs);
 	}
 	
 	public void addTaskOutput(final ITaskOutput output) {
-		taskOutput.add(output);
+		outputs.add(output);
 		taskOutputDirty = true;
 		if(!commitThreadActive)
 			startCommitThread();
@@ -70,22 +73,9 @@ public class TaskRecord implements ITaskRecord {
 			}
 		});
 	}
-	
-	/* Delegates to taskStatus */
-	public long getElapsedTime() {
-		return taskStatus.getElapsedTime();
-	}
 
 	public long getProbeId() {
 		return space.getProbeId();
-	}
-
-	public long getStartTime() {
-		return taskStatus.getStartTime();
-	}
-
-	public String getStateDescription() {
-		return taskStatus.getStateDescription();
 	}
 
 	/* Must not delegate to taskStatus or it will break the query optimizer */
@@ -93,37 +83,9 @@ public class TaskRecord implements ITaskRecord {
 		return taskId;
 	}
 
-	public String getTitle() {
-		return taskStatus.getTitle();
+	public ITaskStatus getStatus() {
+		return status;
 	}
-
-	public String getStatus() {
-		return taskStatus.getStatus();
-	}
-	
-	public int getWorkDone() {
-		return taskStatus.getWorkDone();
-	}
-	
-	public int getRunState() {
-		return taskStatus.getRunState();
-	}
-	
-	public boolean isFailed() {
-		return taskStatus.isFailed();
-	}
-
-	public boolean isFinished() {
-		return taskStatus.isFinished();
-	}
-
-	public boolean isRunning() {
-		return taskStatus.isRunning();
-	}
-
-	public boolean isWaiting() {
-		return taskStatus.isWaiting();
-	}	
 	
 	private synchronized void startCommitThread() {
 		if(commitThreadActive) {
@@ -156,8 +118,8 @@ public class TaskRecord implements ITaskRecord {
 			
 		});
 		commitThread.setDaemon(true);
-		if(getTitle() != null) {
-			commitThread.setName("Background Commit TaskRecord [" + getTitle() + "]");
+		if(status.getTitle() != null) {
+			commitThread.setName("Background Commit TaskRecord [" + status.getTitle() + "]");
 		} else {
 			commitThread.setName("Background Commit TaskRecord [taskId = " + taskId + "]");
 		}
@@ -183,10 +145,57 @@ public class TaskRecord implements ITaskRecord {
 		if(!taskOutputDirty) 
 			return;
 		
-		synchronized(taskOutput) {
-			space.getDatabase().store(taskOutput);
+		synchronized(outputs) {
+			space.getDatabase().store(outputs);
 		}
 		
 	}
 
+	/*
+	 * Delegate to the internal ITaskStatus
+	 */
+	
+	public long getElapsedTime() {
+		return status.getElapsedTime();
+	}
+
+	public int getRunState() {
+		return status.getRunState();
+	}
+
+	public long getStartTime() {
+		return status.getStartTime();
+	}
+
+	public String getStateDescription() {
+		return status.getStateDescription();
+	}
+
+	public String getSubTitle() {
+		return status.getSubTitle();
+	}
+
+	public String getTitle() {
+		return status.getTitle();
+	}
+
+	public int getWorkDone() {
+		return status.getWorkDone();
+	}
+
+	public boolean isFailed() {
+		return status.isFailed();
+	}
+
+	public boolean isFinished() {
+		return status.isFinished();
+	}
+
+	public boolean isRunning() {
+		return status.isRunning();
+	}
+
+	public boolean isWaiting() {
+		return status.isWaiting();
+	}
 }

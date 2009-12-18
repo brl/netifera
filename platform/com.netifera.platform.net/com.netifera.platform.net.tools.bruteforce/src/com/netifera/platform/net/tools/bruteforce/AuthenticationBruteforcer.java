@@ -24,7 +24,7 @@ public abstract class AuthenticationBruteforcer implements ITool, Authentication
 	protected abstract CredentialsVerifier createCredentialsVerifier();
 	protected abstract FiniteIterable<Credential> createCredentials();
 	
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		setupToolOptions();

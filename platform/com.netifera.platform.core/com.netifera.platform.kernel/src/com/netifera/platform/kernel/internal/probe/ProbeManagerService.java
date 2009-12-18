@@ -196,12 +196,12 @@ public class ProbeManagerService implements IProbeManagerService {
 	
 	
 	private void taskChangedHandler(ITaskClient taskClient, TaskChangedMessage message) {
-		for(ITaskStatus record : message.getTaskList()) 
-			taskClient.taskChanged(record);
+		for(ITaskStatus status: message.getTaskList()) 
+			taskClient.taskChanged(status);
 	}
 	
 	private void taskOutputHandler(ITaskClient taskClient, TaskOutputMessage message) {
-		for(ITaskOutput output : message.getTaskOutput()) 
+		for(ITaskOutput output: message.getTaskOutput()) 
 			taskClient.addMessage(output);
 	}
 	

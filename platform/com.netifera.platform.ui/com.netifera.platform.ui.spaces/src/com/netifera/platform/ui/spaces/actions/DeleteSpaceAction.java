@@ -27,7 +27,12 @@ public class DeleteSpaceAction extends Action {
 			return;
 		}
 		if (!space.isIsolated() || MessageDialog.openConfirm(Display.getCurrent().getActiveShell(), "Are you sure?", "Delete isolated space '"+space.getName()+"' and recursively all entities under its realm?")) {
-			space.delete();
+			try {
+				space.delete();
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Delete failed", e.getMessage());
+			}
 		}
 	}
 }

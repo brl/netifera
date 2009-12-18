@@ -30,7 +30,7 @@ public class SSHProbeDeployer implements ITool {
 	private String probeConfigName;
 	private String probeName;
 	
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		context.setTitle("Deploy Probe via SSH");

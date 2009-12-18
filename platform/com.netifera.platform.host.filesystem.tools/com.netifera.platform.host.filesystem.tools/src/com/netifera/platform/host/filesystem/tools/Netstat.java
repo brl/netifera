@@ -20,7 +20,7 @@ public class Netstat implements ITool {
 	
 	private IFileSystem fileSystem;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		context.setTitle("Netstat");

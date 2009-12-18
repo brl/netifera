@@ -208,13 +208,13 @@ public class TaskItem extends Composite {
 
 			titleImage.setImage(labelProvider.getImage(taskRecord));
 		
-			String status = taskRecord.getStatus();
+			String statusMessage = taskRecord.getSubTitle();
 			Image statusImage = null;
-			if (status == null) {
+			if (statusMessage == null) {
 				List<ITaskOutput> output = taskRecord.getTaskOutput();
 				if (output != null && output.size()>0) {
 					ITaskOutput lastOutput = output.get(output.size()-1);
-					status = outputLabelProvider.getText(lastOutput);
+					statusMessage = outputLabelProvider.getText(lastOutput);
 					statusImage = outputLabelProvider.getImage(lastOutput);
 /*					if (lastOutput instanceof TaskLogOutput) {
 						status = ((TaskLogOutput)lastOutput).getMessage();
@@ -223,14 +223,14 @@ public class TaskItem extends Composite {
 						status = ((TaskConsoleOutput)lastOutput).getMessage();
 					}
 */
-					if (status != null && status.length() > 50)
-						status = status.subSequence(0, 50)+"...";
+					if (statusMessage != null && statusMessage.length() > 50)
+						statusMessage = statusMessage.subSequence(0, 50)+"...";
 				}
-				if (status == null)
-					status = taskRecord.getStateDescription();
+				if (statusMessage == null)
+					statusMessage = taskRecord.getStateDescription();
 			}
 			if (taskRecord.isFinished()) {
-				status = "Completed";
+				statusMessage = "Completed";
 				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_FINISHED_IMAGE);
 			} else if (taskRecord.isWaiting()) {
 				statusImage = null;
@@ -242,7 +242,7 @@ public class TaskItem extends Composite {
 				statusImage = TasksPlugin.getPlugin().getImageCache().get(TASK_ERROR_IMAGE);
 
 			if (taskRecord.isFinished() || taskRecord.isFailed()) {
-				status = status+" ("+labelProvider.getElapsedTime(taskRecord)+")";
+				statusMessage = statusMessage+" ("+labelProvider.getElapsedTime(taskRecord)+")";
 				
 /*				List<ITaskOutput> output = taskRecord.getTaskOutput();
 				for (int i=output.size()-1; i>=0; i--) {
@@ -255,7 +255,7 @@ public class TaskItem extends Composite {
 */			}
 
 			if (!statusLabel.isDisposed())
-				statusLabel.setText(status);
+				statusLabel.setText(statusMessage);
 			if (!outputLink.isDisposed()) {
 				outputLink.setImage(statusImage);
 				outputLink.redraw();

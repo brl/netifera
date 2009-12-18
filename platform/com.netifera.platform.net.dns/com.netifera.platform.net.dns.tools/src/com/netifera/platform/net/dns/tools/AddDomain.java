@@ -40,7 +40,7 @@ public class AddDomain implements ITool {
 	
 	private IToolContext context;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 		
 		setupToolOptions();
@@ -61,7 +61,7 @@ public class AddDomain implements ITool {
 	}
 	
 	private boolean getNS() {
-		context.setStatus("Querying for authoritative name servers");
+		context.setSubTitle("Querying for authoritative name servers");
 		Lookup lookup = new Lookup(domain, Type.NS);
 		lookup.setResolver(resolver.getExtendedResolver());
 		lookup.setSearchPath((Name[])null);
