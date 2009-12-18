@@ -42,7 +42,7 @@ public class TCPListenChannelConfigPage extends WizardPage {
 	}
 	
 	private void verifyFields() {
-		if (addressText.getText().isEmpty()) {
+		if (addressText.getText().length() == 0) {
 			setErrorMessage("Enter an IP address.");
 			setPageComplete(false);
 			return;
@@ -52,7 +52,7 @@ public class TCPListenChannelConfigPage extends WizardPage {
 			setPageComplete(false);
 			return;
 		}
-		if (portText.getText().isEmpty()) {
+		if (portText.getText().length() == 0) {
 			setErrorMessage("Enter a port number.");
 			setPageComplete(false);
 			return;
