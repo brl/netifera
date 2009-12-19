@@ -101,7 +101,8 @@ public class SpaceManager {
 
 	public synchronized void addEntityToSpace(IEntity entity, long spaceId) {
 		ISpace space = spaceIdToSpace.get(spaceId);
-		space.addEntity(entity); // events will be fired on this call
+		if (space != null)
+			space.addEntity(entity); // events will be fired on this call
 	}
 	
 	public synchronized void addTaskToSpace(long taskId, ISpace space) {
