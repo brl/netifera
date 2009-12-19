@@ -47,6 +47,8 @@ public class ImportDelegate implements IWorkbenchWindowActionDelegate {
 						e.printStackTrace();
 					} catch (IOException e) {
 						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}

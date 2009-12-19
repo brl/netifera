@@ -45,6 +45,8 @@ public class ExportDelegate implements IWorkbenchWindowActionDelegate {
 						writer.close();
 					} catch (IOException e) {
 						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}

@@ -45,7 +45,12 @@ public class EntityImportExportService implements IEntityImportExportService {
 
 	private XMLElement exportEntity(IEntity entity) throws IOException {
 		for (IEntityImportExportProvider provider: providers) {
-			XMLElement xml = provider.exportEntity(entity);
+			XMLElement xml = null;
+			try {
+				xml = provider.exportEntity(entity);
+			} catch (Exception e) {
+				logger.error("Import/Export provider produced an exception when exporting "+entity, e);
+			}
 			if (xml != null) {
 				for (String name: entity.getAttributes()) {
 					XMLElement attributeElement = new XMLElement();
@@ -95,7 +100,12 @@ public class EntityImportExportService implements IEntityImportExportService {
 
 	private IEntity importEntity(long realm, long space, XMLElement xml, List<IEntity> entities) {
 		for (IEntityImportExportProvider provider: providers) {
-			IEntity entity = provider.importEntity(realm, space, xml);
+			IEntity entity = null;
+			try {
+				entity = provider.importEntity(realm, space, xml);
+			} catch (Exception e) {
+				logger.error("Import/Export provider produced an exception when importing "+xml, e);
+			}
 			if (entity != null) {
 				if (entity.isRealmEntity()) {
 					for (XMLElement child: xml.getChildren()) {
