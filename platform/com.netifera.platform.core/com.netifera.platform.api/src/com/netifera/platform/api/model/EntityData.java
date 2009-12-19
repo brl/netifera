@@ -73,6 +73,11 @@ public class EntityData implements Serializable {
 
 	
 	// Data API
+
+	public synchronized Set<String> getAttributes() {
+		//FIXME should be a synchronized Set or a copy
+		return Collections.unmodifiableSet(getAttributesMap().keySet());
+	}
 	
 	public synchronized void setAttribute(final String name, final String value) {
 		getAttributesMap().put(name, value);
@@ -115,6 +120,7 @@ public class EntityData implements Serializable {
 	}
 	
 	public synchronized Set<String> getTags() {
+		//FIXME should be a synchronized Set or a copy
 		if (tags == null)
 			return Collections.emptySet();
 		else

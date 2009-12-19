@@ -91,6 +91,7 @@ public interface IEntity {
 	 * Entity data API (attributes, associations and tags)
 	 */
 	
+	Set<String> getAttributes();
 	void setAttribute(String name, String value);
 	String getAttribute(String name);
 

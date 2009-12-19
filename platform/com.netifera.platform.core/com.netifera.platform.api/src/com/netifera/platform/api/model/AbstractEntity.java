@@ -54,6 +54,10 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		this.workspace = workspace;
 	}
 	
+	public Set<String> getAttributes() {
+		return data.getAttributes();
+	}
+	
 	public void setAttribute(final String name, final String value) {
 		data.setAttribute(name, value);
 	}
