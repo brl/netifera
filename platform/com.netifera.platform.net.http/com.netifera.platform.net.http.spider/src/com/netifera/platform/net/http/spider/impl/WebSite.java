@@ -15,7 +15,7 @@ public class WebSite {
 	public boolean equals(Object o) {
 		if (!(o instanceof WebSite))
 			return false;
-		return ((WebSite)o).http.getLocator().equals(http.getLocator()) && ((WebSite)o).vhost.equals(vhost);
+		return ((WebSite)o).http.getSocketAddress().equals(http.getSocketAddress()) && ((WebSite)o).vhost.equals(vhost);
 	}
 	
 	@Override
@@ -25,6 +25,6 @@ public class WebSite {
 	
 	@Override
 	public String toString() {
-		return http.getURI(vhost)+" ("+http.getLocator().getAddress()+")";
+		return http.getURI(vhost)+" ("+http.getSocketAddress().getNetworkAddress()+")";
 	}
 }

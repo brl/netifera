@@ -31,7 +31,7 @@ public class WebApplicationDetectorModule implements IWebSpiderModule {
 	public void handle(IWebSpiderContext context, HTTPRequest request, HTTPResponse response) {
 		Map<String,String> serviceInfo = detector.detect(request.toString(), response.toString());
 		if (serviceInfo != null) {
-			factory.createWebApplication(context.getRealm(), context.getSpaceId(), context.getSocketLocator(), request.getURL(), serviceInfo);
+			factory.createWebApplication(context.getRealm(), context.getSpaceId(), context.getSocketAddress(), request.getURL(), serviceInfo);
 			context.getLogger().info(serviceInfo.get("serviceType")+" detected at "+request.getURL());
 		}
 	}

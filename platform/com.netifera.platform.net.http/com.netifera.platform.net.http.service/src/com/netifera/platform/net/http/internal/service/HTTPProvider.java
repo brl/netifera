@@ -3,12 +3,12 @@ package com.netifera.platform.net.http.internal.service;
 import com.netifera.platform.net.http.service.HTTP;
 import com.netifera.platform.net.services.INetworkService;
 import com.netifera.platform.net.services.INetworkServiceProvider;
-import com.netifera.platform.util.locators.ISocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
 
 public class HTTPProvider implements INetworkServiceProvider {
 
-	public INetworkService create(ISocketLocator locator) {
-		return new HTTP(locator);
+	public INetworkService create(InternetSocketAddress address) {
+		return new HTTP(address);
 	}
 
 	public Class<? extends INetworkService> getServiceClass() {

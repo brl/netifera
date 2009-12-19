@@ -26,7 +26,7 @@ public class WebCrawler implements ITool {
 		if (host != null && host.compareTo(http.getURIHost()) == 0) {
 			context.setTitle("Crawl "+base);
 		} else {
-			context.setTitle("Crawl "+base+" at "+http.getLocator());
+			context.setTitle("Crawl "+base+" at "+http.getSocketAddress());
 		}
 		
 		try {

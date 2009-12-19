@@ -21,7 +21,7 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class NTLMCredentialsVerifier extends TCPCredentialsVerifier {
 	private String remoteName = "*SMBSERVER";
@@ -32,8 +32,8 @@ public class NTLMCredentialsVerifier extends TCPCredentialsVerifier {
 
 	private Random random = new Random(System.currentTimeMillis());
 
-	public NTLMCredentialsVerifier(TCPSocketLocator locator, String remoteName, String localName, boolean checkDomain, boolean checkLocal, ILogger logger) {
-		super(locator);
+	public NTLMCredentialsVerifier(TCPSocketAddress target, String remoteName, String localName, boolean checkDomain, boolean checkLocal, ILogger logger) {
+		super(target);
 		this.remoteName = remoteName;
 		this.localName = localName;
 		this.checkDomain = checkDomain;
@@ -61,7 +61,7 @@ public class NTLMCredentialsVerifier extends TCPCredentialsVerifier {
 			if (credential == null) {
 				e.getChannel().close();
 			} else {
-				if (locator.getPort() != 445) {
+				if (target.getPort() != 445) {
 					e.getChannel().write(netbiosSessionRequestPacket());
 					sessionRequestSent = true;
 				} else {

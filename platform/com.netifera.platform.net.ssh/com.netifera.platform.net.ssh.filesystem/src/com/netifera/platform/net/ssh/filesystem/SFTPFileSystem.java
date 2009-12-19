@@ -15,7 +15,7 @@ import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.SFTPException;
 import com.trilead.ssh2.SFTPv3Client;
@@ -31,8 +31,8 @@ public class SFTPFileSystem implements IFileSystem {
 
 	public SFTPFileSystem(URI url) {
 		InternetAddress address = InternetAddress.fromString(url.getHost());
-		TCPSocketLocator locator = new TCPSocketLocator(address, url.getPort());
-		this.ssh = new SSH(locator);
+		TCPSocketAddress socketAddress = new TCPSocketAddress(address, url.getPort());
+		this.ssh = new SSH(socketAddress);
 
 		String[] userInfo = url.getUserInfo().split(":");
 		String username = userInfo[0];

@@ -8,7 +8,7 @@ import com.netifera.platform.api.model.IEntityAdapterProvider;
 import com.netifera.platform.host.filesystem.FileSystemServiceLocator;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UsernameAndPasswordEntity;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class SMBFileSystemAdapterProvider implements IEntityAdapterProvider {
 
@@ -20,10 +20,10 @@ public class SMBFileSystemAdapterProvider implements IEntityAdapterProvider {
 				IEntity authenticableEntity = credentialEntity.getAuthenticable();
 				if (authenticableEntity instanceof ServiceEntity) {
 					ServiceEntity serviceEntity = (ServiceEntity) authenticableEntity;
-					TCPSocketLocator locator = (TCPSocketLocator) serviceEntity.getAdapter(TCPSocketLocator.class);
-					if (locator != null && "NetBIOS-SSN".equals(serviceEntity.getServiceType())) {
+					TCPSocketAddress socketAddress = (TCPSocketAddress) serviceEntity.getAdapter(TCPSocketAddress.class);
+					if (socketAddress != null && "NetBIOS-SSN".equals(serviceEntity.getServiceType())) {
 						try {
-							return new FileSystemServiceLocator("smb://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+locator.getAddress()+":"+locator.getPort()+"/", serviceEntity.getAddress().getHost());
+							return new FileSystemServiceLocator("smb://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+socketAddress.getNetworkAddress()+":"+socketAddress.getPort()+"/", serviceEntity.getAddress().getHost());
 						} catch (URISyntaxException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

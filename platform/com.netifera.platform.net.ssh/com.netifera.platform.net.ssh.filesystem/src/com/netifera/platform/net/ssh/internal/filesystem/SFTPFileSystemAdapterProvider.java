@@ -22,7 +22,7 @@ public class SFTPFileSystemAdapterProvider implements IEntityAdapterProvider {
 					SSH ssh = (SSH) credentialEntity.getAuthenticable().getAdapter(SSH.class);
 					if (ssh != null) {
 						try {
-							return new FileSystemServiceLocator("sftp://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+ssh.getLocator().getAddress()+":"+ssh.getLocator().getPort()+"/", serviceEntity.getAddress().getHost());
+							return new FileSystemServiceLocator("sftp://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+ssh.getSocketAddress().getNetworkAddress()+":"+ssh.getSocketAddress().getPort()+"/", serviceEntity.getAddress().getHost());
 						} catch (URISyntaxException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -40,5 +40,4 @@ public class SFTPFileSystemAdapterProvider implements IEntityAdapterProvider {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

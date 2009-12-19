@@ -18,7 +18,7 @@ import com.netifera.platform.net.dns.service.client.ExtendedResolver;
 import com.netifera.platform.net.dns.service.client.SimpleResolver;
 import com.netifera.platform.net.dns.service.nameresolver.NameResolver;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class NameResolverService extends NameResolver {
 	
@@ -46,7 +46,7 @@ public class NameResolverService extends NameResolver {
 	private void addNameServer(String nameServer) throws IOException {
 		InternetAddress address = InternetAddress.fromString(nameServer);
 //		try {
-			SimpleResolver simpleResolver = new SimpleResolver(new UDPSocketLocator(address, 53), channelFactory);
+			SimpleResolver simpleResolver = new SimpleResolver(new UDPSocketAddress(address, 53), channelFactory);
 			simpleResolver.setLogger(logger);
 			resolver.addResolver(simpleResolver);
 			logger.debug("added nameserver " + nameServer);

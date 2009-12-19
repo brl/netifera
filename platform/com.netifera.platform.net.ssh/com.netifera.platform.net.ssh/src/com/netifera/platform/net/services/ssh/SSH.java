@@ -9,20 +9,20 @@ import com.netifera.platform.net.services.auth.AuthenticationException;
 import com.netifera.platform.net.services.auth.IAuthenticable;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 import com.trilead.ssh2.Connection;
 
 
 public class SSH extends NetworkService implements IAuthenticable {
 	private static final long serialVersionUID = -401876893019505594L;
 
-	public SSH(ISocketLocator locator) {
-		super(locator);
+	public SSH(InternetSocketAddress address) {
+		super(address);
 	}
 	
-	public TCPSocketLocator getLocator() {
-		return (TCPSocketLocator) super.getLocator();
+	public TCPSocketAddress getSocketAddress() {
+		return (TCPSocketAddress) super.getSocketAddress();
 	}
 
 	public boolean isAuthenticableWith(Credential credential) {
@@ -44,7 +44,7 @@ public class SSH extends NetworkService implements IAuthenticable {
 	}
 	
 	public Connection createConnection() throws IOException {
-		Connection conn = new Connection(getLocator().getAddress().toString(), getLocator().getPort());
+		Connection conn = new Connection(getSocketAddress().getNetworkAddress().toString(), getSocketAddress().getPort());
 		conn.connect();
 		return conn;
 	}

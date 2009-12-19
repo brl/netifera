@@ -7,18 +7,18 @@ import com.netifera.platform.net.services.NetworkService;
 import com.netifera.platform.net.services.auth.IAuthenticable;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class IMAP extends NetworkService implements IAuthenticable {
 	private static final long serialVersionUID = -5683702927755879994L;
 
-	public IMAP(ISocketLocator locator) {
-		super(locator);
+	public IMAP(InternetSocketAddress address) {
+		super(address);
 	}
 	
-	public TCPSocketLocator getLocator() {
-		return (TCPSocketLocator) super.getLocator();
+	public TCPSocketAddress getSocketAddress() {
+		return (TCPSocketAddress) super.getSocketAddress();
 	}
 
 	public boolean isAuthenticableWith(Credential credential) {
@@ -27,6 +27,11 @@ public class IMAP extends NetworkService implements IAuthenticable {
 	
 	public List<Credential> defaultCredentials() {
 		return Collections.emptyList();
+	}
+
+	private boolean isSSL() {
+		//HACK
+		return getSocketAddress().getPort() == 993;
 	}
 	
 	@Override

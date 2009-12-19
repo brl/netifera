@@ -7,14 +7,14 @@ import com.netifera.platform.net.services.auth.CredentialsVerifier;
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class POP3AuthBruteforcer extends UsernameAndPasswordBruteforcer {
-	private TCPSocketLocator target;
+	private TCPSocketAddress target;
 	
 	@Override
 	protected void setupToolOptions() throws ToolException {
-		target = (TCPSocketLocator) context.getConfiguration().get("target");
+		target = (TCPSocketAddress) context.getConfiguration().get("target");
 		context.setTitle("Bruteforce authentication on POP3 @ "+target);
 		super.setupToolOptions();
 	}
@@ -25,7 +25,7 @@ public class POP3AuthBruteforcer extends UsernameAndPasswordBruteforcer {
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
 		
 		//XXX is this good? the pop3 user might not be a local user
-		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getAddress(), up.getUsernameString());
+		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getNetworkAddress(), up.getUsernameString());
 		user.setPassword(up.getPasswordString());
 		user.update();
 		

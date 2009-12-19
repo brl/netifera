@@ -3,7 +3,7 @@ package com.netifera.platform.net.internal.services.basic;
 import com.netifera.platform.net.services.INetworkService;
 import com.netifera.platform.net.services.INetworkServiceProvider;
 import com.netifera.platform.net.services.basic.Telnet;
-import com.netifera.platform.util.locators.ISocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
 
 public class TelnetProvider implements INetworkServiceProvider {
 
@@ -15,7 +15,7 @@ public class TelnetProvider implements INetworkServiceProvider {
 		return "Telnet";
 	}
 
-	public Telnet create(ISocketLocator locator) {
-		return new Telnet(locator);
+	public Telnet create(InternetSocketAddress address) {
+		return new Telnet(address);
 	}
 }

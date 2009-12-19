@@ -13,23 +13,23 @@ import com.netifera.platform.net.dns.service.client.SimpleResolver;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
 import com.netifera.platform.net.dns.service.nameresolver.NameResolver;
 import com.netifera.platform.net.services.NetworkService;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class DNS extends NetworkService {
 	private static final long serialVersionUID = 964019196230856576L;
 
-	public DNS(ISocketLocator locator) {
-		super(locator);
+	public DNS(InternetSocketAddress address) {
+		super(address);
 	}
 	
 	@Override
-	public UDPSocketLocator getLocator() {
-		return (UDPSocketLocator) super.getLocator();
+	public UDPSocketAddress getSocketAddress() {
+		return (UDPSocketAddress) super.getSocketAddress();
 	}
 
 	private SimpleResolver createSimpleResolver(DatagramChannelFactory channelFactory) throws IOException {
-		return new SimpleResolver(getLocator(), channelFactory);
+		return new SimpleResolver(getSocketAddress(), channelFactory);
 	}
 	
 	private ExtendedResolver createExtendedResolver(DatagramChannelFactory channelFactory) throws IOException {
@@ -43,7 +43,7 @@ public class DNS extends NetworkService {
 	}
 
 	public List<?> zoneTransfer(String domain) throws IOException, ZoneTransferException {
-		ZoneTransferIn xfr = ZoneTransferIn.newAXFR(new Name(domain), getLocator().getAddress().toInetAddress().getHostAddress(), getLocator().getPort(), null);
+		ZoneTransferIn xfr = ZoneTransferIn.newAXFR(new Name(domain), getSocketAddress().getNetworkAddress().toInetAddress().getHostAddress(), getSocketAddress().getPort(), null);
 		return xfr.run();
 	}
 	

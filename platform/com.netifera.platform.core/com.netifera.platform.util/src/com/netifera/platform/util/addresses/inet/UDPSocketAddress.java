@@ -2,6 +2,7 @@ package com.netifera.platform.util.addresses.inet;
 
 import java.net.InetSocketAddress;
 
+
 public class UDPSocketAddress extends InternetSocketAddress {
 	private static final long serialVersionUID = 2047894733925186379L;
 

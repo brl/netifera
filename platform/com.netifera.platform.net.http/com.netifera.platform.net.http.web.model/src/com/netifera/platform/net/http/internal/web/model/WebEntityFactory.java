@@ -20,7 +20,7 @@ import com.netifera.platform.net.model.ClientServiceConnectionEntity;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class WebEntityFactory implements IWebEntityFactory {
 
@@ -51,7 +51,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 		networkEntityFactory = null;
 	}
 
-	public synchronized ServiceEntity createWebServer(final long realm, long space, TCPSocketLocator http, String product) {
+	public synchronized ServiceEntity createWebServer(final long realm, long space, TCPSocketAddress http, String product) {
 		Map<String,String> info = new HashMap<String,String>();
 		info.put("serviceType", "HTTP");
 		if (product != null) info.put("product", product);
@@ -60,14 +60,14 @@ public class WebEntityFactory implements IWebEntityFactory {
 	
 	// TODO add Domain from hostname
 	public synchronized WebSiteEntity createWebSite(final long realm, long spaceId,
-			TCPSocketLocator http, String hostname) {
+			TCPSocketAddress http, String hostname) {
 		assert http != null;
-		if (hostname == null || hostname.equals(http.getAddress().toString())) {
+		if (hostname == null || hostname.equals(http.getNetworkAddress().toString())) {
 			hostname = "";
 		}
 		hostname = hostname.toLowerCase(Locale.ENGLISH);
 		
-		WebSiteEntity answer = (WebSiteEntity) getWorkspace().findByKey(WebSiteEntity.createQueryKey(realm, http.getAddress(), http.getPort(), hostname));
+		WebSiteEntity answer = (WebSiteEntity) getWorkspace().findByKey(WebSiteEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), hostname));
 		if(answer == null) {
 			ServiceEntity service = createWebServer(realm, spaceId, http, null);
 			answer = new WebSiteEntity(getWorkspace(), realm, service, hostname);
@@ -80,7 +80,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 	}
 
 	//XXX space not used? should notify?
-	public synchronized void setFavicon(long realm, long space, TCPSocketLocator http,
+	public synchronized void setFavicon(long realm, long space, TCPSocketAddress http,
 			URI url, byte[] faviconBytes) {
 		url = url.normalize();
 		WebSiteEntity webSite = createWebSite(realm, space, http, url.getHost());
@@ -88,14 +88,14 @@ public class WebEntityFactory implements IWebEntityFactory {
 		webSite.update();
 	}
 
-	public synchronized WebPageEntity createWebPage(final long realm, long spaceId, TCPSocketLocator http,
+	public synchronized WebPageEntity createWebPage(final long realm, long spaceId, TCPSocketAddress http,
 			URI url, String contentType) {
 		url = url.normalize();
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
 		String path = url.getPath();
 		if (path.length() == 0)
 			path = "/";
-		WebPageEntity answer = (WebPageEntity) getWorkspace().findByKey(WebPageEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), path));
+		WebPageEntity answer = (WebPageEntity) getWorkspace().findByKey(WebPageEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), site.getHostName(), path));
 		if (answer != null) {
 			if (contentType != null && !contentType.equals(answer.getContentType())) {
 				answer.setContentType(contentType);
@@ -111,11 +111,11 @@ public class WebEntityFactory implements IWebEntityFactory {
 		return answer;
 	}
 
-	public synchronized WebApplicationEntity createWebApplication(final long realm, long spaceId, TCPSocketLocator http,
+	public synchronized WebApplicationEntity createWebApplication(final long realm, long spaceId, TCPSocketAddress http,
 			URI url, Map<String, String> info) {
 		String serviceType = info.get("serviceType");
 		WebPageEntity page = createWebPage(realm, spaceId, http, url, null);
-		WebApplicationEntity answer = (WebApplicationEntity) getWorkspace().findByKey(WebApplicationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), page.getWebSite().getHostName(), page.getPath(), serviceType));
+		WebApplicationEntity answer = (WebApplicationEntity) getWorkspace().findByKey(WebApplicationEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), page.getWebSite().getHostName(), page.getPath(), serviceType));
 		if (answer != null) {
 			if (info.get("version") != null) {
 				answer.setVersion(info.get("version"));
@@ -162,14 +162,14 @@ public class WebEntityFactory implements IWebEntityFactory {
 */	}
 
 	public synchronized WebPageEntity createWebPageWithBasicAuthentication(final long realm, long spaceId,
-			TCPSocketLocator http, URI url, final String authenticationRealm) {
+			TCPSocketAddress http, URI url, final String authenticationRealm) {
 
 		url = url.normalize();
 //		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
 
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
 
-		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), site.getHostName(), authenticationRealm));
 		if (answer != null) {
 			answer.addToSpace(spaceId);
 		} else {
@@ -184,11 +184,11 @@ public class WebEntityFactory implements IWebEntityFactory {
 	}
 
 	public synchronized BasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
-			TCPSocketLocator http, String hostname, final String authenticationRealm) {
+			TCPSocketAddress http, String hostname, final String authenticationRealm) {
 
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, hostname);
 
-		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), authenticationRealm));
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), site.getHostName(), authenticationRealm));
 		if (answer != null) {
 			answer.addToSpace(spaceId);
 		} else {
@@ -201,7 +201,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 
 	@Deprecated // TODO
 	public synchronized WebFormAuthenticationEntity createFormAuthentication(long realm, long space,
-			TCPSocketLocator http, URI url, String usernameField,
+			TCPSocketAddress http, URI url, String usernameField,
 			String passwordField) {
 		// TODO Auto-generated method stub
 		return null;
@@ -209,7 +209,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 	
 	// TODO split createRequest+createResponse for (sniffed) asymetric traffic
 	public synchronized HTTPRequestEntity createRequestResponse(final long realm, long spaceId,
-			InternetAddress clientAddress, Map<String,String> clientInfo, TCPSocketLocator http,
+			InternetAddress clientAddress, Map<String,String> clientInfo, TCPSocketAddress http,
 			String requestLine, String responseStatusLine, String contentType) {
 		
 		ServiceEntity service = createWebServer(realm, spaceId, http, null);

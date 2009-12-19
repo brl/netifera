@@ -23,17 +23,17 @@ import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestUserAgent;
 
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class HTTPClient {
 	public static final String DEFAULT_USER_AGENT = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)";
 	
-	final private TCPSocketLocator locator;
+	final private TCPSocketAddress address;
 	final private DefaultHttpClientConnection connection = new DefaultHttpClientConnection();
 //	final private ConnectionReuseStrategy connectionStrategy = new DefaultConnectionReuseStrategy();
 	
-	public HTTPClient(TCPSocketLocator locator) {
-		this.locator = locator;
+	public HTTPClient(TCPSocketAddress address) {
+		this.address = address;
 	}
 
 	public void close() {
@@ -67,7 +67,7 @@ public class HTTPClient {
 		context.setAttribute(ExecutionContext.HTTP_CONNECTION, connection);
 
 		if (!connection.isOpen()) {
-				Socket socket = new Socket(locator.getAddress().toInetAddress(), locator.getPort());
+				Socket socket = new Socket(address.getNetworkAddress().toInetAddress(), address.getPort());
 				connection.bind(socket, params);
 		}
 //		System.out.println(">> Request URI: "

@@ -4,27 +4,32 @@ import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.IOReactorException;
 
 import com.netifera.platform.net.services.NetworkService;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class HTTP extends NetworkService {
 	private static final long serialVersionUID = -4369719970659667081L;
 
-	public HTTP(ISocketLocator locator) {
-		super(locator);
+	public HTTP(InternetSocketAddress address) {
+		super(address);
 	}
 
 	@Override
-	public TCPSocketLocator getLocator() {
-		return (TCPSocketLocator) super.getLocator();
+	public TCPSocketAddress getSocketAddress() {
+		return (TCPSocketAddress) super.getSocketAddress();
 	}
 	
 	public HTTPClient createClient() {
-		return new HTTPClient(getLocator());
+		return new HTTPClient(getSocketAddress());
 	}
 	
 	public AsynchronousHTTPClient createAsynchronousClient(HttpRequestExecutionHandler requestHandler) throws IOReactorException {
-		return new AsynchronousHTTPClient(getLocator(), null, requestHandler);
+		return new AsynchronousHTTPClient(getSocketAddress(), null, requestHandler);
+	}
+
+	private boolean isSSL() {
+		//HACK
+		return getSocketAddress().getPort() == 443;
 	}
 	
 	@Override

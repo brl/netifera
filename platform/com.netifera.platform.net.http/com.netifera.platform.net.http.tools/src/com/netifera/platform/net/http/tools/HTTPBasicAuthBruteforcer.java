@@ -23,14 +23,14 @@ public class HTTPBasicAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 		hostname = (String) context.getConfiguration().get("hostname");
 		method = (String) context.getConfiguration().get("method");
 		keepAlive = (Integer) context.getConfiguration().get("keepAlive");
-		context.setTitle("Bruteforce Basic HTTP authentication on "+target.getLocator()+" with "+path);
+		context.setTitle("Bruteforce Basic HTTP authentication on "+target.getSocketAddress()+" with "+path);
 		super.setupToolOptions();
 	}
 
 	@Override
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
-		WebSiteEntity webSiteEntity = Activator.getInstance().getWebEntityFactory().createWebSite(context.getRealm(), context.getSpaceId(), target.getLocator(), hostname);
+		WebSiteEntity webSiteEntity = Activator.getInstance().getWebEntityFactory().createWebSite(context.getRealm(), context.getSpaceId(), target.getSocketAddress(), hostname);
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), webSiteEntity, up.getUsernameString(), up.getPasswordString());
 		super.authenticationSucceeded(credential);
 	}

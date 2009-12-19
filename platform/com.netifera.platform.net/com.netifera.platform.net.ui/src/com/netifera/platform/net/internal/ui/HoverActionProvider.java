@@ -41,8 +41,8 @@ import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetNetblock;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class HoverActionProvider implements IHoverActionProvider {
 
@@ -103,7 +103,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		FTP ftp = (FTP) entity.getAdapter(FTP.class);
 		if (ftp != null) {
 			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", FTPAuthBruteforcer.class.getName());
-			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target FTP service", ftp.getLocator()));
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target FTP service", ftp.getSocketAddress()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
@@ -119,7 +119,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		POP3 pop3 = (POP3) entity.getAdapter(POP3.class);
 		if (pop3 != null) {
 			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", POP3AuthBruteforcer.class.getName());
-			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target POP3 service", pop3.getLocator()));
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target POP3 service", pop3.getSocketAddress()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
@@ -135,7 +135,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		IMAP imap = (IMAP) entity.getAdapter(IMAP.class);
 		if (imap != null) {
 			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", IMAPAuthBruteforcer.class.getName());
-			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target IMAP service", imap.getLocator()));
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target IMAP service", imap.getSocketAddress()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
@@ -150,10 +150,10 @@ public class HoverActionProvider implements IHoverActionProvider {
 
 		if (entity instanceof ServiceEntity) {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
-			TCPSocketLocator locator = (TCPSocketLocator) serviceEntity.getAdapter(TCPSocketLocator.class);
+			TCPSocketAddress locator = (TCPSocketAddress) serviceEntity.getAdapter(TCPSocketAddress.class);
 			if (locator != null && "MSSQL".equals(serviceEntity.getServiceType())) {
 				ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", MSSQLAuthBruteforcer.class.getName());
-				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target MSSQL service", locator));
+				bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target MSSQL service", locator));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "sa", true));
 				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
@@ -271,26 +271,26 @@ public class HoverActionProvider implements IHoverActionProvider {
 		}
 		
 		if (!(entity instanceof ServiceEntity)) {
-			TCPSocketLocator tcpLocator = (TCPSocketLocator) entity.getAdapter(TCPSocketLocator.class);
-			if (tcpLocator != null) {
-				addresses = new ListIndexedIterable<InternetAddress>(tcpLocator.getAddress());
+			TCPSocketAddress tcpSocketAddress = (TCPSocketAddress) entity.getAdapter(TCPSocketAddress.class);
+			if (tcpSocketAddress != null) {
+				addresses = new ListIndexedIterable<InternetAddress>(tcpSocketAddress.getNetworkAddress());
 				assert addresses.get(0).isUniCast();
-				ToolAction tcpConnectScanner = new ToolAction("Discover Services At "+tcpLocator, TCPConnectScanner.class.getName());
+				ToolAction tcpConnectScanner = new ToolAction("Discover Services At "+tcpSocketAddress, TCPConnectScanner.class.getName());
 				tcpConnectScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 				tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
-				tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", ((Integer)tcpLocator.getPort()).toString()));
+				tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", ((Integer)tcpSocketAddress.getPort()).toString()));
 				tcpConnectScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between connections", 100));
 				tcpConnectScanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
 				answer.add(tcpConnectScanner);
 			}
 			
-			UDPSocketLocator udpLocator = (UDPSocketLocator) entity.getAdapter(UDPSocketLocator.class);
-			if (udpLocator != null) {
-				addresses = new ListIndexedIterable<InternetAddress>(udpLocator.getAddress());
-				ToolAction udpScanner = new ToolAction("Discover Services At "+udpLocator, UDPScanner.class.getName());
+			UDPSocketAddress udpSocketAddress = (UDPSocketAddress) entity.getAdapter(UDPSocketAddress.class);
+			if (udpSocketAddress != null) {
+				addresses = new ListIndexedIterable<InternetAddress>(udpSocketAddress.getNetworkAddress());
+				ToolAction udpScanner = new ToolAction("Discover Services At "+udpSocketAddress, UDPScanner.class.getName());
 				udpScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
 				udpScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
-				udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", ((Integer)udpLocator.getPort()).toString()));
+				udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", ((Integer)udpSocketAddress.getPort()).toString()));
 				udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
 				udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
 				answer.add(udpScanner);
@@ -300,16 +300,16 @@ public class HoverActionProvider implements IHoverActionProvider {
 		Telnet telnet = (Telnet) entity.getAdapter(Telnet.class);
 		if (telnet != null) {
 			SpaceAction action = new OpenRawTerminalAction("Open Telnet Terminal", ((ServiceEntity)entity).getAddress().getHost());
-			action.addOption(new StringOption("host", "Host", "Host to connect to", telnet.getLocator().getAddress().toString()));
-			action.addOption(new IntegerOption("port", "Port", "Port to connect to", telnet.getLocator().getPort(), 0xFFFF));
+			action.addOption(new StringOption("host", "Host", "Host to connect to", telnet.getSocketAddress().getNetworkAddress().toString()));
+			action.addOption(new IntegerOption("port", "Port", "Port to connect to", telnet.getSocketAddress().getPort(), 0xFFFF));
 			action.addFixedOption(new StringOption("connector", "Connector", "", "org.eclipse.tm.internal.terminal.telnet.TelnetConnector"));
 			answer.add(action);
 		} else {
-			TCPSocketLocator locator = (TCPSocketLocator) entity.getAdapter(TCPSocketLocator.class);
-			if (locator != null) {
+			TCPSocketAddress socketAddress = (TCPSocketAddress) entity.getAdapter(TCPSocketAddress.class);
+			if (socketAddress != null) {
 				SpaceAction action = new OpenRawTerminalAction("Open Raw Terminal", ((ServiceEntity)entity).getAddress().getHost());
-				action.addOption(new StringOption("host", "Host", "Host to connect to", locator.getAddress().toString()));
-				action.addOption(new IntegerOption("port", "Port", "Port to connect to", locator.getPort(), 0xFFFF));
+				action.addOption(new StringOption("host", "Host", "Host to connect to", socketAddress.getNetworkAddress().toString()));
+				action.addOption(new IntegerOption("port", "Port", "Port to connect to", socketAddress.getPort(), 0xFFFF));
 				action.addFixedOption(new StringOption("connector", "Connector", "", "org.eclipse.tm.internal.terminal.telnet.TelnetConnector"));
 				action.addFixedOption(new BooleanOption("commandInputField", "Set command input field", "Wether to enable the command input field", true));
 				answer.add(action);

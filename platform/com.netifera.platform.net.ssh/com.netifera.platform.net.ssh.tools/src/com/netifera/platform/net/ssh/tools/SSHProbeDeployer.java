@@ -15,7 +15,7 @@ import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.net.ssh.internal.tools.Activator;
 import com.netifera.platform.probebuild.api.IProbeConfiguration;
 import com.netifera.platform.probebuild.api.IProbeDeployable;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.SCPClient;
 import com.trilead.ssh2.Session;
@@ -24,7 +24,7 @@ public class SSHProbeDeployer implements ITool {
 
 	private IToolContext context;
 
-	private TCPSocketLocator target;
+	private TCPSocketAddress target;
 	private Credential credential;
 
 	private String probeConfigName;
@@ -84,8 +84,8 @@ public class SSHProbeDeployer implements ITool {
 				
 //				context.info("Connecting to the remote probe");
 				
-				InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), target.getAddress());
-				String channelConfig = "tcplisten:"+target.getAddress()+":31337";
+				InternetAddressEntity addressEntity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), target.getNetworkAddress());
+				String channelConfig = "tcplisten:"+target.getNetworkAddress()+":31337";
 				Activator.getInstance().getProbeManager().createProbe(addressEntity.getHost(), probeName != null && probeName.length()>0 ? probeName : "Remote Probe", channelConfig, context.getSpaceId());
 			} finally {
 				file.delete();
@@ -100,7 +100,7 @@ public class SSHProbeDeployer implements ITool {
 	}
 	
 	protected void setupToolOptions() {
-		target = (TCPSocketLocator) context.getConfiguration().get("target");
+		target = (TCPSocketAddress) context.getConfiguration().get("target");
 		
 		credential = (Credential) context.getConfiguration().get("credential");
 		if (credential == null) {

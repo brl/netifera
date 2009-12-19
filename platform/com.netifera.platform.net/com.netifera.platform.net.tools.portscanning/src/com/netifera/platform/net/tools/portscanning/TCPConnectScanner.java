@@ -15,7 +15,7 @@ import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class TCPConnectScanner extends AbstractPortscanner {	
 	private boolean skipUnreachable = true;
@@ -143,34 +143,34 @@ public class TCPConnectScanner extends AbstractPortscanner {
 		if (Thread.currentThread().isInterrupted())
 			throw new InterruptedException();
 		
-		final TCPSocketLocator locator = new TCPSocketLocator(targetNetwork.get(index),port);
-		final TCPConnectServiceDetector detector = new TCPConnectServiceDetector(locator, timer, factory, context.getLogger());
+		final TCPSocketAddress socketAddress = new TCPSocketAddress(targetNetwork.get(index),port);
+		final TCPConnectServiceDetector detector = new TCPConnectServiceDetector(socketAddress, timer, factory, context.getLogger());
 		detector.detect(new ITCPConnectServiceDetectorListener() {
-			public void connecting(TCPSocketLocator locator) {
+			public void connecting(TCPSocketAddress socketAddress) {
 				connectionsCount.incrementAndGet();
 			}
 
-			public void unreachable(TCPSocketLocator locator) {
+			public void unreachable(TCPSocketAddress socketAddress) {
 				if (markBadTargets) {
 					if (markTargetBad(index)) {
 						context.worked(targetPorts.size()-1); //XXX here we're assuming unreachable hosts are detected on the first port scanned
-						context.debug("Skipping unreachable host "+locator.getAddress());
+						context.debug("Skipping unreachable host "+socketAddress.getNetworkAddress());
 					}
 				}
 			}
 
-			public void connected(TCPSocketLocator locator) {
+			public void connected(TCPSocketAddress socketAddress) {
 				PortSet ports = new PortSet();
-				ports.addPort(locator.getPort());
-				Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), locator.getAddress(), ports);
+				ports.addPort(socketAddress.getPort());
+				Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), socketAddress.getNetworkAddress(), ports);
 			}
 
-			public void serviceDetected(TCPSocketLocator locator,
+			public void serviceDetected(TCPSocketAddress socketAddress,
 					Map<String, String> info) {
-				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, info.get("serviceType"), info);
+				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, info.get("serviceType"), info);
 			}
 			
-			public void finished(TCPSocketLocator locator) {
+			public void finished(TCPSocketAddress socketAddress) {
 				connectionsCount.decrementAndGet();
 				context.worked(1);
 			}

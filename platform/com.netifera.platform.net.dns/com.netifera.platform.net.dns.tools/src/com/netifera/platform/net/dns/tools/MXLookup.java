@@ -28,8 +28,8 @@ import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv6Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class MXLookup implements ITool {
 	
@@ -105,8 +105,8 @@ public class MXLookup implements ITool {
 				} else {
 					Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), ns.getTarget().toString(), (IPv6Address)address);
 				}
-				UDPSocketLocator locator = new UDPSocketLocator(address,53);
-				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, "DNS", null);
+				UDPSocketAddress socketAddress = new UDPSocketAddress(address,53);
+				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, "DNS", null);
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the NS record entity
 			}
 			entity.save();
@@ -127,8 +127,8 @@ public class MXLookup implements ITool {
 				} else {
 					Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), mx.getTarget().toString(), (IPv6Address)address);
 				}
-				TCPSocketLocator locator = new TCPSocketLocator(address,25);
-				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), locator, "SMTP", null);
+				TCPSocketAddress socketAddress = new TCPSocketAddress(address,25);
+				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, "SMTP", null);
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the MX record entity
 			}
 			entity.save();

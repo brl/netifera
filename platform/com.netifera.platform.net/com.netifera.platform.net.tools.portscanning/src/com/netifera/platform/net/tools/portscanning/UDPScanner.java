@@ -26,7 +26,7 @@ import com.netifera.platform.net.internal.tools.portscanning.Activator;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 
 public class UDPScanner extends AbstractPortscanner {
@@ -151,10 +151,10 @@ public class UDPScanner extends AbstractPortscanner {
 		@Override
 		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 				throws Exception {
-			UDPSocketLocator peer = new UDPSocketLocator((InetSocketAddress)e.getRemoteAddress());
+			UDPSocketAddress peer = new UDPSocketAddress((InetSocketAddress)e.getRemoteAddress());
 			PortSet ports = new PortSet();
 			ports.addPort(peer.getPort());
-			Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getAddress(), ports);
+			Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getNetworkAddress(), ports);
 			byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
 			ByteBuffer responseBuffer = ((ChannelBuffer)e.getMessage()).toByteBuffer();
 			Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp", peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);

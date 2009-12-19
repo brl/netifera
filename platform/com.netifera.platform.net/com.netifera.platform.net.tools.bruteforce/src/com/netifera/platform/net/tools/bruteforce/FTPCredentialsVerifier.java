@@ -19,11 +19,11 @@ import org.jboss.netty.handler.codec.string.StringEncoder;
 
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class FTPCredentialsVerifier extends TCPCredentialsVerifier {
 
-	public FTPCredentialsVerifier(TCPSocketLocator locator) {
+	public FTPCredentialsVerifier(TCPSocketAddress locator) {
 		super(locator);
 	}
 

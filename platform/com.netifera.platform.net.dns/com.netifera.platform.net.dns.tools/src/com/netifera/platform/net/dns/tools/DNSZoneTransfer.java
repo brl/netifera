@@ -37,7 +37,7 @@ public class DNSZoneTransfer implements ITool {
 		
 		setupToolOptions();
 		
-		context.setTitle("Zone transfer of "+domain+" from "+dns.getLocator());
+		context.setTitle("Zone transfer of "+domain+" from "+dns.getSocketAddress());
 		
 		try {
 //			resolver = dns.createResolver(Activator.getInstance().getSocketEngine());

@@ -22,7 +22,7 @@ import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv6Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class AddWebSite  implements ITool {
@@ -73,7 +73,7 @@ public class AddWebSite  implements ITool {
 				entity.addTag("Target");
 				entity.update();
 */
-				fetch(new HTTP(new TCPSocketLocator(address, port)), actualURL);
+				fetch(new HTTP(new TCPSocketAddress(address, port)), actualURL);
 			}
 
 			// TODO: add credentials if any

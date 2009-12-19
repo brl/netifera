@@ -2,24 +2,19 @@ package com.netifera.platform.net.services;
 
 import java.util.Locale;
 
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.SSLSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
 
 public abstract class NetworkService implements INetworkService {
 	private static final long serialVersionUID = 6240506251424087662L;
 	
-	final private ISocketLocator locator;
+	final private InternetSocketAddress address;
 
-	public NetworkService(final ISocketLocator locator) {
-		this.locator = locator;
+	public NetworkService(final InternetSocketAddress address) {
+		this.address = address;
 	}
 	
-	public ISocketLocator getLocator() {
-		return locator;
-	}
-	
-	public Boolean isSSL() {
-		return getLocator() instanceof SSLSocketLocator;
+	public InternetSocketAddress getSocketAddress() {
+		return address;
 	}
 	
 	@Override
@@ -41,14 +36,14 @@ public abstract class NetworkService implements INetworkService {
 	}
 	
 	public String getURIHost() {
-		return getLocator().getAddress().toStringLiteral();
+		return getSocketAddress().getNetworkAddress().toStringLiteral();
 	}
 	
 	public String getURIHost(String hostname) {
 		if (hostname != null && hostname.length() > 0) {
 			return hostname;
 		}
-		return getLocator().getAddress().toStringLiteral();
+		return getSocketAddress().getNetworkAddress().toStringLiteral();
 	}
 	
 	public String getURIHostPort() {
@@ -58,7 +53,7 @@ public abstract class NetworkService implements INetworkService {
 	public String getURIHostPort(String hostname) {
 		StringBuilder sb = new StringBuilder(256);
 		sb.append(getURIHost(hostname));			
-		int port = getLocator().getPort();
+		int port = getSocketAddress().getPort();
 		if (port != getDefaultPort()) {
 			sb.append(':');
 			sb.append(Integer.valueOf(port));

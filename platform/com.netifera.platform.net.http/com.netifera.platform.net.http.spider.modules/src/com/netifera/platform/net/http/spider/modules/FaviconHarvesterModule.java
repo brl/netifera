@@ -28,7 +28,7 @@ public class FaviconHarvesterModule implements IWebSpiderModule {
 					byte[] content;
 					try {
 						content = response.getContent();
-						factory.setFavicon(context.getRealm(), context.getSpaceId(), context.getSocketLocator(), context.getBaseURL().resolve(request.getURL()), content);
+						factory.setFavicon(context.getRealm(), context.getSpaceId(), context.getSocketAddress(), context.getBaseURL().resolve(request.getURL()), content);
 					} catch (IOException e) {
 						context.getLogger().debug("Exception in Favicon module", e);
 						e.printStackTrace();

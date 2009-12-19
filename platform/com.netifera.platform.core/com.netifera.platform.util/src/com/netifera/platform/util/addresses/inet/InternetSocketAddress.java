@@ -62,6 +62,6 @@ public abstract class InternetSocketAddress implements ISocketAddress, Serializa
 	
 	@Override
 	public String toString() {
-		return address.toStringLiteral() + ':' + Integer.toString(port) + '/' + getProtocol();
+		return address.toStringLiteral() + ':' + port + '/' + getProtocol();
 	}
 }

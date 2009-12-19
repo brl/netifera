@@ -22,7 +22,7 @@ public class FTPFileSystemAdapterProvider implements IEntityAdapterProvider {
 					FTP ftp = (FTP) credentialEntity.getAuthenticable().getAdapter(FTP.class);
 					if (ftp != null) {
 						try {
-							return new FileSystemServiceLocator("ftp://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+ftp.getLocator().getAddress()+":"+ftp.getLocator().getPort()+"/", serviceEntity.getAddress().getHost());
+							return new FileSystemServiceLocator("ftp://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+ftp.getSocketAddress().getNetworkAddress()+":"+ftp.getSocketAddress().getPort()+"/", serviceEntity.getAddress().getHost());
 						} catch (URISyntaxException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

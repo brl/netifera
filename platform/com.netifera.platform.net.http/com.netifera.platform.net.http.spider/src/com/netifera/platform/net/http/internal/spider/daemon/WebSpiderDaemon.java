@@ -32,7 +32,7 @@ import com.netifera.platform.net.http.spider.impl.WebSite;
 import com.netifera.platform.net.http.spider.impl.WebSpider;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class WebSpiderDaemon implements IWebSpiderMessageHandler {
@@ -238,7 +238,7 @@ public class WebSpiderDaemon implements IWebSpiderMessageHandler {
 				try {
 					addresses = resolver.getAddressesByName(hostname);
 					for (InternetAddress address : addresses) {
-						spider.addTarget(new HTTP(new TCPSocketLocator(address, port)), hostname);
+						spider.addTarget(new HTTP(new TCPSocketAddress(address, port)), hostname);
 						spider.visit(url);
 						break;
 					}

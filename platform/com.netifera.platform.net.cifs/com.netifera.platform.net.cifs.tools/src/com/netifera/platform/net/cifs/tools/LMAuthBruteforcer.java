@@ -8,16 +8,16 @@ import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.tools.bruteforce.UsernameAndPasswordBruteforcer;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class LMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
-	private TCPSocketLocator target;
+	private TCPSocketAddress target;
 	private String remoteName = "*SMBSERVER";
 	private String localName = "";
 	
 	@Override
 	protected void setupToolOptions() throws ToolException {
-		target = (TCPSocketLocator) context.getConfiguration().get("target");
+		target = (TCPSocketAddress) context.getConfiguration().get("target");
 		context.setTitle("Bruteforce LM authentication on SMB @ "+target);
 		
 		if (context.getConfiguration().get("remoteName") != null)
@@ -33,7 +33,7 @@ public class LMAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
 		
-		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getAddress(), up.getUsernameString());
+		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getNetworkAddress(), up.getUsernameString());
 		user.setPassword(up.getPasswordString());
 //		user.setHash("LM", hash(credential));
 		user.update();

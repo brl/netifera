@@ -7,19 +7,19 @@ import com.netifera.platform.net.services.NetworkService;
 import com.netifera.platform.net.services.auth.IAuthenticable;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 
 public class POP3 extends NetworkService implements IAuthenticable {
 	private static final long serialVersionUID = 4185535541765381350L;
 
-	public POP3(ISocketLocator locator) {
-		super(locator);
+	public POP3(InternetSocketAddress address) {
+		super(address);
 	}
 	
-	public TCPSocketLocator getLocator() {
-		return (TCPSocketLocator) super.getLocator();
+	public TCPSocketAddress getSocketAddress() {
+		return (TCPSocketAddress) super.getSocketAddress();
 	}
 
 	public boolean isAuthenticableWith(Credential credential) {
@@ -38,6 +38,11 @@ public class POP3 extends NetworkService implements IAuthenticable {
 	
 	public int getDefaultPort() {
 		return 110;
+	}
+	
+	private boolean isSSL() {
+		//HACK
+		return getSocketAddress().getPort() == 993;
 	}
 	
 	@Override

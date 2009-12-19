@@ -14,7 +14,7 @@ import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class FTPFileSystem implements IFileSystem {
 
@@ -23,8 +23,8 @@ public class FTPFileSystem implements IFileSystem {
 
 	public FTPFileSystem(URI url) {
 		InternetAddress address = InternetAddress.fromString(url.getHost());
-		TCPSocketLocator locator = new TCPSocketLocator(address, url.getPort());
-		this.ftp = new FTP(locator);
+		TCPSocketAddress socketAddress = new TCPSocketAddress(address, url.getPort());
+		this.ftp = new FTP(socketAddress);
 
 		String[] userInfo = url.getUserInfo().split(":");
 		String username = userInfo[0];

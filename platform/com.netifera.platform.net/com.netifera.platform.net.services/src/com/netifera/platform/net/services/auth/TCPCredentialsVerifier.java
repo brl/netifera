@@ -20,14 +20,14 @@ import org.jboss.netty.handler.timeout.WriteTimeoutHandler;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
 
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 	public final static int CONNECT_TIMEOUT = 10000;
 	public final static int READ_TIMEOUT = 5000;
 	public final static int WRITE_TIMEOUT = 5000;
 	
-	final protected TCPSocketLocator locator;
+	final protected TCPSocketAddress target;
 	private int maximumConnections = 10;
 	
 	final private AtomicInteger connectionsCount = new AtomicInteger(0);
@@ -36,8 +36,8 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 	private ClientBootstrap bootstrap;
 	private Timer timer;
 
-	public TCPCredentialsVerifier(TCPSocketLocator locator) {
-		this.locator = locator;
+	public TCPCredentialsVerifier(TCPSocketAddress target) {
+		this.target = target;
 	}
 
 	public void setMaximumConnections(int maximumConnections) {
@@ -80,7 +80,7 @@ public abstract class TCPCredentialsVerifier extends CredentialsVerifier {
 	private void spawnConnection() {
 		connectionsCount.incrementAndGet();
 		try {
-			bootstrap.connect(locator.toInetSocketAddress());
+			bootstrap.connect(target.toInetSocketAddress());
 		} catch (ChannelException e) {
 			connectionsCount.decrementAndGet();
 			throw e;

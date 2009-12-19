@@ -11,19 +11,19 @@ import com.netifera.platform.net.services.NetworkService;
 import com.netifera.platform.net.services.auth.IAuthenticable;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 
 public class Telnet extends NetworkService implements IAuthenticable {
 	private static final long serialVersionUID = -1559740994317977398L;
 
-	public Telnet(ISocketLocator locator) {
-		super(locator);
+	public Telnet(InternetSocketAddress address) {
+		super(address);
 	}
 	
-	public TCPSocketLocator getLocator() {
-		return (TCPSocketLocator) super.getLocator();
+	public TCPSocketAddress getSocketAddress() {
+		return (TCPSocketAddress) super.getSocketAddress();
 	}
 
 	public boolean isAuthenticableWith(Credential credential) {
@@ -36,7 +36,7 @@ public class Telnet extends NetworkService implements IAuthenticable {
 	
 	public TelnetClient createClient() throws SocketException, IOException {
 		TelnetClient client = new TelnetClient();
-		client.connect(getLocator().getAddress().toInetAddress(), getLocator().getPort());
+		client.connect(getSocketAddress().getNetworkAddress().toInetAddress(), getSocketAddress().getPort());
 		return client;
 	}
 	
@@ -44,7 +44,12 @@ public class Telnet extends NetworkService implements IAuthenticable {
 	public String getURIScheme() {
 		return isSSL() ? "telnets" : "telnet";
 	}
-	
+
+	private boolean isSSL() {
+		//HACK
+		return getSocketAddress().getPort() == 992;
+	}
+
 	public int getDefaultPort() {
 		return isSSL() ? 992 : 23;
 	}

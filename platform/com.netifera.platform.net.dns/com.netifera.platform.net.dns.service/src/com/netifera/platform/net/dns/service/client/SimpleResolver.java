@@ -46,11 +46,11 @@ import org.xbill.DNS.ZoneTransferException;
 import org.xbill.DNS.ZoneTransferIn;
 
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 
 public class SimpleResolver implements Resolver {
-	private final UDPSocketLocator locator;
+	private final UDPSocketAddress socketAddress;
 	private DatagramChannel channel;
 	private Timer timer;
 
@@ -98,8 +98,8 @@ public class SimpleResolver implements Resolver {
 		}
 	}
 	
-	public SimpleResolver(UDPSocketLocator locator, DatagramChannelFactory channelFactory) {
-		this.locator = locator;
+	public SimpleResolver(UDPSocketAddress socketAddress, DatagramChannelFactory channelFactory) {
+		this.socketAddress = socketAddress;
 		
 		ConnectionlessBootstrap bootstrap = new ConnectionlessBootstrap(channelFactory);
 
@@ -115,9 +115,9 @@ public class SimpleResolver implements Resolver {
 				new FixedReceiveBufferSizePredictorFactory(4096));
 
 		try {
-			channel = (DatagramChannel) bootstrap.connect(locator.toInetSocketAddress()).await().getChannel();
+			channel = (DatagramChannel) bootstrap.connect(socketAddress.toInetSocketAddress()).await().getChannel();
 		} catch (Exception e) {
-			error("Error while opening UDP connection to DNS server at "+locator, e);
+			error("Error while opening UDP connection to DNS server at "+socketAddress, e);
 			e.printStackTrace();
 		}
 	}
@@ -401,7 +401,7 @@ public class SimpleResolver implements Resolver {
 	@SuppressWarnings("unchecked")
 	private Message sendAXFR(Message query) throws IOException {
 		Name qname = query.getQuestion().getName();
-		ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(qname, locator.getAddress().toInetAddress().getHostAddress(), locator.getPort(), tsig);
+		ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(qname, socketAddress.getNetworkAddress().toInetAddress().getHostAddress(), socketAddress.getPort(), tsig);
 		xfrin.setTimeout((int) (getTimeout() / 1000));
 		try {
 			xfrin.run();
@@ -438,8 +438,8 @@ public class SimpleResolver implements Resolver {
 		}
 	}
 	
-	public UDPSocketLocator getRemoteAddress() {
-		return locator; //new UDPSocketLocator(channel.getRemoteAddress());
+	public UDPSocketAddress getRemoteAddress() {
+		return socketAddress; //new UDPSocketLocator(channel.getRemoteAddress());
 	}
 	
 	public synchronized void shutdown() throws IOException {

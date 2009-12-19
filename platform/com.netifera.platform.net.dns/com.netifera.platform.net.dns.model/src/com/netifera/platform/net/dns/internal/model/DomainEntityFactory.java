@@ -20,7 +20,7 @@ import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv6Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class DomainEntityFactory implements IDomainEntityFactory {
 
@@ -136,8 +136,8 @@ public class DomainEntityFactory implements IDomainEntityFactory {
 				hostEntity.update();
 			}
 
-			TCPSocketLocator locator = new TCPSocketLocator(inAddr, 25);
-			networkEntityFactory.createService(realm, spaceId, locator, "SMTP", null);
+			TCPSocketAddress socketAddress = new TCPSocketAddress(inAddr, 25);
+			networkEntityFactory.createService(realm, spaceId, socketAddress, "SMTP", null);
 
 			// FIXME: no EmailAddressEntity created (because no StringDomain)
 			

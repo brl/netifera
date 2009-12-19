@@ -20,9 +20,9 @@ import com.netifera.platform.net.model.UsernameAndPasswordEntity;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetNetblock;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class NetworkEntityFactory implements INetworkEntityFactory {
 
@@ -185,14 +185,14 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		}
 	}
 
-	private ServiceEntity findService(long realm, ISocketLocator locator) {
-		return (ServiceEntity) getWorkspace().findByKey(ServiceEntity.createQueryKey(realm, locator.getAddress(), locator.getPort(), locator.getProtocol()));
+	private ServiceEntity findService(long realm, InternetSocketAddress address) {
+		return (ServiceEntity) getWorkspace().findByKey(ServiceEntity.createQueryKey(realm, address.getNetworkAddress(), address.getPort(), address.getProtocol()));
 	}
 		
-	private ServiceEntity createNewService(InternetAddressEntity address, ISocketLocator locator, String serviceType,
+	private ServiceEntity createNewService(InternetAddressEntity addressEntity, InternetSocketAddress address, String serviceType,
 			Map<String,String> info, long space) {
 
-		ServiceEntity answer = new ServiceEntity(getWorkspace(), address, locator.getPort(), locator.getProtocol(), serviceType);
+		ServiceEntity answer = new ServiceEntity(getWorkspace(), addressEntity, address.getPort(), address.getProtocol(), serviceType);
 
 		if (info != null) {
 			updateAttribute(ServiceEntity.BANNER_KEY, info, answer);
@@ -210,26 +210,26 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	}
 	
 	public synchronized ServiceEntity createService(long realm, long spaceId,
-			ISocketLocator locator, String serviceType, Map<String, String> info) {
+			InternetSocketAddress address, String serviceType, Map<String, String> info) {
 		
-		InternetAddressEntity address = createAddress(realm, spaceId, locator.getAddress());
+		InternetAddressEntity addressEntity = createAddress(realm, spaceId, address.getNetworkAddress());
 		
 		if(info != null) {
-			if (updateSystem(address.getHost(), info))
-				address.getHost().update();
+			if (updateSystem(addressEntity.getHost(), info))
+				addressEntity.getHost().update();
 		}
 		
-		ServiceEntity answer = findService(realm, locator);
+		ServiceEntity answer = findService(realm, address);
 
 		if (answer == null) {
 			PortSet ports = new PortSet();
-			ports.addPort(locator.getPort());
-			if (locator instanceof UDPSocketLocator) {
-				addOpenPorts(realm, spaceId, address, ports, false);
-			} else if (locator instanceof TCPSocketLocator) {
-				addOpenPorts(realm, spaceId, address, ports, true);			
+			ports.addPort(address.getPort());
+			if (address instanceof UDPSocketAddress) {
+				addOpenPorts(realm, spaceId, addressEntity, ports, false);
+			} else if (address instanceof TCPSocketAddress) {
+				addOpenPorts(realm, spaceId, addressEntity, ports, true);			
 			}
-			answer = createNewService(address, locator, serviceType, info, spaceId);
+			answer = createNewService(addressEntity, address, serviceType, info, spaceId);
 		} else {
 			if (info != null) {
 				boolean changed = false;
@@ -248,16 +248,16 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		if (info != null) {
 			if (info.containsKey("password")) {
 				if (info.containsKey("username"))
-					createUsernameAndPassword(realm, spaceId, locator, info.get("username"), info.get("password"));
+					createUsernameAndPassword(realm, spaceId, address, info.get("username"), info.get("password"));
 				else
-					createPassword(realm, spaceId, locator, info.get("password"));
+					createPassword(realm, spaceId, address, info.get("password"));
 			}
 			if (info.containsKey("hostname")) {
-				address.addName(info.get("hostname"));
-				address.update();
+				addressEntity.addName(info.get("hostname"));
+				addressEntity.update();
 //				if (address.getHost().getLabel()==null)
 //					address.getHost().setLabel(info.get("hostname"));
-				address.getHost().update();
+				addressEntity.getHost().update();
 			}
 		}
 		
@@ -296,7 +296,7 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	}
 
 	public synchronized ClientEntity createClient(long realm, long spaceId,
-			InternetAddress address, String serviceType, Map<String, String> info, ISocketLocator service) {
+			InternetAddress address, String serviceType, Map<String, String> info, InternetSocketAddress serviceAddress) {
 
 		if (serviceType == null)
 			throw new IllegalArgumentException("serviceType cannot be null");
@@ -334,16 +334,16 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 			
 			if (info.containsKey("password")) {
 				if (info.containsKey("username"))
-					createUsernameAndPassword(realm, spaceId, service, info.get("username"), info.get("password"));
+					createUsernameAndPassword(realm, spaceId, serviceAddress, info.get("username"), info.get("password"));
 				else
-					createPassword(realm, spaceId, service, info.get("password"));
+					createPassword(realm, spaceId, serviceAddress, info.get("password"));
 			}
 		}
 
-		if (service != null) {
-			ServiceEntity serviceEntity = findService(realm, service);
+		if (serviceAddress != null) {
+			ServiceEntity serviceEntity = findService(realm, serviceAddress);
 			if (serviceEntity == null)
-				System.err.println("ERROR: connection to unknown service: "+address+" -> "+service);
+				System.err.println("ERROR: connection to unknown service: "+address+" -> "+serviceAddress);
 			else
 				createConnection(spaceId, answer, serviceEntity, identity);
 		}
@@ -396,8 +396,8 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		return answer;
 	}
 
-	public synchronized PasswordEntity createPassword(long realm, long spaceId, ISocketLocator service, String password) {
-		return createPassword(realm, spaceId, findService(realm, service), password);
+	public synchronized PasswordEntity createPassword(long realm, long spaceId, InternetSocketAddress serviceAddress, String password) {
+		return createPassword(realm, spaceId, findService(realm, serviceAddress), password);
 	}
 
 	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, IEntity authenticable, String username, String password) {
@@ -413,7 +413,7 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		return answer;
 	}
 
-	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, ISocketLocator service, String username, String password) {
-		return createUsernameAndPassword(realm, spaceId, findService(realm, service), username, password);
+	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, InternetSocketAddress serviceAddress, String username, String password) {
+		return createUsernameAndPassword(realm, spaceId, findService(realm, serviceAddress), username, password);
 	}
 }

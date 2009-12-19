@@ -14,8 +14,7 @@ Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.net.services.credentials,
  com.netifera.platform.services,
  com.netifera.platform.util.addresses,
- com.netifera.platform.util.addresses.inet,
- com.netifera.platform.util.locators
+ com.netifera.platform.util.addresses.inet
 Export-Package: com.netifera.platform.net.services.basic
 Require-Bundle: org.apache.commons.net;bundle-version="1.4.1",
  org.apache.oro;bundle-version="2.0.8"

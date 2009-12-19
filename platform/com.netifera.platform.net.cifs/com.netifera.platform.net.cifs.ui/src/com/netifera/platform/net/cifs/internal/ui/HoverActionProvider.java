@@ -19,7 +19,7 @@ import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.hover.IHoverActionProvider;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class HoverActionProvider implements IHoverActionProvider {
 	
@@ -33,10 +33,10 @@ public class HoverActionProvider implements IHoverActionProvider {
 		
 		if (entity instanceof ServiceEntity) {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
-			TCPSocketLocator locator = (TCPSocketLocator) serviceEntity.getAdapter(TCPSocketLocator.class);
-			if (locator != null && "NetBIOS-SSN".equals(serviceEntity.getServiceType())) {
+			TCPSocketAddress socketAddress = (TCPSocketAddress) serviceEntity.getAdapter(TCPSocketAddress.class);
+			if (socketAddress != null && "NetBIOS-SSN".equals(serviceEntity.getServiceType())) {
 				ToolAction bruteforcer = new ToolAction("Bruteforce LM Authentication", LMAuthBruteforcer.class.getName());
-				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SMB service", locator));
+				bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target SMB service", socketAddress));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
@@ -51,7 +51,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 				answer.add(bruteforcer);
 			
 				bruteforcer = new ToolAction("Bruteforce NTLM Authentication", NTLMAuthBruteforcer.class.getName());
-				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SMB service", locator));
+				bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target SMB service", socketAddress));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
@@ -68,9 +68,9 @@ public class HoverActionProvider implements IHoverActionProvider {
 				answer.add(bruteforcer);
 			}
 
-			if (locator != null && "Microsoft-DS".equals(serviceEntity.getServiceType())) {
+			if (socketAddress != null && "Microsoft-DS".equals(serviceEntity.getServiceType())) {
 				ToolAction bruteforcer = new ToolAction("Bruteforce NTLM Authentication", NTLMAuthBruteforcer.class.getName());
-				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SMB service", locator));
+				bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target SMB service", socketAddress));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 				bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 				bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));

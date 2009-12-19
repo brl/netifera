@@ -21,7 +21,7 @@ public class WebApplicationScanner implements ITool {
 		context.setTitle("Web applications scanner");
 		setupToolOptions();
 
-		context.setTitle("Scan web applications at "+http.getLocator());
+		context.setTitle("Scan web applications at "+http.getSocketAddress());
 		try {
 			WebSpider spider = new WebSpider();
 			spider.setServices(context.getLogger(), Activator.getInstance().getWebEntityFactory(), Activator.getInstance().getNameResolver());

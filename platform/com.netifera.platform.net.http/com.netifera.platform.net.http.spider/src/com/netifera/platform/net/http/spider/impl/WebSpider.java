@@ -39,7 +39,7 @@ import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
 import com.netifera.platform.util.BloomFilter;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class WebSpider implements IWebSpider {
@@ -82,14 +82,14 @@ public class WebSpider implements IWebSpider {
 			this.http = http;
 			this.vhost = vhost;
 			
-			int port = http.getLocator().getPort();
+			int port = http.getSocketAddress().getPort();
 			this.base = URI.create(http.getURIScheme()+"://"+vhost+(port == 80 ? "" : ":"+port)+"/");
 		}
 		
 		IWebSpiderContext getContext() {
 			return new IWebSpiderContext() {
-				public TCPSocketLocator getSocketLocator() {
-					return http.getLocator();
+				public TCPSocketAddress getSocketAddress() {
+					return http.getSocketAddress();
 				}
 
 				public URI getBaseURL() {
@@ -222,7 +222,7 @@ public class WebSpider implements IWebSpider {
 			
 			HttpRequest request = new BasicHttpRequest("GET", page);
 			
-			request.addHeader("Host", (vhost == null ? http.getLocator().getAddress().toString() : vhost)+":"+http.getLocator().getPort());
+			request.addHeader("Host", (vhost == null ? http.getSocketAddress().getNetworkAddress().toString() : vhost)+":"+http.getSocketAddress().getPort());
 			
 			context.setAttribute("request", request);
 			context.setAttribute("url", url);
@@ -260,14 +260,14 @@ public class WebSpider implements IWebSpider {
 						String content = new String(myResponse.getContent(bufferSize));
 
 						if (createWebPageEntities && status == 200 && !isPageNotFound(content))
-							pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
+							pageEntity = factory.createWebPage(realm, spaceId, http.getSocketAddress(), url, contentType);
 						
 						if (followLinks) {
 							for (URI link: getLinks(url, content)) {
 								if (interrupted) return;
 								if (pageEntity != null && buildLinksGraph) {
 									// add links
-									WebPageEntity linkedPageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), link, null);
+									WebPageEntity linkedPageEntity = factory.createWebPage(realm, spaceId, http.getSocketAddress(), link, null);
 									pageEntity.addLink(linkedPageEntity);
 								}
 								follow(link);
@@ -278,7 +278,7 @@ public class WebSpider implements IWebSpider {
 						}
 					} else {
 						if (createWebPageEntities && status == 200)
-							pageEntity = factory.createWebPage(realm, spaceId, http.getLocator(), url, contentType);
+							pageEntity = factory.createWebPage(realm, spaceId, http.getSocketAddress(), url, contentType);
 					}
 				}
 
@@ -298,7 +298,7 @@ public class WebSpider implements IWebSpider {
 							addresses = resolver.getAddressesByName(hostname);
 						}
 						for (InternetAddress address : addresses) {
-							factory.createWebSite(realm, spaceId, new TCPSocketLocator(address, port), hostname);
+							factory.createWebSite(realm, spaceId, new TCPSocketAddress(address, port), hostname);
 						}
 						if (followLinks) {
 							follow(url.resolve(location));
@@ -475,7 +475,7 @@ public class WebSpider implements IWebSpider {
 		if (workers.containsKey(target))
 			return;
 
-		WebSiteEntity entity = factory.createWebSite(realm, spaceId, target.http.getLocator(), target.vhost);
+		WebSiteEntity entity = factory.createWebSite(realm, spaceId, target.http.getSocketAddress(), target.vhost);
 		entity.addTag("Target");
 		entity.addToSpace(spaceId);
 		entity.update();

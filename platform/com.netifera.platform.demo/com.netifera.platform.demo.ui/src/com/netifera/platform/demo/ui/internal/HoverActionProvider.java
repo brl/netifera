@@ -15,7 +15,7 @@ import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.hover.IHoverActionProvider;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class HoverActionProvider implements IHoverActionProvider {
 	
@@ -26,13 +26,13 @@ public class HoverActionProvider implements IHoverActionProvider {
 		if (entity instanceof ServiceEntity) {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
 			if ("TEST".equals(serviceEntity.getServiceType())) {
-				TCPSocketLocator tcpLocator = (TCPSocketLocator) entity.getAdapter(TCPSocketLocator.class);
-				if (tcpLocator != null) {
-					ListIndexedIterable<InternetAddress> addresses = new ListIndexedIterable<InternetAddress>(tcpLocator.getAddress());
+				TCPSocketAddress socketAddress = (TCPSocketAddress) entity.getAdapter(TCPSocketAddress.class);
+				if (socketAddress != null) {
+					ListIndexedIterable<InternetAddress> addresses = new ListIndexedIterable<InternetAddress>(socketAddress.getNetworkAddress());
 					assert addresses.get(0).isUniCast();
-					ToolAction exploit = new ToolAction("Exploit Test Service At "+tcpLocator, ExploitTestService.class.getName());
+					ToolAction exploit = new ToolAction("Exploit Test Service At "+socketAddress, ExploitTestService.class.getName());
 					exploit.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
-					exploit.addFixedOption(new StringOption("port", "Port", "Ports to exploit", ((Integer)tcpLocator.getPort()).toString()));
+					exploit.addFixedOption(new StringOption("port", "Port", "Ports to exploit", ((Integer)socketAddress.getPort()).toString()));
 					answer.add(exploit);
 				}
 			}

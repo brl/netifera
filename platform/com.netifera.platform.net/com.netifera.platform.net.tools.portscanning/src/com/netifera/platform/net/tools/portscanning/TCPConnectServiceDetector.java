@@ -29,7 +29,7 @@ import org.jboss.netty.util.Timer;
 
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class TCPConnectServiceDetector {
 
@@ -39,7 +39,7 @@ public class TCPConnectServiceDetector {
 	public final static int READ_RESPONSE_TIMEOUT = 10000;
 	public final static int SHORT_READ_TIMEOUT = READ_BANNER_TIMEOUT;
 	
-	private final TCPSocketLocator locator;
+	private final TCPSocketAddress target;
 	
 	private final ChannelFactory factory;
 	private final Timer timer;
@@ -49,8 +49,8 @@ public class TCPConnectServiceDetector {
 
 	private volatile Map<String,String> serviceInfo = null;
 
-	TCPConnectServiceDetector(TCPSocketLocator locator, Timer timer, ChannelFactory factory, ILogger logger) {
-		this.locator = locator;
+	TCPConnectServiceDetector(TCPSocketAddress target, Timer timer, ChannelFactory factory, ILogger logger) {
+		this.target = target;
 		this.timer = timer;
 		this.factory = factory;
 		this.logger = logger;
@@ -66,11 +66,11 @@ public class TCPConnectServiceDetector {
 		bootstrap.setOption("keepAlive", true);
 		bootstrap.setOption("connectTimeoutMillis", CONNECT_TIMEOUT);
 
-		listener.connecting(locator);
+		listener.connecting(target);
 		try {
-			bootstrap.connect(locator.toInetSocketAddress());
+			bootstrap.connect(target.toInetSocketAddress());
 		} catch (ChannelException e) {
-			listener.finished(locator);
+			listener.finished(target);
 			throw e;
 		}
 	}
@@ -94,7 +94,7 @@ public class TCPConnectServiceDetector {
 		@Override
 		public void channelConnected(
 				ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-			listener.connected(locator);
+			listener.connected(target);
 			
 			ChannelPipeline pipeline = e.getChannel().getPipeline();
 			pipeline.addBefore("handler", "readTimeout", new ReadTimeoutHandler(timer, READ_BANNER_TIMEOUT, TimeUnit.MILLISECONDS));
@@ -104,7 +104,7 @@ public class TCPConnectServiceDetector {
 		@Override
 		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
 			buffer.writeBytes((ChannelBuffer)e.getMessage());
-			serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", locator.getPort(), trigger, buffer.toByteBuffer());
+			serviceInfo = Activator.getInstance().getServerDetector().detect("tcp", target.getPort(), trigger, buffer.toByteBuffer());
 			if (serviceInfo == null && !triggerWritten) {
 				writeTrigger(e.getChannel());
 			} else {
@@ -128,9 +128,9 @@ public class TCPConnectServiceDetector {
 			
 			if (e.getCause() instanceof NoRouteToHostException || e.getCause() instanceof SocketException) {
 //				logger.debug(locator+" is unreachable", e.getCause());
-				listener.unreachable(locator);
+				listener.unreachable(target);
 			} else {
-				logger.error("Unexpected exception when scanning "+locator, e.getCause());
+				logger.error("Unexpected exception when scanning "+target, e.getCause());
 			}
 			e.getChannel().close();
 		}
@@ -138,18 +138,18 @@ public class TCPConnectServiceDetector {
 		@Override
 		public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 			if (serviceInfo != null) {
-				logger.info(serviceInfo.get("serviceType")+" @ "+locator);
-				listener.serviceDetected(locator, serviceInfo);
+				logger.info(serviceInfo.get("serviceType")+" @ "+target);
+				listener.serviceDetected(target, serviceInfo);
 			} else if (triggerWritten) { // if we were able to send the trigger the port was open
-	 			logger.warning("Unrecognized service @ " + locator);
+	 			logger.warning("Unrecognized service @ " + target);
 //				listener.unknownService(locator);
 			}
-			listener.finished(locator);
+			listener.finished(target);
 		}
 
 		private void writeTrigger(Channel channel) {
 			triggerWritten = true;
-			byte[] triggerBytes = Activator.getInstance().getServerDetector().getTrigger("tcp",locator.getPort());
+			byte[] triggerBytes = Activator.getInstance().getServerDetector().getTrigger("tcp",target.getPort());
 			trigger = ByteBuffer.wrap(triggerBytes);
 			if (triggerBytes.length > 0)
 				channel.write(ChannelBuffers.wrappedBuffer(trigger));

@@ -22,7 +22,7 @@ public class SSHTerminalAdapterProvider implements IEntityAdapterProvider {
 					SSH ssh = (SSH) credentialEntity.getAuthenticable().getAdapter(SSH.class);
 					if (ssh != null) {
 						try {
-							return new TerminalServiceLocator("ssh://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+ssh.getLocator().getAddress()+":"+ssh.getLocator().getPort()+"/", serviceEntity.getAddress().getHost());
+							return new TerminalServiceLocator("ssh://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+ssh.getSocketAddress().getNetworkAddress()+":"+ssh.getSocketAddress().getPort()+"/", serviceEntity.getAddress().getHost());
 						} catch (URISyntaxException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

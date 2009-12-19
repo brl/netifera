@@ -21,7 +21,7 @@ import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.hover.IHoverActionProvider;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class HoverActionProvider implements IHoverActionProvider {
 	private IProbeBuilderService probeBuilder;
@@ -36,7 +36,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		SSH ssh = (SSH) entity.getAdapter(SSH.class);
 		if (ssh != null) {
 			ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", SSHAuthBruteforcer.class.getName());
-			bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
+			bruteforcer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target SSH service", ssh.getSocketAddress()));
 //			bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
 			bruteforcer.addOption(new StringOption("usernames", "Usernames", "List of usernames to try, separated by space or comma", "Usernames", "", true));
 			bruteforcer.addOption(new MultipleStringOption("usernames_wordlists", "Usernames Wordlists", "Wordlists to try as usernames", "Usernames", getAvailableWordLists(new String[] {IWordList.CATEGORY_USERNAMES, IWordList.CATEGORY_NAMES})));
@@ -49,7 +49,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 			answer.add(bruteforcer);
 			
 			ToolAction deployer = new ToolAction("Deploy Probe", SSHProbeDeployer.class.getName());
-			deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
+			deployer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target SSH service", ssh.getSocketAddress()));
 			deployer.addOption(new StringOption("username", "Username", "Username to login to SSH", "root", true));
 			deployer.addOption(new StringOption("password", "Password", "Password to login to SSH", "", true));
 			deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", (String[])(probeBuilder.listProbeConfigurations().toArray(new String[0]))));
@@ -63,7 +63,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 			ssh = (SSH) credentialEntity.getAuthenticable().getAdapter(SSH.class);
 			if (ssh != null) {
 				ToolAction deployer = new ToolAction("Deploy Probe", SSHProbeDeployer.class.getName());
-				deployer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SSH service", ssh.getLocator()));
+				deployer.addFixedOption(new GenericOption(TCPSocketAddress.class, "target", "Target", "Target SSH service", ssh.getSocketAddress()));
 				deployer.addFixedOption(new StringOption("username", "Username", "Username to login to SSH", credentialEntity.getUsername(), true));
 				deployer.addFixedOption(new StringOption("password", "Password", "Password to login to SSH", credentialEntity.getPassword(), true));
 				deployer.addOption(new StringOption("probeConfig", "Probe Configuration", "Probe configuration to be deployed", (String[])(probeBuilder.listProbeConfigurations().toArray(new String[0]))));

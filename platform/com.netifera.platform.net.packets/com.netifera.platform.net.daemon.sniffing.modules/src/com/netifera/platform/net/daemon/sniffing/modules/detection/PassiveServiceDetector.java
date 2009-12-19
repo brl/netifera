@@ -21,9 +21,9 @@ import com.netifera.platform.net.services.detection.IServerDetectorService;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 import com.netifera.platform.net.sniffing.stream.IBlockSnifferConfig;
 import com.netifera.platform.net.sniffing.stream.ISessionKey;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 	
@@ -48,7 +48,7 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 		final long realm = ctx.getRealm();
 		final long space = ctx.getSpaceId();
 		Map<String,String> clientInfo, serverInfo;
-		TCPSocketLocator locator = new TCPSocketLocator(key.getServerAddress(), key.getServerPort());
+		TCPSocketAddress socketAddress = new TCPSocketAddress(key.getServerAddress(), key.getServerPort());
 		
 		clientInfo = Activator.getInstance().getClientDetector().detect("tcp", key.getServerPort(), clientData, serverData);
 
@@ -65,13 +65,13 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 		}
 
 		if (serviceType != null) {
-			Activator.getInstance().getNetworkEntityFactory().createService(realm, space, locator, serviceType, serverInfo);
-			Activator.getInstance().getNetworkEntityFactory().createClient(realm, space, key.getClientAddress(), serviceType, clientInfo, locator);
+			Activator.getInstance().getNetworkEntityFactory().createService(realm, space, socketAddress, serviceType, serverInfo);
+			Activator.getInstance().getNetworkEntityFactory().createClient(realm, space, key.getClientAddress(), serviceType, clientInfo, socketAddress);
 			
 			clientData.rewind();
 			serverData.rewind();
 
-			sniffCredentials(locator, serviceType, clientData, serverData, realm, space);
+			sniffCredentials(socketAddress, serviceType, clientData, serverData, realm, space);
 		}
 	}
 
@@ -104,23 +104,23 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 			
 			clientInfo = clientDetector.detect("udp", udp.getDestinationPort(), udp.payload().toByteBuffer(), empty);
 			if (clientInfo != null) {
-				UDPSocketLocator locator = new UDPSocketLocator(ip.getDestinationAddress(), udp.getDestinationPort());
+				UDPSocketAddress socketAddress = new UDPSocketAddress(ip.getDestinationAddress(), udp.getDestinationPort());
 				String serviceType = clientInfo.get("serviceType");
 				if (isToUnicast(ip))
-					factory.createService(realm, space, locator, serviceType, null);
+					factory.createService(realm, space, socketAddress, serviceType, null);
 				if (isFromUnicast(ip))
-					factory.createClient(realm, space, ip.getSourceAddress(), serviceType, clientInfo, locator);
-				sniffCredentials(locator, serviceType, udp.payload().toByteBuffer(), empty, realm, space);
+					factory.createClient(realm, space, ip.getSourceAddress(), serviceType, clientInfo, socketAddress);
+				sniffCredentials(socketAddress, serviceType, udp.payload().toByteBuffer(), empty, realm, space);
 			} else {
 				serverInfo = serverDetector.detect("udp", udp.getSourcePort(), empty, udp.payload().toByteBuffer());
 				if (serverInfo != null) {
-					UDPSocketLocator locator = new UDPSocketLocator(ip.getSourceAddress(), udp.getSourcePort());
+					UDPSocketAddress socketAddress = new UDPSocketAddress(ip.getSourceAddress(), udp.getSourcePort());
 					String serviceType = serverInfo.get("serviceType");
 					if (isFromUnicast(ip))
-						factory.createService(realm, space, locator, serviceType, serverInfo);
+						factory.createService(realm, space, socketAddress, serviceType, serverInfo);
 					if (isToUnicast(ip))
-						factory.createClient(realm, space, ip.getDestinationAddress(), serviceType, null, locator);
-					sniffCredentials(locator, serviceType, empty, udp.payload().toByteBuffer(), realm, space);
+						factory.createClient(realm, space, ip.getDestinationAddress(), serviceType, null, socketAddress);
+					sniffCredentials(socketAddress, serviceType, empty, udp.payload().toByteBuffer(), realm, space);
 				}
 			}
 		}
@@ -148,15 +148,15 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 		return true;
 	}
 
-	private void sniffCredentials(ISocketLocator locator, String serviceType, ByteBuffer clientData, ByteBuffer serverData, long realm, long view) {
+	private void sniffCredentials(InternetSocketAddress address, String serviceType, ByteBuffer clientData, ByteBuffer serverData, long realm, long view) {
 		Credential credential = Activator.getInstance().getCredentialSniffer().sniff(serviceType, clientData, serverData);
 		if(credential != null) {
 			if (credential instanceof UsernameAndPassword) {
 				UsernameAndPassword c = (UsernameAndPassword) credential;
-				Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, view, locator, c.getUsernameString(), c.getPasswordString());
+				Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, view, address, c.getUsernameString(), c.getPasswordString());
 			} else if (credential instanceof Password) {
 				Password c = (Password) credential;
-				Activator.getInstance().getNetworkEntityFactory().createPassword(realm, view, locator, c.getPasswordString());
+				Activator.getInstance().getNetworkEntityFactory().createPassword(realm, view, address, c.getPasswordString());
 			}
 		}
 	}

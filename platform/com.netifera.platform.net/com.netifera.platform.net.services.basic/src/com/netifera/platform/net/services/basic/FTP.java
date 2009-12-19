@@ -12,19 +12,19 @@ import com.netifera.platform.net.services.auth.AuthenticationException;
 import com.netifera.platform.net.services.auth.IAuthenticable;
 import com.netifera.platform.net.services.credentials.Credential;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 
 public class FTP extends NetworkService implements IAuthenticable {
 	private static final long serialVersionUID = -1559740994317977398L;
 
-	public FTP(ISocketLocator locator) {
-		super(locator);
+	public FTP(InternetSocketAddress address) {
+		super(address);
 	}
 	
-	public TCPSocketLocator getLocator() {
-		return (TCPSocketLocator) super.getLocator();
+	public TCPSocketAddress getSocketAddress() {
+		return (TCPSocketAddress) super.getSocketAddress();
 	}
 
 	public boolean isAuthenticableWith(Credential credential) {
@@ -37,7 +37,7 @@ public class FTP extends NetworkService implements IAuthenticable {
 	
 	public FTPClient createClient() throws SocketException, IOException {
 		FTPClient client = new FTPClient();
-		client.connect(getLocator().getAddress().toInetAddress(), getLocator().getPort());
+		client.connect(getSocketAddress().getNetworkAddress().toInetAddress(), getSocketAddress().getPort());
 //		client.enterLocalPassiveMode();
 		return client;
 	}
@@ -49,6 +49,11 @@ public class FTP extends NetworkService implements IAuthenticable {
 			throw new AuthenticationException("Bad username or password");
 		}
 		return client;
+	}
+
+	private boolean isSSL() {
+		//HACK
+		return getSocketAddress().getPort() == 900;
 	}
 	
 	@Override

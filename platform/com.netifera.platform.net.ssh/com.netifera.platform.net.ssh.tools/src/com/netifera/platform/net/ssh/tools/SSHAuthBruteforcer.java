@@ -14,16 +14,16 @@ import com.netifera.platform.net.services.credentials.UsernameAndPassword;
 import com.netifera.platform.net.services.ssh.SSH;
 import com.netifera.platform.net.ssh.internal.tools.Activator;
 import com.netifera.platform.net.tools.bruteforce.UsernameAndPasswordBruteforcer;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 import com.trilead.ssh2.Connection;
 
 public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
-	private TCPSocketLocator target;
+	private TCPSocketAddress target;
 	private int maximumConnections = 1;
 
 	@Override
 	protected void setupToolOptions() throws ToolException {
-		target = (TCPSocketLocator) context.getConfiguration().get("target");
+		target = (TCPSocketAddress) context.getConfiguration().get("target");
 		maximumConnections = (Integer) context.getConfiguration().get("maximumConnections");
 
 		context.setTitle("Bruteforce authentication on SSH @ " + target);
@@ -35,7 +35,7 @@ public class SSHAuthBruteforcer extends UsernameAndPasswordBruteforcer {
 	public void authenticationSucceeded(Credential credential) {
 		UsernameAndPassword up = (UsernameAndPassword) credential;
 		Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(context.getRealm(), context.getSpaceId(), target, up.getUsernameString(), up.getPasswordString());
-		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getAddress(), up.getUsernameString());
+		UserEntity user = Activator.getInstance().getNetworkEntityFactory().createUser(context.getRealm(), context.getSpaceId(), target.getNetworkAddress(), up.getUsernameString());
 		user.setPassword(up.getPasswordString());
 		user.update();
 		super.authenticationSucceeded(credential);

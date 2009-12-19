@@ -15,11 +15,11 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 
 import com.netifera.platform.net.services.auth.TCPCredentialsVerifier;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class MSSQLCredentialsVerifier extends TCPCredentialsVerifier {
 
-	public MSSQLCredentialsVerifier(TCPSocketLocator locator) {
+	public MSSQLCredentialsVerifier(TCPSocketAddress locator) {
 		super(locator);
 	}
 
