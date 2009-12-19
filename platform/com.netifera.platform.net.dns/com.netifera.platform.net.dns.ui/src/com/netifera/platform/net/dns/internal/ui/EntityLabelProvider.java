@@ -44,14 +44,14 @@ public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformat
 		} else if (e instanceof ARecordEntity) {
 			ARecordEntity hostname = (ARecordEntity) e;
 			return hostname.getName() + "  A  "
-					+ hostname.getAddress().getAddress();
+					+ hostname.getAddress().toNetworkAddress();
 		} else if (e instanceof AAAARecordEntity) {
 			AAAARecordEntity hostname = (AAAARecordEntity) e;
 			return hostname.getName() + "  AAAA  "
-					+ hostname.getAddress().getAddress();
+					+ hostname.getAddress().toNetworkAddress();
 		} else if (e instanceof PTRRecordEntity) {
 			PTRRecordEntity ptr = (PTRRecordEntity) e;
-			return ptr.getAddress().getAddress() + "  PTR  "
+			return ptr.getAddress().toNetworkAddress() + "  PTR  "
 					+ ptr.getName();
 		} else if (e instanceof NSRecordEntity) {
 			NSRecordEntity ns = (NSRecordEntity) e;

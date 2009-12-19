@@ -319,7 +319,7 @@ public class TreeMapView extends ViewPart {
 	private synchronized void addEntity(IEntity entity) {
 		if (entity instanceof InternetAddressEntity) {
 			final InternetAddressEntity addressEntity = (InternetAddressEntity) entity;
-			final InternetAddress address = addressEntity.getAddress();
+			final InternetAddress address = addressEntity.toNetworkAddress();
 			if (address instanceof IPv4Address)
 				Display.getDefault().syncExec(new Runnable() {
 					public void run() {

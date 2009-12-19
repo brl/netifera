@@ -21,6 +21,7 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
+import com.netifera.platform.ui.api.export.IEntityImportExportService;
 import com.netifera.platform.ui.api.hover.IHoverService;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
@@ -51,7 +52,6 @@ public class Activator extends AbstractUIPlugin {
 		return instance;
 	}
 
-	
 	private ServiceTracker modelTracker;
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker modelLabelsTracker;
@@ -59,6 +59,7 @@ public class Activator extends AbstractUIPlugin {
 	private ServiceTracker inputBarActionProviderTracker;
 	private ServiceTracker logManagerTracker;
 	private ServiceTracker visualizationFactoryTracker;
+	private ServiceTracker importExportServiceTracker;
 	
 	private ServiceTracker statusContributionTracker;
 
@@ -73,13 +74,6 @@ public class Activator extends AbstractUIPlugin {
 
 	private WorkbenchChangeManager workbenchManager;
 	private ImageCache imageCache;
-
-	
-	/**
-	 * The constructor
-	 */
-	public Activator() {
-	}
 
 	public void initialize() {
 		workbenchManager = new WorkbenchChangeManager(getWindow(), Perspective.ID, createChangeListener());
@@ -129,6 +123,9 @@ public class Activator extends AbstractUIPlugin {
 		
 		statusContributionTracker = new ServiceTracker(context, IStatusContribution.class.getName(), null);
 		statusContributionTracker.open();
+		
+		importExportServiceTracker = new ServiceTracker(context, IEntityImportExportService.class.getName(), null);
+		importExportServiceTracker.open();
 	}
 
 	private IWorkbenchChangeListener createChangeListener() {
@@ -187,7 +184,6 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	private void updateState() {
-		
 		enableToolbar();
 		IEditorPart editor = getActiveEditor();
 		if(editor == null) {
@@ -203,7 +199,6 @@ public class Activator extends AbstractUIPlugin {
 		if(!probe.isConnected()) {
 			disableToolbar("Connect to probe to enable.");
 		}
-			
 	}
 	
 	private void disableToolbar(String message) {
@@ -220,6 +215,7 @@ public class Activator extends AbstractUIPlugin {
 		inputBarAction.setEnabled(saveActionState);
 		inputBar.setEnabled();
 	}
+	
 	private IWorkbenchWindow getWindow() {
 		IWorkbenchWindow[] windows = getWorkbench().getWorkbenchWindows();
 		if(windows.length == 0) {
@@ -303,7 +299,11 @@ public class Activator extends AbstractUIPlugin {
 	public IInputBarActionProviderService getInputBarActionProvider() {
 		return (IInputBarActionProviderService) inputBarActionProviderTracker.getService();
 	}
-	
+
+	public IEntityImportExportService getImportExportService() {
+		return (IEntityImportExportService) importExportServiceTracker.getService();
+	}
+
 	public ILogManager getLogManager() {
 		return (ILogManager) logManagerTracker.getService();
 	}

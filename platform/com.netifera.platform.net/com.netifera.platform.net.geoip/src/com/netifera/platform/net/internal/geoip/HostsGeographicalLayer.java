@@ -269,7 +269,7 @@ public class HostsGeographicalLayer implements IGeographicalLayer {
 		
 		for (NetworkAddressEntity addressEntity: ((HostEntity)entity).getAddresses()) {
 				if (addressEntity instanceof InternetAddressEntity) {
-					ILocation location = geoipService.getLocation(((InternetAddressEntity)addressEntity).getAddress());
+					ILocation location = geoipService.getLocation(((InternetAddressEntity)addressEntity).toNetworkAddress());
 					if (location != null) return location;
 				}
 		}

@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.interop;
+package com.netifera.platform.ui.internal.interop;
 
 import java.io.File;
 

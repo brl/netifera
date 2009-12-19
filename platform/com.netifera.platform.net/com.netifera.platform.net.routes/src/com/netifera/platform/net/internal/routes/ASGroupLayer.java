@@ -35,7 +35,7 @@ public class ASGroupLayer implements IGroupLayer {
 			Set<String> answer = new HashSet<String>();
 			for (NetworkAddressEntity addressEntity: ((HostEntity)entity).getAddresses()) {
 				if (addressEntity instanceof InternetAddressEntity) {
-					InternetAddress address = ((InternetAddressEntity)addressEntity).getAddress();
+					InternetAddress address = ((InternetAddressEntity)addressEntity).toNetworkAddress();
 					if (address != null) {
 						AS as = ip2asService.getAS(address);
 						if (as != null) {

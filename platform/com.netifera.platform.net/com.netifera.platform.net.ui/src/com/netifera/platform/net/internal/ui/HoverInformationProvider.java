@@ -112,7 +112,7 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 		}
 		if (geoipService != null) {
 			for (NetworkAddressEntity addressEntity: e.getAddresses()) {
-				INetworkAddress address = addressEntity.getAddress();
+				INetworkAddress address = addressEntity.toNetworkAddress();
 				if (address instanceof InternetAddress) {
 					ILocation location = geoipService.getLocation((InternetAddress)address);
 					if (location != null) {
@@ -135,7 +135,7 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 		if (ip2asService != null) {
 			Set<String> asSet = new HashSet<String>();
 			for (NetworkAddressEntity addressEntity: e.getAddresses()) {
-				INetworkAddress address = addressEntity.getAddress();
+				INetworkAddress address = addressEntity.toNetworkAddress();
 				if (address instanceof InternetAddress) {
 					AS as = ip2asService.getAS((InternetAddress)address);
 					if (as != null)

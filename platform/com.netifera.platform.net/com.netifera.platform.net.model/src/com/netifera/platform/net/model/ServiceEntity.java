@@ -14,7 +14,6 @@ public class ServiceEntity extends AbstractEntity {
 
 	public final static String ENTITY_NAME = "service";
 	
-	public final static String SERVICETYPE_KEY = "serviceType";
 	public final static String BANNER_KEY = "banner";
 	public final static String PRODUCT_KEY = "product";
 	public final static String VERSION_KEY = "version";
@@ -22,8 +21,6 @@ public class ServiceEntity extends AbstractEntity {
 	private final int port;
 	private final String protocol;
 	private final IEntityReference address;
-	/* Store the address as a string for faster queries */
-	private final String addressHex;
 	private final String serviceType;
 	
 	public ServiceEntity(IWorkspace workspace, InternetAddressEntity address, int port, String protocol, String serviceType) {
@@ -31,13 +28,11 @@ public class ServiceEntity extends AbstractEntity {
 		this.port = port;
 		this.protocol = protocol;
 		this.address = address.createReference();
-		this.addressHex = HexaEncoding.bytes2hex(address.getData());
 		this.serviceType = serviceType;
 	}
 
 	ServiceEntity() {
 		this.address = null;
-		this.addressHex = null;
 		this.serviceType = null;
 		this.protocol = null;
 		this.port = 0;
@@ -63,29 +58,17 @@ public class ServiceEntity extends AbstractEntity {
 	}
 
 	public String getBanner() {
-		return getAttribute("banner");
+		return getAttribute(BANNER_KEY);
 	}
 
 	public String getProduct() {
-		return getAttribute("product");
+		return getAttribute(PRODUCT_KEY);
 	}
 	
 	public String getVersion() {
-		return getAttribute("version");
+		return getAttribute(VERSION_KEY);
 	}
 	
-	public void setBanner(String banner) {
-		setAttribute("banner", banner);
-	}
-
-	public void setProduct(String product) {
-		setAttribute("product", product);
-	}
-
-	public void setVersion(String version) {
-		setAttribute("version", version);
-	}
-
 	public boolean isSSL() {
 		return protocol.equals("ssl");
 	}
@@ -97,7 +80,6 @@ public class ServiceEntity extends AbstractEntity {
 		this.protocol = protocol;
 		this.address = addressReference.createClone();
 		this.serviceType = serviceType;
-		this.addressHex = HexaEncoding.bytes2hex(getAddress().getData());
 	}
 	
 	public static String createQueryKey(long realmId, InternetAddress address, int port, String protocol) {
@@ -110,7 +92,7 @@ public class ServiceEntity extends AbstractEntity {
 	
 	@Override
 	protected String generateQueryKey() {
-		return createQueryKey(getRealmId(), addressHex, port, protocol);
+		return createQueryKey(getRealmId(), HexaEncoding.bytes2hex(getAddress().getData()), port, protocol);
 	}
 	
 	protected IEntity cloneEntity() {

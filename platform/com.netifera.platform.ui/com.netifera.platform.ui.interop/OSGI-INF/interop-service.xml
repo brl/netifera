@@ -2,7 +2,7 @@
 <component name="netifera.interoperability-service">
 	<implementation class="com.netifera.platform.ui.interop.InterOpService" />
 
-	 <reference
+	<reference
     	name="LOGGER"
     	interface="com.netifera.platform.api.log.ILogManager"
     	bind="setLogManager"

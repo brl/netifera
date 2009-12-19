@@ -51,7 +51,7 @@ public class BasicAuthenticationEntity extends AbstractEntity {
 	protected String generateQueryKey() {
 		WebSiteEntity site = getWebSite();
 		ServiceEntity http = site.getHTTP();
-		return createQueryKey(getRealmId(), http.getAddress().getAddress(), http.getPort(), site.getHostName(), authenticationRealm);
+		return createQueryKey(getRealmId(), http.getAddress().toNetworkAddress(), http.getPort(), site.getHostName(), authenticationRealm);
 	}
 
 }

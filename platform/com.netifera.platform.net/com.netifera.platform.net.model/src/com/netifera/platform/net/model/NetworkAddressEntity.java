@@ -17,7 +17,7 @@ public abstract class NetworkAddressEntity extends AbstractEntity {
 	protected NetworkAddressEntity(String entityName, IWorkspace workspace, long realmId, byte[] address) {
 		super(entityName, workspace, realmId);
 		this.address = address.clone();
-		this.addressString = getAddress().toString(); /* to normalize */
+		this.addressString = toNetworkAddress().toString(); /* to normalize */
 	}
 	
 	NetworkAddressEntity() {
@@ -30,7 +30,7 @@ public abstract class NetworkAddressEntity extends AbstractEntity {
 	}
 	
 	// TODO jdoc do not use getAddress().toString(), use getAddressString() instead
-	public abstract INetworkAddress getAddress();
+	public abstract INetworkAddress toNetworkAddress();
 	
 	public String getAddressString() {
 		return addressString;

@@ -34,7 +34,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		if (fileSystemLocator != null /*&& fileSystemLocator.getHost() != null*/) {
 			ToolAction harvester = new ToolAction("Harvest File System", FileSystemHarvester.class.getName());
 			harvester.addFixedOption(new StringOption("target", "Target", "Target File System", fileSystemLocator.getURL().toASCIIString()));
-			harvester.addFixedOption(new GenericOption(InternetAddress.class, "host", "Host", "Host", fileSystemLocator.getHost() != null ? (InternetAddress)((HostEntity)fileSystemLocator.getHost()).getDefaultAddress().getAddress() : InternetAddress.fromString("127.0.0.1")));
+			harvester.addFixedOption(new GenericOption(InternetAddress.class, "host", "Host", "Host", fileSystemLocator.getHost() != null ? (InternetAddress)((HostEntity)fileSystemLocator.getHost()).getDefaultAddress().toNetworkAddress() : InternetAddress.fromString("127.0.0.1")));
 			harvester.addOption(new MultipleStringOption("modules", "Modules", "Harvesting modules to activate during this havesting session", "Modules", getAvailableFileSystemSpiderModules()));
 			harvester.addOption(new IntegerOption("maximumThreads", "Maximum threads", "Maximum number of threads", 5));
 			harvester.addOption(new IntegerOption("bufferSize", "Buffer size", "Maximum bytes to fetch for each file", 1024*16));
@@ -43,7 +43,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 //			if (fileSystemLocator.getHost() != null && ((HostEntity)fileSystemLocator.getHost()).getPlatform().matches(".*linux.*") {
 				ToolAction netstat = new ToolAction("Netstat", Netstat.class.getName());
 				netstat.addFixedOption(new StringOption("target", "Target", "Target File System", fileSystemLocator.getURL().toASCIIString()));
-				netstat.addFixedOption(new GenericOption(InternetAddress.class, "host", "Host", "Host", fileSystemLocator.getHost() != null ? (InternetAddress)((HostEntity)fileSystemLocator.getHost()).getDefaultAddress().getAddress() : InternetAddress.fromString("127.0.0.1")));
+				netstat.addFixedOption(new GenericOption(InternetAddress.class, "host", "Host", "Host", fileSystemLocator.getHost() != null ? (InternetAddress)((HostEntity)fileSystemLocator.getHost()).getDefaultAddress().toNetworkAddress() : InternetAddress.fromString("127.0.0.1")));
 				answer.add(netstat);
 //			}
 		}

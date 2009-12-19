@@ -20,6 +20,24 @@
             label="Spaces Action Set"
             visible="true">
          <action
+               class="com.netifera.platform.ui.spaces.actions.ExportDelegate"
+               definitionId="com.netifera.platform.commands.spaceExport"
+               icon="icons/space_export.gif"
+               id="com.netifera.platform.actions.spaceExport"
+               label="Export"
+               style="push"
+               toolbarPath="Normal">
+         </action>
+         <action
+               class="com.netifera.platform.ui.spaces.actions.ImportDelegate"
+               definitionId="com.netifera.platform.commands.spaceImport"
+               icon="icons/space_import.gif"
+               id="com.netifera.platform.actions.spaceImport"
+               label="Import"
+               style="push"
+               toolbarPath="Normal">
+         </action>
+         <action
                class="com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceDelegate"
                definitionId="com.netifera.platform.commands.newIsolatedSpace"
                icon="icons/add_space_isolated.png"
@@ -48,6 +66,14 @@
       <command
             id="com.netifera.platform.commands.newIsolatedSpace"
             name="New Isolated Space">
+      </command>
+      <command
+            id="com.netifera.platform.commands.spaceImport"
+            name="Import">
+      </command>
+      <command
+            id="com.netifera.platform.commands.spaceExport"
+            name="Export">
       </command>
    </extension>
    <extension

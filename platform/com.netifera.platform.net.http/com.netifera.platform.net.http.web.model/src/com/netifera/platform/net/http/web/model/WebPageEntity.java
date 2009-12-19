@@ -108,6 +108,6 @@ public class WebPageEntity extends AbstractEntity {
 		WebSiteEntity site = getWebSite();
 		String hostname = site.getHostName();
 		ServiceEntity http = site.getHTTP();
-		return createQueryKey(getRealmId(), http.getAddress().getAddress(), http.getPort(), hostname, path);
+		return createQueryKey(getRealmId(), http.getAddress().toNetworkAddress(), http.getPort(), hostname, path);
 	}
 }

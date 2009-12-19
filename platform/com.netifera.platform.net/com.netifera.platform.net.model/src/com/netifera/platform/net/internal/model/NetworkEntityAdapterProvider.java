@@ -39,9 +39,9 @@ public class NetworkEntityAdapterProvider implements IEntityAdapterProvider {
 	
 	private InternetAddress getInternetAddress(IEntity entity) {
 		if (entity instanceof InternetAddressEntity)
-			return ((InternetAddressEntity)entity).getAddress();
+			return ((InternetAddressEntity)entity).toNetworkAddress();
 		if (entity instanceof HostEntity)
-			return (InternetAddress) ((HostEntity)entity).getDefaultAddress().getAddress();
+			return (InternetAddress) ((HostEntity)entity).getDefaultAddress().toNetworkAddress();
 		return null;
 	}
 	

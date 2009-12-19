@@ -67,6 +67,6 @@ public class WebApplicationEntity extends AbstractEntity {
 		String path = page.getPath();
 		String hostname = site.getHostName();
 		ServiceEntity http = site.getHTTP();
-		return createQueryKey(getRealmId(), http.getAddress().getAddress(), http.getPort(), hostname, path, serviceType);
+		return createQueryKey(getRealmId(), http.getAddress().toNetworkAddress(), http.getPort(), hostname, path, serviceType);
 	}
 }

@@ -378,7 +378,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			buf.append(" (");
 			int last = addresses.size()-1;
 			for (int i=0; i<addresses.size(); i++) {
-				buf.append(addresses.get(i).getAddress());
+				buf.append(addresses.get(i).toNetworkAddress());
 				if (i != last) {
 					if (buf.length()>50) {
 						buf.append("..");
@@ -408,7 +408,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 
 	private String getAddressText(NetworkAddressEntity e) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(e.getAddress());
+		buffer.append(e.toNetworkAddress());
 		if (e instanceof InternetAddressEntity) {
 			InternetAddressEntity i = (InternetAddressEntity) e;
 			if (i.getNames().size() > 0) {

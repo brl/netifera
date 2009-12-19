@@ -30,7 +30,7 @@ public class NetblockGroupLayer implements IGroupLayer {
 		if (entity instanceof HostEntity) {
 			Set<String> answer = new HashSet<String>();
 			for (NetworkAddressEntity addressEntity: ((HostEntity)entity).getAddresses()) {
-				INetworkAddress address = addressEntity.getAddress();
+				INetworkAddress address = addressEntity.toNetworkAddress();
 				if (address instanceof InternetAddress) {
 					String aggregate = getNetblock((InternetAddress)address, 32 + 128);
 					if (aggregate != null)

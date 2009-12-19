@@ -42,7 +42,7 @@ public class InternetAddressEntity extends NetworkAddressEntity {
 		host = null;
 	}
 	
-	public InternetAddress getAddress() {
+	public InternetAddress toNetworkAddress() {
 		return InternetAddress.fromBytes(getData());
 	}
 	

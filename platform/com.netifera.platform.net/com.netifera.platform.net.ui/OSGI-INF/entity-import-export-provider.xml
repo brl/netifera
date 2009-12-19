@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.network-entities-import-export-provider">
+	<implementation class="com.netifera.platform.net.internal.ui.EntityImportExportProvider" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.export.IEntityImportExportProvider" />
+	</service>
+
+	<reference 
+		name="ENTITY_FACTORY"
+		interface="com.netifera.platform.net.model.INetworkEntityFactory"
+		bind="setEntityFactory"
+		unbind="unsetEntityFactory"
+	/>
+</component>

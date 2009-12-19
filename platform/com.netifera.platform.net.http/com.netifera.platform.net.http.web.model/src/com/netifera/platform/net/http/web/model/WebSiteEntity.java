@@ -44,7 +44,7 @@ public class WebSiteEntity extends AbstractEntity {
 		if (hostname != null && hostname.length() > 0) {
 			return hostname;
 		}
-		return getHTTP().getAddress().getAddress().toStringLiteral();
+		return getHTTP().getAddress().toNetworkAddress().toStringLiteral();
 	}
 	
 	private boolean isDefaultPort(int port) {
@@ -102,6 +102,6 @@ public class WebSiteEntity extends AbstractEntity {
 	@Override
 	protected String generateQueryKey() {
 		ServiceEntity http = getHTTP();
-		return createQueryKey(getRealmId(), http.getAddress().getAddress(), http.getPort(), hostname);
+		return createQueryKey(getRealmId(), http.getAddress().toNetworkAddress(), http.getPort(), hostname);
 	}
 }

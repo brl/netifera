@@ -15,7 +15,8 @@ Service-Component: OSGI-INF/entity-label-provider.xml,
  OSGI-INF/services-by-type-group-layer.xml,
  OSGI-INF/clients-by-type-group-layer.xml,
  OSGI-INF/connections-edge-layer.xml,
- OSGI-INF/hsc-edge-layer.xml
+ OSGI-INF/hsc-edge-layer.xml,
+ OSGI-INF/entity-import-export-provider.xml
 Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.api.model,
  com.netifera.platform.api.model.layers,
@@ -34,6 +35,7 @@ Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.tools.options,
  com.netifera.platform.ui.actions,
  com.netifera.platform.ui.api.actions,
+ com.netifera.platform.ui.api.export,
  com.netifera.platform.ui.api.hover,
  com.netifera.platform.ui.api.inputbar,
  com.netifera.platform.ui.api.model,
@@ -42,7 +44,8 @@ Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.util.addresses,
  com.netifera.platform.util.addresses.inet,
  com.netifera.platform.util.locators,
- com.netifera.platform.util.patternmatching
+ com.netifera.platform.util.patternmatching,
+ com.netifera.platform.util.xml
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: netifera
 Bundle-ActivationPolicy: lazy

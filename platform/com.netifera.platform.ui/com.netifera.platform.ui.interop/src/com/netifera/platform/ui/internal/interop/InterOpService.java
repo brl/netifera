@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.interop;
+package com.netifera.platform.ui.internal.interop;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -80,12 +80,10 @@ public class InterOpService {
 	protected void setLogManager(ILogManager logManager) {
 		this.logger = logManager.getLogger("HTTP Interoperability Service");
 		logger.enableDebug();
-		System.out.println("set logger");
 	}
 	
 	protected void unsetLogManager(ILogManager logManager) {
 	}
-
 
 	class GetProbeHandler implements HttpRequestHandler  {
 		

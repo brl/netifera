@@ -26,7 +26,7 @@ public class NetworkTreeLayer implements ITreeLayer {
 			return new IEntity[] {((ServiceEntity)entity).getAddress().getHost()};
 		} else if(entity instanceof ClientEntity) {
 			NetworkAddressEntity address = ((ClientEntity)entity).getHost().getDefaultAddress();
-			if (address instanceof InternetAddressEntity && ((InternetAddressEntity)address).getAddress().isMultiCast()) {
+			if (address instanceof InternetAddressEntity && ((InternetAddressEntity)address).toNetworkAddress().isMultiCast()) {
 				/* no multicast client (nonsens) */
 				return new IEntity[0];
 			}

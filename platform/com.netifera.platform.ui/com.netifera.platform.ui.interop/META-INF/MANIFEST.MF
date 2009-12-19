@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Probe Builder Interoperation Plug-in
+Bundle-Name: Interoperation Plug-in
 Bundle-SymbolicName: com.netifera.platform.ui.interop
 Bundle-Version: 1.0.0
-Bundle-Activator: com.netifera.platform.ui.interop.Activator
+Bundle-Activator: com.netifera.platform.ui.internal.interop.Activator
 Bundle-Vendor: Netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.log,
@@ -11,7 +11,9 @@ Import-Package: com.netifera.platform.api.log,
  com.netifera.platform.api.probe,
  com.netifera.platform.net.model,
  com.netifera.platform.probebuild.api,
+ com.netifera.platform.ui.api.export,
  com.netifera.platform.util.addresses.inet,
+ com.netifera.platform.util.xml,
  org.apache.http,
  org.apache.http.entity,
  org.apache.http.impl,
@@ -22,3 +24,4 @@ Import-Package: com.netifera.platform.api.log,
  org.osgi.service.component,
  org.osgi.util.tracker
 Service-Component: OSGI-INF/interop-service.xml
+Bundle-ActivationPolicy: lazy
