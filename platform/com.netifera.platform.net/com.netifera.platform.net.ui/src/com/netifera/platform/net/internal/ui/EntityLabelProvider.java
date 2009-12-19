@@ -41,6 +41,10 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 //	private final static String HOST_SWITCH = "icons/host_switch.png";
 //	private final static String HOST_AP = "icons/host_ap.png";
 	private final static String HOST_IPHONE = "icons/host_iphone.png";
+	private final static String HOST_PRINTER = "icons/host_printer.png";
+//	private final static String HOST_SERVER_IBM = "icons/host_server_ibm.png";
+//	private final static String HOST_SERVER_HP = "icons/host_server_hp.png";
+//	private final static String HOST_SERVER_AS400 = "icons/host_server_as400.png";
 	
 	private final static String ADDRESS = "icons/address.png";
 	private final static String NETWORK = "icons/network.png";
@@ -63,23 +67,16 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 
 //	private final static String PRIVILEDGED_OVERLAY = "icons/priviledged_overlay.png";
 
-	//private final static String HOST_SERVER_IBM = "icons/host_server_ibm.png";
-	//private final static String HOST_SERVER_HP = "icons/host_server_hp.png";
-	//private final static String HOST_SERVER_AS400 = "icons/host_server_as400.png";
-	
-	private final static String CISCO_OVERLAY = "icons/cisco_overlay.png";
-	private final static String JUNIPER_OVERLAY = "icons/juniper_overlay.png";
-	
-	private final static String HOST_PRINTER = "icons/host_printer.png";
 	
 	private final static String SERVICE = "icons/service.png";
 	private final static String CLIENT = "icons/client.png";
-	private final static String SERVICE_UNRECOGNIZED = SERVICE;
+	
+	private final static String SERVICE_UNKNOWN = "icons/service_unknown.png";
 	private final static String SERVICE_SHELL = "icons/service_shell.png";
-	private final static String SERVICE_MAIL = "icons/service_mail.png";
-	private final static String SERVICE_FILES = "icons/service_file.png";
-	private final static String SERVICE_HTTP = "icons/service_http.png";
-	private final static String SERVICE_DATABASE = "icons/service_database.png";
+//	private final static String SERVICE_MAIL = "icons/service_mail.png";
+//	private final static String SERVICE_FILES = "icons/service_file.png";
+//	private final static String SERVICE_HTTP = "icons/service_http.png";
+//	private final static String SERVICE_DATABASE = "icons/service_database.png";
 	
 	private final static String OS_BSD = "icons/os_bsd_overlay.png";
 	//private final static String OS_OPENBSD = "icons/os_openbsd_overlay.png";
@@ -90,6 +87,9 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	//private final static String OS_NOVELL = "icons/os_novell_overlay.png";
 	private final static String OS_RTOS = "icons/os_rtos_overlay.png";
 	private final static String OS_HPUX = "icons/os_hpux_overlay.png";
+
+	private final static String CISCO_OVERLAY = "icons/cisco_overlay.png";
+	private final static String JUNIPER_OVERLAY = "icons/juniper_overlay.png";
 
 	
 	public String getText(IShadowEntity e) {
@@ -290,18 +290,18 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		String type = e.getServiceType();
 		String base = SERVICE;
 		if (type == null)
-			base = SERVICE_UNRECOGNIZED;
-		else if (type.matches(".*SQL.*") || type.equals("Oracle"))
+			base = SERVICE_UNKNOWN;
+/*		else if (type.matches(".*SQL.*") || type.equals("Oracle"))
 			base = SERVICE_DATABASE;
 		else if (type.matches("SMTP|POP3|IMAP"))
 			base = SERVICE_MAIL;
-		else if (type.matches("SSH|Telnet"))
+*/		else if (type.matches("SSH|Telnet"))
 			base = SERVICE_SHELL;
-		else if (type.matches("HTTP|HTTPS"))
+/*		else if (type.matches("HTTP|HTTPS"))
 			base = SERVICE_HTTP;
 		else if (type.matches("FTP"))
 			base = SERVICE_FILES;
-		
+*/
 		String overlayKeys[] = new String[5];
 		overlayKeys[IDecoration.BOTTOM_LEFT] = getOSDecoration(e);
 		return Activator.getInstance().getImageCache().getDecorated(base, overlayKeys);
