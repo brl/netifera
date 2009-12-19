@@ -28,7 +28,6 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 
 	private IModelService model;
 	
-	
 	protected void setModelService(IModelService model) {
 		this.model = model;
 	}
@@ -213,9 +212,6 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	public synchronized ServiceEntity createService(long realm, long spaceId,
 			ISocketLocator locator, String serviceType, Map<String, String> info) {
 		
-		if (serviceType == null)
-			throw new IllegalArgumentException("serviceType cannot be null");
-
 		InternetAddressEntity address = createAddress(realm, spaceId, locator.getAddress());
 		
 		if(info != null) {

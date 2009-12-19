@@ -49,14 +49,10 @@ public class ServiceEntity extends AbstractEntity {
 		return (InternetAddressEntity) referenceToEntity(address);
 	}
 	
-	//public String getAddressString() {
-	//	return addressString;
-	//}
-	
 	public String getServiceType() {
 		return serviceType;
 	}
-
+	
 	public String getBanner() {
 		return getAttribute(BANNER_KEY);
 	}

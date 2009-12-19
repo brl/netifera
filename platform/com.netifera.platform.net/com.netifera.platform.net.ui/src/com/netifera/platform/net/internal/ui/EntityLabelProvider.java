@@ -74,6 +74,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	
 	private final static String SERVICE = "icons/service.png";
 	private final static String CLIENT = "icons/client.png";
+	private final static String SERVICE_UNRECOGNIZED = SERVICE;
 	private final static String SERVICE_SHELL = "icons/service_shell.png";
 	private final static String SERVICE_MAIL = "icons/service_mail.png";
 	private final static String SERVICE_FILES = "icons/service_file.png";
@@ -288,7 +289,9 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private Image getServiceImage(ServiceEntity e) {
 		String type = e.getServiceType();
 		String base = SERVICE;
-		if (type.matches(".*SQL.*") || type.equals("Oracle"))
+		if (type == null)
+			base = SERVICE_UNRECOGNIZED;
+		else if (type.matches(".*SQL.*") || type.equals("Oracle"))
 			base = SERVICE_DATABASE;
 		else if (type.matches("SMTP|POP3|IMAP"))
 			base = SERVICE_MAIL;
@@ -455,7 +458,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 //		}
 		label.append(e.getPort()+"/"+e.getProtocol()+" ");
 		
-		label.append(e.getServiceType()+" ");
+		if (e.getServiceType() != null)
+			label.append(e.getServiceType()+" ");
 
 		if (e.getProduct() != null && e.getProduct().length() > 0 && !e.getProduct().equals(e.getServiceType())) {
 			label.append(" ["+e.getProduct());

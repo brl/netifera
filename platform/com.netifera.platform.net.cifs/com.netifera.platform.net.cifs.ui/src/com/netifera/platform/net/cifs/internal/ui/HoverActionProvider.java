@@ -34,7 +34,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		if (entity instanceof ServiceEntity) {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
 			TCPSocketLocator locator = (TCPSocketLocator) serviceEntity.getAdapter(TCPSocketLocator.class);
-			if (locator != null && serviceEntity.getServiceType().equals("NetBIOS-SSN")) {
+			if (locator != null && "NetBIOS-SSN".equals(serviceEntity.getServiceType())) {
 				ToolAction bruteforcer = new ToolAction("Bruteforce LM Authentication", LMAuthBruteforcer.class.getName());
 				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SMB service", locator));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
@@ -68,7 +68,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 				answer.add(bruteforcer);
 			}
 
-			if (locator != null && serviceEntity.getServiceType().equals("Microsoft-DS")) {
+			if (locator != null && "Microsoft-DS".equals(serviceEntity.getServiceType())) {
 				ToolAction bruteforcer = new ToolAction("Bruteforce NTLM Authentication", NTLMAuthBruteforcer.class.getName());
 				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target SMB service", locator));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));

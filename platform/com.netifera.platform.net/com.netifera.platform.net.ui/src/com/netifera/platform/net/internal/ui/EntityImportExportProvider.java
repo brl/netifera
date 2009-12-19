@@ -36,7 +36,7 @@ public class EntityImportExportProvider implements IEntityImportExportProvider {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
 			XMLElement xml = new XMLElement();
 			xml.setName("service");
-			xml.setAttribute("type", serviceEntity.getServiceType());
+			if (serviceEntity.getServiceType() != null) xml.setAttribute("type", serviceEntity.getServiceType());
 			xml.setAttribute("location", serviceEntity.getAddress().toNetworkAddress()+":"+serviceEntity.getPort()+"/"+serviceEntity.getProtocol());
 			return xml;
 		} else if (entity instanceof ClientEntity) {

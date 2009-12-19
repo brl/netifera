@@ -191,7 +191,7 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 	private String getServiceInformation(ServiceEntity e) {
 		if (e.getBanner() == null)
 			return null;
-		if (e.getServiceType().equals("HTTP"))
+		if ("HTTP".equals(e.getServiceType()))
 			return getHTTPBannerInformation(e.getBanner());
 		return "<p>"+escape(truncate(e.getBanner()))+"</p>";
 	}

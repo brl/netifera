@@ -47,9 +47,11 @@ public class NetworkServiceAdapterProvider implements IEntityAdapterProvider {
 			return locator;
 
 		String serviceType = serviceEntity.getServiceType();
-		INetworkServiceProvider provider = providers.get(serviceType);
-		if (provider != null && adapterType.isAssignableFrom(provider.getServiceClass())) {
-			return provider.create(locator);
+		if (serviceType != null) {
+			INetworkServiceProvider provider = providers.get(serviceType);
+			if (provider != null && adapterType.isAssignableFrom(provider.getServiceClass())) {
+				return provider.create(locator);
+			}
 		}
 		
 		return null;

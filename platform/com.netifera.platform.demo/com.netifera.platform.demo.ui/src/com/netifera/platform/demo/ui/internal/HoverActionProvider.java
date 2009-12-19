@@ -25,7 +25,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		List<IAction> answer = new ArrayList<IAction>();
 		if (entity instanceof ServiceEntity) {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
-			if (serviceEntity.getServiceType().equals("TEST")) {
+			if ("TEST".equals(serviceEntity.getServiceType())) {
 				TCPSocketLocator tcpLocator = (TCPSocketLocator) entity.getAdapter(TCPSocketLocator.class);
 				if (tcpLocator != null) {
 					ListIndexedIterable<InternetAddress> addresses = new ListIndexedIterable<InternetAddress>(tcpLocator.getAddress());

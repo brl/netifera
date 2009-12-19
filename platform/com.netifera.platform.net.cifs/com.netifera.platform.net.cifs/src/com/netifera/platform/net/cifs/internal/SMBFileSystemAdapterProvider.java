@@ -21,7 +21,7 @@ public class SMBFileSystemAdapterProvider implements IEntityAdapterProvider {
 				if (authenticableEntity instanceof ServiceEntity) {
 					ServiceEntity serviceEntity = (ServiceEntity) authenticableEntity;
 					TCPSocketLocator locator = (TCPSocketLocator) serviceEntity.getAdapter(TCPSocketLocator.class);
-					if (locator != null && serviceEntity.getServiceType().equals("NetBIOS-SSN")) {
+					if (locator != null && "NetBIOS-SSN".equals(serviceEntity.getServiceType())) {
 						try {
 							return new FileSystemServiceLocator("smb://"+credentialEntity.getUsername()+":"+credentialEntity.getPassword()+"@"+locator.getAddress()+":"+locator.getPort()+"/", serviceEntity.getAddress().getHost());
 						} catch (URISyntaxException e) {

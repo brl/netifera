@@ -151,7 +151,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 		if (entity instanceof ServiceEntity) {
 			ServiceEntity serviceEntity = (ServiceEntity) entity;
 			TCPSocketLocator locator = (TCPSocketLocator) serviceEntity.getAdapter(TCPSocketLocator.class);
-			if (locator != null && serviceEntity.getServiceType().equals("MSSQL")) {
+			if (locator != null && "MSSQL".equals(serviceEntity.getServiceType())) {
 				ToolAction bruteforcer = new ToolAction("Bruteforce Authentication", MSSQLAuthBruteforcer.class.getName());
 				bruteforcer.addFixedOption(new GenericOption(TCPSocketLocator.class, "target", "Target", "Target MSSQL service", locator));
 //				bruteforcer.addOption(new IterableOption(UsernameAndPassword.class, "credentials", "Credentials", "List of credentials to try", null));
