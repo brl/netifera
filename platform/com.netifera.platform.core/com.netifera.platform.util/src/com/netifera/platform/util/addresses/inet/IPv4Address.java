@@ -91,7 +91,6 @@ public class IPv4Address extends InternetAddress {
 	 * @return String
 	 */
 	public static String stringFormat(int address) {
-		
 		return ((address >> 24) & 0xFF) + "." + ((address >> 16) & 0xFF) + "."
 				+ ((address >> 8) & 0xFF) + "." + (address & 0xFF);
 	}

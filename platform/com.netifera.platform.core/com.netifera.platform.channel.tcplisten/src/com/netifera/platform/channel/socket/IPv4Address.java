@@ -17,7 +17,6 @@ public class IPv4Address {
 	}
 	
     public static int stringParse(String ipString) {
-		
 		if(!isValid(ipString)) {
 			return 0;
 		}
@@ -34,6 +33,7 @@ public class IPv4Address {
 		
 		return address;			
 	}
+    
 	public byte[] toBytes() {
 		byte answer[] = new byte[4];
 		
