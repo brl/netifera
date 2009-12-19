@@ -12,7 +12,6 @@ import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.host.terminal.ui.OpenRawTerminalAction;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.NetblockEntity;
-import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.services.basic.FTP;
 import com.netifera.platform.net.services.basic.POP3;
@@ -247,29 +246,6 @@ public class HoverActionProvider implements IHoverActionProvider {
 		if (!(o instanceof IShadowEntity)) return answer;
 		IShadowEntity entity = (IShadowEntity) o;
 
-		if (entity instanceof PortSetEntity) {
-			PortSetEntity portSet = (PortSetEntity)entity;
-			addresses = getInternetAddressIndexedIterable(portSet.getAddress());
-			if (portSet.getProtocol().equals("tcp") && !addresses.get(0).isMultiCast()) {
-				ToolAction tcpConnectScanner = new ToolAction("Discover TCP Services On Ports "+portSet.getPorts(), TCPConnectScanner.class.getName());
-				tcpConnectScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
-				tcpConnectScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
-				tcpConnectScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portSet.getPorts()));
-				tcpConnectScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between connections", 100));
-				tcpConnectScanner.addOption(new BooleanOption("skipUnreachable", "Skip unreachable hosts", "When a host port is unreachable, mark the host as bad and skip the rest of the ports? Warning: this option makes scanning faster but it can produce false negatives", true));
-				answer.add(tcpConnectScanner);
-			}
-			if (portSet.getProtocol().equals("udp")) {
-				ToolAction udpScanner = new ToolAction("Discover UDP Services On Ports "+portSet.getPorts(), UDPScanner.class.getName());
-				udpScanner.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/discover.png"));
-				udpScanner.addFixedOption(new IterableOption(InternetAddress.class, "target", "Target", "Target addresses", addresses));
-				udpScanner.addOption(new StringOption("ports", "Ports", "Ports to scan", portSet.getPorts()));
-				udpScanner.addOption(new IntegerOption("delay", "Delay", "Milliseconds to wait between sending packets", 20));
-				udpScanner.addOption(new IntegerOption("timeout", "Timeout", "Seconds to wait for any response after sending all requests", 10));
-				answer.add(udpScanner);
-			}
-		}
-		
 		if (!(entity instanceof ServiceEntity)) {
 			TCPSocketAddress tcpSocketAddress = (TCPSocketAddress) entity.getAdapter(TCPSocketAddress.class);
 			if (tcpSocketAddress != null) {

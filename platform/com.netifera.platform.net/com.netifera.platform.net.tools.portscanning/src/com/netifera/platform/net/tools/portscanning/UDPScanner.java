@@ -24,7 +24,6 @@ import org.jboss.netty.channel.socket.oio.OioDatagramChannelFactory;
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
 import com.netifera.platform.tools.RequiredOptionMissingException;
-import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
@@ -152,9 +151,9 @@ public class UDPScanner extends AbstractPortscanner {
 		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 				throws Exception {
 			UDPSocketAddress peer = new UDPSocketAddress((InetSocketAddress)e.getRemoteAddress());
-			PortSet ports = new PortSet();
-			ports.addPort(peer.getPort());
-			Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getNetworkAddress(), ports);
+//			PortSet ports = new PortSet();
+//			ports.addPort(peer.getPort());
+//			Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getNetworkAddress(), ports);
 			byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
 			ByteBuffer responseBuffer = ((ChannelBuffer)e.getMessage()).toByteBuffer();
 			Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp", peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);
@@ -162,6 +161,7 @@ public class UDPScanner extends AbstractPortscanner {
 				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
 				context.info(serviceInfo.get("serviceType")+" @ "+peer);
 			} else {
+				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, null, null);
 				context.warning("Unknown service @ " + peer);
 			}
 		}

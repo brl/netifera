@@ -13,7 +13,6 @@ import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.PasswordEntity;
-import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.model.UsernameAndPasswordEntity;
@@ -94,51 +93,35 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 		return netblockEntity;
 	}
 	
-	public synchronized void addOpenTCPPorts(long realm, long space, InternetAddress address,
-			PortSet ports) {
+	public synchronized void addOpenTCPPorts(long realm, long space, InternetAddress address, PortSet ports) {
 		InternetAddressEntity addressEntity = createAddress(realm, space, address);
-		addOpenPorts(realm, space, addressEntity, ports, true);
+		addPorts(realm, space, addressEntity, ports, true, true);
 	}
 
-	public synchronized void addOpenUDPPorts(long realm, long space, InternetAddress address,
-			PortSet ports) {
+	public synchronized void addOpenUDPPorts(long realm, long space, InternetAddress address, PortSet ports) {
 		InternetAddressEntity addressEntity = createAddress(realm, space, address);
-		addOpenPorts(realm, space, addressEntity, ports, false);
+		addPorts(realm, space, addressEntity, ports, true, false);
 	}
 	
-	private void addOpenPorts(long realm, long spaceId, InternetAddressEntity addressEntity, PortSet ports, 
-			boolean isTCP) {
-		PortSetEntity portsEntity =
-			isTCP ? addressEntity.getTcpPorts() : addressEntity.getUdpPorts();
+	private void addPorts(long realm, long spaceId, InternetAddressEntity addressEntity, PortSet ports, boolean isOpen, boolean isTCP) {
+		String attribute = isTCP ?
+				(isOpen ? InternetAddressEntity.OPEN_TCP_PORTS_KEY : InternetAddressEntity.CLOSED_TCP_PORTS_KEY)
+			: (isOpen ? InternetAddressEntity.OPEN_UDP_PORTS_KEY : InternetAddressEntity.CLOSED_UDP_PORTS_KEY);
+		String existingPorts = addressEntity.getAttribute(attribute);
+		String newPorts = null;
 		
-		if (portsEntity == null) {
-			portsEntity = new PortSetEntity(getWorkspace(), addressEntity, 
-					isTCP ? "tcp" : "udp");
-			portsEntity.setPorts(ports.toString());
-			portsEntity.save();
-			if(isTCP) {
-				addressEntity.setTcpPorts(portsEntity);
-			} else {
-				addressEntity.setUdpPorts(portsEntity);
-			}
-			portsEntity.save();
-			portsEntity.addToSpace(spaceId);
-			addressEntity.save();
-			addressEntity.getHost().addToSpace(spaceId);
+		if (existingPorts == null) {
+			newPorts = ports.toString();
 		} else {
-			PortSet ports2 = new PortSet(portsEntity.getPorts());
+			PortSet newPortSet = new PortSet(existingPorts);
 			for (int port: ports)
-				ports2.addPort(port);
-
-			portsEntity.addToSpace(spaceId);
-
-			if(portsEntity.getPorts().equals(ports2.toString())) {
-				// No change.
-				return;
-			}
-			portsEntity.setPorts(ports2.toString());
-			portsEntity.update();
+				newPortSet.addPort(port);
+			newPorts = newPortSet.toString();
 		}
+		addressEntity.setAttribute(attribute, newPorts);
+		addressEntity.save();
+		addressEntity.getHost().addToSpace(spaceId);
+		addressEntity.getHost().update();
 	}
 
 	private boolean updateAttribute(String name, Map<String, String> info, AbstractEntity e) {
@@ -210,47 +193,50 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	}
 	
 	public synchronized ServiceEntity createService(long realm, long spaceId,
-			InternetSocketAddress address, String serviceType, Map<String, String> info) {
+			InternetSocketAddress socketAddress, String serviceType, Map<String, String> info) {
 		
-		InternetAddressEntity addressEntity = createAddress(realm, spaceId, address.getNetworkAddress());
+		InternetAddressEntity addressEntity = createAddress(realm, spaceId, socketAddress.getNetworkAddress());
 		
 		if(info != null) {
 			if (updateSystem(addressEntity.getHost(), info))
 				addressEntity.getHost().update();
 		}
 		
-		ServiceEntity answer = findService(realm, address);
+		ServiceEntity answer = findService(realm, socketAddress);
 
 		if (answer == null) {
 			PortSet ports = new PortSet();
-			ports.addPort(address.getPort());
-			if (address instanceof UDPSocketAddress) {
-				addOpenPorts(realm, spaceId, addressEntity, ports, false);
-			} else if (address instanceof TCPSocketAddress) {
-				addOpenPorts(realm, spaceId, addressEntity, ports, true);			
+			ports.addPort(socketAddress.getPort());
+			if (socketAddress instanceof UDPSocketAddress) {
+				addPorts(realm, spaceId, addressEntity, ports, true, false);
+			} else if (socketAddress instanceof TCPSocketAddress) {
+				addPorts(realm, spaceId, addressEntity, ports, true, true);			
 			}
-			answer = createNewService(addressEntity, address, serviceType, info, spaceId);
+			answer = createNewService(addressEntity, socketAddress, serviceType, info, spaceId);
 		} else {
+			boolean changed = false;
+			if (serviceType != null) {
+				changed |= !serviceType.equals(answer.getServiceType());
+				answer.setServiceType(serviceType);
+			}
 			if (info != null) {
-				boolean changed = false;
 				changed |= updateAttribute(ServiceEntity.BANNER_KEY, info, answer);
 				changed |= updateAttribute(ServiceEntity.PRODUCT_KEY, info, answer);
 				changed |= updateAttribute(ServiceEntity.VERSION_KEY, info, answer);
 				changed |= updateSystem(answer, info);
 				if (info.containsKey("comment"))
 					changed |= updateComment(answer, info.get("comment"));
-				if(changed)
-					answer.update();
 			}
+			if(changed) answer.update();
 			answer.addToSpace(spaceId);
 		}
 		
 		if (info != null) {
 			if (info.containsKey("password")) {
 				if (info.containsKey("username"))
-					createUsernameAndPassword(realm, spaceId, address, info.get("username"), info.get("password"));
+					createUsernameAndPassword(realm, spaceId, socketAddress, info.get("username"), info.get("password"));
 				else
-					createPassword(realm, spaceId, address, info.get("password"));
+					createPassword(realm, spaceId, socketAddress, info.get("password"));
 			}
 			if (info.containsKey("hostname")) {
 				addressEntity.addName(info.get("hostname"));

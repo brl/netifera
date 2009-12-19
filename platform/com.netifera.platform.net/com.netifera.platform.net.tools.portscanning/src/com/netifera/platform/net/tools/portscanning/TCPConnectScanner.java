@@ -13,7 +13,6 @@ import org.jboss.netty.util.Timer;
 
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
-import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
@@ -160,9 +159,10 @@ public class TCPConnectScanner extends AbstractPortscanner {
 			}
 
 			public void connected(TCPSocketAddress socketAddress) {
-				PortSet ports = new PortSet();
-				ports.addPort(socketAddress.getPort());
-				Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), socketAddress.getNetworkAddress(), ports);
+//				PortSet ports = new PortSet();
+//				ports.addPort(socketAddress.getPort());
+//				Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), socketAddress.getNetworkAddress(), ports);
+				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, null, null);
 			}
 
 			public void serviceDetected(TCPSocketAddress socketAddress,

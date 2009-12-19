@@ -21,7 +21,7 @@ public class ServiceEntity extends AbstractEntity {
 	private final int port;
 	private final String protocol;
 	private final IEntityReference address;
-	private final String serviceType;
+	private String serviceType;
 	
 	public ServiceEntity(IWorkspace workspace, InternetAddressEntity address, int port, String protocol, String serviceType) {
 		super(ENTITY_NAME, workspace, address.getRealmId());
@@ -37,6 +37,7 @@ public class ServiceEntity extends AbstractEntity {
 		this.protocol = null;
 		this.port = 0;
 	}
+	
 	public int getPort() {
 		return port;
 	}
@@ -51,6 +52,10 @@ public class ServiceEntity extends AbstractEntity {
 	
 	public String getServiceType() {
 		return serviceType;
+	}
+	
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
 	}
 	
 	public String getBanner() {
@@ -91,8 +96,12 @@ public class ServiceEntity extends AbstractEntity {
 		return createQueryKey(getRealmId(), HexaEncoding.bytes2hex(getAddress().getData()), port, protocol);
 	}
 	
+	@Override
+	protected void synchronizeEntity(AbstractEntity masterEntity) {
+		serviceType = ((ServiceEntity)masterEntity).serviceType;
+	}
+
 	protected IEntity cloneEntity() {
-		return new ServiceEntity(getWorkspace(), getRealmId(), address, port,
-				protocol, serviceType); 
+		return new ServiceEntity(getWorkspace(), getRealmId(), address, port, protocol, serviceType);
 	}
 }

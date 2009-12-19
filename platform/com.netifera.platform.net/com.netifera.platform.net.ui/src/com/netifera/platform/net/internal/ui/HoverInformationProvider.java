@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import com.netifera.platform.net.geoip.IGeoIPService;
@@ -14,7 +13,6 @@ import com.netifera.platform.net.model.ClientServiceConnectionEntity;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.NetworkAddressEntity;
-import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.routes.AS;
@@ -58,8 +56,6 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 			return getClientInformation((ClientEntity)o);
 		} else if (o instanceof ClientServiceConnectionEntity) {
 			return getServiceInformation(((ClientServiceConnectionEntity)o).getService());
-		} else if (o instanceof PortSetEntity) {
-			return getPortSetInformation((PortSetEntity)o);
 		} else if (o instanceof UserEntity) {
 			return getUserInformation((UserEntity)o);
 		}
@@ -226,6 +222,17 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 		return data.replaceAll("[^\\p{Print}\\p{Blank}]", "."); // non-printable chars
 	}
 
+	private final static int PORTS_TRUNCATE_LENGTH = 50;
+
+	private String getPortString(String ports) {
+		if(ports.length() < PORTS_TRUNCATE_LENGTH) return ports;
+		int idx = ports.lastIndexOf(',', PORTS_TRUNCATE_LENGTH);
+		if(idx == -1) return ports;
+		return ports.substring(0,idx) + "...";
+		
+	}
+
+/*
 	private String getPortSetInformation(PortSetEntity portset) {
 		final List<String> lines = breakIntoLines(portset.getPorts());
 
@@ -238,7 +245,7 @@ public class HoverInformationProvider implements IHoverInformationProvider {
 		}
 		return result.toString();
 	}
-
+*/
 	private final static int PORTS_FORMATTED_LINE_LENGTH = 40;
 
 	private List<String> breakIntoLines(String ports) {

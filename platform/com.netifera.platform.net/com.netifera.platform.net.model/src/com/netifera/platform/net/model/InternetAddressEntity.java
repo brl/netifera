@@ -16,13 +16,14 @@ public class InternetAddressEntity extends NetworkAddressEntity {
 
 	public final static String ENTITY_NAME = "address.ip";
 
+	public final static String OPEN_TCP_PORTS_KEY = "openTCPPorts";
+	public final static String CLOSED_TCP_PORTS_KEY = "closedTCPPorts";
+	public final static String OPEN_UDP_PORTS_KEY = "openUDPPorts";
+	public final static String CLOSED_UDP_PORTS_KEY = "closedUDPPorts";
+	
 	private final IEntityReference host;
 	
 	private Set<String> names = new HashSet<String>();
-	
-	private IEntityReference tcpPorts;
-	private IEntityReference udpPorts;
-	
 	
 	private InternetAddressEntity(IWorkspace workspace, HostEntity host, byte[] address) {
 		super(ENTITY_NAME, workspace, host.getRealmId(), address);
@@ -45,23 +46,23 @@ public class InternetAddressEntity extends NetworkAddressEntity {
 	public InternetAddress toNetworkAddress() {
 		return InternetAddress.fromBytes(getData());
 	}
-	
-	public PortSetEntity getTcpPorts() {
-		return (PortSetEntity) referenceToEntity(tcpPorts);
-	}
-	
-	public PortSetEntity getUdpPorts() {
-		return (PortSetEntity) referenceToEntity(udpPorts);
-	}
-	
-	public void setTcpPorts(PortSetEntity ports) {
-		tcpPorts = ports.createReference();
+
+	public String getOpenTCPPorts() {
+		return getAttribute(OPEN_TCP_PORTS_KEY);
 	}
 
-	public void setUdpPorts(PortSetEntity ports) {
-		udpPorts = ports.createReference();
+	public String getClosedTCPPorts() {
+		return getAttribute(CLOSED_TCP_PORTS_KEY);
 	}
-	
+
+	public String getOpenUDPPorts() {
+		return getAttribute(OPEN_UDP_PORTS_KEY);
+	}
+
+	public String getClosedUDPPorts() {
+		return getAttribute(CLOSED_UDP_PORTS_KEY);
+	}
+
 	public HostEntity getHost() {
 		return (HostEntity) referenceToEntity(host);
 	}
@@ -78,15 +79,11 @@ public class InternetAddressEntity extends NetworkAddressEntity {
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
 		super.synchronizeEntity(masterEntity);
 		names = ((InternetAddressEntity)masterEntity).names;
-		tcpPorts = ((InternetAddressEntity)masterEntity).tcpPorts;
-		udpPorts = ((InternetAddressEntity)masterEntity).udpPorts;
 	}
 	
 	protected IEntity cloneEntity() {
 		InternetAddressEntity clone = new InternetAddressEntity(getWorkspace(), host, getRealmId(), getData());
 		clone.names = names;
-		clone.tcpPorts = tcpPorts;
-		clone.udpPorts = udpPorts;
 		return clone;
 	}
 	

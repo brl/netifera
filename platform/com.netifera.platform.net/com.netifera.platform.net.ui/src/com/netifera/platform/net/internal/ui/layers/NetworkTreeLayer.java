@@ -11,7 +11,6 @@ import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.NetworkAddressEntity;
-import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UserEntity;
 
@@ -20,8 +19,6 @@ public class NetworkTreeLayer implements ITreeLayer {
 	public IEntity[] getParents(IEntity entity) {
 		if(entity instanceof UserEntity) {
 			return new IEntity[] {((UserEntity)entity).getHost()};
-		} else if(entity instanceof PortSetEntity) {
-			return new IEntity[] {((PortSetEntity)entity).getAddress().getHost()};
 		} else if(entity instanceof ServiceEntity) {
 			return new IEntity[] {((ServiceEntity)entity).getAddress().getHost()};
 		} else if(entity instanceof ClientEntity) {

@@ -23,7 +23,6 @@ import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.NetworkAddressEntity;
 import com.netifera.platform.net.model.PasswordEntity;
-import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.model.UsernameAndPasswordEntity;
@@ -49,7 +48,6 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String ADDRESS = "icons/address.png";
 	private final static String NETWORK = "icons/network.png";
 	private final static String LOCAL_NETWORK = "icons/network_local.png";
-	private final static String PORTS = "icons/ports.png";
 	private final static String CREDENTIAL = "icons/credential.png";
 	private final static String USER = "icons/user.png";
 	private final static String USER_PRIVILEDGED = "icons/user_priviledged.png";
@@ -105,8 +103,6 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 //			return ((LocalNetworkEntity)e).getName();
 		} else if(e instanceof FolderEntity) {
 			return ((FolderEntity) e).getLabel()+" ("+((TreeStructureContext)((FolderEntity) e).getStructureContext()).getChildren().size()+")";
-		} else if(e instanceof PortSetEntity) {
-			return getPortsetText((PortSetEntity)e);
 		} else if(e instanceof ServiceEntity) {
 			return getServiceText((ServiceEntity)e);
 		} else if(e instanceof ClientEntity) {
@@ -158,8 +154,6 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return networkImage;
 */		} else if(e instanceof FolderEntity) {
 			return getFolderImage((FolderEntity)e);
-		} else if(e instanceof PortSetEntity) {
-			return Activator.getInstance().getImageCache().get(PORTS);
 		} else if(e instanceof ServiceEntity) {
 			return getServiceImage((ServiceEntity)e);
 		} else if(e instanceof ClientServiceConnectionEntity) {
@@ -486,22 +480,6 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		return buffer.toString();
 	}
 	
-	private final static int PORTS_TRUNCATE_LENGTH = 50;
-
-	private String getPortsetText(PortSetEntity portset) {
-		return portset.getProtocol().toUpperCase(Locale.ENGLISH) + " [" + getPortString(portset) + "]";
-		
-	}
-	
-	private String getPortString(PortSetEntity portset) {
-		final String ports = portset.getPorts();
-		if(ports.length() < PORTS_TRUNCATE_LENGTH) return ports;
-		int idx = ports.lastIndexOf(',', PORTS_TRUNCATE_LENGTH);
-		if(idx == -1) return ports;
-		return ports.substring(0,idx) + "...";
-		
-	}
-	
 	public void dispose() {
 	}
 
@@ -522,19 +500,19 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		}
 		
 		/* ordering below host entity */
-		if(e instanceof PortSetEntity) {
-			return 0;
-		}
 		if(e instanceof ServiceEntity) {
 			return 2;
 		}
+		
 		/* ordering inside network folders */
 		if(e instanceof NetblockEntity) {
 			return 0;
 		}
+		
 		if(e instanceof HostEntity) {
 			return 1;
 		}
+		
 		return null;
 	}
 
