@@ -5,7 +5,11 @@ import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
 import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.util.HexaEncoding;
+import com.netifera.platform.util.addresses.AddressFormatException;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 
 public class ServiceEntity extends AbstractEntity {
@@ -71,9 +75,19 @@ public class ServiceEntity extends AbstractEntity {
 	}
 	
 	public boolean isSSL() {
+		//FIXME
 		return protocol.equals("ssl");
 	}
 
+	public InternetSocketAddress toSocketAddress() {
+		if (protocol.equals("tcp")) {
+			return new TCPSocketAddress(getAddress().toNetworkAddress(), getPort());
+		} else if (protocol.equals("udp")) {
+			return new UDPSocketAddress(getAddress().toNetworkAddress(), getPort());
+		}
+		throw new AddressFormatException("Invalid protocol: "+protocol);
+	}
+	
 	private ServiceEntity(IWorkspace workspace, long realm, IEntityReference addressReference,
 			int port, String protocol, String serviceType) {
 		super(ENTITY_NAME, workspace, realm);

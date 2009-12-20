@@ -15,6 +15,7 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.ui.api.export.IEntityImportExportProvider;
 import com.netifera.platform.ui.api.export.IEntityImportExportService;
+import com.netifera.platform.util.Base64;
 import com.netifera.platform.util.xml.XMLElement;
 import com.netifera.platform.util.xml.XMLParseException;
 
@@ -26,7 +27,8 @@ public class EntityImportExportService implements IEntityImportExportService {
 	
 	public void exportEntities(Collection<IEntity> entities, Writer writer) throws IOException {
 		Map<Long,XMLElement> map = new HashMap<Long,XMLElement>();
-		List<XMLElement> roots = new ArrayList<XMLElement>();
+		XMLElement root = new XMLElement();
+		root.setName("space");
 		for (IEntity entity: entities) {
 			XMLElement xml = exportEntity(entity);
 			if (xml != null) {
@@ -35,12 +37,11 @@ public class EntityImportExportService implements IEntityImportExportService {
 				if (realm != null)
 					realm.addChild(xml);
 				else
-					roots.add(xml);
+					root.addChild(xml);
 			}
 		}
 		
-		for (XMLElement xml: roots)
-			xml.write(writer);
+		root.write(writer);
 	}
 
 	private XMLElement exportEntity(IEntity entity) throws IOException {
@@ -56,7 +57,13 @@ public class EntityImportExportService implements IEntityImportExportService {
 					XMLElement attributeElement = new XMLElement();
 					attributeElement.setName("attribute");
 					attributeElement.setAttribute("name", name);
-					attributeElement.setContent(entity.getAttribute(name));
+					String value = entity.getAttribute(name);
+					if (value.matches("(?s).*[\\x00-\\x08\\x0b-\\x0c\\x0e-\\x1f].*")) {
+						logger.error("matched control chars in "+entity+" attribute "+name);
+						attributeElement.setAttribute("encoding", "base64");
+						value = Base64.encodeBytes(value.getBytes());
+					}
+					attributeElement.setContent(value);
 					xml.addChild(attributeElement);
 				}
 				for (String tag: entity.getTags()) {
@@ -82,7 +89,16 @@ public class EntityImportExportService implements IEntityImportExportService {
 				boolean changed = false;
 				for (XMLElement child2: xml.getChildren()) {
 					if (child2.getName().equals("attribute")) {
-						entity.setAttribute(child2.getStringAttribute("name"), child2.getContent());
+						String value = child2.getContent();
+						String encoding = child2.getStringAttribute("encoding");
+						if (encoding != null) {
+							if (encoding.equals("base64")) {
+								value = new String(Base64.decode(value));
+							} else {
+								logger.warning("Unknown attribute encoding: "+encoding);
+							}
+						}
+						entity.setAttribute(child2.getStringAttribute("name"), value);
 						changed = true;
 					}
 					if (child2.getName().equals("tag")) {
