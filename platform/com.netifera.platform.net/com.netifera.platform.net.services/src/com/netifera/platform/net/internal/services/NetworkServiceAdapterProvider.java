@@ -13,10 +13,7 @@ import com.netifera.platform.net.model.UsernameAndPasswordEntity;
 import com.netifera.platform.net.services.INetworkServiceProvider;
 import com.netifera.platform.net.services.credentials.Password;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
-import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
-import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class NetworkServiceAdapterProvider implements IEntityAdapterProvider {
 	private Map<String,INetworkServiceProvider> providers = new HashMap<String,INetworkServiceProvider>();
@@ -41,7 +38,7 @@ public class NetworkServiceAdapterProvider implements IEntityAdapterProvider {
 		if (serviceEntity == null)
 			return null;
 		
-		InternetSocketAddress socketAddress = getSocketAddress(serviceEntity);
+		InternetSocketAddress socketAddress = serviceEntity.toSocketAddress();
 		if (adapterType.isAssignableFrom(socketAddress.getClass()))
 			return socketAddress;
 
@@ -55,18 +52,7 @@ public class NetworkServiceAdapterProvider implements IEntityAdapterProvider {
 		
 		return null;
 	}
-	
-	private InternetSocketAddress getSocketAddress(ServiceEntity serviceEntity) {
-		InternetAddress address = (InternetAddress)serviceEntity.getAddress().getAdapter(InternetAddress.class);
-		int port = serviceEntity.getPort();
-		String protocol = serviceEntity.getProtocol();
-		if (protocol.equals("tcp"))
-			return new TCPSocketAddress(address,port);
-		if (protocol.equals("udp"))
-			return new UDPSocketAddress(address,port);
-		return null; // or exception?
-	}
-	
+		
 	protected void registerProvider(INetworkServiceProvider provider) {
 		providers.put(provider.getServiceName(), provider);
 	}
