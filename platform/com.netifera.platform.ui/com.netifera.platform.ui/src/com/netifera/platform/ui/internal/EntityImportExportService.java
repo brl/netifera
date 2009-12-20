@@ -59,7 +59,6 @@ public class EntityImportExportService implements IEntityImportExportService {
 					attributeElement.setAttribute("name", name);
 					String value = entity.getAttribute(name);
 					if (value.matches("(?s).*[\\x00-\\x08\\x0b-\\x0c\\x0e-\\x1f].*")) {
-						logger.error("matched control chars in "+entity+" attribute "+name);
 						attributeElement.setAttribute("encoding", "base64");
 						value = Base64.encodeBytes(value.getBytes());
 					}
