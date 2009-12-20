@@ -86,7 +86,7 @@ public class EntityImportExportService implements IEntityImportExportService {
 			IEntity entity = importEntity(realm, space, child, entities);
 			if (entity != null) {
 				boolean changed = false;
-				for (XMLElement child2: xml.getChildren()) {
+				for (XMLElement child2: child.getChildren()) {
 					if (child2.getName().equals("attribute")) {
 						String value = child2.getContent();
 						String encoding = child2.getStringAttribute("encoding");
@@ -99,8 +99,7 @@ public class EntityImportExportService implements IEntityImportExportService {
 						}
 						entity.setAttribute(child2.getStringAttribute("name"), value);
 						changed = true;
-					}
-					if (child2.getName().equals("tag")) {
+					} else if (child2.getName().equals("tag")) {
 						entity.addTag(child2.getContent());
 						changed = true;
 					}
