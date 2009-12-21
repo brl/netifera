@@ -78,6 +78,7 @@ public class TestConnect implements ITool {
 					throw e;
 				}
 			}
+			Thread.sleep(connectTimeout+1000);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			context.warning("Interrupted");
