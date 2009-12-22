@@ -241,45 +241,6 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 			}
 		});
 
-		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] {EntityTransfer.getInstance() /*, TextTransfer.getInstance()*/}, new ViewerDropAdapter(viewer) {
-			@Override
-			public boolean performDrop(Object data) {
-				System.out.println("drop "+data);
-				if (data instanceof IEntity[]) {
-					for (IEntity entity: (IEntity[])data) {
-						space.addEntity(entity);
-					}
-					return true;
-				} else if (data instanceof String) {
-					IInputBarActionProviderService actionProvider = Activator.getInstance().getInputBarActionProvider();
-					for (String line: ((String) data).split("[\\r\\n]+")) {
-						List<IAction> actions = actionProvider.getActions(space.getProbeId(), space.getId(), line);
-						if (actions.size() > 0) {
-							IAction action = actions.get(0);
-							System.out.println("run "+action);
-							if (action instanceof ISpaceAction)
-								((ISpaceAction) action).setSpace(space);
-							try {
-								action.run();
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					}
-					return true;
-				}
-				return false;
-			}
-
-			@Override
-			public boolean validateDrop(Object target, int op, TransferData type) {
-				setFeedbackEnabled(false);
-				setExpandEnabled(false);
-				setSelectionFeedbackEnabled(false);
-				return EntityTransfer.getInstance().isSupportedType(type) || TextTransfer.getInstance().isSupportedType(type);
-			}
-		});
-		
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] {TextTransfer.getInstance(), EntityTransfer.getInstance()}, new DragSourceAdapter() {
 			@Override
 			public void dragSetData(DragSourceEvent event) {
@@ -316,6 +277,46 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 					}
 					event.data = buffer.toString();
 				}
+			}
+		});
+
+		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] {EntityTransfer.getInstance() /*, TextTransfer.getInstance()*/}, new ViewerDropAdapter(viewer) {
+			@Override
+			public boolean performDrop(Object data) {
+				System.out.println("drop "+data);
+				if (data instanceof IEntity[]) {
+					for (IEntity entity: (IEntity[])data) {
+						System.out.println("drop "+entity);
+						space.addEntity(entity);
+					}
+					return true;
+				} else if (data instanceof String) {
+					IInputBarActionProviderService actionProvider = Activator.getInstance().getInputBarActionProvider();
+					for (String line: ((String) data).split("[\\r\\n]+")) {
+						List<IAction> actions = actionProvider.getActions(space.getProbeId(), space.getId(), line);
+						if (actions.size() > 0) {
+							IAction action = actions.get(0);
+							System.out.println("run "+action);
+							if (action instanceof ISpaceAction)
+								((ISpaceAction) action).setSpace(space);
+							try {
+								action.run();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public boolean validateDrop(Object target, int op, TransferData type) {
+				setFeedbackEnabled(false);
+				setExpandEnabled(false);
+				setSelectionFeedbackEnabled(false);
+				return EntityTransfer.getInstance().isSupportedType(type) || TextTransfer.getInstance().isSupportedType(type);
 			}
 		});
 		
