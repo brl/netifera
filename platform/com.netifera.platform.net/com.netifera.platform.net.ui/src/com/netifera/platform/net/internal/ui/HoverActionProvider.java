@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.wizard.WizardDialog;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
 import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.host.terminal.ui.OpenRawTerminalAction;
+import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.ServiceEntity;
@@ -34,7 +36,9 @@ import com.netifera.platform.tools.options.MultipleStringOption;
 import com.netifera.platform.tools.options.StringOption;
 import com.netifera.platform.ui.actions.SpaceAction;
 import com.netifera.platform.ui.actions.ToolAction;
+import com.netifera.platform.ui.api.actions.ISpaceAction;
 import com.netifera.platform.ui.api.hover.IHoverActionProvider;
+import com.netifera.platform.ui.probe.wizard.NewProbeWizard;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
@@ -165,6 +169,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 				answer.add(bruteforcer);
 			}
 		}
+		
 		addNetblockActions(entity, answer);
 		
 		return answer;
@@ -215,8 +220,21 @@ public class HoverActionProvider implements IHoverActionProvider {
 	}
 
 	public List<IAction> getQuickActions(Object o) {
-		
 		List<IAction> answer = new ArrayList<IAction>();
+
+		if (o instanceof HostEntity) {
+			final HostEntity hostEntity = (HostEntity) ((HostEntity)o).getRealEntity();
+			ISpaceAction newProbeAction = new SpaceAction("New Probe") {
+				public void run() {
+					NewProbeWizard wizard = new NewProbeWizard(getSpace().getId(), hostEntity, (InternetAddress) hostEntity.getDefaultAddress().toNetworkAddress());
+					WizardDialog dialog  = new WizardDialog(Activator.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+					dialog.open();
+				}
+			};
+			newProbeAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/new_probe.png"));
+			answer.add(newProbeAction);
+		}
+
 
 		IndexedIterable<InternetAddress> addresses = getInternetAddressIndexedIterable(o);
 		if(addresses != null) {
@@ -291,7 +309,7 @@ public class HoverActionProvider implements IHoverActionProvider {
 				answer.add(action);
 			}
 		}
-
+		
 		return answer;
 	}
 

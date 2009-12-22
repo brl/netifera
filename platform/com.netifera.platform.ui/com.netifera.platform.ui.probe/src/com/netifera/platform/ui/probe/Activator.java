@@ -6,7 +6,6 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.ui.images.ImageCache;
 
 /**
@@ -25,7 +24,6 @@ public class Activator extends AbstractUIPlugin {
 		
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker modelTracker;
-	private ServiceTracker networkEntityFactoryTracker;
 
 	private ImageCache imageCache;
 	
@@ -42,9 +40,6 @@ public class Activator extends AbstractUIPlugin {
 		
 		modelTracker = new ServiceTracker(context, IModelService.class.getName(), null);
 		modelTracker.open();
-		
-		networkEntityFactoryTracker = new ServiceTracker(context, INetworkEntityFactory.class.getName(), null);
-		networkEntityFactoryTracker.open();
 	}
 
 	
@@ -64,10 +59,6 @@ public class Activator extends AbstractUIPlugin {
 		return (IModelService) modelTracker.getService();
 	}
 	
-	public INetworkEntityFactory getNetworkEntityFactory() {
-		return (INetworkEntityFactory) networkEntityFactoryTracker.getService();
-	}
-
 	public ImageCache getImageCache() {
 		return imageCache;
 	}

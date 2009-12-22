@@ -17,7 +17,6 @@ Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.api.model,
  com.netifera.platform.api.probe,
  com.netifera.platform.model,
- com.netifera.platform.net.model,
  com.netifera.platform.ui.actions,
  com.netifera.platform.ui.api.actions,
  com.netifera.platform.ui.api.hover,
@@ -29,4 +28,5 @@ Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.util.addresses.inet,
  com.netifera.platform.util.patternmatching
 Export-Package: com.netifera.platform.ui.probe.actions,
- com.netifera.platform.ui.probe.status;x-internal:=true
+ com.netifera.platform.ui.probe.status;x-internal:=true,
+ com.netifera.platform.ui.probe.wizard

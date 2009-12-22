@@ -3,21 +3,23 @@ package com.netifera.platform.ui.probe.wizard;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
 
-import com.netifera.platform.net.model.HostEntity;
+import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.ui.probe.Activator;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class NewProbeWizard extends Wizard {
 
 	final private long spaceId;
-	final private HostEntity hostEntity;
+	final private IEntity hostEntity;
+	final private InternetAddress hostAddress;
 	
 	private FirstPage firstPage;
 	private TCPListenChannelConfigPage tcpListenPage;
 
-	public NewProbeWizard(long spaceId, HostEntity hostEntity) {
+	public NewProbeWizard(long spaceId, IEntity hostEntity, InternetAddress hostAddress) {
 		this.spaceId = spaceId;
 		this.hostEntity = hostEntity;
+		this.hostAddress = hostAddress;
 	}
 	
 	@Override
@@ -29,8 +31,7 @@ public class NewProbeWizard extends Wizard {
 		firstPage = new FirstPage();
 		firstPage.setImageDescriptor(image);
 		
-		InternetAddress address = hostEntity == null ? null : (InternetAddress)hostEntity.getDefaultAddress().toNetworkAddress();
-		tcpListenPage = new TCPListenChannelConfigPage(address);
+		tcpListenPage = new TCPListenChannelConfigPage(hostAddress);
 		tcpListenPage.setImageDescriptor(image);
 		
 		addPage(firstPage);
