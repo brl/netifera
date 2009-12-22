@@ -10,17 +10,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class TCPListenChannelConfigPage extends WizardPage {
+	final private InternetAddress address;
 	private Text addressText;
 	private Text portText;
 	
-	public TCPListenChannelConfigPage() {
+	public TCPListenChannelConfigPage(InternetAddress address) {
 		super("tcpListenConfig");
 		setTitle("TCP Listen Channel");
 		setDescription("Configure the connection information for the new Probe.");
 		setPageComplete(false);
+		this.address = address;
 	}
 	
 	public String getConfigString() {
@@ -39,6 +42,12 @@ public class TCPListenChannelConfigPage extends WizardPage {
 		addressText.addModifyListener(listener);
 		portText = createPortField(container);
 		portText.addModifyListener(listener);
+		
+		if (address != null) {
+			addressText.setText(address.toString());
+			addressText.setEditable(false);
+			addressText.setEnabled(false);
+		}
 	}
 	
 	private void verifyFields() {

@@ -5,6 +5,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            allowMultiple="false"
             category="com.netifera.platform.ui.category.general"
             class="com.netifera.platform.ui.navigator.NavigatorView"
             icon="icons/navigator.png"

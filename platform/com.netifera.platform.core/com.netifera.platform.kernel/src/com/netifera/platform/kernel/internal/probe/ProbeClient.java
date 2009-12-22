@@ -39,7 +39,6 @@ public class ProbeClient implements IProbe {
 		taskClient = new TaskClient(this, entity.getWorkspace(), logger);
 		toolClient = new ToolClient(this, logger);
 		modelSyncClient = new ModelSyncClient(this, entity.getWorkspace(), logger);
-
 	}
 	
 	private IChannelConnectProgress createConnectProgress() {
@@ -86,8 +85,6 @@ public class ProbeClient implements IProbe {
 		}
 	}
 	
-	
-
 	private void setConnectFailed(String reason, Throwable exception) {
 		connectState = ConnectState.CONNECT_FAILED;
 		connectError = reason;

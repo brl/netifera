@@ -30,7 +30,6 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.internal.navigator.Activator;
 import com.netifera.platform.ui.probe.actions.ConnectProbeAction;
 import com.netifera.platform.ui.probe.actions.DisconnectProbeAction;
-import com.netifera.platform.ui.probe.actions.NewProbeAction;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.actions.DeleteSpaceAction;
 import com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceAction;
@@ -46,7 +45,6 @@ public class NavigatorView extends ViewPart {
 	private Action newSpaceAction;
 	private Action newIsolatedSpaceAction;
 
-	private Action newProbeAction;
 	private Action connectProbeAction;
 	private Action disconnectProbeAction;
 	
@@ -174,9 +172,6 @@ public class NavigatorView extends ViewPart {
 
 		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
 		toolBarManager.add(newIsolatedSpaceAction);
-
-		newProbeAction = new NewProbeAction(viewer);
-		toolBarManager.add(newProbeAction);
 
 		connectProbeAction = new ConnectProbeAction(viewer);
 		toolBarManager.add(connectProbeAction);

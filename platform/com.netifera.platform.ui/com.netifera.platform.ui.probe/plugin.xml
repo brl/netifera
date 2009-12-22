@@ -12,20 +12,5 @@
             restorable="true">
       </view>
    </extension>
-   <extension
-         point="org.eclipse.ui.viewActions">
-      <viewContribution
-            id="com.netifera.platform.viewActions.probe"
-            targetID="com.netifera.platform.views.probeList">
-         <action
-               class="com.netifera.platform.ui.probe.actions.NewProbeDelegate"
-               icon="icons/new_probe.png"
-               id="com.netifera.platform.actions.newProbe"
-               label="Create a new Probe"
-               style="push"
-               toolbarPath="Normal/additions">
-         </action>
-      </viewContribution>
-   </extension>
 
 </plugin>

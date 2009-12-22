@@ -14,25 +14,25 @@ public class ProbeEntity extends AbstractEntity {
 	private int probeId;
 	private int lastUpdateIndex;
 	private boolean local;
-	private final IEntityReference hostEntity;
-	
+	private final IEntityReference host;
 	
 	public ProbeEntity(IWorkspace workspace, IEntity hostEntity) {
 		super(ENTITY_NAME, workspace, hostEntity.getRealmId());
 		lastUpdateIndex = 0;
-		this.hostEntity = hostEntity.createReference();
+		this.host = hostEntity.createReference();
 	}
+	
 	public ProbeEntity(IWorkspace workspace, final long realmId) {
 		super(ENTITY_NAME, workspace, realmId);
 		lastUpdateIndex = 0;
-		hostEntity = null;
+		host = null;
 	}
 	
 	public IEntity getHostEntity() {
-		if(hostEntity == null)
+		if(host == null)
 			return null;
 		else
-			return referenceToEntity(hostEntity);
+			return referenceToEntity(host);
 	}
 	
 	public void setName(String name) {
@@ -54,6 +54,7 @@ public class ProbeEntity extends AbstractEntity {
 	public int getProbeId() {
 		return probeId;
 	}
+	
 	public void setProbeId(int id) {
 		this.probeId = id;
 	}
@@ -65,25 +66,24 @@ public class ProbeEntity extends AbstractEntity {
 	public void incrementUpdateIndex(int count) {
 		lastUpdateIndex += count;
 	}
+	
 	public boolean isLocal() {
 		return local;
 	}
+	
 	public void setLocal(final boolean local) {
 		this.local = local;
 	}
 
 	protected IEntity cloneEntity() {
-		ProbeEntity clone = new ProbeEntity(getWorkspace(), getRealmId());
+		ProbeEntity clone = host != null ? new ProbeEntity(getWorkspace(), getHostEntity()) : new ProbeEntity(getWorkspace(), getRealmId());
 		clone.name = name;
 		clone.probeId = probeId;
 		clone.local = local;
 		return clone;
 	}
 
-
 	public boolean isRealmEntity() {
 		return true;
 	}
-	
-	
 }

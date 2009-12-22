@@ -3,12 +3,22 @@ package com.netifera.platform.ui.probe.wizard;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.Wizard;
 
+import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.ui.probe.Activator;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class NewProbeWizard extends Wizard {
 
+	final private long spaceId;
+	final private HostEntity hostEntity;
+	
 	private FirstPage firstPage;
 	private TCPListenChannelConfigPage tcpListenPage;
+
+	public NewProbeWizard(long spaceId, HostEntity hostEntity) {
+		this.spaceId = spaceId;
+		this.hostEntity = hostEntity;
+	}
 	
 	@Override
 	public void addPages() {
@@ -19,7 +29,8 @@ public class NewProbeWizard extends Wizard {
 		firstPage = new FirstPage();
 		firstPage.setImageDescriptor(image);
 		
-		tcpListenPage = new TCPListenChannelConfigPage();
+		InternetAddress address = hostEntity == null ? null : (InternetAddress)hostEntity.getDefaultAddress().toNetworkAddress();
+		tcpListenPage = new TCPListenChannelConfigPage(address);
 		tcpListenPage.setImageDescriptor(image);
 		
 		addPage(firstPage);
@@ -30,7 +41,7 @@ public class NewProbeWizard extends Wizard {
 	public boolean performFinish() {
 		final String name = firstPage.getName();
 		final String config = tcpListenPage.getConfigString();
-		Activator.getInstance().getProbeManager().createProbe(name, config);
+		Activator.getInstance().getProbeManager().createProbe(hostEntity, name, config, spaceId);
 		return true;
 	}
 }
