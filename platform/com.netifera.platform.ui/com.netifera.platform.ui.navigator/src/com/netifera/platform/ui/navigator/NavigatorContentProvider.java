@@ -30,34 +30,20 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 	private StructuredViewerUpdater updater;
 
 	public Object[] getChildren(Object parentElement) {
+		List<IProbe> probes = new ArrayList<IProbe>();
+		List<ISpace> spaces = new ArrayList<ISpace>();
+
 		if (parentElement instanceof IProbe) {
 			IProbe parentProbe = (IProbe)parentElement;
 			Integer probeId = (int)parentProbe.getProbeId();
-	
-			List<IProbe> probes = new ArrayList<IProbe>();
-			for (IProbe probe: Activator.getInstance().getProbeManager().getProbeList()) {
-				if (getParentProbeId(probe) == probeId)
-					probes.add(probe);
-			}
-			Collections.sort(probes, new Comparator<IProbe>() {
-				public int compare(IProbe p1, IProbe p2) {
-					if(p1.isLocalProbe()) {
-						return -1;
-					}
-					if(p2.isLocalProbe()) {
-						return 1;
-					}
-					if(p1.isConnected() && !p2.isConnected()) {
-						return -1;
-					}
-					if(p2.isConnected() && !p1.isConnected()) {
-						return 1;
-					}
-					return p1.getName().compareTo(p2.getName());
-				}
-			});
 
-			List<ISpace> spaces = new ArrayList<ISpace>();
+			if (!parentProbe.isLocalProbe()) {
+				for (IProbe probe: Activator.getInstance().getProbeManager().getProbeList()) {
+					if (getParentProbeId(probe) == probeId)
+						probes.add(probe);
+				}
+			}
+			
 			for (ISpace space: workspace.getAllSpaces()) {
 				if (space.getProbeId() == probeId) {
 					IEntity rootEntity = space.getRootEntity();
@@ -72,30 +58,18 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 					}
 				}
 			}
-			Collections.sort(spaces, new Comparator<ISpace>() {
-				public int compare(ISpace o1, ISpace o2) {
-					if(o1.getId() > o2.getId()) {
-						return 1;
-					} else if(o1.getId() < o2.getId()) {
-						return -1;
-					} else {
-						return 0;
-					}
-				}
-			});
-			
-			List<Object> elements = new ArrayList<Object>();
-			elements.addAll(probes);
-			elements.addAll(spaces);
-			return elements.size() > 0 ? elements.toArray() : null;
-		}
-
-		if (parentElement instanceof ISpace) {
+		} else if (parentElement instanceof ISpace) {
 			ISpace parentSpace = (ISpace)parentElement;
-			if (!parentSpace.isIsolated())
+			if (!parentSpace.isIsolated()) {
 				return null;
+			} else {
+				long spaceEntityId = parentSpace.getRootEntity().getId();
+				for (IProbe probe: Activator.getInstance().getProbeManager().getProbeList()) {
+					if (probe.getEntity().getRealmId() == spaceEntityId)
+						probes.add(probe);
+				}
+			}
 			
-			List<ISpace> spaces = new ArrayList<ISpace>();
 			for (ISpace space: workspace.getAllSpaces()) {
 				if (parentSpace.getId() == space.getId())
 					continue;
@@ -105,22 +79,41 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 				else if (space.isIsolated() && space.getRootEntity().getRealmId() == parentSpace.getRootEntity().getId())
 					spaces.add(space);
 			}
-			Collections.sort(spaces, new Comparator<ISpace>() {
-				public int compare(ISpace o1, ISpace o2) {
-					if(o1.getId() > o2.getId()) {
-						return 1;
-					} else if(o1.getId() < o2.getId()) {
-						return -1;
-					} else {
-						return 0;
-					}
-				}
-			});
-			
-			return spaces.size() > 0 ? spaces.toArray() : null;
 		}
 
-		return null;
+		Collections.sort(probes, new Comparator<IProbe>() {
+			public int compare(IProbe p1, IProbe p2) {
+				if(p1.isLocalProbe()) {
+					return -1;
+				}
+				if(p2.isLocalProbe()) {
+					return 1;
+				}
+				if(p1.isConnected() && !p2.isConnected()) {
+					return -1;
+				}
+				if(p2.isConnected() && !p1.isConnected()) {
+					return 1;
+				}
+				return p1.getName().compareTo(p2.getName());
+			}
+		});
+		Collections.sort(spaces, new Comparator<ISpace>() {
+			public int compare(ISpace o1, ISpace o2) {
+				if(o1.getId() > o2.getId()) {
+					return 1;
+				} else if(o1.getId() < o2.getId()) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		});
+		
+		List<Object> elements = new ArrayList<Object>();
+		elements.addAll(probes);
+		elements.addAll(spaces);
+		return elements.size() > 0 ? elements.toArray() : null;
 	}
 
 	public Object getParent(Object element) {
@@ -133,6 +126,9 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 				return Activator.getInstance().getProbeManager().getProbeById(space.getProbeId());
 			}
 		} else if (element instanceof IProbe) {
+			IEntity realmEntity = ((IProbe)element).getEntity().getRealmEntity();
+			if (realmEntity instanceof SpaceEntity)
+				return workspace.findSpaceById(((SpaceEntity)realmEntity).getSpaceId());
 			return Activator.getInstance().getProbeManager().getProbeById(getParentProbeId((IProbe)element));
 		}
 		return null;
