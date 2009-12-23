@@ -7,7 +7,6 @@ import java.util.Random;
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.tools.portscanning.AbstractPortscanner;
 import com.netifera.platform.test.internal.Activator;
-import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
@@ -58,14 +57,12 @@ public class FakeScanner extends AbstractPortscanner {
 			return;
 		
 		TCPSocketAddress peer = new TCPSocketAddress(address, port);
-		PortSet ports = new PortSet();
-		ports.addPort(peer.getPort());
-		Activator.getInstance().getNetworkEntityFactory().addOpenTCPPorts(context.getRealm(), context.getSpaceId(), peer.getNetworkAddress(), ports);
 		Map<String,String> serviceInfo = randomlyDetectTCPService();
 		if (serviceInfo != null) {
 			Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
 			context.info(serviceInfo.get("serviceType")+" @ "+peer);
 		} else {
+			Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, null, null);
 			context.warning("Unknown service @ " + peer);
 		}
 	}
