@@ -335,8 +335,8 @@ public class ActionHover extends PopupDialog {
 					ISpaceAction spaceAction = (ISpaceAction) action;
 					spaceAction.setSpace(space);
 					if (((ToolConfiguration) spaceAction.getConfiguration()).isFixed()) {
-						close();
 						spaceAction.run();
+						close();
 					} else {
 						RunActionDialog runActionDialog = new RunActionDialog(getParentShell(), getShell().getLocation(), spaceAction);
 						close();
