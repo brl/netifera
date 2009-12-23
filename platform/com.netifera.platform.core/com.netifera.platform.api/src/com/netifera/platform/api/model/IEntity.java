@@ -92,16 +92,16 @@ public interface IEntity {
 	 */
 	
 	Set<String> getAttributes();
-	void setAttribute(String name, String value);
+	boolean setAttribute(String name, String value);
 	String getAttribute(String name);
 
-	void setAssociation(String name, IEntity value);
+	boolean setAssociation(String name, IEntity value);
 	IEntity getAssociation(String name);
 	void addAssociation(String name, IEntity value);
 	void removeAssociation(String name, IEntity value);
 	Set<IEntityReference> getAssociations(String name);
 
-	void addTag(String tag);
-	void removeTag(String tag);
+	boolean addTag(String tag);
+	boolean removeTag(String tag);
 	Set<String> getTags();
 }

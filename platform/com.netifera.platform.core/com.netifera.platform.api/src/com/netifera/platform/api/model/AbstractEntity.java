@@ -58,16 +58,16 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		return data.getAttributes();
 	}
 	
-	public void setAttribute(final String name, final String value) {
-		data.setAttribute(name, value);
+	public boolean setAttribute(final String name, final String value) {
+		return data.setAttribute(name, value);
 	}
 
 	public String getAttribute(final String name) {
 		return data.getAttribute(name);
 	}
 
-	public void setAssociation(String name, IEntity value) {
-		data.setAssociation(name, value);
+	public boolean setAssociation(String name, IEntity value) {
+		return data.setAssociation(name, value);
 	}
 
 	public IEntity getAssociation(final String name) {
@@ -88,12 +88,12 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		return data.getAssociations(name);
 	}
 
-	public synchronized void addTag(String tag) {
-		data.addTag(tag);
+	public synchronized boolean addTag(String tag) {
+		return data.addTag(tag);
 	}
 
-	public synchronized void removeTag(String tag) {
-		data.removeTag(tag);
+	public synchronized boolean removeTag(String tag) {
+		return data.removeTag(tag);
 	}
 
 	public synchronized Set<String> getTags() {

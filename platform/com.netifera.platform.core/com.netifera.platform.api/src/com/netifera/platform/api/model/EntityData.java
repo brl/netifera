@@ -79,18 +79,28 @@ public class EntityData implements Serializable {
 		return Collections.unmodifiableSet(getAttributesMap().keySet());
 	}
 	
-	public synchronized void setAttribute(final String name, final String value) {
+	public synchronized boolean setAttribute(final String name, final String value) {
+		String oldValue = getAttribute(name);
+		if (oldValue == value)
+			return false;
+		if (oldValue != null && oldValue.equals(value))
+			return false;
 		getAttributesMap().put(name, value);
 		setTimestamp();
+		return true;
 	}
 
 	public synchronized String getAttribute(final String name) {
 		return getAttributesMap().get(name);
 	}
 
-	public synchronized void setAssociation(String name, IEntity value) {
+	public synchronized boolean setAssociation(String name, IEntity value) {
+		IEntityReference oldValue = getAssociation(name);
+		if (oldValue.getId() == value.getId())
+			return false;
 		getAssociationsMap().put(name, value.createReference());
 		setTimestamp();
+		return true;
 	}
 
 	public synchronized IEntityReference getAssociation(final String name) {
@@ -127,15 +137,20 @@ public class EntityData implements Serializable {
 			return Collections.unmodifiableSet(tags);
 	}
 
-	public synchronized void addTag(String tag) {
-		getTagsSet().add(tag);
-		setTimestamp();
+	public synchronized boolean addTag(String tag) {
+		if (getTagsSet().add(tag)) {
+			setTimestamp();
+			return true;
+		}
+		return false;
 	}
 
-	public synchronized void removeTag(String tag) {
-		if (tags == null) return;
-		tags.remove(tag);
-		setTimestamp();
+	public synchronized boolean removeTag(String tag) {
+		if (tags != null && tags.remove(tag)) {
+			setTimestamp();
+			return true;
+		}
+		return false;
 	}
 
 	public void synchronizeData(EntityData masterData) {
