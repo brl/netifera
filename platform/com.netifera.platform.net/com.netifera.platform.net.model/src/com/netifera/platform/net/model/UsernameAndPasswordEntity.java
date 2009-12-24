@@ -52,4 +52,17 @@ public class UsernameAndPasswordEntity extends CredentialEntity implements Compa
 		r = password.compareTo(other.password);
 		return r > 0 ? 1 : (r < 0 ? -1 : 0);
 	}
+	
+	public static synchronized UsernameAndPasswordEntity create(IWorkspace workspace, long realm, long spaceId, IEntity authenticable, String username, String password) {
+		UsernameAndPasswordEntity entity = (UsernameAndPasswordEntity) workspace.findByKey(UsernameAndPasswordEntity.createQueryKey(realm, authenticable.getId(), username, password));
+		if(entity != null) {
+			entity.addToSpace(spaceId);
+			return entity;
+		}
+		
+		entity = new UsernameAndPasswordEntity(workspace, authenticable, username, password);
+		entity.save();
+		entity.addToSpace(spaceId);
+		return entity;
+	}
 }

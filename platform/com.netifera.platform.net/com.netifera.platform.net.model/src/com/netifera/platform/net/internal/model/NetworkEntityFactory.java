@@ -43,54 +43,11 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	}
 
 	public synchronized InternetAddressEntity createAddress(long realm, long spaceId, InternetAddress address) {
-		InternetAddressEntity addr = (InternetAddressEntity) getWorkspace().findByKey(InternetAddressEntity.createQueryKey(realm, address));
-		if(addr != null) {
-			addr.getHost().addToSpace(spaceId);
-			addr.addToSpace(spaceId);
-			return addr;
-		}
-		
-		HostEntity hostEntity = new HostEntity(getWorkspace(), realm);
-		
-		// First the HostEntity must be saved so that InternetAddressEntity can store a reference to it
-		hostEntity.save();
-		
-		InternetAddressEntity addressEntity = new InternetAddressEntity(getWorkspace(), hostEntity, address.toString());
-		// Now save the address so that we can create a reference to it in the HostEntity
-		addressEntity.save();
-		addressEntity.addToSpace(spaceId);
-		
-		// It's now safe to assign the InternetAddressEntity 
-		hostEntity.addAddress(addressEntity);
-		hostEntity.save();
-		hostEntity.addToSpace(spaceId);
-		
-		return addressEntity;
+		return InternetAddressEntity.create(getWorkspace(), realm, spaceId, address);
 	}
 	
 	public synchronized NetblockEntity createNetblock(long realm, long spaceId, InternetNetblock netblock) {
-		// address needs to be the netblock's one (the first addr in netblock).
-		InternetAddress address = netblock.getNetworkAddress();
-		byte[] addressData = address.toBytes();
-		int maskBitCount = netblock.getCIDR();
-
-		NetblockEntity nb = (NetblockEntity) getWorkspace().findByKey(NetblockEntity.createQueryKey(realm, netblock));
-		if(nb != null) {
-			nb.addToSpace(spaceId);
-			return nb;
-		}
-		
-		NetblockEntity netblockEntity = new NetblockEntity(getWorkspace(), realm);
-		netblockEntity.setData(addressData);
-		netblockEntity.setMaskBitCount(maskBitCount);
-		netblockEntity.save();
-		netblockEntity.addToSpace(spaceId);
-		
-		// add IP if v4/32 or v6/128
-		if (address.getDataSize() == maskBitCount) {
-			createAddress(realm, spaceId, address);
-		}
-		return netblockEntity;
+		return NetblockEntity.create(getWorkspace(), realm, spaceId, netblock);
 	}
 	
 	public synchronized void addOpenTCPPorts(long realm, long space, InternetAddress address, PortSet ports) {
@@ -171,26 +128,6 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	private ServiceEntity findService(long realm, InternetSocketAddress address) {
 		return (ServiceEntity) getWorkspace().findByKey(ServiceEntity.createQueryKey(realm, address.getNetworkAddress(), address.getPort(), address.getProtocol()));
 	}
-		
-	private ServiceEntity createNewService(InternetAddressEntity addressEntity, InternetSocketAddress address, String serviceType,
-			Map<String,String> info, long space) {
-
-		ServiceEntity answer = new ServiceEntity(getWorkspace(), addressEntity, address.getPort(), address.getProtocol(), serviceType);
-
-		if (info != null) {
-			updateAttribute(ServiceEntity.BANNER_KEY, info, answer);
-			updateAttribute(ServiceEntity.PRODUCT_KEY, info, answer);
-			updateAttribute(ServiceEntity.VERSION_KEY, info, answer);
-			updateSystem(answer, info);
-			if (info.containsKey("comment"))
-				updateComment(answer, info.get("comment"));
-		}
-		
-		answer.save();
-		answer.addToSpace(space);
-		
-		return answer;
-	}
 	
 	public synchronized ServiceEntity createService(long realm, long spaceId,
 			InternetSocketAddress socketAddress, String serviceType, Map<String, String> info) {
@@ -202,34 +139,28 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 				addressEntity.getHost().update();
 		}
 		
-		ServiceEntity answer = findService(realm, socketAddress);
+		ServiceEntity entity = ServiceEntity.create(getWorkspace(), realm, spaceId, socketAddress, serviceType);
 
-		if (answer == null) {
-			PortSet ports = new PortSet();
-			ports.addPort(socketAddress.getPort());
-			if (socketAddress instanceof UDPSocketAddress) {
-				addPorts(realm, spaceId, addressEntity, ports, true, false);
-			} else if (socketAddress instanceof TCPSocketAddress) {
-				addPorts(realm, spaceId, addressEntity, ports, true, true);			
-			}
-			answer = createNewService(addressEntity, socketAddress, serviceType, info, spaceId);
-		} else {
-			boolean changed = false;
-			if (serviceType != null) {
-				changed |= !serviceType.equals(answer.getServiceType());
-				answer.setServiceType(serviceType);
-			}
-			if (info != null) {
-				changed |= updateAttribute(ServiceEntity.BANNER_KEY, info, answer);
-				changed |= updateAttribute(ServiceEntity.PRODUCT_KEY, info, answer);
-				changed |= updateAttribute(ServiceEntity.VERSION_KEY, info, answer);
-				changed |= updateSystem(answer, info);
-				if (info.containsKey("comment"))
-					changed |= updateComment(answer, info.get("comment"));
-			}
-			if(changed) answer.update();
-			answer.addToSpace(spaceId);
+		PortSet ports = new PortSet();
+		ports.addPort(socketAddress.getPort());
+		if (socketAddress instanceof UDPSocketAddress) {
+			addPorts(realm, spaceId, addressEntity, ports, true, false);
+		} else if (socketAddress instanceof TCPSocketAddress) {
+			addPorts(realm, spaceId, addressEntity, ports, true, true);			
 		}
+		
+		boolean changed = false;
+		
+		if (info != null) {
+			changed |= updateAttribute(ServiceEntity.BANNER_KEY, info, entity);
+			changed |= updateAttribute(ServiceEntity.PRODUCT_KEY, info, entity);
+			changed |= updateAttribute(ServiceEntity.VERSION_KEY, info, entity);
+			changed |= updateSystem(entity, info);
+			if (info.containsKey("comment"))
+				changed |= updateComment(entity, info.get("comment"));
+		}
+		if(changed) entity.update();
+		entity.addToSpace(spaceId);
 		
 		if (info != null) {
 			if (info.containsKey("password")) {
@@ -247,46 +178,12 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 			}
 		}
 		
-		return answer;
-	}
-
-	private ClientEntity findClient(HostEntity host, String serviceType, String product) {
-		long realm = host.getRealmId();
-		String key = ClientEntity.createQueryKey(realm, host.getId(), serviceType, product);
-		ClientEntity clientEntity = (ClientEntity) getWorkspace().findByKey(key);
-		if (clientEntity != null)
-			return clientEntity;
-		key = ClientEntity.createQueryKey(realm, host.getId(), serviceType, null);
-		clientEntity = (ClientEntity) getWorkspace().findByKey(key);
-		if (clientEntity != null) {
-			clientEntity.setProduct(product);
-			clientEntity.update();
-		}
-		return clientEntity;
-	}
-
-	private ClientEntity createNewClient(long spaceId, HostEntity host, String serviceType, Map<String,String> info) {
-		ClientEntity answer = new ClientEntity(getWorkspace(), host, serviceType);
-		
-		if (info != null) {
-			updateAttribute(ServiceEntity.BANNER_KEY, info, answer);
-			updateAttribute(ServiceEntity.PRODUCT_KEY, info, answer);
-			updateAttribute(ServiceEntity.VERSION_KEY, info, answer);
-			updateSystem(answer, info);
-		}
-		
-		answer.save();
-		answer.addToSpace(spaceId);
-		
-		return answer;
+		return entity;
 	}
 
 	public synchronized ClientEntity createClient(long realm, long spaceId,
 			InternetAddress address, String serviceType, Map<String, String> info, InternetSocketAddress serviceAddress) {
 
-		if (serviceType == null)
-			throw new IllegalArgumentException("serviceType cannot be null");
-		
 		InternetAddressEntity addressEntity = createAddress(realm, spaceId, address);
 		HostEntity hostEntity = addressEntity.getHost();
 
@@ -295,23 +192,18 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 				hostEntity.update();
 		}
 
-		ClientEntity answer = findClient(hostEntity, serviceType, info != null ? info.get("product") : null);
-		
-		if (answer == null)
-			return createNewClient(spaceId, addressEntity.getHost(), serviceType, info);
-		else
-			answer.addToSpace(spaceId);
+		ClientEntity entity = ClientEntity.create(getWorkspace(), realm, spaceId, address, serviceType, info != null ? info.get("product") : null);
 		
 		String identity = null;
 		
 		if (info != null) {
 			boolean isChanged = false;
-			isChanged |= updateAttribute(ServiceEntity.BANNER_KEY, info, answer);
-			isChanged |= updateAttribute(ServiceEntity.PRODUCT_KEY, info, answer);
-			isChanged |= updateAttribute(ServiceEntity.VERSION_KEY, info, answer);
-			isChanged |= updateSystem(answer, info);
+			isChanged |= updateAttribute(ServiceEntity.BANNER_KEY, info, entity);
+			isChanged |= updateAttribute(ServiceEntity.PRODUCT_KEY, info, entity);
+			isChanged |= updateAttribute(ServiceEntity.VERSION_KEY, info, entity);
+			isChanged |= updateSystem(entity, info);
 			if(isChanged)
-				answer.update();
+				entity.update();
 			
 			if (info.containsKey("identity"))
 				identity = info.get("identity");
@@ -331,10 +223,10 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 			if (serviceEntity == null)
 				System.err.println("ERROR: connection to unknown service: "+address+" -> "+serviceAddress);
 			else
-				createConnection(spaceId, answer, serviceEntity, identity);
+				createConnection(spaceId, entity, serviceEntity, identity);
 		}
 		
-		return answer;
+		return entity;
 	}
 
 	public ClientServiceConnectionEntity createConnection(long spaceId, ClientEntity client, ServiceEntity service, String identity) {
@@ -355,31 +247,11 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	}
 	
 	public synchronized UserEntity createUser(long realm, long spaceId, InternetAddress address, String username) {
-		HostEntity hostEntity = createAddress(realm, spaceId, address).getHost();
-		
-		UserEntity user = (UserEntity) getWorkspace().findByKey(UserEntity.createQueryKey(realm, username, hostEntity.getId()));
-		if(user != null) {
-			user.addToSpace(spaceId);
-			return user;
-		}
-		
-		UserEntity answer = new UserEntity(getWorkspace(), hostEntity, username);
-		answer.save();
-		answer.addToSpace(spaceId);
-		return answer;
+		return UserEntity.create(getWorkspace(), realm, spaceId, address, username);
 	}
 	
 	public synchronized PasswordEntity createPassword(long realm, long spaceId, IEntity authenticable, String password) {
-		PasswordEntity pw = (PasswordEntity) getWorkspace().findByKey(PasswordEntity.createQueryKey(realm, authenticable.getId(), password));
-		if(pw != null) {
-			pw.addToSpace(spaceId);
-			return pw;
-		}
-	
-		PasswordEntity answer = new PasswordEntity(getWorkspace(), authenticable, password);
-		answer.save();
-		answer.addToSpace(spaceId);
-		return answer;
+		return PasswordEntity.create(getWorkspace(), realm, spaceId, authenticable, password);
 	}
 
 	public synchronized PasswordEntity createPassword(long realm, long spaceId, InternetSocketAddress serviceAddress, String password) {
@@ -387,16 +259,7 @@ public class NetworkEntityFactory implements INetworkEntityFactory {
 	}
 
 	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, IEntity authenticable, String username, String password) {
-		UsernameAndPasswordEntity unp = (UsernameAndPasswordEntity) getWorkspace().findByKey(UsernameAndPasswordEntity.createQueryKey(realm, authenticable.getId(), username, password));
-		if(unp != null) {
-			unp.addToSpace(spaceId);
-			return unp;
-		}
-		
-		UsernameAndPasswordEntity answer = new UsernameAndPasswordEntity(getWorkspace(), authenticable, username, password);
-		answer.save();
-		answer.addToSpace(spaceId);
-		return answer;
+		return UsernameAndPasswordEntity.create(getWorkspace(), realm, spaceId, authenticable, username, password);
 	}
 
 	public synchronized UsernameAndPasswordEntity createUsernameAndPassword(long realm, long spaceId, InternetSocketAddress serviceAddress, String username, String password) {

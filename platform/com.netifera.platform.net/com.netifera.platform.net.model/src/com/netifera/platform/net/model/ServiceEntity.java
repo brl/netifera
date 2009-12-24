@@ -118,4 +118,22 @@ public class ServiceEntity extends AbstractEntity {
 	protected IEntity cloneEntity() {
 		return new ServiceEntity(getWorkspace(), getRealmId(), address, port, protocol, serviceType);
 	}
+
+	public static synchronized ServiceEntity create(IWorkspace workspace, long realm, long spaceId, InternetSocketAddress socketAddress, String serviceType) {
+		InternetAddressEntity addressEntity = InternetAddressEntity.create(workspace, realm, spaceId, socketAddress.getNetworkAddress());
+
+		ServiceEntity entity = (ServiceEntity) workspace.findByKey(createQueryKey(realm, socketAddress.getNetworkAddress(), socketAddress.getPort(), socketAddress.getProtocol()));
+
+		if (entity == null) {
+			entity = new ServiceEntity(workspace, addressEntity, socketAddress.getPort(), socketAddress.getProtocol(), serviceType);
+			entity.save();
+		}
+		if (serviceType != null && !serviceType.equals(entity.getServiceType())) {
+			entity.setServiceType(serviceType);
+			entity.update();
+		}
+		entity.addToSpace(spaceId);
+		
+		return entity;
+	}
 }

@@ -4,6 +4,7 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.util.HexaEncoding;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetNetblock;
 
 public class NetblockEntity extends AbstractEntity {
@@ -75,5 +76,30 @@ public class NetblockEntity extends AbstractEntity {
 	@Override
 	protected String generateQueryKey() {
 		return createQueryKey(getRealmId(), data, maskBitCount);
+	}
+	
+	public static synchronized NetblockEntity create(IWorkspace workspace, long realm, long spaceId, InternetNetblock netblock) {
+		// address needs to be the netblock's one (the first addr in netblock).
+		InternetAddress address = netblock.getNetworkAddress();
+		byte[] addressData = address.toBytes();
+		int maskBitCount = netblock.getCIDR();
+
+		NetblockEntity nb = (NetblockEntity) workspace.findByKey(createQueryKey(realm, netblock));
+		if(nb != null) {
+			nb.addToSpace(spaceId);
+			return nb;
+		}
+		
+		NetblockEntity netblockEntity = new NetblockEntity(workspace, realm);
+		netblockEntity.setData(addressData);
+		netblockEntity.setMaskBitCount(maskBitCount);
+		netblockEntity.save();
+		netblockEntity.addToSpace(spaceId);
+		
+		// add IP if v4/32 or v6/128
+		if (address.getDataSize() == maskBitCount) {
+			InternetAddressEntity.create(workspace, realm, spaceId, address);
+		}
+		return netblockEntity;
 	}
 }

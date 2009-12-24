@@ -1,8 +1,6 @@
 package com.netifera.platform.net.http.internal.web.model;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import com.netifera.platform.api.model.IModelService;
@@ -51,32 +49,17 @@ public class WebEntityFactory implements IWebEntityFactory {
 		networkEntityFactory = null;
 	}
 
-	public synchronized ServiceEntity createWebServer(final long realm, long space, TCPSocketAddress http, String product) {
-		Map<String,String> info = new HashMap<String,String>();
-		info.put("serviceType", "HTTP");
-		if (product != null) info.put("product", product);
-		return networkEntityFactory.createService(realm, space, http, "HTTP", info);
+	public synchronized ServiceEntity createWebServer(final long realm, long spaceId, TCPSocketAddress socketAddress, String product) {
+		ServiceEntity entity = ServiceEntity.create(getWorkspace(), realm, spaceId, socketAddress, "HTTP");
+		if (product != null && entity.setAttribute(ServiceEntity.PRODUCT_KEY, product))
+			entity.update();
+		return entity;
 	}
 	
 	// TODO add Domain from hostname
 	public synchronized WebSiteEntity createWebSite(final long realm, long spaceId,
-			TCPSocketAddress http, String hostname) {
-		assert http != null;
-		if (hostname == null || hostname.equals(http.getNetworkAddress().toString())) {
-			hostname = "";
-		}
-		hostname = hostname.toLowerCase(Locale.ENGLISH);
-		
-		WebSiteEntity answer = (WebSiteEntity) getWorkspace().findByKey(WebSiteEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), hostname));
-		if(answer == null) {
-			ServiceEntity service = createWebServer(realm, spaceId, http, null);
-			answer = new WebSiteEntity(getWorkspace(), realm, service, hostname);
-			answer.save();
-		} else {
-			answer.getHTTP().addToSpace(spaceId);
-		}
-		answer.addToSpace(spaceId);
-		return answer;
+			TCPSocketAddress socketAddress, String hostname) {
+		return WebSiteEntity.create(getWorkspace(), realm, spaceId, socketAddress, hostname);
 	}
 
 	//XXX space not used? should notify?

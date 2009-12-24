@@ -9,6 +9,7 @@ import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.util.HexaEncoding;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class WebSiteEntity extends AbstractEntity {
 	
@@ -103,5 +104,24 @@ public class WebSiteEntity extends AbstractEntity {
 	protected String generateQueryKey() {
 		ServiceEntity http = getHTTP();
 		return createQueryKey(getRealmId(), http.getAddress().toNetworkAddress(), http.getPort(), hostname);
+	}
+	
+	public static synchronized WebSiteEntity create(IWorkspace workspace, long realm, long spaceId,
+			TCPSocketAddress socketAddress, String hostname) {
+		if (hostname == null || hostname.equals(socketAddress.getNetworkAddress().toString())) {
+			hostname = "";
+		}
+		hostname = hostname.toLowerCase(Locale.ENGLISH);
+		
+		WebSiteEntity entity = (WebSiteEntity) workspace.findByKey(createQueryKey(realm, socketAddress.getNetworkAddress(), socketAddress.getPort(), hostname));
+		if(entity == null) {
+			ServiceEntity service = ServiceEntity.create(workspace, realm, spaceId, socketAddress, "HTTP");
+			entity = new WebSiteEntity(workspace, realm, service, hostname);
+			entity.save();
+		} else {
+			entity.getHTTP().addToSpace(spaceId);
+		}
+		entity.addToSpace(spaceId);
+		return entity;
 	}
 }

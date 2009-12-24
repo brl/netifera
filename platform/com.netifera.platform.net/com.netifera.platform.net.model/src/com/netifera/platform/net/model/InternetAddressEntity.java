@@ -90,4 +90,30 @@ public class InternetAddressEntity extends NetworkAddressEntity {
 	public static String createQueryKey(long realmId, InternetAddress address) {
 		return NetworkAddressEntity.createQueryKey(ENTITY_NAME, realmId, address.toBytes());
 	}
+	
+	public static synchronized InternetAddressEntity create(IWorkspace workspace, long realm, long spaceId, InternetAddress address) {
+		InternetAddressEntity addr = (InternetAddressEntity) workspace.findByKey(createQueryKey(realm, address));
+		if(addr != null) {
+			addr.getHost().addToSpace(spaceId);
+			addr.addToSpace(spaceId);
+			return addr;
+		}
+		
+		HostEntity hostEntity = new HostEntity(workspace, realm);
+		
+		// First the HostEntity must be saved so that InternetAddressEntity can store a reference to it
+		hostEntity.save();
+		
+		InternetAddressEntity addressEntity = new InternetAddressEntity(workspace, hostEntity, address.toString());
+		// Now save the address so that we can create a reference to it in the HostEntity
+		addressEntity.save();
+		addressEntity.addToSpace(spaceId);
+		
+		// It's now safe to assign the InternetAddressEntity 
+		hostEntity.addAddress(addressEntity);
+		hostEntity.save();
+		hostEntity.addToSpace(spaceId);
+		
+		return addressEntity;
+	}
 }

@@ -9,6 +9,7 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
 import com.netifera.platform.api.model.IWorkspace;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class UserEntity extends AbstractEntity {
 		//implements Comparable<UserEntity> {
@@ -109,5 +110,20 @@ public class UserEntity extends AbstractEntity {
 	public int compareTo(UserEntity other) {
 		int r = name.compareTo(other.name);
 		return r > 0 ? 1 : (r < 0 ? -1 : 0);
+	}
+	
+	public static synchronized UserEntity create(IWorkspace workspace, long realm, long spaceId, InternetAddress address, String username) {
+		HostEntity hostEntity = InternetAddressEntity.create(workspace, realm, spaceId, address).getHost();
+		
+		UserEntity userEntity = (UserEntity) workspace.findByKey(createQueryKey(realm, username, hostEntity.getId()));
+		if(userEntity != null) {
+			userEntity.addToSpace(spaceId);
+			return userEntity;
+		}
+		
+		userEntity = new UserEntity(workspace, hostEntity, username);
+		userEntity.save();
+		userEntity.addToSpace(spaceId);
+		return userEntity;
 	}
 }

@@ -4,9 +4,9 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
 import com.netifera.platform.api.model.IWorkspace;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class ClientEntity extends AbstractEntity {
-	
 	private static final long serialVersionUID = -1611903324378815778L;
 
 	public final static String ENTITY_NAME = "client";
@@ -77,5 +77,31 @@ public class ClientEntity extends AbstractEntity {
 	
 	protected String generateQueryKey() {
 		return createQueryKey(getRealmId(), getHost().getId(), serviceType, getProduct());
+	}
+	
+	public static synchronized ClientEntity create(IWorkspace workspace, long realm, long spaceId, InternetAddress address, String serviceType, String product) {
+		if (serviceType == null)
+			throw new IllegalArgumentException("serviceType cannot be null");
+		
+		InternetAddressEntity addressEntity = InternetAddressEntity.create(workspace, realm, spaceId, address);
+		
+		ClientEntity entity = (ClientEntity) workspace.findByKey(createQueryKey(realm, addressEntity.getHost().getId(), serviceType, product));
+
+		if (entity == null && product != null) { // XXX is this correct?
+			entity = (ClientEntity) workspace.findByKey(createQueryKey(realm, addressEntity.getHost().getId(), serviceType, null));
+			entity.setProduct(product);
+			entity.update();
+		}
+		
+		if (entity == null) {
+			entity = new ClientEntity(workspace, addressEntity.getHost(), serviceType);
+			if (product != null)
+				entity.setProduct(product);
+			entity.save();
+		}
+		
+		entity.addToSpace(spaceId);
+		
+		return entity;
 	}
 }

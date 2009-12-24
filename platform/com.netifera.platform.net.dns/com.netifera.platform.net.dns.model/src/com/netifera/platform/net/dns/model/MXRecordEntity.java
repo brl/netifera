@@ -8,7 +8,6 @@ import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.net.model.ServiceEntity;
 
 public class MXRecordEntity extends DNSRecordEntity {
-	
 	private static final long serialVersionUID = -60010876317109369L;
 
 	final public static String ENTITY_TYPE = "dns.mx";
@@ -65,5 +64,19 @@ public class MXRecordEntity extends DNSRecordEntity {
 	@Override
 	protected String generateQueryKey() {
 		return createQueryKey(getRealmId(), target, getDomain().getId());
+	}
+	
+	public static synchronized MXRecordEntity create(IWorkspace workspace, long realm, long spaceId, String domainName, String target, Integer priority) {
+		DomainEntity domainEntity = DomainEntity.create(workspace, realm, spaceId, domainName);
+		
+		target = DomainEntity.normalized(target);
+		MXRecordEntity entity = (MXRecordEntity) workspace.findByKey(MXRecordEntity.createQueryKey(realm, target, domainEntity.getId()));
+		if(entity == null) {
+			entity = new MXRecordEntity(workspace, realm, domainEntity.createReference(), target, priority);
+			entity.save();
+		}
+		
+		entity.addToSpace(spaceId);
+		return entity;
 	}
 }
