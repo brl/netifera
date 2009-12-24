@@ -6,7 +6,7 @@ import java.util.List;
 import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.net.tools.basic.AddHost;
-import com.netifera.platform.net.tools.basic.AddNetblock;
+import com.netifera.platform.net.tools.basic.AddNetblocks;
 import com.netifera.platform.net.tools.basic.AddService;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.ui.actions.ToolAction;
@@ -26,7 +26,7 @@ public class InputBarActionProvider implements IInputBarActionProvider {
 		if (netblockMatcher.matches()) {
 			InternetAddress address = InternetAddress.fromString(netblockMatcher.getNetwork());
 			InternetNetblock netblock = address.createNetblock(netblockMatcher.getCIDR());
-			ToolAction addNetblock = new ToolAction("Add netblock "+netblock, AddNetblock.class.getName());
+			ToolAction addNetblock = new ToolAction("Add netblock "+netblock, AddNetblocks.class.getName());
 			addNetblock.addFixedOption(new GenericOption(InternetNetblock.class, "netblock", "Netblock", "Netblock to add to the model", netblock));
 			answer.add(addNetblock);
 		} else {
