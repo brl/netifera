@@ -11,8 +11,8 @@ import org.osgi.service.component.ComponentContext;
 import com.maxmind.geoip.LookupService;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.net.routes.AS;
-import com.netifera.platform.net.routes.IIP2ASService;
+import com.netifera.platform.net.ui.routes.AS;
+import com.netifera.platform.net.ui.routes.IIP2ASService;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetNetblock;
 

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Ui Plug-in
+Bundle-Name: Network UI Plug-in
 Bundle-SymbolicName: com.netifera.platform.net.ui;singleton:=true
 Bundle-Version: 1.0.0
 Require-Bundle: org.eclipse.ui,
@@ -22,15 +22,15 @@ Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.api.model.layers,
  com.netifera.platform.host.terminal.ui,
  com.netifera.platform.model,
- com.netifera.platform.net.geoip,
  com.netifera.platform.net.model,
- com.netifera.platform.net.routes,
  com.netifera.platform.net.services.basic,
  com.netifera.platform.net.services.detection,
  com.netifera.platform.net.services.examples,
  com.netifera.platform.net.tools.basic,
  com.netifera.platform.net.tools.bruteforce,
  com.netifera.platform.net.tools.portscanning,
+ com.netifera.platform.net.ui.geoip,
+ com.netifera.platform.net.ui.routes,
  com.netifera.platform.net.wordlists,
  com.netifera.platform.tools.options,
  com.netifera.platform.ui.actions,
@@ -47,6 +47,6 @@ Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.util.patternmatching,
  com.netifera.platform.util.xml
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-Vendor: netifera
+Bundle-Vendor: Netifera
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.netifera.platform.net.internal.ui.Activator

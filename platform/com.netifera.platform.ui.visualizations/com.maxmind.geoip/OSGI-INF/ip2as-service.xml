@@ -2,7 +2,7 @@
 <component name="maxmind.ip2as-service">
 	<implementation class="com.maxmind.geoip.internal.IP2ASService" />
 	<service>
-		<provide interface="com.netifera.platform.net.routes.IIP2ASService" />
+		<provide interface="com.netifera.platform.net.ui.routes.IIP2ASService" />
 	</service>
 	
 	 <reference

@@ -5,8 +5,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.netifera.platform.api.model.IModelService;
-import com.netifera.platform.net.geoip.IGeoIPService;
-import com.netifera.platform.net.routes.IIP2ASService;
+import com.netifera.platform.net.ui.geoip.IGeoIPService;
+import com.netifera.platform.net.ui.routes.IIP2ASService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.images.ImageCache;
 

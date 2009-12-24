@@ -29,8 +29,8 @@ import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.IEdge;
 import com.netifera.platform.api.model.layers.IEdgeLayer;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
-import com.netifera.platform.net.geoip.IGeographicalLayer;
-import com.netifera.platform.net.geoip.ILocation;
+import com.netifera.platform.net.ui.geoip.IGeographicalLayer;
+import com.netifera.platform.net.ui.geoip.ILocation;
 import com.netifera.platform.ui.internal.flatworld.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 

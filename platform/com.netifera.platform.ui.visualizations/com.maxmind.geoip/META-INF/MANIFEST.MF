@@ -7,8 +7,8 @@ Bundle-Vendor: MaxMind
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.netifera.platform.api.iterables,
  com.netifera.platform.api.log,
- com.netifera.platform.net.geoip,
- com.netifera.platform.net.routes,
+ com.netifera.platform.net.ui.geoip,
+ com.netifera.platform.net.ui.routes,
  com.netifera.platform.util.addresses.inet,
  org.osgi.service.component
 Service-Component: OSGI-INF/geoip-service.xml,

@@ -22,7 +22,7 @@ public class InputBar extends AbstractInputBar {
 	}
 	
 	protected String getDefaultGreyedText() {
-		return "Enter URL, host name, IP address, ...";
+		return "Enter hostname, address, netblock, domain...";
 	}
 
 	protected List<IAction> getInputActions(String content) {

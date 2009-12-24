@@ -1,6 +1,6 @@
 package com.netifera.platform.ui.treemap.layers;
 
-import com.netifera.platform.net.routes.AS;
+import com.netifera.platform.net.ui.routes.AS;
 import com.netifera.platform.ui.internal.treemap.Activator;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 

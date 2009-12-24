@@ -18,7 +18,7 @@ public class AddNetblocks implements ITool {
 
 		setupToolOptions();
 
-		context.setTitle(netblocks.length == 1 ? "Add netblock "+netblocks[0] : "Add multiple netblocks");
+		context.setTitle(netblocks.length == 1 ? "Add netblock "+netblocks[0] : "Add "+netblocks.length+" netblocks");
 
 		for (InternetNetblock netblock: netblocks) {
 			NetblockEntity entity = Activator.getInstance().getNetworkEntityFactory().createNetblock(context.getRealm(), context.getSpaceId(), netblock);
@@ -29,6 +29,7 @@ public class AddNetblocks implements ITool {
 	}
 	
 	private void setupToolOptions() throws RequiredOptionMissingException {
+		context.setTitle("Add netblock");
 		netblocks = (InternetNetblock[]) context.getConfiguration().get("netblocks");
 		if(netblocks == null || netblocks.length == 0) {
 			InternetNetblock netblock = (InternetNetblock) context.getConfiguration().get("netblock");

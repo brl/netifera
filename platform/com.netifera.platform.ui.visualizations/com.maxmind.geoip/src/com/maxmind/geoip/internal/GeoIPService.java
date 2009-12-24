@@ -12,8 +12,8 @@ import com.maxmind.geoip.Location;
 import com.maxmind.geoip.LookupService;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.net.geoip.IGeoIPService;
-import com.netifera.platform.net.geoip.ILocation;
+import com.netifera.platform.net.ui.geoip.IGeoIPService;
+import com.netifera.platform.net.ui.geoip.ILocation;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetNetblock;
 

@@ -33,7 +33,7 @@ public class InputBarActionProvider implements IInputBarActionProvider {
 			 * be resolved, they are processed as IP addresses in the .net.ui
 			 * plugin.
 			 */
-		} else if (HostnameMatcher.matches(input)) {
+		} else if (input.length() > 2 && HostnameMatcher.matches(input)) {
 			/*
 			 * first try hostnameMatcher, since if it matches the domain will be
 			 * also created. 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<component name="netifera.rir-inputbar-action-provider">
+	<implementation class="com.netifera.platform.net.ui.rir.InputBarActionProvider" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.inputbar.IInputBarActionProvider" />
+	</service>
+	
+	<reference
+    	name="LOGGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
+	
+</component>
