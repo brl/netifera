@@ -2,41 +2,22 @@ package com.netifera.platform.ui.spaces.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.IEditorActionDelegate;
+import org.eclipse.ui.IEditorPart;
 
-public class NewSpaceDelegate implements IWorkbenchWindowActionDelegate {
+public class NewSpaceDelegate implements IEditorActionDelegate {
 
-	private SpaceCreator creator;
-//	private IProbe selectedProbe;
-	
-	public void init(IWorkbenchWindow window) {
-		creator = new SpaceCreator(window);
-	}
+	private IEditorPart targetEditor;
 
 	public void run(IAction action) {
-/*		if (selectedProbe != null) {
-			creator.openNewSpace(null, selectedProbe, false);
-		} else {
-*/			creator.openNewSpace();
-//		}
+		SpaceCreator creator = new SpaceCreator(targetEditor.getEditorSite().getWorkbenchWindow());
+		creator.openNewSpace();
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
-/*		if (selection instanceof IStructuredSelection) {
-			Object element = ((IStructuredSelection)selection).getFirstElement();
-			if (element instanceof IProbe) {
-				selectedProbe = (IProbe) element;
-			} else if (element instanceof ProbeEntity) {
-				selectedProbe = Activator.getInstance().getProbeManager().getProbeById(((ProbeEntity)element).getProbeId());
-			} else {
-				selectedProbe = null;
-			}
-		} else {
-			selectedProbe = null;
-		}
-*/	}
-
-	public void dispose() {
+	}
+	
+	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
+		this.targetEditor = targetEditor;
 	}
 }

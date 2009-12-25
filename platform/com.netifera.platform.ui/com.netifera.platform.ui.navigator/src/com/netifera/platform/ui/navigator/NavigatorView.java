@@ -98,15 +98,16 @@ public class NavigatorView extends ViewPart {
 	private void fillContextMenu(IMenuManager menuMgr) {
 		if (getSelectedSpace() != null) {
 			menuMgr.add(newSpaceAction);
-			menuMgr.add(newIsolatedSpaceAction);
+// for now just allow isolated spaces on the local probe, not as children of other isolated spaces
+//			menuMgr.add(newIsolatedSpaceAction);
 			menuMgr.add(new Separator("fixedGroup"));
 			menuMgr.add(new RenameSpaceAction(getSelectedSpace()));
 			menuMgr.add(new DeleteSpaceAction(getSelectedSpace()));
 		}
 		if (getSelectedProbe() != null) {
 			menuMgr.add(newSpaceAction);
-			menuMgr.add(newIsolatedSpaceAction);
-//			menuMgr.add(newProbeAction);
+			if (getSelectedProbe().isLocalProbe())
+				menuMgr.add(newIsolatedSpaceAction);
 			menuMgr.add(new Separator("fixedGroup"));
 			menuMgr.add(connectProbeAction);
 			menuMgr.add(disconnectProbeAction);
@@ -167,11 +168,11 @@ public class NavigatorView extends ViewPart {
 	private void initializeToolBar() {
 		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 
-		newSpaceAction = new NewSpaceAction(this, viewer);
-		toolBarManager.add(newSpaceAction);
-
 		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
 		toolBarManager.add(newIsolatedSpaceAction);
+
+		newSpaceAction = new NewSpaceAction(this, viewer);
+		toolBarManager.add(newSpaceAction);
 
 		connectProbeAction = new ConnectProbeAction(viewer);
 		toolBarManager.add(connectProbeAction);
@@ -199,9 +200,9 @@ public class NavigatorView extends ViewPart {
 		
 		IProbe probe = getSelectedProbe();
 		ISpace space = getSelectedSpace();
-//		newProbeAction.setEnabled(probe != null);
 		newSpaceAction.setEnabled((probe != null && !probe.isLocalProbe()) || (space != null && space.isIsolated()));
-		newIsolatedSpaceAction.setEnabled((probe != null && probe.isLocalProbe()) || (space != null && space.isIsolated()));
+		newIsolatedSpaceAction.setEnabled(true);
+//		newIsolatedSpaceAction.setEnabled((probe != null && probe.isLocalProbe()) || (space != null && space.isIsolated()));
 	}
 	
 	private boolean getConnectActionState() {

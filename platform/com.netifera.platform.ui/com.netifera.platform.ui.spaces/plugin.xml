@@ -20,38 +20,11 @@
             label="Spaces Action Set"
             visible="true">
          <action
-               class="com.netifera.platform.ui.spaces.actions.ExportDelegate"
-               definitionId="com.netifera.platform.commands.spaceExport"
-               icon="icons/space_export.gif"
-               id="com.netifera.platform.actions.spaceExport"
-               label="Export"
-               style="push"
-               toolbarPath="Normal">
-         </action>
-         <action
-               class="com.netifera.platform.ui.spaces.actions.ImportDelegate"
-               definitionId="com.netifera.platform.commands.spaceImport"
-               icon="icons/space_import.gif"
-               id="com.netifera.platform.actions.spaceImport"
-               label="Import"
-               style="push"
-               toolbarPath="Normal">
-         </action>
-         <action
                class="com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceDelegate"
                definitionId="com.netifera.platform.commands.newIsolatedSpace"
                icon="icons/add_space_isolated.png"
                id="com.netifera.platform.actions.newIsolatedSpace"
                label="New Isolated Space"
-               style="push"
-               toolbarPath="Normal">
-         </action>
-         <action
-               class="com.netifera.platform.ui.spaces.actions.NewSpaceDelegate"
-               definitionId="com.netifera.platform.commands.newSpace"
-               icon="icons/add_space.png"
-               id="com.netifera.platform.actions.newSpace"
-               label="New Space"
                style="push"
                toolbarPath="Normal">
          </action>
@@ -81,12 +54,12 @@
       <key
             commandId="com.netifera.platform.commands.newSpace"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+T">
+            sequence="M1+M2+T">
       </key>
       <key
             commandId="com.netifera.platform.commands.newIsolatedSpace"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M2+T">
+            sequence="M1+T">
       </key>
    </extension>
    <extension
@@ -104,6 +77,37 @@
    </extension>
    <extension
          point="org.eclipse.ui.editorActions">
+         <editorContribution
+         	id="com.netifera.platform.ui.spaces.editorActions"
+         	targetID="com.netifera.platform.editors.spaces">
+		         <action
+		               class="com.netifera.platform.ui.spaces.actions.ImportDelegate"
+		               definitionId="com.netifera.platform.commands.spaceImport"
+		               icon="icons/space_import.gif"
+		               id="com.netifera.platform.actions.spaceImport"
+		               label="Import XML into Space"
+		               style="push"
+		               toolbarPath="Normal">
+		         </action>
+		         <action
+		               class="com.netifera.platform.ui.spaces.actions.ExportDelegate"
+		               definitionId="com.netifera.platform.commands.spaceExport"
+		               icon="icons/space_export.gif"
+		               id="com.netifera.platform.actions.spaceExport"
+		               label="Export Space to XML"
+		               style="push"
+		               toolbarPath="Normal">
+		         </action>
+		         <action
+		               class="com.netifera.platform.ui.spaces.actions.NewSpaceDelegate"
+		               definitionId="com.netifera.platform.commands.newSpace"
+		               icon="icons/add_space.png"
+		               id="com.netifera.platform.actions.newSpace"
+		               label="New Space"
+		               style="push"
+		               toolbarPath="Normal">
+		         </action>
+         </editorContribution>
    </extension>
 
 </plugin>

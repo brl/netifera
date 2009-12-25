@@ -44,6 +44,9 @@ public class SpaceCreator {
 	}
 	
 	public ISpace openNewIsolatedSpace(String name) {
+/* To avoid confusion, force new isolated spaces to be all top-level spaces, on the local probe.
+   Dont allow isolated spaces as children of other isolated spaces for now.
+ 
 		IEditorPart editor = window.getActivePage().getActiveEditor();
 		if(editor != null) {
 			IEditorInput input = editor.getEditorInput();
@@ -57,7 +60,7 @@ public class SpaceCreator {
 				return openNewSpace(null, probe, rootEntity);
 			}
 		}
-
+*/
 		IProbeManagerService probeManager = Activator.getInstance().getProbeManager();
 		IProbe probe = probeManager.getLocalProbe();
 		return openNewSpace(null, probe, true);
@@ -91,14 +94,14 @@ public class SpaceCreator {
 		openEditor(space);
 		return space;
 	}
-
+/*
 	private ISpace getParentSpace(ISpace space) {
 		IEntity parentEntity = space.isIsolated() ? space.getRootEntity().getRealmEntity() : space.getRootEntity();
 		if (parentEntity instanceof SpaceEntity)
 			return Activator.getInstance().getModel().getCurrentWorkspace().findSpaceById(((SpaceEntity)parentEntity).getSpaceId());
 		return null;
 	}
-	
+*/	
 	private SpaceEntity createSpaceEntity(IProbe probe, IEntity realmEntity) {
 		IWorkspace workspace = Activator.getInstance().getModel().getCurrentWorkspace();
 		if (!probe.isLocalProbe())
