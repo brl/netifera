@@ -76,7 +76,7 @@ public class Activator extends AbstractUIPlugin {
 	private ImageCache imageCache;
 
 	public void initialize() {
-		workbenchManager = new WorkbenchChangeManager(getWindow(), Perspective.ID, createChangeListener());
+		workbenchManager = new WorkbenchChangeManager(getWindow(), createChangeListener());
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			public void run() {
 				workbenchManager.initialize();					
@@ -136,11 +136,11 @@ public class Activator extends AbstractUIPlugin {
 			}
 
 			public void partChange() {
-				updateState();		
+				updateInputBarState();		
 //				setStatusLine();
 			}
 
-			public void perspectiveClosed() {
+			private void perspectiveClosed() {
 				if(toolbarItem != null) {
 					ApplicationPlugin.getDefault().getCoolBar().remove(toolbarItem);
 					toolbarItem.dispose();
@@ -150,22 +150,26 @@ public class Activator extends AbstractUIPlugin {
 				}				
 			}
 
-			public void perspectiveOpened() {
-				displayToolbar();				
+			private void perspectiveOpened() {
+				displayInputBar();				
 			}
-			
+
+			public void perspectiveActivated(String id) {
+				if (id.equals(Perspective.ID) || id.equals("com.netifera.platform.ui.perspectives.explore"))
+					perspectiveOpened();
+				else
+					perspectiveClosed();
+			}
 		};
 	}
 	
 	private void runActivePageSetup(final IWorkbenchPage page) {
 		closeDeadEditors(page);
 		getWorkbench().getDisplay().asyncExec(new Runnable() {
-
 			public void run() {
 				createFirstSpaceIfNeeded(page.getWorkbenchWindow());
 //				setStatusLine();
 			}
-				
 		});
 	}
 	
@@ -178,30 +182,28 @@ public class Activator extends AbstractUIPlugin {
 			if(!(editorInput instanceof SpaceEditorInput)) {
 				page.closeEditor(part, false);
 			}
-	
-			
 		}
 	}
 	
-	private void updateState() {
-		enableToolbar();
+	private void updateInputBarState() {
+		enableInputBar();
 		IEditorPart editor = getActiveEditor();
 		if(editor == null) {
-			disableToolbar("Open a space to enable.");
+			disableInputBar("Open a space to enable.");
 			return;
 		}
 		IEditorInput input = editor.getEditorInput();
 		if(!(input instanceof SpaceEditorInput)) {
-			disableToolbar("Internal error");
+			disableInputBar("Internal error");
 			return;
 		}
 		IProbe probe = ((SpaceEditorInput) input).getProbeForSpace();
 		if(!probe.isConnected()) {
-			disableToolbar("Connect to probe to enable.");
+			disableInputBar("Connect to probe to enable.");
 		}
 	}
 	
-	private void disableToolbar(String message) {
+	private void disableInputBar(String message) {
 		if(isDisabled || toolbarItem == null) return;
 		isDisabled = true;
 		saveActionState = inputBarAction.isEnabled();
@@ -209,7 +211,7 @@ public class Activator extends AbstractUIPlugin {
 		inputBar.setDisabled(message);
 	}
 	
-	private void enableToolbar() {
+	private void enableInputBar() {
 		if(!isDisabled || toolbarItem == null) return;
 		isDisabled = false;
 		inputBarAction.setEnabled(saveActionState);
@@ -224,7 +226,7 @@ public class Activator extends AbstractUIPlugin {
 		return windows[0];
 	}
 	
-	private void displayToolbar() {	
+	private void displayInputBar() {	
 		if(toolbarItem != null) {
 			return;
 		}
@@ -243,7 +245,7 @@ public class Activator extends AbstractUIPlugin {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				coolbar.update(true);	
-				updateState();
+				updateInputBarState();
 			}
 		});
 	}
@@ -324,6 +326,7 @@ public class Activator extends AbstractUIPlugin {
 	public IStatusContribution getStatusContribution() {
 		return (IStatusContribution) statusContributionTracker.getService();
 	}
+	
 	public IEditorPart getActiveEditor() {
 		IWorkbenchWindow window = getWorkbench().getActiveWorkbenchWindow();
 		if(window == null) {
