@@ -37,7 +37,7 @@ public class TaskContentProvider implements IStructuredContentProvider  {
 	
 	public Object[] getElements(Object inputElement) {
 		if(inputElement instanceof ISpace) {
-			return ((ISpace)inputElement).getTasks().toArray();
+			return ((ISpace)inputElement).getTasks();
 		}
 
 		return NO_ELEMENTS;
@@ -81,8 +81,7 @@ public class TaskContentProvider implements IStructuredContentProvider  {
 		}
 		if(event.isCreateEvent()) {
 			updater.refresh();
-		}
-		else if(event.isUpdateEvent()){
+		} else if(event.isUpdateEvent()){
 			updater.refresh(event.getTask());
 		}
 

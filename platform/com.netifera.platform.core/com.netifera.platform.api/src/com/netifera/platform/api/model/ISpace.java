@@ -51,7 +51,7 @@ public interface ISpace {
 	void addChangeListenerAndPopulate(IEventHandler handler);
 	void removeChangeListener(IEventHandler handler);
 	
-	List<ITaskRecord> getTasks();
+	ITaskRecord[] getTasks();
 	boolean isActive();
 
 	/*

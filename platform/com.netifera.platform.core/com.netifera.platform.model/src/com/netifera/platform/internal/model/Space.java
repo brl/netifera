@@ -182,9 +182,8 @@ public class Space implements ISpace {
 		}
 	}
 	
-	public List<ITaskRecord> getTasks() {
-		// FIXME this is not thread-safe
-		return Collections.unmodifiableList(tasks);
+	public ITaskRecord[] getTasks() {
+		return tasks.toArray(new ITaskRecord[tasks.size()]);
 	}
 	
 	public boolean isActive() {
