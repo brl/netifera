@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -18,8 +19,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IPageListener;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
@@ -48,12 +53,51 @@ public class NavigatorView extends ViewPart {
 	private Action connectProbeAction;
 	private Action disconnectProbeAction;
 	
-	public NavigatorView() {
-	}
+	private boolean linkWithEditor = true;
+	private Action linkWithEditorAction;
+	
+	private IEventHandler probeChangeHandler;
+	
+	private IPageListener pageListener = new IPageListener() {
+		public void pageActivated(IWorkbenchPage page) {
+			page.addPartListener(partListener);
+			IEditorPart editor = page.getActiveEditor();
+			if (editor != null) partListener.partActivated(editor);
+		}
+		public void pageClosed(IWorkbenchPage page) {
+			page.removePartListener(partListener);
+		}
+		public void pageOpened(IWorkbenchPage page) {
+		}
+	};
+
+	private IPartListener partListener = new IPartListener() {
+		public void partActivated(IWorkbenchPart part) {
+			if (!linkWithEditor)
+				return;
+			if (!(part instanceof IEditorPart))
+				return;
+			IEditorInput editorInput = ((IEditorPart) part).getEditorInput();
+			if (editorInput instanceof SpaceEditorInput) {
+				ISpace newSpace = ((SpaceEditorInput)editorInput).getSpace();
+				viewer.reveal(newSpace);
+				viewer.expandToLevel(newSpace, 1);
+				viewer.setSelection(new StructuredSelection(newSpace), true);
+			}
+		}
+		public void partBroughtToTop(IWorkbenchPart part) {
+		}
+		public void partClosed(IWorkbenchPart part) {
+		}
+		public void partDeactivated(IWorkbenchPart part) {
+		}
+		public void partOpened(IWorkbenchPart part) {
+		}
+	};
 
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+		viewer = new TreeViewer(parent, /*SWT.MULTI |*/ SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 
 		viewer.setContentProvider(new NavigatorContentProvider());
 		viewer.setLabelProvider(new NavigatorLabelProvider());
@@ -74,17 +118,45 @@ public class NavigatorView extends ViewPart {
 				}
 			}
 		});
-		
-		Activator.getInstance().getProbeManager().addProbeChangeListener(
-				createProbeChangeHandler(parent.getDisplay()));
 
 		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
 		newSpaceAction = new NewSpaceAction(this, viewer);
 		connectProbeAction = new ConnectProbeAction(viewer);
 		disconnectProbeAction = new DisconnectProbeAction(viewer);
 		
+		linkWithEditorAction = new ToggleLinkWithEditorAction(this);
+
+		probeChangeHandler = createProbeChangeHandler(parent.getDisplay());
+		Activator.getInstance().getProbeManager().addProbeChangeListener(probeChangeHandler);
+
+		getSite().getWorkbenchWindow().addPageListener(pageListener);
+		IWorkbenchPage page = getActivePage();
+		if (page != null)
+			pageListener.pageActivated(page);
+
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				if (!linkWithEditor)
+					return;
+				ISpace space = getSelectedSpace();
+				if (space != null && space.isOpened()) {
+					try {
+						focusEditorForSpace(space);
+					} catch (PartInitException e) {
+					}
+				}
+			}
+		});
+		
 		initializeContextMenu();
 		initializeToolBar();
+	}
+
+	@Override
+	public void dispose() {
+		getSite().getWorkbenchWindow().removePageListener(pageListener);
+		Activator.getInstance().getProbeManager().removeProbeChangeListener(probeChangeHandler);
+		super.dispose();
 	}
 	
 	private IEventHandler createProbeChangeHandler(final Display display) {
@@ -146,15 +218,16 @@ public class NavigatorView extends ViewPart {
 	private void openEditorForSpace(ISpace space) throws PartInitException {
 		final IEditorInput input = new SpaceEditorInput(space);
 		space.open();
-		getPage().openEditor(input, SpaceEditor.ID);
+		getActivePage().openEditor(input, SpaceEditor.ID);
 	}
 	
 	private void focusEditorForSpace(ISpace space) throws PartInitException {
-		for(IEditorReference reference : getPage().getEditorReferences()) {
+		IWorkbenchPage page = getActivePage();
+		for(IEditorReference reference : page.getEditorReferences()) {
 			if(reference.getEditorInput() instanceof SpaceEditorInput) {
 				SpaceEditorInput input = (SpaceEditorInput) reference.getEditorInput();
 				if(input.getSpace() == space) {
-					getPage().activate(reference.getEditor(true));
+					page.activate(reference.getEditor(true));
 					return;
 				}
 			}
@@ -162,8 +235,8 @@ public class NavigatorView extends ViewPart {
 		openEditorForSpace(space);
 	}
 	
-	private IWorkbenchPage getPage() {
-		return Activator.getInstance().getWorkbench().getActiveWorkbenchWindow().getActivePage();
+	private IWorkbenchPage getActivePage() {
+		return getSite().getWorkbenchWindow().getActivePage();
 	}
 	
 	private void initializeToolBar() {
@@ -181,6 +254,8 @@ public class NavigatorView extends ViewPart {
 		toolBarManager.add(TreeAction.collapseAll(viewer));
 		toolBarManager.add(TreeAction.expandAll(viewer));
 
+		toolBarManager.add(linkWithEditorAction);
+		
 		setActionEnableStates();
 		
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -237,5 +312,18 @@ public class NavigatorView extends ViewPart {
 	@Override
 	public void setFocus() {
 		viewer.getControl().setFocus();
+	}
+	
+	public boolean isLinkWithEditor() {
+		return linkWithEditor;
+	}
+	
+	public void setLinkWithEditor(boolean enabled) {
+		linkWithEditor = enabled;
+		if (linkWithEditor) {
+			IEditorPart activeEditor = getActivePage().getActiveEditor();
+			if (activeEditor != null)
+				partListener.partActivated(activeEditor);
+		}
 	}
 }

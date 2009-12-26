@@ -119,6 +119,8 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 	public Object getParent(Object element) {
 		if (element instanceof ISpace) {
 			ISpace space = (ISpace)element;
+			if (space.isIsolated())
+				return Activator.getInstance().getProbeManager().getLocalProbe();
 			IEntity rootEntity = space.getRootEntity();
 			if (rootEntity instanceof SpaceEntity) {
 				return workspace.findSpaceById(((SpaceEntity)rootEntity).getSpaceId());
@@ -144,7 +146,10 @@ public class NavigatorContentProvider implements ITreeContentProvider, IEventHan
 	}
 
 	public void dispose() {
-		updater = null;
+		if (updater != null) {
+			updater.dispose();
+			updater = null;
+		}
 		if(workspace != null) {
 			workspace.removeSpaceStatusChangeListener(this);
 		}
