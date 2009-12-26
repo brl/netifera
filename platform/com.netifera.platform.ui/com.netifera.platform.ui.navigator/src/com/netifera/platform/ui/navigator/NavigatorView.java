@@ -42,8 +42,8 @@ public class NavigatorView extends ViewPart {
 
 	private TreeViewer viewer;
 
-	private Action newSpaceAction;
 	private Action newIsolatedSpaceAction;
+	private Action newSpaceAction;
 
 	private Action connectProbeAction;
 	private Action disconnectProbeAction;
@@ -78,6 +78,11 @@ public class NavigatorView extends ViewPart {
 		Activator.getInstance().getProbeManager().addProbeChangeListener(
 				createProbeChangeHandler(parent.getDisplay()));
 
+		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
+		newSpaceAction = new NewSpaceAction(this, viewer);
+		connectProbeAction = new ConnectProbeAction(viewer);
+		disconnectProbeAction = new DisconnectProbeAction(viewer);
+		
 		initializeContextMenu();
 		initializeToolBar();
 	}
@@ -98,16 +103,12 @@ public class NavigatorView extends ViewPart {
 	private void fillContextMenu(IMenuManager menuMgr) {
 		if (getSelectedSpace() != null) {
 			menuMgr.add(newSpaceAction);
-// for now just allow isolated spaces on the local probe, not as children of other isolated spaces
-//			menuMgr.add(newIsolatedSpaceAction);
 			menuMgr.add(new Separator("fixedGroup"));
 			menuMgr.add(new RenameSpaceAction(getSelectedSpace()));
 			menuMgr.add(new DeleteSpaceAction(getSelectedSpace()));
 		}
 		if (getSelectedProbe() != null) {
-			menuMgr.add(newSpaceAction);
-			if (getSelectedProbe().isLocalProbe())
-				menuMgr.add(newIsolatedSpaceAction);
+			menuMgr.add(getSelectedProbe().isLocalProbe() ? newIsolatedSpaceAction : newSpaceAction);
 			menuMgr.add(new Separator("fixedGroup"));
 			menuMgr.add(connectProbeAction);
 			menuMgr.add(disconnectProbeAction);
@@ -168,16 +169,11 @@ public class NavigatorView extends ViewPart {
 	private void initializeToolBar() {
 		final IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 
-		newIsolatedSpaceAction = new NewIsolatedSpaceAction(this, viewer);
+		// is this ok? it is redundant with the main application toolbar
 		toolBarManager.add(newIsolatedSpaceAction);
-
-		newSpaceAction = new NewSpaceAction(this, viewer);
 		toolBarManager.add(newSpaceAction);
-
-		connectProbeAction = new ConnectProbeAction(viewer);
-		toolBarManager.add(connectProbeAction);
 		
-		disconnectProbeAction = new DisconnectProbeAction(viewer);
+		toolBarManager.add(connectProbeAction);
 		toolBarManager.add(disconnectProbeAction);
 
 		toolBarManager.add(new Separator("fixedGroup"));
@@ -200,9 +196,8 @@ public class NavigatorView extends ViewPart {
 		
 		IProbe probe = getSelectedProbe();
 		ISpace space = getSelectedSpace();
-		newSpaceAction.setEnabled((probe != null && !probe.isLocalProbe()) || (space != null && space.isIsolated()));
-		newIsolatedSpaceAction.setEnabled(true);
-//		newIsolatedSpaceAction.setEnabled((probe != null && probe.isLocalProbe()) || (space != null && space.isIsolated()));
+		newSpaceAction.setEnabled((probe != null && !probe.isLocalProbe()) || (space != null /*&& space.isIsolated()*/));
+		newIsolatedSpaceAction.setEnabled(true); //(probe != null && probe.isLocalProbe()) /*|| (space != null && space.isIsolated())*/);
 	}
 	
 	private boolean getConnectActionState() {
