@@ -153,19 +153,21 @@ public class EntityData implements Serializable {
 		return false;
 	}
 
-	public void synchronizeData(EntityData masterData) {
-		this.timestamp = masterData.timestamp;
-		
-		if(masterData.attributes != null) {
-			mergeAttributes(masterData.attributes, getAttributesMap());
-		}
-		
-		if(masterData.associations != null) {
-			mergeAssociations(masterData.associations, getAssociationsMap());	
-		}
-		
-		if(masterData.tags != null) {
-			mergeTags(masterData.tags, getTagsSet());	
+	public synchronized void synchronizeData(EntityData masterData) {
+		synchronized(masterData) {
+			this.timestamp = masterData.timestamp;
+			
+			if(masterData.attributes != null) {
+				mergeAttributes(masterData.attributes, getAttributesMap());
+			}
+			
+			if(masterData.associations != null) {
+				mergeAssociations(masterData.associations, getAssociationsMap());	
+			}
+			
+			if(masterData.tags != null) {
+				mergeTags(masterData.tags, getTagsSet());	
+			}
 		}
 	}
 	

@@ -14,14 +14,14 @@ public class TaskStatus implements Serializable, ITaskStatus {
 
 	final private long taskId;
 	
-	private String title;
-	private String subtitle;
+	private volatile String title;
+	private volatile String subtitle;
 	
-	private int runState;
+	private volatile int runState;
 	
-	private long startTime;
-	private int workDone;
-	private long elapsedTime;
+	private volatile long startTime;
+	private volatile int workDone;
+	private volatile long elapsedTime;
 	
 	public TaskStatus(long taskId) {
 		this.taskId = taskId;
@@ -29,6 +29,10 @@ public class TaskStatus implements Serializable, ITaskStatus {
 		workDone = -1;
 	}
 
+	public long getTaskId() {
+		return taskId;
+	}
+	
 	public void update(ITaskStatus newStatus) {
 		this.title = newStatus.getTitle();
 		this.subtitle = newStatus.getSubTitle();
@@ -54,10 +58,6 @@ public class TaskStatus implements Serializable, ITaskStatus {
 		return subtitle;
 	}
 
-	public long getTaskId() {
-		return taskId;
-	}
-	
 	public int getRunState() {
 		return runState;
 	}
@@ -93,7 +93,7 @@ public class TaskStatus implements Serializable, ITaskStatus {
 	}	
 	
     public String getStateDescription() {
-        switch (runState) {
+        switch (getRunState()) {
         case WAITING:
             return "Waiting";
         case RUNNING:
@@ -114,7 +114,7 @@ public class TaskStatus implements Serializable, ITaskStatus {
 	}
     
     private String workToString() {
-    	if(workDone == -1) {
+    	if(getWorkDone() == -1) {
     		return "";
     	} else {
     		return "(" + workDone + "%)";

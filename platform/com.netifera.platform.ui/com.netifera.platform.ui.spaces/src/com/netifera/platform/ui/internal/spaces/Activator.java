@@ -91,7 +91,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	private boolean hasSpaces() {
-		return getModel().getCurrentWorkspace().getAllSpaces().size() > 0;
+		return getModel().getCurrentWorkspace().getAllSpaces().length > 0;
 	}
 	
 	public void start(BundleContext context) throws Exception {

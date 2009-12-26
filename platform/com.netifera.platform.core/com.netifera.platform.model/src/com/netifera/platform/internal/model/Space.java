@@ -149,8 +149,10 @@ public class Space implements ISpace {
 	
 	public Set<String> getTags() {
 		Set<String> tags = new HashSet<String>();
-		for (IEntity entity: entitySet) {
-			tags.addAll(entity.getTags());
+		synchronized(entitySet) {
+			for (IEntity entity: entitySet) {
+				tags.addAll(entity.getTags());
+			}
 		}
 		return tags;
 	}
@@ -181,6 +183,7 @@ public class Space implements ISpace {
 	}
 	
 	public List<ITaskRecord> getTasks() {
+		// FIXME this is not thread-safe
 		return Collections.unmodifiableList(tasks);
 	}
 	
@@ -190,16 +193,20 @@ public class Space implements ISpace {
 	
 	private void buildEntitySet() {
 		entitySet = Collections.synchronizedSet(new HashSet<IEntity>());
-		for (IEntity entity: entities) {
-			entitySet.add(entity);
+		synchronized(entities) {
+			for (IEntity entity: entities) {
+				entitySet.add(entity);
+			}
 		}
 	}
 
 	private void buildActiveTasksSet() {
 		activeTasks = Collections.synchronizedSet(new HashSet<ITaskRecord>());
-		for (ITaskRecord task: tasks) {
-			if (task.isRunning())
-				activeTasks.add(task);
+		synchronized(tasks) {
+			for (ITaskRecord task: tasks) {
+				if (task.isRunning())
+					activeTasks.add(task);
+			}
 		}
 	}
 	
@@ -264,8 +271,10 @@ public class Space implements ISpace {
 	
 	public void addTaskChangeListenerAndPopulate(IEventHandler handler) {
 		getTaskEventManager().addListener(handler);
-		for(ITaskRecord task : tasks) {
-			handler.handleEvent(SpaceTaskChangeEvent.createCreationEvent(task));
+		synchronized(tasks) {
+			for(ITaskRecord task : tasks) {
+				handler.handleEvent(SpaceTaskChangeEvent.createCreationEvent(task));
+			}
 		}
 	}
 	
@@ -313,6 +322,7 @@ public class Space implements ISpace {
 								return;
 							commit();
 						} catch (InterruptedException e) {
+							commit(); // one last commit
 							Thread.currentThread().interrupt();
 							return;
 						} catch (DatabaseClosedException e) {
@@ -335,13 +345,6 @@ public class Space implements ISpace {
 		if (nonVolatileCommitThread == null)
 			return;
 		nonVolatileCommitThread.interrupt();
-		try {
-			while (commitThread != null)
-				Thread.sleep(BACKGROUND_COMMIT_INTERVAL);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-		commit();
 	}
 	
 	private synchronized void commit() {		

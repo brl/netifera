@@ -51,9 +51,9 @@ public class SpaceManager {
 	
 	private SpaceManager(ObjectContainer db, Workspace workspace) {
 		initialize(db, workspace);
-		allSpaces = new HashSet<ISpace>();
-		taskIdToSpace = new HashMap<Long, ISpace>();
-		spaceIdToSpace = new HashMap<Long, ISpace>();
+		allSpaces = Collections.synchronizedSet(new HashSet<ISpace>());
+		taskIdToSpace = Collections.synchronizedMap(new HashMap<Long, ISpace>());
+		spaceIdToSpace = Collections.synchronizedMap(new HashMap<Long, ISpace>());
 		commit();
 	}	
 
@@ -75,43 +75,57 @@ public class SpaceManager {
 		return logger;
 	}
 	
+	public ISpace[] getAllSpaces() {
+		synchronized(allSpaces) {
+			return allSpaces.toArray(new ISpace[allSpaces.size()]);
+		}
+	}
+	
+	public ISpace[] getOpenSpaces() {
+		synchronized(openSpaces) {
+			return openSpaces.toArray(new ISpace[openSpaces.size()]);
+		}
+	}
+	
 	public ISpace findSpaceById(long id) {
 		return spaceIdToSpace.get(id);
 	}
 	
-	public synchronized Set<ISpace> getAllSpaces() {
-		return Collections.unmodifiableSet(allSpaces);
-	}
-	
-	public synchronized Set<ISpace> getOpenSpaces() {
-		return Collections.unmodifiableSet(openSpaces);
-	}
-	
-	public synchronized ISpace findSpaceForTaskId(long taskId) {
+	public ISpace findSpaceForTaskId(long taskId) {
 		return taskIdToSpace.get(taskId);
 	}
 	
-	public synchronized void notifySpaceChange(ISpace space) {
+	public void notifySpaceChange(ISpace space) {
 		fireSpaceChangeEvent(space);
 	}
 
-	synchronized void notifySpaceContentChange(ISpaceContentChangeEvent event) {
+	void notifySpaceContentChange(ISpaceContentChangeEvent event) {
 		getEventManager().fireEvent(event);
 	}
 
-	public synchronized void addEntityToSpace(IEntity entity, long spaceId) {
+	public void addEntityToSpace(IEntity entity, long spaceId) {
 		ISpace space = spaceIdToSpace.get(spaceId);
 		if (space != null)
 			space.addEntity(entity); // events will be fired on this call
 	}
 	
-	public synchronized void addTaskToSpace(long taskId, ISpace space) {
-		taskIdToSpace.put(taskId, space);
-		database.store(taskIdToSpace);
+	public void updateEntity(IEntity entity) {
+		synchronized(openSpaces) {
+			for(ISpace space : openSpaces) {
+				space.updateEntity(entity);
+			}
+		}
+	}
+	
+	public void addTaskToSpace(long taskId, ISpace space) {
+		synchronized(taskIdToSpace) {
+			taskIdToSpace.put(taskId, space);
+			database.store(taskIdToSpace);
+		}
 		fireSpaceChangeEvent(space);
 	}
 	
-	synchronized void openSpace(ISpace space) {		
+	synchronized void openSpace(ISpace space) {
 		openSpaces.add(space);
 		getEventManager().fireEvent(new SpaceOpenCloseEvent(space, true));
 	}
@@ -155,9 +169,11 @@ public class SpaceManager {
 		
 		// if isolated, check if can delete subspaces first
 		if (space.isIsolated()) {
-			for (ISpace subspace: allSpaces) {
-				if (subspace != space && subspace.getRootEntity() == space.getRootEntity())
-					checkCanDeleteSpace(subspace);
+			synchronized (allSpaces) {
+				for (ISpace subspace: allSpaces) {
+					if (subspace != space && subspace.getRootEntity() == space.getRootEntity())
+						checkCanDeleteSpace(subspace);
+				}
 			}
 		}
 	}
@@ -167,9 +183,11 @@ public class SpaceManager {
 
 		// if isolated, delete subspaces first
 		if (space.isIsolated()) {
-			for (ISpace subspace: allSpaces) {
-				if (subspace != space && subspace.getRootEntity() == space.getRootEntity())
-					subspace.delete();
+			synchronized(allSpaces) {
+				for (ISpace subspace: allSpaces) {
+					if (subspace != space && subspace.getRootEntity() == space.getRootEntity())
+						subspace.delete();
+				}
 			}
 		}
 

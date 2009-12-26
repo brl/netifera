@@ -2,7 +2,6 @@ package com.netifera.platform.api.model;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.probe.IProbe;
@@ -110,8 +109,8 @@ public interface IWorkspace {
 	IEntityReference createEntityReference(IEntity entity);
 	
 	ISpace createSpace(IEntity root, IProbe probe);
-	Set<ISpace> getOpenSpaces();
-	Set<ISpace> getAllSpaces();
+	ISpace[] getAllSpaces();
+	ISpace[] getOpenSpaces();
 	ISpace findSpaceById(long id);
 	void addSpaceStatusChangeListener(IEventHandler handler);
 	void removeSpaceStatusChangeListener(IEventHandler handler);

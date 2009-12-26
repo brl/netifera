@@ -2,7 +2,6 @@ package com.netifera.platform.internal.model;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
@@ -140,9 +139,7 @@ public class Workspace implements IWorkspaceEx {
 	
 	public <T extends IEntity> void updateEntity(T entity) {
 		storeEntity(entity);
-		for(ISpace space : spaceManager.getOpenSpaces()) {
-			space.updateEntity(entity);
-		}
+		spaceManager.updateEntity(entity);
 		updateTable.updateEntity(entity);
 		fireEntityUpdate();
 	}
@@ -207,14 +204,14 @@ public class Workspace implements IWorkspaceEx {
 		return spaceManager.createSpace(root, probe);
 	}
 	
-	public Set<ISpace> getOpenSpaces() {	
-		return spaceManager.getOpenSpaces();
-	}
-	
-	public Set<ISpace> getAllSpaces() {
+	public ISpace[] getAllSpaces() {
 		return spaceManager.getAllSpaces();
 	}
-	
+
+	public ISpace[] getOpenSpaces() {	
+		return spaceManager.getOpenSpaces();
+	}
+
 	public ISpace findSpaceById(long id) {
 		return spaceManager.findSpaceById(id);
 	}

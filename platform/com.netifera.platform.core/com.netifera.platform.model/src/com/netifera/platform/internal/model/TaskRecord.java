@@ -62,10 +62,11 @@ public class TaskRecord implements ITaskRecord {
 	}
 	
 	public void addTaskOutput(final ITaskOutput output) {
-		outputs.add(output);
-		taskOutputDirty = true;
-		if(!commitThreadActive)
+		synchronized(outputs) {
+			outputs.add(output);
+			taskOutputDirty = true;
 			startCommitThread();
+		}
 		space.updateTask(this);
 		getEventManager().fireEvent(new ITaskOutputEvent() {
 			public ITaskOutput getMessage() {
@@ -92,7 +93,6 @@ public class TaskRecord implements ITaskRecord {
 			return;
 		}
 		commitThread = new Thread(new Runnable() {
-
 			public void run() {
 				while(commitThreadActive) {
 					try {
@@ -110,12 +110,10 @@ public class TaskRecord implements ITaskRecord {
 						commitThreadActive = false;
 						return;
 					}
-					
 				}
 				runCommit();
 				return;	
 			}
-			
 		});
 		commitThread.setDaemon(true);
 		if(status.getTitle() != null) {
@@ -141,14 +139,12 @@ public class TaskRecord implements ITaskRecord {
 		commitThread = null;
 	}
 	
-	private synchronized void runCommit() {
-		if(!taskOutputDirty) 
-			return;
-		
+	private void runCommit() {
 		synchronized(outputs) {
+			if(!taskOutputDirty) 
+				return;
 			space.getDatabase().store(outputs);
 		}
-		
 	}
 
 	/*
