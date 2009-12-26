@@ -6,18 +6,16 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 
-public class OpenWorkspaceDelegate implements IWorkbenchWindowActionDelegate {
-
-	public void dispose() {
-
-	}
+public class SwitchWorkspaceDelegate implements IWorkbenchWindowActionDelegate {
 
 	public void init(IWorkbenchWindow window) {
+	}
 
+	public void dispose() {
 	}
 
 	public void run(IAction action) {
-		OpenWorkspaceHandler.openChoseWorkspaceDialog(true);
+		SwitchWorkspaceHandler.openChoseWorkspaceDialog(true);
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {

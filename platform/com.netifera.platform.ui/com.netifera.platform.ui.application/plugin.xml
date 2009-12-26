@@ -59,20 +59,20 @@
          <action
                class="com.netifera.platform.ui.application.workspaces.NewWorkspaceDelegate"
                icon="icons/new_workspace.png"
-               id="com.netifera.platform.action.new_workspace"
+               id="com.netifera.platform.action.newWorkspace"
                label="New Workspace"
                style="push"
                toolbarPath="Normal"
                tooltip="New Workspace">
          </action>
          <action
-               class="com.netifera.platform.ui.application.workspaces.OpenWorkspaceDelegate"
-               icon="icons/open_workspace.png"
-               id="com.netifera.platform.action.open_workspace"
-               label="Open Workspace"
+               class="com.netifera.platform.ui.application.workspaces.SwitchWorkspaceDelegate"
+               icon="icons/switch_workspace.png"
+               id="com.netifera.platform.action.switchWorkspace"
+               label="Switch Workspace"
                style="push"
                toolbarPath="Normal"
-               tooltip="Open Workspace">
+               tooltip="Switch Workspace">
          </action>
       </actionSet>
    </extension>
@@ -84,9 +84,9 @@
             name="Exit">
       </command>
           <command
-            defaultHandler="com.netifera.platform.ui.application.workspaces.OpenWorkspaceHandler"
-            id="com.netifera.platform.ui.application.openWorkspace"
-            name="Open Workspace">
+            defaultHandler="com.netifera.platform.ui.application.workspaces.SwitchWorkspaceHandler"
+            id="com.netifera.platform.ui.application.switchWorkspace"
+            name="Switch Workspace">
       </command>
       <command
             defaultHandler="com.netifera.platform.ui.application.workspaces.NewWorkspaceHandler"
@@ -127,8 +127,8 @@
                   visible="true">
             </separator>
             <command
-                  commandId="com.netifera.platform.ui.application.openWorkspace"
-                  label="Open Workspace..."
+                  commandId="com.netifera.platform.ui.application.switchWorkspace"
+                  label="Switch Workspace..."
                   mnemonic="W"
                   style="push">
             </command>

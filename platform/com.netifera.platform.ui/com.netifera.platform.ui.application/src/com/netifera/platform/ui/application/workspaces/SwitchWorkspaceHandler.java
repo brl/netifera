@@ -10,7 +10,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.PlatformUI;
 
-public class OpenWorkspaceHandler extends AbstractHandler {
+public class SwitchWorkspaceHandler extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		openChoseWorkspaceDialog(true);
@@ -20,7 +20,7 @@ public class OpenWorkspaceHandler extends AbstractHandler {
 	public static WorkspaceRecord  openChoseWorkspaceDialog(boolean restart) {
 		WorkspaceChooser chooser = new WorkspaceChooser();
 		List<WorkspaceRecord> workspaces = chooser.findAllWorkspaces();
-		ChooseWorkspaceDialog dialog = new ChooseWorkspaceDialog(null, workspaces);
+		SwitchWorkspaceDialog dialog = new SwitchWorkspaceDialog(null, workspaces);
 		WorkspaceRecord workspaceRecord = null;
 		
 		int dialogButton = dialog.open();

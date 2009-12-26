@@ -15,15 +15,21 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-public class ChooseWorkspaceDialog extends Dialog {
+public class SwitchWorkspaceDialog extends Dialog {
 
 	private List list;
 	private int index;
 	private java.util.List<WorkspaceRecord> records;
 	private WorkspaceRecord selectedWorkspaceRecord;
-	 ChooseWorkspaceDialog(Shell shell, java.util.List<WorkspaceRecord> records) {
+	
+	SwitchWorkspaceDialog(Shell shell, java.util.List<WorkspaceRecord> records) {
 		super(shell);
 		this.records = records;
+	}
+	
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Switch Workspace");
 	}
 
 	 protected Control createDialogArea(Composite parent) {
