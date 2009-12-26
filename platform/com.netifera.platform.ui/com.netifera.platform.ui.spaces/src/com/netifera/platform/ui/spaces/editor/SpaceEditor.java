@@ -79,7 +79,20 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 			}
 		}
 	};
-	
+
+	private ISelectionListener selectionListener = new ISelectionListener() {
+		public void selectionChanged(IWorkbenchPart part, org.eclipse.jface.viewers.ISelection sel) {
+			if (part == SpaceEditor.this)
+				return;
+			if(sel instanceof IStructuredSelection && !sel.isEmpty()) {
+				Object o = ((IStructuredSelection)sel).iterator().next();
+				if(o instanceof IEntity) {
+					focusEntity((IEntity)o);
+				}
+			}
+		}
+	};
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 	}
@@ -103,19 +116,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		space.addChangeListener(changeListener);
 		space.addTaskChangeListener(taskChangeListener);
 		
-		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(
-				new ISelectionListener() {
-					public void selectionChanged(IWorkbenchPart part, org.eclipse.jface.viewers.ISelection sel) {
-						if (part == SpaceEditor.this)
-							return;
-						if(sel instanceof IStructuredSelection && !sel.isEmpty()) {
-							Object o = ((IStructuredSelection)sel).iterator().next();
-							if(o instanceof IEntity) {
-								focusEntity((IEntity)o);
-							}
-						}
-					}
-				});
+		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(selectionListener);
 	}
 	
 	@Override
@@ -195,6 +196,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	public void dispose() {
 		space.removeChangeListener(changeListener);
 		space.removeTaskChangeListener(taskChangeListener);
+		getSite().getWorkbenchWindow().getSelectionService().removePostSelectionListener(selectionListener);
 		super.dispose();
 		space.close(); //FIXME what if two editors in the same space?
 	}

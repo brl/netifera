@@ -37,9 +37,7 @@ public class SpaceTreeContentProvider implements ITreeContentProvider {
 	private List<IShadowEntity> getChildEntities(IShadowEntity entity) {
 		TreeStructureContext tsc = nodeToTSC(entity);
 		if(tsc.hasChildren()) {
-			List<IShadowEntity> children = tsc.getChildren();
-
-			return children;
+			return tsc.getChildren();
 		} else {
 			return Collections.emptyList();
 		}
