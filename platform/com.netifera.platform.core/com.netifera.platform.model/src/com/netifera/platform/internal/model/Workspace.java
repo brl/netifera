@@ -192,7 +192,7 @@ public class Workspace implements IWorkspaceEx {
 	}
 	
 	public IEntityReference createEntityReference(IEntity entity) {
-		return EntityReference.create(entity.getId());
+		return new EntityReference(entity);
 	}
 	
 	public ITaskRecord findTaskById(long taskId) {

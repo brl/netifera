@@ -13,19 +13,21 @@ public class EntityReference implements IEntityReference, Serializable {
 	private final long entityId;
 	transient private IEntity cachedEntity;
 	
-	public static EntityReference create(long id) {
+	public EntityReference(IEntity entity) {
+		this.entityId = entity.getId();
+		this.cachedEntity = entity;
+	}
+
+	public EntityReference(long id) {
 		if(id <= 0) {
 			throw new IllegalArgumentException();
 		}
-		return new EntityReference(id);
+		this.entityId = id;
+		this.cachedEntity = null;
 	}
 	
-	public EntityReference(long id) {
-		this.entityId = id;
-		cachedEntity = null;
-	}
 	public IEntityReference createClone() {
-		return new EntityReference(entityId);
+		return this; //new EntityReference(entityId);
 	}
 
 	public IEntity getEntity(IWorkspace workspace) {
@@ -50,5 +52,4 @@ public class EntityReference implements IEntityReference, Serializable {
 	public boolean equals(Object o) {
 		return (o instanceof EntityReference) && entityId == ((EntityReference)o).getId();
 	}
-	
 }
