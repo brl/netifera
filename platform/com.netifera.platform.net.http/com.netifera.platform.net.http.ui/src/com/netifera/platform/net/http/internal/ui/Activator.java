@@ -133,7 +133,6 @@ public class Activator extends AbstractUIPlugin {
 				displayToolbar();
 			}
 
-			@Override
 			public void perspectiveActivated(String id) {
 				if (id.equals(PerspectiveFactory.ID))
 					perspectiveOpened();
