@@ -86,14 +86,20 @@ public class TreeMapView extends ViewPart {
 					IEditorInput editorInput = ((IEditorPart) part).getEditorInput();
 					if (editorInput instanceof SpaceEditorInput) {
 						ISpace newSpace = ((SpaceEditorInput)editorInput).getSpace();
-						setPartName(newSpace.getName());//FIXME this is because the name changes and we dont get notified
-						if (newSpace != TreeMapView.this.space)
-							setSpace(newSpace);
+						setSpace(newSpace);
 					}
 				}
 				public void partBroughtToTop(IWorkbenchPart part) {
 				}
 				public void partClosed(IWorkbenchPart part) {
+					if (!(part instanceof IEditorPart))
+						return;
+					IEditorInput editorInput = ((IEditorPart) part).getEditorInput();
+					if (editorInput instanceof SpaceEditorInput) {
+						ISpace closedSpace = ((SpaceEditorInput)editorInput).getSpace();
+						if (closedSpace == TreeMapView.this.space)
+							setSpace(null);
+					}
 				}
 				public void partDeactivated(IWorkbenchPart part) {
 				}
@@ -292,8 +298,11 @@ public class TreeMapView extends ViewPart {
 	
 	private void setSpace(final ISpace space) {
 		if (this.space != null) {
+			if (this.space == space)
+				return;
 			this.space.removeChangeListener(spaceChangeListener);
 			this.populationThread.interrupt();
+			Thread.yield();
 		}
 
 		control.reset();
@@ -301,14 +310,15 @@ public class TreeMapView extends ViewPart {
 		this.space = space;
 		
 		if (space != null) {
+			setPartName(space.getName());//FIXME this is because the name changes and we dont get notified
 			control.setToolTipText("Loading...");
-//			setContentDescription("Loading...");
+			control.setEnabled(false);
 			populationThread = new Thread(new Runnable() {
 				public void run() {
 					space.addChangeListenerAndPopulate(spaceChangeListener);
 					updater.asyncExec(new Runnable() {
 						public void run() {
-//							setContentDescription("");
+							control.setEnabled(true);
 							control.setToolTipText(null);
 							control.redraw();
 						}
@@ -320,7 +330,7 @@ public class TreeMapView extends ViewPart {
 
 			setPartName(space.getName());
 		} else {
-			setPartName("TreeMapView");
+			setPartName("TreeMap");
 		}
 	}
 	

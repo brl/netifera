@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPageListener;
 import org.eclipse.ui.IPartListener;
@@ -30,12 +31,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.tasks.TaskStatus;
 import com.netifera.platform.ui.internal.tasks.TasksPlugin;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
@@ -54,6 +55,8 @@ public class TasksView extends ViewPart implements IShowInSource {
 	private static String ACTIVE_ICON = "icons/lightbulb.png";
 	private static String INACTIVE_ICON = "icons/lightbulb_off.png";
 	private static String OUTPUT_ICON = "icons/log_16x16.png";
+
+	private ISpace space;
 	
 	private StructuredViewer viewer;
 
@@ -92,7 +95,6 @@ public class TasksView extends ViewPart implements IShowInSource {
 		initializeToolBar();
 		initializeMenu();
 		initializeListeners();
-		editorChanged();
 	}
 
 	public void dipose() {
@@ -148,7 +150,6 @@ public class TasksView extends ViewPart implements IShowInSource {
 	}
 
 	private void fillContextMenu(IMenuManager menuMgr) {
-
 		menuMgr.add(taskCancelAction);
 		menuMgr.add(new ViewerRefreshAction(viewer));
 		/* create element filtering configuration menu */
@@ -188,26 +189,36 @@ public class TasksView extends ViewPart implements IShowInSource {
 		if(page != null) {
 			page.addPartListener(partListener);
 		}
+		
+		partListener.partActivated(page.getActiveEditor());
 	}
 	
 	private IPartListener createPartListener() {
 		return new IPartListener() {
 			public void partActivated(IWorkbenchPart part) {
-				if(part instanceof EditorPart) 
-					editorChanged();
+				if (!(part instanceof IEditorPart))
+					return;
+				IEditorInput editorInput = ((IEditorPart) part).getEditorInput();
+				if (editorInput instanceof SpaceEditorInput) {
+					ISpace newSpace = ((SpaceEditorInput)editorInput).getSpace();
+					setSpace(newSpace);
+				}
 			}
 
 			public void partClosed(IWorkbenchPart part) {
-				if(part instanceof EditorPart) 
-					editorChanged();			
+				if (!(part instanceof IEditorPart))
+					return;
+				IEditorInput editorInput = ((IEditorPart) part).getEditorInput();
+				if (editorInput instanceof SpaceEditorInput) {
+					ISpace closedSpace = ((SpaceEditorInput)editorInput).getSpace();
+					if (closedSpace == TasksView.this.space)
+						setSpace(null);
+				}
 			}
 			
-			public void partOpened(IWorkbenchPart part) {
-				if(part instanceof EditorPart) 
-					editorChanged();
-			}
+			public void partOpened(IWorkbenchPart part) {}
 			public void partBroughtToTop(IWorkbenchPart part) {}
-			public void partDeactivated(IWorkbenchPart part) {}		
+			public void partDeactivated(IWorkbenchPart part) {}
 		};	
 	}
 	
@@ -219,23 +230,23 @@ public class TasksView extends ViewPart implements IShowInSource {
 			public void pageOpened(IWorkbenchPage page) { page.addPartListener(partListener); }
 		};
 	}
-	
-	private void editorChanged() {
-		final IEditorPart editor = getActiveEditor();
-		
-		if(editor == null ||
-				!(editor.getEditorInput() instanceof SpaceEditorInput)) {
-			return;
-		}
-		final SpaceEditorInput input = (SpaceEditorInput) editor.getEditorInput();
-		
-		StructuredViewerUpdater.get(viewer).setInput(input.getSpace());
-	}
-	
-	private IEditorPart getActiveEditor() {
-		return getSite().getPage().getActiveEditor();
-	}
 
+	private void setSpace(ISpace space) {
+		if (this.space != null) {
+			if (this.space == space)
+				return;
+		}
+
+		this.space = space;
+		
+		if (space != null) {
+			setPartName(space.getName());//FIXME this is because the name changes and we dont get notified
+		} else {
+			setPartName("Tasks");
+		}
+		StructuredViewerUpdater.get(viewer).setInput(space);
+	}
+	
 	/**
 	 * Initialize the toolbar
 	 */
@@ -293,7 +304,7 @@ public class TasksView extends ViewPart implements IShowInSource {
 				viewer = createViewer(parent, !tableMode);
 				parent.layout();
 				parent.setRedraw(true);
-				editorChanged();
+				StructuredViewerUpdater.get(viewer).setInput(space);
 			}
 		};
 		viewMenuMgr.add(switchMode);
