@@ -3,6 +3,7 @@ package com.netifera.platform.internal.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -82,6 +83,10 @@ public class Space implements ISpace {
 		buildActiveTasksSet();
 	}
 
+	ObjectContainer getDatabase() {
+		return database;
+	}
+
 	public boolean isOpened() {
 		return isOpened;
 	}
@@ -109,12 +114,12 @@ public class Space implements ISpace {
 		getEventManager().fireEvent(new SpaceDeleteEvent(this));
 	}
 	
-	ObjectContainer getDatabase() {
-		return database;
-	}
-	
 	public List<IEntity> getEntities() {
 		return Collections.unmodifiableList(entities);
+	}
+
+	public int entityCount() {
+		return entities.size();
 	}
 	
 	public void addEntity(IEntity entity) {
@@ -126,12 +131,14 @@ public class Space implements ISpace {
 			SpaceContentChangeEvent event = SpaceContentChangeEvent.createAddEvent(this, entity);
 			getEventManager().fireEvent(event);
 			manager.notifySpaceChange(this);
+			Thread.yield();
 		}
 	}
 	
 	public void updateEntity(IEntity entity) {
 		if(entitySet.contains(entity)) {
 			getEventManager().fireEvent(SpaceContentChangeEvent.createUpdateEvent(this, entity));
+			Thread.yield();
 		}
 	}
 	
@@ -144,9 +151,42 @@ public class Space implements ISpace {
 			SpaceContentChangeEvent event = SpaceContentChangeEvent.createRemoveEvent(this, entity);
 			getEventManager().fireEvent(event);
 			manager.notifySpaceChange(this);
+			Thread.yield();
 		}
 	}
+
+	public Iterator<IEntity> iterator() {
+		return new Iterator<IEntity>() {
+			int index = 0;
+			IEntity nextEntity = nextEntity();
+
+			private IEntity nextEntity() {
+				synchronized(entities) {
+					if (index < entities.size()) {
+						index += 1;
+						return entities.get(index-1);
+					} else {
+						return null;
+					}
+				}
+			}
+			
+			public boolean hasNext() {
+				return nextEntity != null;
+			}
 	
+			public IEntity next() {
+				IEntity answer = nextEntity;
+				nextEntity = nextEntity();
+				return answer;
+			}
+
+			public void remove() {
+				throw new UnsupportedOperationException("Remove not supported in Space iterators");
+			}
+		};
+	}
+
 	public Set<String> getTags() {
 		Set<String> tags = new HashSet<String>();
 		synchronized(entitySet) {
@@ -239,16 +279,14 @@ public class Space implements ISpace {
 		manager.notifySpaceChange(this);
 		getEventManager().fireEvent(new SpaceRenameEvent(this));
 	}
-	
-	public int entityCount() {
-		return entities.size();
-	}
-	
-	public void addChangeListenerAndPopulate(IEventHandler handler) {
-		getEventManager().addListener(handler);
-		synchronized(entities) {
-			for(IEntity entity : entities) {
-				handler.handleEvent(SpaceContentChangeEvent.createAddEvent(this, entity));
+
+	public void addChangeListenerAndPopulate(final IEventHandler handler) {
+		addChangeListener(handler);
+		
+		for(IEntity entity: this) {
+			handler.handleEvent(SpaceContentChangeEvent.createAddEvent(Space.this, entity));
+			if (Thread.currentThread().isInterrupted()) {
+				return;
 			}
 		}
 	}
@@ -355,7 +393,7 @@ public class Space implements ISpace {
 		if(entitiesDirty) {
 			commitEntities();
 			entitiesDirty = false;
-		}	
+		}
 	}
 	
 	private void commitEntities() {

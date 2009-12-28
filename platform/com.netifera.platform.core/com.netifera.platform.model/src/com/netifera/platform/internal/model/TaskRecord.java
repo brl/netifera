@@ -37,7 +37,7 @@ public class TaskRecord implements ITaskRecord {
 		status.update(newStatus);
 		space.getDatabase().store(status);
 		space.updateTask(this);
-		if(commitThreadActive && (status.isFinished() || status.isFailed())) {
+		if(status.isFinished() || status.isFailed()) {
 			stopCommitThread();
 		}
 	}

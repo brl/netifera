@@ -7,7 +7,7 @@ import com.netifera.platform.api.events.IEventHandler;
 import com.netifera.platform.api.tasks.ITaskRecord;
 import com.netifera.platform.api.tasks.ITaskStatus;
 
-public interface ISpace {
+public interface ISpace extends Iterable<IEntity> {
 	long getId();
 	IWorkspace getWorkspace();
 	
