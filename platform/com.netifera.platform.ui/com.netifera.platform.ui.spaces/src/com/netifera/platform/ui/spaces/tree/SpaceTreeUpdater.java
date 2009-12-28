@@ -17,13 +17,14 @@ import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.updater.StructuredViewerUpdater;
 
 public class SpaceTreeUpdater {
+	private final ISpace space;
 	private final TreeBuilder treeBuilder;
 //	private final StructuredViewer viewer;
 	private final StructuredViewerUpdater updater;
 	private final IEventHandler spaceListener;
-	private final ISpace space;
+	private Thread populationThread;
 
-	SpaceTreeUpdater(ISpace space, final StructuredViewer treeViewer) {
+	SpaceTreeUpdater(final ISpace space, final StructuredViewer treeViewer) {
 		if(space == null || treeViewer == null) {
 			throw new IllegalArgumentException("space=" + space + ", viewer=" + treeViewer);
 		}
@@ -35,15 +36,32 @@ public class SpaceTreeUpdater {
 			if (layerProvider.isDefaultEnabled())
 				layerProviders.add(layerProvider);
 		this.treeBuilder = new TreeBuilder(layerProviders);
-		this.treeBuilder.setListener(createUpdateListener());
 		this.treeBuilder.setRoot(space.getRootEntity());
-		
+		this.treeBuilder.setListener(createUpdateListener());
+
 		this.spaceListener = createSpaceListener();
-		this.space.addChangeListenerAndPopulate(spaceListener);
+		
+		treeViewer.getControl().setEnabled(false);
+		treeViewer.getControl().setToolTipText("Loading...");
+		populationThread = new Thread(new Runnable() {
+			public void run() {
+				space.addChangeListenerAndPopulate(spaceListener);
+				updater.asyncExec(new Runnable() {
+					public void run() {
+						treeViewer.getControl().setToolTipText(null);
+						treeViewer.getControl().setEnabled(true);
+					}
+				});
+				updater.refresh();
+			}
+		});
+		populationThread.setName("Tree population thread");
+		populationThread.start();
 	}
 	
 	public void dispose() {
 		space.removeChangeListener(spaceListener);
+		populationThread.interrupt();
 	}
 	
 	public IShadowEntity getRootEntity() {
@@ -83,22 +101,16 @@ public class SpaceTreeUpdater {
 		return new ITreeBuilderListener() {
 
 			public void entityAdded(IShadowEntity entity, IShadowEntity parent) {
-//				if(treeViewer.getControl().isDisposed())
-//					return;
 				if (parent == treeBuilder.getRoot())
 					updater.refresh();
 				updater.refresh(parent);
 			}
 
 			public void entityChanged(IShadowEntity entity) {
-//				if(treeViewer.getControl().isDisposed())
-//					return;
 				updater.update(entity,null);
 			}
 
 			public void entityRemoved(IShadowEntity entity, IShadowEntity parent) {
-//				if(treeViewer.getControl().isDisposed())
-//					return;
 				if (parent == treeBuilder.getRoot())
 					updater.refresh();
 				updater.refresh(parent);
@@ -126,7 +138,7 @@ public class SpaceTreeUpdater {
 	
 	private void layersChanged() {
 		treeBuilder.setRoot(space.getRootEntity());
-		for (IEntity entity: space.getEntities()) {
+		for (IEntity entity: space) {
 			treeBuilder.addEntity(entity);
 		}
 		updater.refresh();

@@ -1,7 +1,7 @@
 package com.netifera.platform.ui.updater;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.viewers.StructuredViewer;
 
@@ -11,8 +11,10 @@ public class StructuredViewerUpdater extends ControlUpdater {
 	private Object currentInput;
 	private volatile boolean refresh;
 	private volatile boolean setInput;
-	private Map<Object,Object> refreshElements = new  HashMap<Object,Object>();
-	private Map<Object, Object> updateElements = new HashMap<Object,Object>();
+	
+	// Concurrent not really needed, but seems to be faster than th enormal HashMap
+	private Map<Object,Object> refreshElements = new ConcurrentHashMap<Object,Object>();
+	private Map<Object,Object> updateElements = new ConcurrentHashMap<Object,Object>();
 
 
 	/* private constructor to force to use the get method */
@@ -87,8 +89,10 @@ public class StructuredViewerUpdater extends ControlUpdater {
 	
 	/* the following methods are called from content providers */
 
-	public void refresh() {
+	public synchronized void refresh() {
 		refresh = true;
+		updateElements.clear();
+		refreshElements.clear();
 		scheduleUpdate();
 	}
 	
@@ -96,11 +100,11 @@ public class StructuredViewerUpdater extends ControlUpdater {
 		if(element != null) {
 			/* the map is used as a set, but we need the newest instance of element */
 			refreshElements.put(element, element);
+			scheduleUpdate();
 		} else {
 			/*refresh all if element is null hack?*/
-			refresh = true;
+			refresh();
 		}
-		scheduleUpdate();
 	}
 	
 	public synchronized void update(Object element) {
@@ -109,7 +113,6 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			updateElements.put(element, element);
 			scheduleUpdate();
 		}
-
 	}
 	
 	//XXX properties are being ignored
@@ -121,8 +124,11 @@ public class StructuredViewerUpdater extends ControlUpdater {
 		if (input == null || !input.equals(this.currentInput)) {
 			newInput = input;
 			setInput = true;
-			refresh = true;
-			scheduleUpdate();
+			refresh();
 		}
+	}
+		
+	public String toString() {
+		return "StructuredViewerUpdater ("+updateElements.size()+", "+refreshElements.size()+")";
 	}
 }
