@@ -48,7 +48,7 @@ public class GenericOptionWidget extends OptionWidget {
 		combo.add("Default"); // at index 0
 		
 		entities = new ArrayList<IEntity>();
-		for (IEntity entity: space.getEntities()) {
+		for (IEntity entity: space) {
 			if (entity.getAdapter(getOption().getType()) != null)
 				entities.add(entity);
 		}

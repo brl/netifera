@@ -146,7 +146,7 @@ public class ConfigPanel extends PopupDialog {
 		sectionClient.setLayout(new GridLayout());
 		section.setClient(sectionClient);
 		
-		for(IEntity e: Activator.getDefault().getCurrentSpace().getEntities()) {
+		for(IEntity e: Activator.getDefault().getCurrentSpace()) {
 			if (e instanceof WebSiteEntity) {
 				WebSite site = new WebSite((HTTP)((WebSiteEntity) e).getHTTP().getAdapter(HTTP.class), ((WebSiteEntity) e).getHostName());
 				addTarget(site, sectionClient);

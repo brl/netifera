@@ -82,7 +82,7 @@ public class SpaceGraphContentProvider implements IGraphContentProvider {
 
 	private void updateGraph() {
 		synchronized (viewer.getControl().getVisualization()) { //FIXME maybe this will lock too long time
-			for (IEntity entity: space.getEntities())
+			for (IEntity entity: space)
 				try {
 					addEntity(entity);
 				} catch (Throwable e) {
