@@ -4,6 +4,10 @@ package com.netifera.platform.ui.treemap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -62,7 +66,7 @@ public class TreeMapView extends ViewPart {
 
 	private TreeMapControl control;
 	private TreeMapUpdater updater;
-	private Thread populationThread;
+	private Job loadJob;
 	
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -278,8 +282,10 @@ public class TreeMapView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		if (this.space != null)
+		if (this.space != null) {
 			this.space.removeChangeListener(spaceChangeListener);
+			this.loadJob.cancel();
+		}
 		
 		super.dispose();
 	}
@@ -301,7 +307,7 @@ public class TreeMapView extends ViewPart {
 			if (this.space == space)
 				return;
 			this.space.removeChangeListener(spaceChangeListener);
-			this.populationThread.interrupt();
+			this.loadJob.cancel();
 			Thread.yield();
 		}
 
@@ -311,22 +317,33 @@ public class TreeMapView extends ViewPart {
 		
 		if (space != null) {
 			setPartName("TreeMap - "+space.getName());//FIXME this is because the name changes and we dont get notified
-			control.setToolTipText("Loading...");
+			
 			control.setEnabled(false);
-			populationThread = new Thread(new Runnable() {
-				public void run() {
-					space.addChangeListenerAndPopulate(spaceChangeListener);
+			loadJob = new Job("TreeMap loading space '"+space.getName()+"'") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					space.addChangeListener(spaceChangeListener);
+					monitor.beginTask("Loading entities", space.entityCount());
+					for(IEntity entity: space) {
+						addEntity(entity);
+						monitor.worked(1);
+						if (monitor.isCanceled()) {
+							return Status.CANCEL_STATUS;
+						}
+					}
+					
 					updater.asyncExec(new Runnable() {
 						public void run() {
 							control.setEnabled(true);
-							control.setToolTipText(null);
 							control.redraw();
 						}
 					});
+					updater.redraw();
+					return Status.OK_STATUS;
 				}
-			});
-			populationThread.setName("TreeMap population thread");
-			populationThread.start();
+			};
+			loadJob.setPriority(Job.SHORT);
+			loadJob.schedule();
 		} else {
 			setPartName("TreeMap");
 		}

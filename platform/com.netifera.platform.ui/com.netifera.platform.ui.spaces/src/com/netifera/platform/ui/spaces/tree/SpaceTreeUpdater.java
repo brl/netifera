@@ -3,6 +3,10 @@ package com.netifera.platform.ui.spaces.tree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.StructuredViewer;
 
 import com.netifera.platform.api.events.IEvent;
@@ -22,7 +26,8 @@ public class SpaceTreeUpdater {
 //	private final StructuredViewer viewer;
 	private final StructuredViewerUpdater updater;
 	private final IEventHandler spaceListener;
-	private Thread populationThread;
+//	private Thread populationThread;
+	private Job loadJob;
 
 	SpaceTreeUpdater(final ISpace space, final StructuredViewer treeViewer) {
 		if(space == null || treeViewer == null) {
@@ -42,26 +47,35 @@ public class SpaceTreeUpdater {
 		this.spaceListener = createSpaceListener();
 		
 		treeViewer.getControl().setEnabled(false);
-		treeViewer.getControl().setToolTipText("Loading...");
-		populationThread = new Thread(new Runnable() {
-			public void run() {
-				space.addChangeListenerAndPopulate(spaceListener);
+		loadJob = new Job("Loading space '"+space.getName()+"'") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				space.addChangeListener(spaceListener);
+				monitor.beginTask("Loading entities", space.entityCount());
+				for(IEntity entity: space) {
+					treeBuilder.addEntity(entity);
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						return Status.CANCEL_STATUS;
+					}
+				}
+				
 				updater.asyncExec(new Runnable() {
 					public void run() {
-						treeViewer.getControl().setToolTipText(null);
 						treeViewer.getControl().setEnabled(true);
 					}
 				});
 				updater.refresh();
+				return Status.OK_STATUS;
 			}
-		});
-		populationThread.setName("Tree population thread");
-		populationThread.start();
+		};
+		loadJob.setPriority(Job.SHORT);
+		loadJob.schedule();
 	}
 	
 	public void dispose() {
 		space.removeChangeListener(spaceListener);
-		populationThread.interrupt();
+		loadJob.cancel();
 	}
 	
 	public IShadowEntity getRootEntity() {

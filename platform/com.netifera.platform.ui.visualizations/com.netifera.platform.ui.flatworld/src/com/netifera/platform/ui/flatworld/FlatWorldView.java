@@ -3,6 +3,10 @@ package com.netifera.platform.ui.flatworld;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -43,7 +47,7 @@ public class FlatWorldView extends ViewPart {
 	
 	private FlatWorld world;
 	private FlatWorldUpdater updater;
-	private Thread populationThread;
+	private Job loadJob;
 
 	private LabelsFlatWorldLayer labelsLayer;
 //	private RaindropFlatWorldLayer raindropsLayer;
@@ -162,8 +166,10 @@ public class FlatWorldView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		if (this.space != null)
+		if (this.space != null) {
 			this.space.removeChangeListener(spaceChangeListener);
+			this.loadJob.cancel();
+		}
 		
 		super.dispose();
 	}
@@ -185,8 +191,7 @@ public class FlatWorldView extends ViewPart {
 			if (this.space == space)
 				return;
 			this.space.removeChangeListener(spaceChangeListener);
-			populationThread.interrupt();
-//			populationThread.join();
+			loadJob.cancel();
 			Thread.yield();
 		}
 
@@ -196,22 +201,33 @@ public class FlatWorldView extends ViewPart {
 		
 		if (space != null) {
 			setPartName("World - "+space.getName());//FIXME this is because the name changes and we dont get notified
-			world.setToolTipText("Loading...");
+			
 			world.setEnabled(false);
-			populationThread = new Thread(new Runnable() {
-				public void run() {
-					space.addChangeListenerAndPopulate(spaceChangeListener);
+			loadJob = new Job("World loading space '"+space.getName()+"'") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					space.addChangeListener(spaceChangeListener);
+					monitor.beginTask("Loading entities", space.entityCount());
+					for(IEntity entity: space) {
+						addEntity(entity);
+						monitor.worked(1);
+						if (monitor.isCanceled()) {
+							return Status.CANCEL_STATUS;
+						}
+					}
+					
 					updater.asyncExec(new Runnable() {
 						public void run() {
 							world.setEnabled(true);
-							world.setToolTipText(null);
 							world.redraw();
 						}
 					});
+					updater.redraw();
+					return Status.OK_STATUS;
 				}
-			});
-			populationThread.setName("FlatWorld population thread");
-			populationThread.start();
+			};
+			loadJob.setPriority(Job.SHORT);
+			loadJob.schedule();
 		} else {
 			setPartName("World");
 		}
