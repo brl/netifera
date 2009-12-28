@@ -195,7 +195,7 @@ public class FlatWorldView extends ViewPart {
 		this.space = space;
 		
 		if (space != null) {
-			setPartName(space.getName());//FIXME this is because the name changes and we dont get notified
+			setPartName("World - "+space.getName());//FIXME this is because the name changes and we dont get notified
 			world.setToolTipText("Loading...");
 			world.setEnabled(false);
 			populationThread = new Thread(new Runnable() {
@@ -212,8 +212,6 @@ public class FlatWorldView extends ViewPart {
 			});
 			populationThread.setName("FlatWorld population thread");
 			populationThread.start();
-
-			setPartName(space.getName());
 		} else {
 			setPartName("World");
 		}

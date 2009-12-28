@@ -310,7 +310,7 @@ public class TreeMapView extends ViewPart {
 		this.space = space;
 		
 		if (space != null) {
-			setPartName(space.getName());//FIXME this is because the name changes and we dont get notified
+			setPartName("TreeMap - "+space.getName());//FIXME this is because the name changes and we dont get notified
 			control.setToolTipText("Loading...");
 			control.setEnabled(false);
 			populationThread = new Thread(new Runnable() {
@@ -327,8 +327,6 @@ public class TreeMapView extends ViewPart {
 			});
 			populationThread.setName("TreeMap population thread");
 			populationThread.start();
-
-			setPartName(space.getName());
 		} else {
 			setPartName("TreeMap");
 		}

@@ -240,7 +240,7 @@ public class TasksView extends ViewPart implements IShowInSource {
 		this.space = space;
 		
 		if (space != null) {
-			setPartName(space.getName());//FIXME this is because the name changes and we dont get notified
+			setPartName("Tasks - "+space.getName());//FIXME this is because the name changes and we dont get notified
 		} else {
 			setPartName("Tasks");
 		}
