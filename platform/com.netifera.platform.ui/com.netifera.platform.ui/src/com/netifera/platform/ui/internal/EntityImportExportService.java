@@ -9,10 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
+import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.ui.api.export.IEntityImportExportProvider;
 import com.netifera.platform.ui.api.export.IEntityImportExportService;
 import com.netifera.platform.util.Base64;
@@ -25,12 +28,15 @@ public class EntityImportExportService implements IEntityImportExportService {
 	
 	private ILogger logger;
 	
-	public void exportEntities(Collection<IEntity> entities, Writer writer) throws IOException {
+	public void exportEntities(Iterable<IEntity> entities, Writer writer, IProgressMonitor monitor) throws IOException {
+		int totalWork = (entities instanceof ISpace) ? ((ISpace)entities).entityCount() : (entities instanceof Collection) ? ((Collection<IEntity>)entities).size() : IProgressMonitor.UNKNOWN;
+		monitor.beginTask("Exporting to XML", totalWork);
 		Map<Long,XMLElement> map = new HashMap<Long,XMLElement>();
 		XMLElement root = new XMLElement();
 		root.setName("space");
 		for (IEntity entity: entities) {
 			XMLElement xml = exportEntity(entity);
+			monitor.worked(1);
 			if (xml != null) {
 				map.put(entity.getId(), xml);
 				XMLElement realm = map.get(entity.getRealmId());
@@ -40,8 +46,10 @@ public class EntityImportExportService implements IEntityImportExportService {
 					root.addChild(xml);
 			}
 		}
-		
+
+		monitor.subTask("Writing XML");
 		root.write(writer);
+		monitor.done();
 	}
 
 	private XMLElement exportEntity(IEntity entity) throws IOException {
@@ -78,10 +86,13 @@ public class EntityImportExportService implements IEntityImportExportService {
 		return null;
 	}
 
-	public List<IEntity> importEntities(long realm, long space, Reader reader) throws XMLParseException, IOException {
+	public List<IEntity> importEntities(long realm, long space, Reader reader, IProgressMonitor monitor) throws XMLParseException, IOException {
+		monitor.beginTask("Importing from XML", IProgressMonitor.UNKNOWN);
+		monitor.subTask("Parsing XML");
 		XMLElement xml = new XMLElement();
 		xml.parseFromReader(reader);
 		List<IEntity> entities = new ArrayList<IEntity>();
+		monitor.subTask("Importing from XML");
 		for (XMLElement child: xml.getChildren()) {
 			IEntity entity = importEntity(realm, space, child, entities);
 			if (entity != null) {
