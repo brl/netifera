@@ -1,16 +1,17 @@
 package com.netifera.platform.ui.flatworld;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -21,10 +22,6 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistable;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import com.netifera.platform.ui.flatworld.layers.FocusFlatWorldLayer;
-import com.netifera.platform.ui.flatworld.layers.LabelsFlatWorldLayer;
-import com.netifera.platform.ui.flatworld.layers.RaindropFlatWorldLayer;
-import com.netifera.platform.ui.flatworld.support.FloatPoint;
 import com.netifera.platform.ui.flatworld.support.FloatRectangle;
 import com.netifera.platform.ui.internal.flatworld.Activator;
 
@@ -32,13 +29,8 @@ public class FlatWorld extends Canvas implements IPersistable {
 	
 	private Image texture;
 	private Image textureSmall;
-	
-	private LabelsFlatWorldLayer labelsLayer;
-	private RaindropFlatWorldLayer raindropsLayer;
-	private FocusFlatWorldLayer focusLayer;
 
-	private boolean animated = false;
-	private boolean raindropsEnabled = true;
+	private List<IFlatWorldLayer> layers;
 	
 	private Cursor panningCursor;
 	private Cursor zoomingCursor;
@@ -68,8 +60,9 @@ public class FlatWorld extends Canvas implements IPersistable {
 
 		initializeCursors();
 		initializeTexture();
-		initializeLayers();
 
+		reset();
+		
 		setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
 		setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
 		
@@ -190,17 +183,19 @@ public class FlatWorld extends Canvas implements IPersistable {
 		gc.drawImage(texture, textureBounds.x, textureBounds.y, textureBounds.width, textureBounds.height, 0, 0, width, height);
 	}
 
-	private void initializeLayers() {
-		labelsLayer = new LabelsFlatWorldLayer();
-		raindropsLayer = new RaindropFlatWorldLayer();
-		focusLayer = new FocusFlatWorldLayer();
-	}
-
 	private void initializeCursors() {
 		panningCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_HAND);
 		zoomingCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_SIZEALL);
 	}
 
+	public void reset() {
+		layers = new ArrayList<IFlatWorldLayer>();
+	}
+	
+	public void addLayer(IFlatWorldLayer layer) {
+		layers.add(layer);
+	}
+	
 	@Override
 	public void dispose() {
 		texture.dispose();
@@ -268,11 +263,9 @@ public class FlatWorld extends Canvas implements IPersistable {
 		gc.drawImage(texture, srcX, srcY, srcWidth, srcHeight, rect.x-dx, rect.y-dy, w, h);
 
 		final FloatRectangle region = getVisibleGeographicalRegion();
-		labelsLayer.paint(region, rect, gc);
-		if (raindropsLayer.isActive())
-			raindropsLayer.paint(region, rect, gc);
-		if (focusLayer.isActive())
-			focusLayer.paint(region, rect, gc);
+		
+		for (IFlatWorldLayer layer: layers)
+			layer.paint(region, rect, gc);
 		
 /*		labels.visit(region, new IQuadTreeVisitor<String>() {
 			public boolean visit(QuadTree<String> tree) {
@@ -301,7 +294,7 @@ public class FlatWorld extends Canvas implements IPersistable {
 		Rectangle textureBounds = texture.getBounds();
 		return new FloatRectangle((x-textureBounds.x)*360/textureBounds.width-180,(y-textureBounds.y)*-180/textureBounds.height+90 - 180*height/textureBounds.height,360*width/textureBounds.width,180*height/textureBounds.height);
 	}
-
+/*
 	private Point getScreenCoordinatesFromLocation(FloatPoint location) {
 		Rectangle textureBounds = texture.getBounds();
 		Rectangle rect = getClientArea();
@@ -315,56 +308,5 @@ public class FlatWorld extends Canvas implements IPersistable {
 		Point topRight = getScreenCoordinatesFromLocation(region.bottomRight());
 		return new Rectangle(bottomLeft.x, topRight.y, topRight.x-bottomLeft.x, bottomLeft.y-topRight.y);
 	}
-
-	private void animate() {
-		if (!animated) {
-			animated = true;
-			getDisplay().timerExec(100, new Runnable() {
-				public void run() {
-					if (!isDisposed()) {
-						redraw();
-						if (raindropsLayer.isActive() || focusLayer.isActive())
-							getDisplay().timerExec(100, this);
-						else
-							animated = false;
-					}
-				}
-			});
-		}
-	}
-	
-	public void addLabel(double latitude, double longitude, String label) {
-		if (label == null) return;
-		labelsLayer.addLabel(latitude, longitude, label);
-		redraw();
-	}
-
-	public void setRandropsEnabled(boolean enabled) {
-		raindropsEnabled = enabled;
-	}
-	
-	public void addRaindrop(double latitude, double longitude, Color color) {
-		if (!raindropsEnabled)
-			return;
-		raindropsLayer.addRaindrop(latitude, longitude, color);
-		if (raindropsLayer.isActive())
-			animate();
-		redraw();
-	}
-	
-	public void setFocus(double latitude, double longitude) {
-		focusLayer.setFocus(latitude, longitude);
-		if (focusLayer.isActive())
-			animate();
-		redraw();
-	}
-	
-	public void unsetFocus() {
-		focusLayer.unsetFocus();
-		redraw();
-	}
-	
-	public void reset() {
-		initializeLayers();
-	}
+*/
 }

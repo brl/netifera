@@ -13,15 +13,18 @@ public class FocusFlatWorldLayer implements IFlatWorldLayer {
 
 	private FloatPoint location = null;
 
-	public void unsetFocus() {
+	public synchronized void unsetFocus() {
 		location = null;
 	}
 
-	public void setFocus(double latitude, double longitude) {
+	public synchronized void setFocus(double latitude, double longitude) {
 		location = new FloatPoint((float)longitude, (float)latitude);
 	}
 
-	public void paint(final FloatRectangle region, final Rectangle rect, final GC gc) {
+	public synchronized void paint(final FloatRectangle region, final Rectangle rect, final GC gc) {
+		if (!isActive())
+			return;
+		
 		final long now = System.currentTimeMillis();
 		int x = (int) ((location.x-region.x)/region.width*rect.width + rect.x);
 		int y = (int) ((region.y-location.y)/region.height*rect.height + rect.y + rect.height);
@@ -36,7 +39,7 @@ public class FocusFlatWorldLayer implements IFlatWorldLayer {
 		gc.drawOval(x-radius, y-radius, diameter, diameter);
 	}
 	
-	public boolean isActive() {
+	public synchronized boolean isActive() {
 		return location != null;
 	}
 }

@@ -16,12 +16,12 @@ public class LabelsFlatWorldLayer implements IFlatWorldLayer {
 
 	private QuadTree<String> labels = new QuadTree<String>(new FloatRectangle(-180,-90,360,180));
 
-	public void addLabel(double latitude, double longitude, String label) {
+	public synchronized void addLabel(double latitude, double longitude, String label) {
 		if (label == null) return;
 		labels.put(new FloatPoint((float)longitude, (float)latitude), label);
 	}
 
-	public void paint(final FloatRectangle region, final Rectangle rect, final GC gc) {
+	public synchronized void paint(final FloatRectangle region, final Rectangle rect, final GC gc) {
 		labels.visit(region, new IQuadTreeElementsVisitor<String>() {
 			public void visit(QuadTree<String> tree, FloatPoint location, String label) {
 				int x = (int) ((location.x-region.x)/region.width*rect.width + rect.x);

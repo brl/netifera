@@ -14,7 +14,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -62,11 +61,15 @@ public class TreeMapView extends ViewPart {
 	};
 
 	private TreeMapControl control;
+	private TreeMapUpdater updater;
+	private Thread populationThread;
 	
 	@Override
 	public void createPartControl(final Composite parent) {
 		control = new TreeMapControl(parent, SWT.BORDER);
 		control.setLayout(new FillLayout());
+
+		updater = TreeMapUpdater.get(control);
 		
 		if (memento != null) {
 			IMemento treeMapMemento = memento.getChild("TreeMap");
@@ -287,16 +290,34 @@ public class TreeMapView extends ViewPart {
 		// TODO Auto-generated method stub
 	}
 	
-	private void setSpace(ISpace space) {
-		if (this.space != null)
+	private void setSpace(final ISpace space) {
+		if (this.space != null) {
 			this.space.removeChangeListener(spaceChangeListener);
+			this.populationThread.interrupt();
+		}
 
 		control.reset();
 
 		this.space = space;
 		
 		if (space != null) {
-			space.addChangeListenerAndPopulate(spaceChangeListener);
+			control.setToolTipText("Loading...");
+//			setContentDescription("Loading...");
+			populationThread = new Thread(new Runnable() {
+				public void run() {
+					space.addChangeListenerAndPopulate(spaceChangeListener);
+					updater.asyncExec(new Runnable() {
+						public void run() {
+//							setContentDescription("");
+							control.setToolTipText(null);
+							control.redraw();
+						}
+					});
+				}
+			});
+			populationThread.setName("TreeMap population thread");
+			populationThread.start();
+
 			setPartName(space.getName());
 		} else {
 			setPartName("TreeMapView");
@@ -320,12 +341,10 @@ public class TreeMapView extends ViewPart {
 		if (entity instanceof InternetAddressEntity) {
 			final InternetAddressEntity addressEntity = (InternetAddressEntity) entity;
 			final InternetAddress address = addressEntity.toNetworkAddress();
-			if (address instanceof IPv4Address)
-				Display.getDefault().syncExec(new Runnable() {
-					public void run() {
-						control.add((IPv4Address)address, addressEntity.getHost());
-					}
-				});
+			if (address instanceof IPv4Address) {
+				control.add((IPv4Address)address, addressEntity.getHost());
+				updater.redraw();
+			}
 		} else if (entity instanceof HostEntity) {
 			HostEntity hostEntity = (HostEntity) entity;
 			for (IEntity addressEntity: hostEntity.getAddresses())

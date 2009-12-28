@@ -7,7 +7,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IMemento;
@@ -31,6 +30,8 @@ import com.netifera.platform.api.model.layers.IEdgeLayer;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.net.ui.geoip.IGeographicalLayer;
 import com.netifera.platform.net.ui.geoip.ILocation;
+import com.netifera.platform.ui.flatworld.layers.FocusFlatWorldLayer;
+import com.netifera.platform.ui.flatworld.layers.LabelsFlatWorldLayer;
 import com.netifera.platform.ui.internal.flatworld.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 
@@ -41,7 +42,13 @@ public class FlatWorldView extends ViewPart {
 	private IMemento memento;
 	
 	private FlatWorld world;
-	
+	private FlatWorldUpdater updater;
+	private Thread populationThread;
+
+	private LabelsFlatWorldLayer labelsLayer;
+//	private RaindropFlatWorldLayer raindropsLayer;
+	private FocusFlatWorldLayer focusLayer;
+
 	private volatile boolean followNewEntities = false;
 	private IEntity focusEntity;
 
@@ -56,9 +63,13 @@ public class FlatWorldView extends ViewPart {
 			}
 		}
 	};
+
+//	private Color red;
 	
 	@Override
 	public void createPartControl(final Composite parent) {
+//		red = Display.getDefault().getSystemColor(SWT.COLOR_RED);
+		
 		for (ISemanticLayer layer: Activator.getInstance().getModel().getSemanticLayers()) {
 			if (layer.isDefaultEnabled() &&
 					(layer instanceof IGeographicalLayer || layer instanceof IEdgeLayer))
@@ -67,6 +78,8 @@ public class FlatWorldView extends ViewPart {
 		
 		world = new FlatWorld(parent, SWT.BORDER);
 		world.setLayout(new FillLayout());
+		
+		updater = FlatWorldUpdater.get(world);
 
 		if (memento != null) {
 			IMemento worldMemento = memento.getChild("World");
@@ -161,27 +174,41 @@ public class FlatWorldView extends ViewPart {
 		// TODO Auto-generated method stub
 	}
 
-	private void setSpace(ISpace space) {
-		if (this.space != null)
+	private void setSpace(final ISpace space) {
+		if (this.space != null) {
 			this.space.removeChangeListener(spaceChangeListener);
+			populationThread.interrupt();
+//			populationThread.join();
+			Thread.yield();
+		}
 
-		world.reset();
+		initializeFlatWorldLayers();
 		
 		this.space = space;
 		if (space != null) {
-			world.setRandropsEnabled(false);
-			space.addChangeListenerAndPopulate(spaceChangeListener);
-			world.setRandropsEnabled(true);
+			world.setToolTipText("Loading...");
+//			setContentDescription("Loading...");
+			populationThread = new Thread(new Runnable() {
+				public void run() {
+					space.addChangeListenerAndPopulate(spaceChangeListener);
+					updater.asyncExec(new Runnable() {
+						public void run() {
+//							setContentDescription("");
+							world.setToolTipText(null);
+							world.redraw();
+						}
+					});
+				}
+			});
+			populationThread.setName("FlatWorld population thread");
+			populationThread.start();
+
 			setPartName(space.getName());
 		} else {
 			setPartName("World");
 		}
 		
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				world.redraw();
-			}
-		});
+		updater.redraw();
 	}
 	
 	private void handleSpaceChange(final ISpaceContentChangeEvent event) {
@@ -238,12 +265,9 @@ public class FlatWorldView extends ViewPart {
 		if (location != null) {
 			final String label = location.getCity() != null ? location.getCity() : location.getCountry();
 			if (label != null) {
-				Display.getDefault().syncExec(new Runnable() {
-					public void run() {
-						world.addLabel(location.getPosition()[0], location.getPosition()[1], label);
-						world.addRaindrop(location.getPosition()[0], location.getPosition()[1], Display.getDefault().getSystemColor(SWT.COLOR_RED));
-					}
-				});
+				labelsLayer.addLabel(location.getPosition()[0], location.getPosition()[1], label);
+//				world.addRaindrop(location.getPosition()[0], location.getPosition()[1], red);
+				updater.redraw();
 			}
 		}
 	}
@@ -252,7 +276,7 @@ public class FlatWorldView extends ViewPart {
 /*		ILocation sourceLocation = getLocation(edge.getSource());
 		ILocation targetLocation = getLocation(edge.getTarget());
 		if (sourceLocation != null && targetLocation != null)
-			worldWidget.addLine(sourceLocation.getPosition()[0], sourceLocation.getPosition()[1], targetLocation.getPosition()[0], targetLocation.getPosition()[1]);
+			world.addLine(sourceLocation.getPosition()[0], sourceLocation.getPosition()[1], targetLocation.getPosition()[0], targetLocation.getPosition()[1]);
 */	}
 
 	private ILocation getLocation(IEntity entity) {
@@ -270,14 +294,19 @@ public class FlatWorldView extends ViewPart {
 
 	public synchronized void focusEntity(IEntity entity) {
 		final ILocation location = getLocation(entity);
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					if (location != null) {
-						world.setFocus(location.getPosition()[0], location.getPosition()[1]);
-					} else {
-						world.unsetFocus();
-					}
-				}
-			});
+		if (location != null) {
+			focusLayer.setFocus(location.getPosition()[0], location.getPosition()[1]);
+		} else {
+			focusLayer.unsetFocus();
+		}
+		updater.redraw();
+	}
+	
+	private void initializeFlatWorldLayers() {
+		labelsLayer = new LabelsFlatWorldLayer();
+//		raindropsLayer = new RaindropFlatWorldLayer();
+		focusLayer = new FocusFlatWorldLayer();
+		world.reset();
+		world.addLayer(labelsLayer);
 	}
 }

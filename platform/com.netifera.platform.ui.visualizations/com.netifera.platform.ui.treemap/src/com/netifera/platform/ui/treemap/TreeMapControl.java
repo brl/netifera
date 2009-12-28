@@ -236,7 +236,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		frame.scale = memento.getFloat("frameScale");
 	}
 	
-	private void paint(PaintEvent event) {
+	private synchronized void paint(PaintEvent event) {
 		GC gc = event.gc;
 		
 		gc.setAntialias(SWT.ON);
@@ -288,9 +288,9 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		redraw();
 	}
 
-	public void add(IPv4Address address, IEntity entity) {
+	public synchronized void add(IPv4Address address, IEntity entity) {
 		treeMap.add(address, entity);
-		redraw();
+//		redraw();
 	}
 	
 	public void reset() {
@@ -299,7 +299,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		redraw();
 	}
 
-	public TreeMap getItem(Point point) {
+	public synchronized TreeMap getItem(Point point) {
 		Rectangle rect = getClientArea();
 		double extent = Math.min(rect.width,rect.height) * frame.scale;
 		
@@ -327,7 +327,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		return tree;
 	}
 	
-	public Rectangle getItemBounds(TreeMap subtree) {
+	public synchronized Rectangle getItemBounds(TreeMap subtree) {
 		Rectangle rect = getClientArea();
 		int x = rect.x - (int)frame.offsetX;
 		int y = rect.y - (int)frame.offsetY;

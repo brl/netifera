@@ -20,7 +20,7 @@ public class RaindropFlatWorldLayer implements IFlatWorldLayer {
 		long time;
 	}
 	
-	public void addRaindrop(double latitude, double longitude, Color color) {
+	public synchronized void addRaindrop(double latitude, double longitude, Color color) {
 		Raindrop raindrop = new Raindrop();
 		raindrop.color = color;
 		raindrop.time = System.currentTimeMillis();
@@ -28,7 +28,10 @@ public class RaindropFlatWorldLayer implements IFlatWorldLayer {
 		active = true;
 	}
 
-	public void paint(final FloatRectangle region, final Rectangle rect, final GC gc) {
+	public synchronized void paint(final FloatRectangle region, final Rectangle rect, final GC gc) {
+		if (!isActive())
+			return;
+
 		active = false;
 		final long now = System.currentTimeMillis();
 		raindrops.visit(region, new IQuadTreeElementsVisitor<Raindrop>() {
@@ -54,7 +57,7 @@ public class RaindropFlatWorldLayer implements IFlatWorldLayer {
 		});
 	}
 	
-	public boolean isActive() {
+	public synchronized boolean isActive() {
 		return active;
 	}
 }

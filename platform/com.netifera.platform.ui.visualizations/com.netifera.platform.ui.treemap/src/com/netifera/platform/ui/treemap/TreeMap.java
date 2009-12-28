@@ -58,7 +58,7 @@ public class TreeMap implements Iterable<IEntity> {
 	public IPv4Netblock getNetblock() {
 		return netblock;
 	}
-		
+	
 	public int size() {
 		int answer = entities.size();
 		for (TreeMap subtree: subtrees) {
@@ -102,7 +102,7 @@ public class TreeMap implements Iterable<IEntity> {
 		
 		int index = getIndex(address);
 		TreeMap subtree = subtrees[index];
-			
+		
 		if (subtree == null) {
 			subtree = new TreeMap(new IPv4Netblock(address, netblock.getCIDR()+8));
 			subtrees[index] = subtree;
