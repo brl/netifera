@@ -22,20 +22,45 @@ public class FakeScanner extends AbstractPortscanner {
 	@Override
 	protected void scannerRun() throws ToolException {
 		context.setTitle("Fake scan "+targetNetwork);
-		context.setTotalWork(targetNetwork.size()*targetPorts.size());
 
 		random = new Random(System.currentTimeMillis());
-		
+
+/*		ExecutorService executor = Executors.newCachedThreadPool();
+
+		for (int i=0; i<3; i++) {
+			final int n = i;
+			executor.execute(new Runnable() {
+				public void run() {
+					try {
+						scanAllAddresses();
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						context.warning("Interrupted sub thread "+n);
+						return;
+					} finally {
+						context.info("Thread "+n+" finished");
+					}
+				}
+			});
+		}
+*/		
 		try {
 			scanAllAddresses();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			context.warning("Interrupted");
 			return;
+		} finally {
+//			executor.shutdownNow();
 		}
 	}
 
 	private void scanAllAddresses() throws InterruptedException {
+		if (targetNetwork.size() > 0xFFFF) {
+			scanRandom();
+			return;
+		}
+		
 		for (Integer port: targetPorts) {
 			for (InternetAddress address: targetNetwork) {
 				if (Thread.currentThread().isInterrupted())
@@ -43,11 +68,26 @@ public class FakeScanner extends AbstractPortscanner {
 				try {
 					randomlyAddService(address, port);
 					waitDelay();
-					if (Thread.currentThread().isInterrupted())
-						return;
 				} finally {
-					context.worked(1);
+//					context.worked(1);
 				}
+			}
+		}
+	}
+
+	private void scanRandom() throws InterruptedException {
+		while (true) {
+			if (Thread.currentThread().isInterrupted())
+				throw new InterruptedException();
+			Integer port = targetPorts.get(random.nextInt(targetPorts.size()));
+			InternetAddress address = targetNetwork.get(random.nextInt(targetNetwork.size()));
+			try {
+				randomlyAddService(address, port);
+				waitDelay();
+				if (Thread.currentThread().isInterrupted())
+					throw new InterruptedException();
+			} finally {
+//				context.worked(1);
 			}
 		}
 	}
@@ -60,10 +100,10 @@ public class FakeScanner extends AbstractPortscanner {
 		Map<String,String> serviceInfo = randomlyDetectTCPService();
 		if (serviceInfo != null) {
 			Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
-			context.info(serviceInfo.get("serviceType")+" @ "+peer);
+//			context.info(serviceInfo.get("serviceType")+" @ "+peer);
 		} else {
 			Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, null, null);
-			context.warning("Unknown service @ " + peer);
+//			context.warning("Unknown service @ " + peer);
 		}
 	}
 	
