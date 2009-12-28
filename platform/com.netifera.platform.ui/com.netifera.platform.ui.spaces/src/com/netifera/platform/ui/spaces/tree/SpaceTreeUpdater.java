@@ -26,7 +26,6 @@ public class SpaceTreeUpdater {
 //	private final StructuredViewer viewer;
 	private final StructuredViewerUpdater updater;
 	private final IEventHandler spaceListener;
-//	private Thread populationThread;
 	private Job loadJob;
 
 	SpaceTreeUpdater(final ISpace space, final StructuredViewer treeViewer) {
@@ -41,36 +40,12 @@ public class SpaceTreeUpdater {
 			if (layerProvider.isDefaultEnabled())
 				layerProviders.add(layerProvider);
 		this.treeBuilder = new TreeBuilder(layerProviders);
-		this.treeBuilder.setRoot(space.getRootEntity());
 		this.treeBuilder.setListener(createUpdateListener());
 
 		this.spaceListener = createSpaceListener();
-		
-		treeViewer.getControl().setEnabled(false);
-		loadJob = new Job("Loading space '"+space.getName()+"'") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				space.addChangeListener(spaceListener);
-				monitor.beginTask("Loading entities", space.entityCount());
-				for(IEntity entity: space) {
-					treeBuilder.addEntity(entity);
-					monitor.worked(1);
-					if (monitor.isCanceled()) {
-						return Status.CANCEL_STATUS;
-					}
-				}
-				
-				updater.asyncExec(new Runnable() {
-					public void run() {
-						treeViewer.getControl().setEnabled(true);
-					}
-				});
-				updater.refresh();
-				return Status.OK_STATUS;
-			}
-		};
-		loadJob.setPriority(Job.SHORT);
-		loadJob.schedule();
+		space.addChangeListener(spaceListener);
+
+		loadSpace();
 	}
 	
 	public void dispose() {
@@ -142,19 +117,37 @@ public class SpaceTreeUpdater {
 	
 	public void addLayer(ISemanticLayer layerProvider) {
 		treeBuilder.addLayer(layerProvider);
-		layersChanged();
+		loadSpace();
 	}
 	
 	public void removeLayer(ISemanticLayer layerProvider) {
 		treeBuilder.removeLayer(layerProvider);
-		layersChanged();
+		loadSpace();
 	}
 	
-	private void layersChanged() {
-		treeBuilder.setRoot(space.getRootEntity());
-		for (IEntity entity: space) {
-			treeBuilder.addEntity(entity);
+	private void loadSpace() {
+		if (loadJob != null) {
+			loadJob.cancel();
+			Thread.yield();
 		}
-		updater.refresh();
+		treeBuilder.setRoot(space.getRootEntity());
+		loadJob = new Job("Loading space '"+space.getName()+"'") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Loading entities", space.entityCount());
+				for(IEntity entity: space) {
+					treeBuilder.addEntity(entity);
+					monitor.worked(1);
+					if (monitor.isCanceled()) {
+						return Status.CANCEL_STATUS;
+					}
+				}
+				
+				updater.refresh();
+				return Status.OK_STATUS;
+			}
+		};
+		loadJob.setPriority(Job.SHORT);
+		loadJob.schedule();
 	}
 }
