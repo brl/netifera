@@ -85,7 +85,6 @@ public class UserEntity extends AbstractEntity {
 	
 	@Override
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
-		super.synchronizeEntity(masterEntity);
 		hashes = ((UserEntity)masterEntity).hashes;
 		locked = ((UserEntity)masterEntity).locked;
 	}

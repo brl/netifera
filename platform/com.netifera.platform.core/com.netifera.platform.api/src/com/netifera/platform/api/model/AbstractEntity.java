@@ -18,11 +18,11 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	
 	/* The workspace instance this entity was created in */
 	private transient IWorkspace workspace;
-	
+
+	/* A unique key to query entities from the workspace with IWorkspace.findByKey(String) */
 	private String queryKey;
 	
-	/* 
-	 * The id value of this entity instance.  If the id is 0, then
+	/* The id value of this entity instance.  If the id is 0, then
 	 * the entity has not yet been stored permanently in the model.
 	 */
 	private long id = 0;
@@ -32,8 +32,13 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 
 	/* The object where entity attributes, associations and tags are stored */
 	private EntityData data = new EntityData();
+
+	/* Try to have only 1 reference per entity, so the cache kept in EntityReference is better used */
+	private IEntityReference reference;
+
 	
 	/**
+	 * Basic constructor for entities.
 	 * 
 	 * @param typeName A string describing the type of this entity.
 	 * @param workspace The workspace instance this entity was created in.
@@ -52,6 +57,8 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	
 	public void setWorkspace(final IWorkspace workspace) {
 		this.workspace = workspace;
+		if (reference != null)
+			reference.setEntity(this);
 	}
 	
 	public Set<String> getAttributes() {
@@ -123,26 +130,17 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		this.realmId = id;
 	}
 	
-	public IEntityReference createReference() {
+	public synchronized IEntityReference createReference() {
 		if(id == 0) {
 			throw new IllegalStateException("IEntity#createReference called on an entity which has not been saved.");
 		}
-		return workspace.createEntityReference(this);
+		if (reference == null)
+			reference = workspace.createEntityReference(this);
+		return reference;
 	}
 	
 	protected IEntity referenceToEntity(final IEntityReference reference) {
-		if(reference == null) {
-// uncomment to see when this conditions holds...
-// otherwise we could just do reference.get() and eliminate this method
-/* 			try {
- 
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-*/			return null;
-		}
-		return reference.getEntity(workspace);
+		return reference == null ? null : reference.getEntity(workspace);
 	}
 
 	/**
@@ -218,7 +216,8 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 				return;
 			}
 			for(IShadowEntity shadow : shadowEntities) {
-				((AbstractEntity)shadow).data.synchronizeData(this.data);
+				// no need to synchronize the data of shadows, it is the same object as the real entity data
+//				((AbstractEntity)shadow).data.synchronizeData(this.data);
 				((AbstractEntity)shadow).synchronizeEntity(this);
 			}
 		}
@@ -305,8 +304,8 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 			throw new NullPointerException();
 		}
 		AbstractEntity clone = (AbstractEntity) cloneEntity();
-		clone.data.synchronizeData(this.data);
-		clone.id = id;
+		clone.data = this.data;
+		clone.id = this.id;
 
 		addShadowEntity(clone, structure);
 		return clone;
@@ -365,7 +364,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 	public Object getAdapter(final Class<?> adapterType) {
 		if (workspace == null) return null;
 		return workspace.getModel().getAdapterService().getAdapter(this, adapterType);
-	}	
+	}
 	
 	public IndexedIterable<?> getIterableAdapter(final Class<?> iterableType) {
 		if (workspace == null) return null;

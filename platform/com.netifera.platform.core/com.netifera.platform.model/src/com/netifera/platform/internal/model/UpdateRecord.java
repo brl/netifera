@@ -39,7 +39,7 @@ public class UpdateRecord implements IUpdateRecord {
 	
 	public IEntity getEntity() {
 		final IEntity entity = entityReference.getEntity(workspace);
-		entityReference.freeCachedEntity();
+		entityReference.freeCache();
 		return entity;
 	}
 	

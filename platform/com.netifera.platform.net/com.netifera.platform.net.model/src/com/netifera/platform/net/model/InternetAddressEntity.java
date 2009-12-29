@@ -25,18 +25,14 @@ public class InternetAddressEntity extends NetworkAddressEntity {
 	
 	private Set<String> names = new HashSet<String>();
 	
-	private InternetAddressEntity(IWorkspace workspace, HostEntity host, byte[] address) {
-		super(ENTITY_NAME, workspace, host.getRealmId(), address);
-		this.host = host.createReference();
-	}
-
 	public InternetAddressEntity(IWorkspace workspace, HostEntity host, String address) {
-		this(workspace, host, InternetAddress.fromString(address).toBytes());
+		super(ENTITY_NAME, workspace, host.getRealmId(), InternetAddress.fromString(address).toBytes());
+		this.host = host.createReference();
 	}
 
 	private InternetAddressEntity(IWorkspace workspace, IEntityReference hostReference, long realmId, byte[] address) {
 		super(ENTITY_NAME, workspace, realmId, address);
-		this.host = hostReference == null ? null : hostReference.createClone();
+		this.host = hostReference;
 	}
 	
 	InternetAddressEntity() {

@@ -28,13 +28,18 @@ public class ServiceEntity extends AbstractEntity {
 	private String serviceType;
 	
 	public ServiceEntity(IWorkspace workspace, InternetAddressEntity address, int port, String protocol, String serviceType) {
-		super(ENTITY_NAME, workspace, address.getRealmId());
-		this.port = port;
-		this.protocol = protocol;
-		this.address = address.createReference();
-		this.serviceType = serviceType;
+		this(workspace, address.getRealmId(), address.createReference(), port, protocol, serviceType);
 	}
 
+	private ServiceEntity(IWorkspace workspace, long realm, IEntityReference addressReference,
+			int port, String protocol, String serviceType) {
+		super(ENTITY_NAME, workspace, realm);
+		this.port = port;
+		this.protocol = protocol;
+		this.address = addressReference;
+		this.serviceType = serviceType;
+	}
+	
 	ServiceEntity() {
 		this.address = null;
 		this.serviceType = null;
@@ -86,15 +91,6 @@ public class ServiceEntity extends AbstractEntity {
 			return new UDPSocketAddress(getAddress().toNetworkAddress(), getPort());
 		}
 		throw new AddressFormatException("Invalid protocol: "+protocol);
-	}
-	
-	private ServiceEntity(IWorkspace workspace, long realm, IEntityReference addressReference,
-			int port, String protocol, String serviceType) {
-		super(ENTITY_NAME, workspace, realm);
-		this.port = port;
-		this.protocol = protocol;
-		this.address = addressReference.createClone();
-		this.serviceType = serviceType;
 	}
 	
 	public static String createQueryKey(long realmId, InternetAddress address, int port, String protocol) {

@@ -19,7 +19,7 @@ public class PTRRecordEntity extends DNSRecordEntity {
 	
 	public PTRRecordEntity(IWorkspace workspace, long realmId, IEntityReference domain, IEntityReference address, String name) {
 		super(ENTITY_TYPE, workspace, realmId, domain);
-		this.address = address.createClone();
+		this.address = address;
 		this.name = name;
 	}
 	

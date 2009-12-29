@@ -59,7 +59,7 @@ public class ClientEntity extends AbstractEntity {
 
 	private ClientEntity(IWorkspace workspace, long realm, IEntityReference hostReference, String serviceType) {
 		super(ENTITY_NAME, workspace, realm);
-		this.host = hostReference.createClone();
+		this.host = hostReference;
 		this.serviceType = serviceType;
 	}
 	

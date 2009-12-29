@@ -18,7 +18,7 @@ public abstract class AddressRecordEntity extends DNSRecordEntity {
 	protected AddressRecordEntity(String typeName, IWorkspace workspace, long realmId, IEntityReference domain, String hostname, IEntityReference address) {
 		super(typeName, workspace, realmId, domain);
 		this.name = hostname.trim();
-		this.address = address.createClone();
+		this.address = address;
 	}
 	
 	AddressRecordEntity() {

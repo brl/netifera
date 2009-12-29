@@ -108,11 +108,8 @@ public class HostEntity extends AbstractEntity {
 		clone.label = label;
 
 		for (IEntityReference ref: addresses)
-			clone.addresses.add(ref.createClone());
-
-		if(defaultAddress != null) {
-			clone.defaultAddress = defaultAddress.createClone();
-		}
+			clone.addresses.add(ref);
+		clone.defaultAddress = defaultAddress;
 		
 		return clone;
 	}

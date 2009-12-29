@@ -171,12 +171,10 @@ public class Workspace implements IWorkspaceEx {
 	@SuppressWarnings("serial")
 	public IEntity findByKey(final String key) {
 		ObjectSet<AbstractEntity> result = database.query(new Predicate<AbstractEntity>() {
-
 			@Override
 			public boolean match(AbstractEntity candidate) {
 				return candidate.getQueryKey().equals(key);
 			}
-			
 		});
 		if(result.size() == 0) {
 			return null;

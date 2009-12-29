@@ -27,9 +27,13 @@ public class WebPageEntity extends AbstractEntity {
 	private Set<IEntityReference> links;
 	
 	public WebPageEntity(IWorkspace workspace, long realm, WebSiteEntity site, String path, String contentType) {
+		this(workspace, realm, site.createReference(), path, contentType);
+	}
+
+	public WebPageEntity(IWorkspace workspace, long realm, IEntityReference site, String path, String contentType) {
 		super(ENTITY_TYPE, workspace, realm);
 		
-		this.site = site.createReference();
+		this.site = site;
 		this.path = path;
 		this.contentType = contentType;
 		this.links = new HashSet<IEntityReference>();
@@ -82,7 +86,7 @@ public class WebPageEntity extends AbstractEntity {
 	protected void synchronizeEntity(AbstractEntity masterEntity) {
 		WebPageEntity page = (WebPageEntity) masterEntity;
 		this.contentType = page.contentType;
-		this.authentication = page.authentication == null ? null : page.authentication.createClone();
+		this.authentication = page.authentication;
 		
 //		links.clear(); // if we dont do this, we can just add links but not remove them, but it's faster
 /*		for (IEntityReference ref: ((WebPageEntity) masterEntity).links)
@@ -94,8 +98,8 @@ public class WebPageEntity extends AbstractEntity {
 	
 	@Override
 	protected IEntity cloneEntity() {
-		WebPageEntity answer = new WebPageEntity(getWorkspace(),getRealmId(),getWebSite(),path,contentType);
-		answer.authentication = authentication == null ? null : authentication.createClone();
+		WebPageEntity answer = new WebPageEntity(getWorkspace(),getRealmId(),site,path,contentType);
+		answer.authentication = authentication;
 		return answer;
 	}
 

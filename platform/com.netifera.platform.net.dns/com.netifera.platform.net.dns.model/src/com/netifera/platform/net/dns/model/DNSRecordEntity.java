@@ -12,7 +12,7 @@ public abstract class DNSRecordEntity extends AbstractEntity {
 	protected DNSRecordEntity(String typeName, IWorkspace workspace,
 			long realmId, IEntityReference domain) {
 		super(typeName, workspace, realmId);
-		this.domain = domain.createClone();
+		this.domain = domain;
 	}
 	
 	DNSRecordEntity() {

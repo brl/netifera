@@ -27,7 +27,7 @@ public class EmailAddressEntity extends AbstractEntity {
 	public EmailAddressEntity(IWorkspace workspace, long realmId, String address, IEntityReference domainReference) {
 		super(ENTITY_TYPE, workspace, realmId);
 		this.address = address;
-		this.domain = domainReference.createClone();
+		this.domain = domainReference;
 	}
 	
 	EmailAddressEntity() {
