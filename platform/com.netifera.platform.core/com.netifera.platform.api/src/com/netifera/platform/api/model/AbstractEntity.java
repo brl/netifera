@@ -134,6 +134,9 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		if(id == 0) {
 			throw new IllegalStateException("IEntity#createReference called on an entity which has not been saved.");
 		}
+		if(shadowContext != null) {
+			throw new IllegalStateException("IEntity#createReference called on a shadow entity.");
+		}
 		if (reference == null)
 			reference = workspace.createEntityReference(this);
 		return reference;
