@@ -30,6 +30,4 @@ public class TreeLabelProvider extends ColumnLabelProvider {
 		}
 		return null;
 	}
-	
-
 }

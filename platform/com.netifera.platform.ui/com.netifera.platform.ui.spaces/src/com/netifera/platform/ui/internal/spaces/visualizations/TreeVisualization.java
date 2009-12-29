@@ -44,7 +44,6 @@ import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
 import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.spaces.tree.TreeContentProvider;
 import com.netifera.platform.ui.spaces.tree.TreeLabelProvider;
-import com.netifera.platform.ui.spaces.tree.TreeBuilder;
 import com.netifera.platform.ui.spaces.tree.TreeViewerComparator;
 import com.netifera.platform.ui.spaces.visualizations.IVisualization;
 import com.netifera.platform.ui.util.MouseTracker;

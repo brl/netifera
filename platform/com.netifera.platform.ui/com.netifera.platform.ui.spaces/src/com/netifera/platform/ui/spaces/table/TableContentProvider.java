@@ -92,10 +92,10 @@ public class TableContentProvider
 		return new IEventHandler() {
 			public void handleEvent(IEvent event) {
 				if(event instanceof ISpaceContentChangeEvent) {
-					if (!((ISpaceContentChangeEvent)event).isEntityUpdateEvent()) {
-						updater.setItemCount(space.entityCount());
+					if (((ISpaceContentChangeEvent)event).isEntityUpdateEvent()) {
+						updater.refresh(); //XXX is this right? or excessive update?
 					} else {
-//						updater.refresh(); //XXX is this right?
+						updater.setItemCount(space.entityCount());
 					}
 				}
 			}
