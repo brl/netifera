@@ -492,26 +492,19 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			else if(folder.getTag().equals("Controlled"))
 				return 1;
 			else if(NetblockMatcher.matchesIPv4(folder.getTag()))
-				return 5;
-			else if(NetblockMatcher.matchesIPv6(folder.getTag()))
-				return 6;
-			else
 				return 3;
+			else if(NetblockMatcher.matchesIPv6(folder.getTag()))
+				return 4;
+			else
+				return 2;
 		}
 		
-		/* ordering below host entity */
-		if(e instanceof ServiceEntity) {
-			return 2;
-		}
-		
-		/* ordering inside network folders */
-		if(e instanceof NetblockEntity) {
-			return 0;
-		}
-		
-		if(e instanceof HostEntity) {
-			return 1;
-		}
+		if(e instanceof NetblockEntity)
+			return 5;
+		if(e instanceof HostEntity)
+			return 6;
+		if(e instanceof ServiceEntity)
+			return 7;
 		
 		return null;
 	}
@@ -538,7 +531,6 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return e1.getProtocol().compareToIgnoreCase(e2.getProtocol());
 	}
 	
-	// TODO review (james: compare addresses?)
 	private Integer compareHostEntities(HostEntity e1, HostEntity e2) {
 		String s1 = getHostText(e1).split("\\s")[0];
 		String s2 = getHostText(e2).split("\\s")[0];
@@ -546,10 +538,12 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		InternetAddressMatcher m2 = new InternetAddressMatcher(s2);
 		
 		if (m1.matches() && m2.matches()) {
-			return InternetAddress.fromString(s1).compareTo(InternetAddress.fromString(s2));
+			InternetAddress address1 = InternetAddress.fromString(s1);
+			InternetAddress address2 = InternetAddress.fromString(s2);
+			return address1.compareTo(address2);
 		}
 		
-		return null;
+		return s1.compareTo(s2);
 	}
 	
 	private Integer compareFolderEntities(FolderEntity e1, FolderEntity e2) {
@@ -558,12 +552,10 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		
 		// need to do v4 and v6 separately
 		if (NetblockMatcher.matchesIPv4(tag1) && NetblockMatcher.matchesIPv4(tag2)) {
-			return InternetNetblock.fromString(tag1).compareTo(
-					InternetNetblock.fromString(tag2));
+			return InternetNetblock.fromString(tag1).compareTo(InternetNetblock.fromString(tag2));
 		}
 		else if (NetblockMatcher.matchesIPv6(tag1) && NetblockMatcher.matchesIPv6(tag2)) {
-			return InternetNetblock.fromString(tag1).compareTo(
-					InternetNetblock.fromString(tag2));
+			return InternetNetblock.fromString(tag1).compareTo(InternetNetblock.fromString(tag2));
 		}
 
 		return null;
