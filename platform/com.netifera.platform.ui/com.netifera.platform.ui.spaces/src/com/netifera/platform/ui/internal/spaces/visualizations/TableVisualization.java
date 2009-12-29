@@ -18,18 +18,18 @@ import org.eclipse.swt.widgets.TableItem;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.ui.spaces.hover.ActionHover;
-import com.netifera.platform.ui.spaces.table.SpaceTableContentProvider;
-import com.netifera.platform.ui.spaces.table.SpaceTableLabelProvider;
-import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
+import com.netifera.platform.ui.spaces.table.TableContentProvider;
+import com.netifera.platform.ui.spaces.table.TableLabelProvider;
+import com.netifera.platform.ui.spaces.visualizations.IVisualization;
 import com.netifera.platform.ui.util.HookingViewerComparator;
 import com.netifera.platform.ui.util.MouseTracker;
 
-public class SpaceTableVisualization implements ISpaceVisualization {
+public class TableVisualization implements IVisualization {
 
 	final private ISpace space;
 	private TableViewer tableViewer;
 
-	public SpaceTableVisualization(ISpace space) {
+	public TableVisualization(ISpace space) {
 		this.space = space;
 	}
 	
@@ -39,9 +39,9 @@ public class SpaceTableVisualization implements ISpaceVisualization {
 
 	public ContentViewer createViewer(Composite parent) {
 		tableViewer = new TableViewer(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL);
-		SpaceTableContentProvider contentProvider = new SpaceTableContentProvider();
+		TableContentProvider contentProvider = new TableContentProvider();
 		tableViewer.setContentProvider(contentProvider);
-		SpaceTableLabelProvider labelProvider = new SpaceTableLabelProvider();
+		TableLabelProvider labelProvider = new TableLabelProvider();
 		tableViewer.setLabelProvider(labelProvider);
 		String[] columnNames = new String[] { "Label", "Tags", "Type", "Modification Time" };
 		int[] columnWidth = new int[] { 350, 100, 70, 100 };

@@ -15,10 +15,10 @@ import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
 
-public class SpaceTableLabelProvider extends LabelProvider implements ITableLabelProvider {
+public class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
 	private final IEntityLabelProviderService entityLabelProvider;
 	
-	public SpaceTableLabelProvider() {
+	public TableLabelProvider() {
 		entityLabelProvider = Activator.getInstance().getLabelProvider();
 	}
 	

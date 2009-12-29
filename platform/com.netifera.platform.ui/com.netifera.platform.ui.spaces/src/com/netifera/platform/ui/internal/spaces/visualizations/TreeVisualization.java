@@ -42,21 +42,21 @@ import com.netifera.platform.ui.dnd.EntityTransfer;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
 import com.netifera.platform.ui.spaces.hover.ActionHover;
-import com.netifera.platform.ui.spaces.tree.SpaceTreeContentProvider;
-import com.netifera.platform.ui.spaces.tree.SpaceTreeLabelProvider;
+import com.netifera.platform.ui.spaces.tree.TreeContentProvider;
+import com.netifera.platform.ui.spaces.tree.TreeLabelProvider;
 import com.netifera.platform.ui.spaces.tree.TreeBuilder;
 import com.netifera.platform.ui.spaces.tree.TreeViewerComparator;
-import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
+import com.netifera.platform.ui.spaces.visualizations.IVisualization;
 import com.netifera.platform.ui.util.MouseTracker;
 import com.netifera.platform.ui.util.TreeAction;
 
-public class SpaceTreeVisualization implements ISpaceVisualization {
+public class TreeVisualization implements IVisualization {
 	
 	final private ISpace space;
 	private TreeViewer viewer;
-	private SpaceTreeContentProvider contentProvider;
+	private TreeContentProvider contentProvider;
 	
-	public SpaceTreeVisualization(ISpace space) {
+	public TreeVisualization(ISpace space) {
 		this.space = space;
 	}
 
@@ -133,12 +133,12 @@ public class SpaceTreeVisualization implements ISpaceVisualization {
 //		FontData[] boldFontData= getModifiedFontData(viewer.getTree().getFont().getFontData(), SWT.BOLD);
 //		Font boldFont = new Font(Display.getCurrent(), boldFontData);
 
-		final SpaceTreeLabelProvider labelProvider = new SpaceTreeLabelProvider();
+		final TreeLabelProvider labelProvider = new TreeLabelProvider();
 		// Work around for bug #19
 		if(isOSX()) {
 			viewer.getTree().setHeaderVisible(true);
 		}
-		contentProvider = new SpaceTreeContentProvider();
+		contentProvider = new TreeContentProvider();
 		viewer.setContentProvider(contentProvider);
 		viewer.setLabelProvider(labelProvider);
 		viewer.setInput(space);

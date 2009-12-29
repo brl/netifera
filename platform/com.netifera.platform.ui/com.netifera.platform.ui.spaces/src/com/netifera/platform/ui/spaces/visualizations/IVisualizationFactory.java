@@ -4,7 +4,7 @@ import java.util.Set;
 
 import com.netifera.platform.api.model.ISpace;
 
-public interface ISpaceVisualizationFactory {
+public interface IVisualizationFactory {
 	Set<String> getVisualizationNames();
-	ISpaceVisualization create(String name, ISpace space);
+	IVisualization create(String name, ISpace space);
 }

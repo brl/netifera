@@ -20,7 +20,7 @@ import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.updater.StructuredViewerUpdater;
 
-public class SpaceTreeUpdater {
+public class TreeUpdater {
 	private final ISpace space;
 	private final TreeBuilder treeBuilder;
 //	private final StructuredViewer viewer;
@@ -28,7 +28,7 @@ public class SpaceTreeUpdater {
 	private final IEventHandler spaceListener;
 	private Job loadJob;
 
-	SpaceTreeUpdater(final ISpace space, final StructuredViewer treeViewer) {
+	TreeUpdater(final ISpace space, final StructuredViewer treeViewer) {
 		if(space == null || treeViewer == null) {
 			throw new IllegalArgumentException("space=" + space + ", viewer=" + treeViewer);
 		}

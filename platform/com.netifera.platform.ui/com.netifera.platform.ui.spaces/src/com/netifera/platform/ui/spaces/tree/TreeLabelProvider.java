@@ -8,10 +8,10 @@ import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.internal.spaces.Activator;
 
 
-public class SpaceTreeLabelProvider extends ColumnLabelProvider {
+public class TreeLabelProvider extends ColumnLabelProvider {
 	private final IEntityLabelProviderService modelLabelProvider;
 	
-	public SpaceTreeLabelProvider() {
+	public TreeLabelProvider() {
 		modelLabelProvider = Activator.getInstance().getLabelProvider();
 	}
 	

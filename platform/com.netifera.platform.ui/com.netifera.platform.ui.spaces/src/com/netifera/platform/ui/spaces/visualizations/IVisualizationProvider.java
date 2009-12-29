@@ -2,7 +2,7 @@ package com.netifera.platform.ui.spaces.visualizations;
 
 import com.netifera.platform.api.model.ISpace;
 
-public interface ISpaceVisualizationProvider {
+public interface IVisualizationProvider {
 	String getName();
-	ISpaceVisualization create(ISpace space);
+	IVisualization create(ISpace space);
 }

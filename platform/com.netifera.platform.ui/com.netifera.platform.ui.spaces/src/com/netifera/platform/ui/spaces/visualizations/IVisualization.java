@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.netifera.platform.api.model.IEntity;
 
-public interface ISpaceVisualization {
+public interface IVisualization {
 	ContentViewer createViewer(Composite parent);
 	void addContributions(IContributionManager contributions);
 	void focusEntity(IEntity entity);

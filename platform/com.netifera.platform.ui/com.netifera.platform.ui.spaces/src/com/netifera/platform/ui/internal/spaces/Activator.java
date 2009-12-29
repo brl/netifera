@@ -33,7 +33,7 @@ import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.actions.SpaceCreator;
 import com.netifera.platform.ui.spaces.inputbar.InputBar;
 import com.netifera.platform.ui.spaces.inputbar.InputBarAction;
-import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualizationFactory;
+import com.netifera.platform.ui.spaces.visualizations.IVisualizationFactory;
 import com.netifera.platform.ui.workbench.IWorkbenchChangeListener;
 import com.netifera.platform.ui.workbench.WorkbenchChangeManager;
 
@@ -118,7 +118,7 @@ public class Activator extends AbstractUIPlugin {
 		logManagerTracker = new ServiceTracker(context, ILogManager.class.getName(), null);
 		logManagerTracker.open();
 
-		visualizationFactoryTracker = new ServiceTracker(context, ISpaceVisualizationFactory.class.getName(), null);
+		visualizationFactoryTracker = new ServiceTracker(context, IVisualizationFactory.class.getName(), null);
 		visualizationFactoryTracker.open();
 		
 		statusContributionTracker = new ServiceTracker(context, IStatusContribution.class.getName(), null);
@@ -314,9 +314,9 @@ public class Activator extends AbstractUIPlugin {
 		return imageCache;
 	}
 
-	public ISpaceVisualizationFactory getVisualizationFactory() {
+	public IVisualizationFactory getVisualizationFactory() {
 		try {
-			return (ISpaceVisualizationFactory) visualizationFactoryTracker.waitForService(10000L);
+			return (IVisualizationFactory) visualizationFactoryTracker.waitForService(10000L);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return null;

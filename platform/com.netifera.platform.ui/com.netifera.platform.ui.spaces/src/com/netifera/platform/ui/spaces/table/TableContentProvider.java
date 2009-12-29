@@ -11,7 +11,7 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.ui.updater.TableUpdater;
 
-public class SpaceTableContentProvider
+public class TableContentProvider
 	implements ILazyContentProvider, IStructuredContentProvider {
 	
 //	private static final boolean SORT = true;

@@ -32,7 +32,7 @@ import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.spaces.ISpaceEditor;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.editor.actions.ChangeVisualizationAction;
-import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
+import com.netifera.platform.ui.spaces.visualizations.IVisualization;
 import com.netifera.platform.ui.util.SelectionProviderProxy;
 
 public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpaceEditor {
@@ -42,7 +42,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	private String visualizationName = "Tree";
 	private ContentViewer viewer;
 	private ToolBar toolBar;
-	private ISpaceVisualization currentVisualization;
+	private IVisualization currentVisualization;
 	
 	private IEventHandler changeListener = new IEventHandler() {
 		public void handleEvent(final IEvent event) {

@@ -13,10 +13,10 @@ import com.netifera.platform.api.model.IStructureContext;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.model.TreeStructureContext;
 
-public class SpaceTreeContentProvider implements ITreeContentProvider {
+public class TreeContentProvider implements ITreeContentProvider {
 	private static final boolean DEBUG_CONTENT_PROVIDER = false;
 
-	private SpaceTreeUpdater treeUpdater;
+	private TreeUpdater treeUpdater;
 	
 	public Object[] getChildren(Object node) {
 		if(!(node instanceof IShadowEntity)) {
@@ -88,7 +88,7 @@ public class SpaceTreeContentProvider implements ITreeContentProvider {
 			treeUpdater.dispose();
 		}
 		
-		treeUpdater = new SpaceTreeUpdater((ISpace)newInput, (StructuredViewer) viewer);
+		treeUpdater = new TreeUpdater((ISpace)newInput, (StructuredViewer) viewer);
 	}
 	
 	private void debug(String message) {

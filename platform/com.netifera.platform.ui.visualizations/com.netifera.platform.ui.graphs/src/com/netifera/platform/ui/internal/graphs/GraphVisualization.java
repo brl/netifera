@@ -30,26 +30,26 @@ import com.netifera.platform.ui.graphs.actions.ToggleLabelsAction;
 import com.netifera.platform.ui.graphs.actions.ToggleOverviewAction;
 import com.netifera.platform.ui.spaces.editor.actions.ChooseLayerAction;
 import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
-import com.netifera.platform.ui.spaces.graphs.SpaceGraphContentProvider;
+import com.netifera.platform.ui.spaces.graphs.GraphContentProvider;
 import com.netifera.platform.ui.spaces.hover.ActionHover;
-import com.netifera.platform.ui.spaces.tree.SpaceTreeLabelProvider;
-import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualization;
+import com.netifera.platform.ui.spaces.tree.TreeLabelProvider;
+import com.netifera.platform.ui.spaces.visualizations.IVisualization;
 
-public class SpaceGraphVisualization implements ISpaceVisualization {
+public class GraphVisualization implements IVisualization {
 
 	final private ISpace space;
 	private GraphViewer viewer;
-	private SpaceGraphContentProvider contentProvider;
+	private GraphContentProvider contentProvider;
 	
-	public SpaceGraphVisualization(ISpace space) {
+	public GraphVisualization(ISpace space) {
 		this.space = space;
 	}
 	
 	public ContentViewer createViewer(final Composite parent) {
 		viewer = new GraphViewer(parent);
-		contentProvider = new SpaceGraphContentProvider();
+		contentProvider = new GraphContentProvider();
 		viewer.setContentProvider(contentProvider);
-		viewer.setLabelProvider(new SpaceTreeLabelProvider());
+		viewer.setLabelProvider(new TreeLabelProvider());
 		viewer.setInput(space);
 
 		/* implement the mouse tracker the action hover handlers*/

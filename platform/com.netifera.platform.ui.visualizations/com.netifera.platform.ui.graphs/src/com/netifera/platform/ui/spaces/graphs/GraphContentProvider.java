@@ -25,7 +25,7 @@ import com.netifera.platform.ui.graphs.GraphViewer;
 import com.netifera.platform.ui.graphs.IGraphContentProvider;
 
 
-public class SpaceGraphContentProvider implements IGraphContentProvider {
+public class GraphContentProvider implements IGraphContentProvider {
 	private static final boolean DEBUG_CONTENT_PROVIDER = false;
 
 	private GraphViewer viewer;
