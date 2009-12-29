@@ -58,6 +58,7 @@ public class TreeBuilder {
 	}
 	
 	public synchronized void setRoot(final IEntity rootEntity) {
+		dispose();
 		shadowsMap = new HashMap<Long,List<IShadowEntity>>();
 		foldersMap = new HashMap<Long,Map<String,IShadowEntity>>();
 		root = handleRootEntity(rootEntity);
@@ -258,5 +259,13 @@ public class TreeBuilder {
 			copySubtree(child, newShadow);
 		}
 		return newShadow;
+	}
+	
+	public synchronized void dispose() {
+		if (shadowsMap == null) return;
+		for (List<IShadowEntity> shadowList: shadowsMap.values())
+			for (IShadowEntity shadow: shadowList)
+				shadow.dispose();
+		shadowsMap = null;
 	}
 }

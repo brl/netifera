@@ -30,7 +30,6 @@ public class TreeContentProvider implements ITreeContentProvider {
 	private TreeBuilder treeBuilder;
 	private StructuredViewerUpdater updater;
 	private Job loadJob;
-	
 	private final IEventHandler spaceListener = new IEventHandler() {
 		public void handleEvent(final IEvent event) {
 			if(event instanceof ISpaceContentChangeEvent) {
@@ -39,7 +38,6 @@ public class TreeContentProvider implements ITreeContentProvider {
 		}
 	};
 
-	
 	public Object[] getChildren(Object node) {
 		if(!(node instanceof IShadowEntity)) {
 			throw new IllegalArgumentException();
@@ -82,17 +80,17 @@ public class TreeContentProvider implements ITreeContentProvider {
 			space.removeChangeListener(spaceListener);
 		if (loadJob != null)
 			loadJob.cancel();
+		if (treeBuilder != null)
+			treeBuilder.dispose();
 	}
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		if(!(viewer instanceof StructuredViewer) || !(newInput instanceof ISpace)) {
 			return;
 		}
-		
-		if (space != null)
-			space.removeChangeListener(spaceListener);
-		if (loadJob != null)
-			loadJob.cancel();
+
+		// Remove listener, cancel pending load job, dispose the shadow entities kept by the TreeBuilder
+		dispose();
 		
 		this.space = (ISpace) newInput;
 //		this.viewer = treeViewer;
@@ -153,11 +151,8 @@ public class TreeContentProvider implements ITreeContentProvider {
 	private TreeStructureContext nodeToTSC(Object node) {
 		if(node instanceof IShadowEntity) {
 			IStructureContext sc = ((IShadowEntity)node).getStructureContext();
-			
-			if(sc instanceof TreeStructureContext) {
+			if(sc instanceof TreeStructureContext)
 				return (TreeStructureContext) sc;
-			}
-						
 		}
 		
 		throw new IllegalStateException("Could not convert node to TreeStructureContext");		
