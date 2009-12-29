@@ -121,6 +121,10 @@ public class Space implements ISpace {
 	public int entityCount() {
 		return entities.size();
 	}
+
+	public boolean contains(IEntity entity) {
+		return entitySet.contains(entity);
+	}
 	
 	public void addEntity(IEntity entity) {
 		if (!entitySet.contains(entity)) {

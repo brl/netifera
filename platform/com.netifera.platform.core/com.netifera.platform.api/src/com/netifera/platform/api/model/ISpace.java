@@ -37,6 +37,7 @@ public interface ISpace extends Iterable<IEntity> {
 	
 	List<IEntity> getEntities();
 	int entityCount();
+	boolean contains(IEntity entity);
 	
 	Set<String> getTags();
 
