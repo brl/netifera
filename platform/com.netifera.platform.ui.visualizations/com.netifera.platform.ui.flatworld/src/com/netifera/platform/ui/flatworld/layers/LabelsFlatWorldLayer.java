@@ -27,7 +27,7 @@ public class LabelsFlatWorldLayer implements IFlatWorldLayer {
 				int x = (int) ((location.x-region.x)/region.width*rect.width + rect.x);
 				int y = (int) ((region.y-location.y)/region.height*rect.height + rect.y + rect.height);
 				
-				int w = (int)(rect.width/(rect.width/tree.getBounds().width));
+				int w = (int)(rect.width/(region.width/tree.getBounds().width));
 				int h = (int)(rect.height/(region.height/tree.getBounds().height));
 				int fontSize = (w+h)/2/label.length();
 				if (fontSize <= 0) fontSize = 1;
