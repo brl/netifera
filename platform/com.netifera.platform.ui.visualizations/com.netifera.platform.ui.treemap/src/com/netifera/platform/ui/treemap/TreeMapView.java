@@ -318,7 +318,6 @@ public class TreeMapView extends ViewPart {
 		if (space != null) {
 			setPartName("TreeMap - "+space.getName());//FIXME this is because the name changes and we dont get notified
 			
-			control.setEnabled(false);
 			loadJob = new Job("TreeMap loading space '"+space.getName()+"'") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
@@ -332,12 +331,6 @@ public class TreeMapView extends ViewPart {
 						}
 					}
 					
-					updater.asyncExec(new Runnable() {
-						public void run() {
-							control.setEnabled(true);
-							control.redraw();
-						}
-					});
 					updater.redraw();
 					return Status.OK_STATUS;
 				}

@@ -202,7 +202,6 @@ public class FlatWorldView extends ViewPart {
 		if (space != null) {
 			setPartName("World - "+space.getName());//FIXME this is because the name changes and we dont get notified
 			
-			world.setEnabled(false);
 			loadJob = new Job("World loading space '"+space.getName()+"'") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
@@ -216,12 +215,6 @@ public class FlatWorldView extends ViewPart {
 						}
 					}
 					
-					updater.asyncExec(new Runnable() {
-						public void run() {
-							world.setEnabled(true);
-							world.redraw();
-						}
-					});
 					updater.redraw();
 					return Status.OK_STATUS;
 				}
