@@ -213,8 +213,8 @@ public class TreeMapControl extends Canvas implements IPersistable {
 	}
 
 	private void initializeCursors() {
-		panningCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_HAND);
-		zoomingCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_SIZEALL);
+		panningCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_SIZEALL);
+		zoomingCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_SIZENS);
 	}
 
 	@Override
