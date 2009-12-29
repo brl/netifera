@@ -74,13 +74,10 @@ public class IPv6Netblock extends InternetNetblock {
 	}
 	
 	public int compareTo(IPv6Netblock anotherNetblock) {
-		int r;
-		r = network.compareTo(anotherNetblock.network);
-		if (r > 0) {
-			return 1;
-		} else if (r < 0) {
-			return -1;
-		}
+		int value;
+		value = network.compareTo(anotherNetblock.network);
+		if (value != 0)
+			return value;
 		return maskBitCount < anotherNetblock.maskBitCount ? 1
 				: (maskBitCount == anotherNetblock.maskBitCount ? 0 : -1);
 	}
@@ -89,6 +86,8 @@ public class IPv6Netblock extends InternetNetblock {
 		if (other instanceof IPv6Netblock) {
 			return compareTo((IPv6Netblock)other);
 		}
+		if (other instanceof IPv4Netblock)
+			return 1;
 		return -1; // XXX
 	}
 	

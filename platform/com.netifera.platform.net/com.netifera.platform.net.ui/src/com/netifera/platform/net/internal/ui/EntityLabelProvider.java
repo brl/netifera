@@ -510,28 +510,24 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 
 	public Integer compare(IShadowEntity e1, IShadowEntity e2) {
-		if(e1 instanceof ServiceEntity && e2 instanceof ServiceEntity) {
-			return compareServiceEntities((ServiceEntity)e1, (ServiceEntity) e2);
-		}
-		if(e1 instanceof HostEntity && e2 instanceof HostEntity) {
+		if(e1 instanceof NetblockEntity && e2 instanceof NetblockEntity)
+			return compareNetblockEntities((NetblockEntity)e1, (NetblockEntity) e2);
+		if(e1 instanceof HostEntity && e2 instanceof HostEntity)
 			return compareHostEntities((HostEntity)e1, (HostEntity) e2);
-		}
-		if(e1 instanceof FolderEntity && e2 instanceof FolderEntity) {
+		if(e1 instanceof ServiceEntity && e2 instanceof ServiceEntity)
+			return compareServiceEntities((ServiceEntity)e1, (ServiceEntity) e2);
+		if(e1 instanceof FolderEntity && e2 instanceof FolderEntity)
 			return compareFolderEntities((FolderEntity)e1, (FolderEntity) e2);
-		}
 		return null;
 	}
-	
-	private int compareServiceEntities(ServiceEntity e1, ServiceEntity e2) {
-		if(e1.getPort() < e2.getPort()) 
-			return -1;
-		else if(e1.getPort() > e2.getPort())
-			return 1;
-		else 
-			return e1.getProtocol().compareToIgnoreCase(e2.getProtocol());
+
+	private int compareNetblockEntities(NetblockEntity e1, NetblockEntity e2) {
+		InternetNetblock n1 = e1.getNetblock();
+		InternetNetblock n2 = e2.getNetblock();
+		return n1.compareTo(n2);
 	}
-	
-	private Integer compareHostEntities(HostEntity e1, HostEntity e2) {
+
+	private int compareHostEntities(HostEntity e1, HostEntity e2) {
 		String s1 = getHostText(e1).split("\\s")[0];
 		String s2 = getHostText(e2).split("\\s")[0];
 		InternetAddressMatcher m1 = new InternetAddressMatcher(s1);
@@ -544,6 +540,15 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		}
 		
 		return s1.compareTo(s2);
+	}
+
+	private int compareServiceEntities(ServiceEntity e1, ServiceEntity e2) {
+		int value = e1.getProtocol().compareToIgnoreCase(e2.getProtocol());
+		if (value != 0)
+			return value;
+		int p1 = e1.getPort();
+		int p2 = e2.getPort();
+		return p1 == p2 ? 0 : p1 < p2 ? -1 : 1;
 	}
 	
 	private Integer compareFolderEntities(FolderEntity e1, FolderEntity e2) {

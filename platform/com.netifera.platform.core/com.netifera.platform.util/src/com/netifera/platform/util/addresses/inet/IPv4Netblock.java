@@ -196,21 +196,16 @@ public class IPv4Netblock extends InternetNetblock {
 	}
 
 	public int compareTo(final IPv4Netblock other) {
-		int r;
-		r = network.compareTo(other.network);
-		if (r > 0) {
-			return 1;
-		} else if (r < 0) {
-			return -1;
-		}
-		return maskBitCount < other.maskBitCount ? 1
-				: (maskBitCount == other.maskBitCount ? 0 : -1);
+		int value;
+		value = network.compareTo(other.network);
+		if (value != 0)
+			return value;
+		return maskBitCount < other.maskBitCount ? 1 : (maskBitCount == other.maskBitCount ? 0 : -1);
 	}
 
 	public int compareTo(InternetNetblock other) {
-		if (other instanceof IPv4Netblock) {
+		if (other instanceof IPv4Netblock)
 			return compareTo((IPv4Netblock)other);
-		}
 		return -1; // XXX
 	}
 	
