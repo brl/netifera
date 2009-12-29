@@ -338,10 +338,9 @@ public class TreeVisualization implements IVisualization {
 	}
 
 	public void focusEntity(IEntity entity) {
-		TreeBuilder tb = contentProvider.getTreeBuilder();
 		if (entity instanceof FolderEntity)
 			return;
-		List<IShadowEntity> shadows = tb.getShadows(entity.getId());
+		List<IShadowEntity> shadows = contentProvider.getTreeBuilder().getShadows(entity.getId());
 		IShadowEntity lastShadow = null;
 		for(IShadowEntity s : shadows) {
 			viewer.reveal(s);
