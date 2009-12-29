@@ -29,6 +29,8 @@ import com.netifera.platform.api.model.events.ISpaceRenameEvent;
 import com.netifera.platform.api.model.events.ISpaceStatusChangeEvent;
 import com.netifera.platform.api.model.events.ISpaceTaskChangeEvent;
 import com.netifera.platform.ui.internal.spaces.Activator;
+import com.netifera.platform.ui.internal.spaces.visualizations.TableVisualization;
+import com.netifera.platform.ui.internal.spaces.visualizations.TreeVisualization;
 import com.netifera.platform.ui.spaces.ISpaceEditor;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.editor.actions.ChangeVisualizationAction;
@@ -38,11 +40,14 @@ import com.netifera.platform.ui.util.SelectionProviderProxy;
 public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpaceEditor {
 	public final static String ID = "com.netifera.platform.editors.spaces";
 
+	public final static int BIG_SPACE = 50000; // how many entities is a big space?
+	
 	private ISpace space;
-	private String visualizationName = "Tree";
+	
+	private String visualizationName = TreeVisualization.NAME;
+	private IVisualization visualization;
 	private ContentViewer viewer;
 	private ToolBar toolBar;
-	private IVisualization currentVisualization;
 	
 	private IEventHandler changeListener = new IEventHandler() {
 		public void handleEvent(final IEvent event) {
@@ -104,7 +109,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		if(!(input instanceof SpaceEditorInput)) {
-			throw new PartInitException("SpaceEditor passed unexpected input type");
+			throw new PartInitException("SpaceEditor passed unexpected input type: "+input);
 		}
 		
 		setSite(site);
@@ -117,6 +122,11 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		space.addTaskChangeListener(taskChangeListener);
 		
 		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(selectionListener);
+
+		// for big spaces, use Table visualization by default
+		if (space.entityCount() > BIG_SPACE) {
+			visualizationName = TableVisualization.NAME;
+		}
 	}
 	
 	@Override
@@ -146,13 +156,13 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 
 		IToolBarManager contributions = new ToolBarManager(toolBar);
 		contributions.add(new ChangeVisualizationAction(this));
-		currentVisualization = Activator.getInstance().getVisualizationFactory().create(visualizationName, space);
-		viewer = currentVisualization.createViewer(parent);
+		visualization = Activator.getInstance().getVisualizationFactory().create(visualizationName, space);
+		viewer = visualization.createViewer(parent);
 		
 		/* set the visualization provide viewer as selection provider*/
 		setSelectionProvider(viewer);
 		
-		currentVisualization.addContributions(contributions);
+		visualization.addContributions(contributions);
 		
 		formData = new FormData();
 		formData.top = new FormAttachment(toolBar,0);
@@ -208,8 +218,8 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	}
 
 	public void restoreState(IMemento memento) {
-		visualizationName = memento.getString("visualization");
-		if (visualizationName == null) visualizationName = "Tree";
+		if (memento.getString("visualization") != null)
+			visualizationName = memento.getString("visualization");
 	}
 
 	public void saveState(IMemento memento) {
@@ -217,7 +227,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 	}
 
 	public void focusEntity(IEntity entity) {
-		if(currentVisualization != null)
-			currentVisualization.focusEntity(entity);
+		if(visualization != null)
+			visualization.focusEntity(entity);
 	}
 }

@@ -27,7 +27,8 @@ import com.netifera.platform.ui.util.HookingViewerComparator;
 import com.netifera.platform.ui.util.MouseTracker;
 
 public class TableVisualization implements IVisualization {
-
+	public final static String NAME = "Table"; 
+	
 	final private ISpace space;
 	private TableViewer viewer;
 

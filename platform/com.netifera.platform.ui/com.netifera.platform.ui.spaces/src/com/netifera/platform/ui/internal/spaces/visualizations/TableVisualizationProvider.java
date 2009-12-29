@@ -7,7 +7,7 @@ import com.netifera.platform.ui.spaces.visualizations.IVisualizationProvider;
 public class TableVisualizationProvider implements IVisualizationProvider {
 
 	public String getName() {
-		return "Table";
+		return TableVisualization.NAME;
 	}
 
 	public IVisualization create(ISpace space) {

@@ -7,7 +7,7 @@ import com.netifera.platform.ui.spaces.visualizations.IVisualizationProvider;
 public class TreeVisualizationProvider implements IVisualizationProvider {
 	
 	public String getName() {
-		return "Tree";
+		return TreeVisualization.NAME;
 	}
 
 	public IVisualization create(ISpace space) {

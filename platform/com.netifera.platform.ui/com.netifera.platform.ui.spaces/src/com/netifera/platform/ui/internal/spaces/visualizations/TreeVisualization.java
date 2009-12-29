@@ -50,7 +50,8 @@ import com.netifera.platform.ui.util.MouseTracker;
 import com.netifera.platform.ui.util.TreeAction;
 
 public class TreeVisualization implements IVisualization {
-	
+	public final static String NAME = "Tree"; 
+
 	final private ISpace space;
 	private TreeViewer viewer;
 	private TreeContentProvider contentProvider;
