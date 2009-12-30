@@ -32,4 +32,8 @@ public interface IStructureContext {
 	 */
 	IShadowEntity searchEntityById(long entityId);
 
+	/**
+	 * Dispose this structure context and the shadow entities that are no longer needed.
+	 */
+	void dispose();
 }

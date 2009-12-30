@@ -13,9 +13,6 @@ public class TreeStructureContext implements IStructureContext {
 	private IShadowEntity entity;
 	private List<IShadowEntity> children;
 	
-	/*
-	 * XXX need to add disposal methods 
-	 */
 	public static IShadowEntity createRoot(IEntity entity) {
 		return createNode(entity);
 	}
@@ -135,6 +132,15 @@ public class TreeStructureContext implements IStructureContext {
 		return null;
 	}
 
+	public void dispose() {
+		if (children == null)
+			return;
+		for(IShadowEntity child: children) {
+			child.dispose();
+		}
+		children = null;
+	}
+	
 	private static IShadowEntity createNode(IEntity entity) {
 		return createNode(entity, null);
 	}

@@ -254,9 +254,7 @@ public class TreeBuilder {
 	
 	public synchronized void dispose() {
 		if (shadowsMap == null) return;
-		for (List<IShadowEntity> shadowList: shadowsMap.values())
-			for (IShadowEntity shadow: shadowList)
-				shadow.dispose();
+		root.dispose(); // will dispose the root shadow and all the children recursively
 		shadowsMap = null;
 	}
 }

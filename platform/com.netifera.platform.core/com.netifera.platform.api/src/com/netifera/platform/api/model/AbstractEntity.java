@@ -345,6 +345,7 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 			throw new IllegalStateException();
 		}
 		shadowContext.originalEntity.disposeShadow(this);
+		shadowContext.structureContext.dispose();
 	}
 	
 	private synchronized void disposeShadow(IShadowEntity entity) {
