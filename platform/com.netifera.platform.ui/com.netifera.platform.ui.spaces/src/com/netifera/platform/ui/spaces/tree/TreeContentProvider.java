@@ -1,7 +1,6 @@
 package com.netifera.platform.ui.spaces.tree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -52,20 +51,15 @@ public class TreeContentProvider implements ITreeContentProvider {
 	}
 	
 	private List<IShadowEntity> getChildEntities(IShadowEntity entity) {
-		TreeStructureContext tsc = nodeToTSC(entity);
-		if(tsc.hasChildren()) {
-			return tsc.getChildren();
-		} else {
-			return Collections.emptyList();
-		}
+		return getStructureContext(entity).getChildren();
 	}
 	
 	public Object getParent(Object node) {
-		return nodeToTSC(node).getParent();
+		return getStructureContext(node).getParent();
 	}
 
 	public boolean hasChildren(Object node) {
-		return nodeToTSC(node).hasChildren();
+		return getStructureContext(node).hasChildren();
 	}
 
 	public Object[] getElements(Object input) {
@@ -122,11 +116,13 @@ public class TreeContentProvider implements ITreeContentProvider {
 
 	private ITreeBuilderListener createUpdateListener() {
 		return new ITreeBuilderListener() {
-
 			public void entityAdded(IShadowEntity entity, IShadowEntity parent) {
-				if (parent == treeBuilder.getRoot())
+				if (parent == treeBuilder.getRoot()) {
 					updater.refresh();
-				updater.refresh(parent);
+				} else {
+					updater.remove(getChildEntities(parent));
+					updater.refresh(parent);
+				}
 			}
 
 			public void entityChanged(IShadowEntity entity) {
@@ -134,10 +130,21 @@ public class TreeContentProvider implements ITreeContentProvider {
 			}
 
 			public void entityRemoved(IShadowEntity entity, IShadowEntity parent) {
-				if (parent == treeBuilder.getRoot())
+				if (parent == treeBuilder.getRoot()) {
 					updater.refresh();
-				updater.refresh(parent);
+				} else {
+					updater.remove(getChildEntities(parent));
+					updater.refresh(parent);
+				}
 			}
+		};
+	}
+	
+	private ITreeBuilderListener createNullUpdateListener() {
+		return new ITreeBuilderListener() {
+			public void entityAdded(IShadowEntity entity, IShadowEntity parent) {}
+			public void entityChanged(IShadowEntity entity) {}
+			public void entityRemoved(IShadowEntity entity, IShadowEntity parent) {}
 		};
 	}
 
@@ -148,7 +155,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 	/*
 	 * Convert a tree node to the corresponding TreeStructureContext
 	 */
-	private TreeStructureContext nodeToTSC(Object node) {
+	private TreeStructureContext getStructureContext(Object node) {
 		if(node instanceof IShadowEntity) {
 			IStructureContext sc = ((IShadowEntity)node).getStructureContext();
 			if(sc instanceof TreeStructureContext)
@@ -177,6 +184,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 			loadJob.cancel();
 			Thread.yield();
 		}
+		treeBuilder.setListener(createNullUpdateListener());
 		treeBuilder.setRoot(space.getRootEntity());
 		loadJob = new Job("Loading space '"+space.getName()+"'") {
 			@Override
@@ -190,6 +198,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 					}
 				}
 				
+				treeBuilder.setListener(createUpdateListener());
 				updater.refresh();
 				return Status.OK_STATUS;
 			}

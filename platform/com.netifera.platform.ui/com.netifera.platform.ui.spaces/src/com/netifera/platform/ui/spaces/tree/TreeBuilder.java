@@ -69,6 +69,8 @@ public class TreeBuilder {
 	}
 	
 	public synchronized void addEntity(IEntity entity) {
+		if (getShadow(entity.getId()) != null) return;
+
 		//NOTE this might be wrong, we're adding the entity under a shadow of the realm, but there might be many shadows of the realm
 //		IShadowEntity realmEntity = treeRoot.getStructureContext().searchEntityById(entity.getRealmId());
 		IShadowEntity realmEntity = getShadow(entity.getRealmId());
@@ -76,8 +78,6 @@ public class TreeBuilder {
 			System.err.println("Realm entity not found for entity: "  + entity);
 			realmEntity = root;
 		}
-		
-		if (getShadow(entity.getId()) != null) return;
 
 		handleEntity(entity, realmEntity);
 	}
@@ -142,7 +142,6 @@ public class TreeBuilder {
 			removeChildEntity(entity, realmEntity);
 		}
 
-		// XXX update all shadows
 		for (IShadowEntity each: getShadows(entity.getId())) {
 			updateListener.entityChanged(each);
 		}
@@ -158,8 +157,6 @@ public class TreeBuilder {
 		Set<IShadowEntity> parents = new HashSet<IShadowEntity>();
 
 		for (IShadowEntity shadow: getShadows(entity.getId())) {
-			// XXX update
-//			updateListener.refresh(shadow);
 			TreeStructureContext context = (TreeStructureContext) shadow.getStructureContext();
 			if (context.getParent() != null)
 				parents.add(context.getParent());
@@ -217,10 +214,7 @@ public class TreeBuilder {
 				}
 				shadows.add(shadow);
 			}
-			// XXX update
 			updateListener.entityAdded(shadow, parent);
-//			if (parent == treeRoot)
-//				updateListener.refresh();
 		}
 		return shadow;
 	}
@@ -235,10 +229,7 @@ public class TreeBuilder {
 				if (shadows.size() == 0)
 					shadowsMap.remove(entity.getId());
 			}
-			// XXX update
 			updateListener.entityRemoved(shadow, parent);
-//			if (parent == treeRoot)
-//				updateListener.refresh();
 			
 			// if the parent is a folder and becomes empty after removing this child, then remove the folder too
 			if (parent instanceof FolderEntity && !tsc.hasChildren()) {

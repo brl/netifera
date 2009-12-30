@@ -47,17 +47,19 @@ public class StructuredViewerUpdater extends ControlUpdater {
 
 	/**
 	 * updateControl() is synchronized and is executed in the UI thread, content
-	 * providers calling ViewerUpdater methods will be blocked while this method
+	 * providers calling the ControlUpdater methods will be blocked while this method
 	 * executes. And the UI thread will be blocked while content providers
 	 * invoke this updater methods below.
 	 */
 	protected void updateControl() {
 		final Object[] relements;
 		final Object[] uelements;
+
 		synchronized(this) {
 			if(checkDisposed()) {
 				return;
 			}
+			
 			/* .setInput() */
 			if (setInput) {
 				currentInput = newInput;
@@ -65,7 +67,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 				setInput = false;
 				viewer.setInput(currentInput);
 			}
-
+			
 			/* .refresh() */
 			if(refresh) {
 				refresh = false;
@@ -76,6 +78,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			uelements = updateElements.values().toArray();
 			updateElements.clear();
 		}
+		
 		/* iterate outside the synchronized block, it makes sense if calling refresh
 		 * is slower than copying the values to the array */
 		for(Object element : relements) {
@@ -89,7 +92,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 	
 	/* the following methods are called from content providers */
 
-	public synchronized void refresh() {
+	public void refresh() {
 		refresh = true;
 		updateElements.clear();
 		refreshElements.clear();
@@ -103,7 +106,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			scheduleUpdate();
 		} else {
 			/*refresh all if element is null hack?*/
-			refresh();
+//			refresh();
 		}
 	}
 	
@@ -126,6 +129,11 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			setInput = true;
 			refresh();
 		}
+	}
+	
+	public void remove(Object element) {
+		refreshElements.remove(element);
+		updateElements.remove(element);
 	}
 		
 	public String toString() {
