@@ -188,9 +188,8 @@ public class TasksView extends ViewPart implements IShowInSource {
 		final IWorkbenchPage page = window.getActivePage();
 		if(page != null) {
 			page.addPartListener(partListener);
+			partListener.partActivated(page.getActiveEditor());
 		}
-		
-		partListener.partActivated(page.getActiveEditor());
 	}
 	
 	private IPartListener createPartListener() {
