@@ -86,7 +86,7 @@ public class TreeStructureContext implements IStructureContext {
 	
 	private IShadowEntity getChildById(long id) {
 		for (IShadowEntity child: children)
-			if (child.getRealEntity().getId() == id)
+			if (child.getId() == id)
 				return child;
 		return null;
 	}
@@ -96,7 +96,7 @@ public class TreeStructureContext implements IStructureContext {
 	}
 	
 	public IShadowEntity searchEntityById(final long entityId) {
-		if(entity.getRealEntity().getId() == entityId) return entity;
+		if(entity.getId() == entityId) return entity;
 		
 		if(children == null) {
 			return null;
