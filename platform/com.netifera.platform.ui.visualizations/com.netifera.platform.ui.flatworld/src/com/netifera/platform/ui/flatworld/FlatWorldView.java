@@ -35,7 +35,7 @@ import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.net.ui.geoip.IGeographicalLayer;
 import com.netifera.platform.net.ui.geoip.ILocation;
 import com.netifera.platform.ui.flatworld.layers.FocusFlatWorldLayer;
-import com.netifera.platform.ui.flatworld.layers.LabelsFlatWorldLayer;
+import com.netifera.platform.ui.flatworld.layers.SpotsFlatWorldLayer;
 import com.netifera.platform.ui.internal.flatworld.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 
@@ -49,7 +49,7 @@ public class FlatWorldView extends ViewPart {
 	private FlatWorldUpdater updater;
 	private Job loadJob;
 
-	private LabelsFlatWorldLayer labelsLayer;
+	private SpotsFlatWorldLayer<IEntity> spotsLayer;
 //	private RaindropFlatWorldLayer raindropsLayer;
 	private FocusFlatWorldLayer focusLayer;
 
@@ -282,7 +282,7 @@ public class FlatWorldView extends ViewPart {
 		if (location != null) {
 			final String label = location.getCity() != null ? location.getCity() : location.getCountry();
 			if (label != null) {
-				labelsLayer.addLabel(location.getPosition()[0], location.getPosition()[1], label);
+				spotsLayer.addSpot(location.getPosition()[0], location.getPosition()[1], label, entity);
 //				world.addRaindrop(location.getPosition()[0], location.getPosition()[1], red);
 				updater.redraw();
 			}
@@ -320,10 +320,10 @@ public class FlatWorldView extends ViewPart {
 	}
 	
 	private void initializeFlatWorldLayers() {
-		labelsLayer = new LabelsFlatWorldLayer();
+		spotsLayer = new SpotsFlatWorldLayer<IEntity>();
 //		raindropsLayer = new RaindropFlatWorldLayer();
 		focusLayer = new FocusFlatWorldLayer();
 		world.reset();
-		world.addLayer(labelsLayer);
+		world.addLayer(spotsLayer);
 	}
 }
