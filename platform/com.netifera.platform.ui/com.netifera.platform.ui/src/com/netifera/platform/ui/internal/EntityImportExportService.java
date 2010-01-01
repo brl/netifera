@@ -29,7 +29,7 @@ public class EntityImportExportService implements IEntityImportExportService {
 	private ILogger logger;
 	
 	public void exportEntities(Iterable<IEntity> entities, Writer writer, IProgressMonitor monitor) throws IOException {
-		int totalWork = (entities instanceof ISpace) ? ((ISpace)entities).entityCount() : (entities instanceof Collection) ? ((Collection<IEntity>)entities).size() : IProgressMonitor.UNKNOWN;
+		int totalWork = (entities instanceof ISpace) ? ((ISpace)entities).size() : (entities instanceof Collection) ? ((Collection<IEntity>)entities).size() : IProgressMonitor.UNKNOWN;
 		monitor.beginTask("Exporting to XML", totalWork);
 		Map<Long,XMLElement> map = new HashMap<Long,XMLElement>();
 		XMLElement root = new XMLElement();

@@ -118,7 +118,7 @@ public class Space implements ISpace {
 		return Collections.unmodifiableList(entities);
 	}
 
-	public int entityCount() {
+	public int size() {
 		return entities.size();
 	}
 

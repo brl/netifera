@@ -322,7 +322,7 @@ public class TreeMapView extends ViewPart {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					space.addChangeListener(spaceChangeListener);
-					monitor.beginTask("Loading entities", space.entityCount());
+					monitor.beginTask("Loading entities", space.size());
 					for(IEntity entity: space) {
 						addEntity(entity);
 						monitor.worked(1);

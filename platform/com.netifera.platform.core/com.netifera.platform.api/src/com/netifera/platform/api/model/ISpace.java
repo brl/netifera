@@ -36,7 +36,7 @@ public interface ISpace extends Iterable<IEntity> {
 	void setName(String name);
 	
 	List<IEntity> getEntities();
-	int entityCount();
+	int size();
 	boolean contains(IEntity entity);
 	
 	Set<String> getTags();

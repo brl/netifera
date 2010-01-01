@@ -32,7 +32,7 @@ public class TableContentProvider
 
 	public void updateElement(int index) {
 		if (viewer != null && space != null) {
-			int inputSize = space.entityCount();
+			int inputSize = space.size();
 			/*
 			 * this is a hack? if the virtual table is empty as a result of
 			 * being filtered then when the filters are removed the table is not
@@ -81,7 +81,7 @@ public class TableContentProvider
 
 		/* get update wrapper for the viewer, creating it the first time */
 		updater = TableUpdater.get(this.viewer);
-		updater.setItemCount(space.entityCount());
+		updater.setItemCount(space.size());
 	}
 	
 	private boolean validInputChange(Viewer viewer, Object newInput) {
@@ -95,7 +95,7 @@ public class TableContentProvider
 					if (((ISpaceContentChangeEvent)event).isEntityUpdateEvent()) {
 						updater.refresh(); //XXX is this right? or excessive update?
 					} else {
-						updater.setItemCount(space.entityCount());
+						updater.setItemCount(space.size());
 					}
 				}
 			}

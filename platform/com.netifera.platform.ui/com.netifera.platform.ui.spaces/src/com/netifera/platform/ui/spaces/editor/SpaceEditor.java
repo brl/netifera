@@ -124,7 +124,7 @@ public class SpaceEditor extends EditorPart implements IPersistableEditor, ISpac
 		getSite().getWorkbenchWindow().getSelectionService().addPostSelectionListener(selectionListener);
 
 		// for big spaces, use Table visualization by default
-		if (space.entityCount() > BIG_SPACE) {
+		if (space.size() > BIG_SPACE) {
 			visualizationName = TableVisualization.NAME;
 		}
 	}

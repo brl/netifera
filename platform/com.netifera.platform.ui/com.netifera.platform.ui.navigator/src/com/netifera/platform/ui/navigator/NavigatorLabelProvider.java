@@ -31,7 +31,7 @@ public class NavigatorLabelProvider extends ColumnLabelProvider {
 	public String getText(Object element) {
 		if (element instanceof ISpace) {
 			ISpace space = (ISpace) element;
-			return space.getName() + " (" + space.entityCount() + ")";
+			return space.getName() + " (" + space.size() + ")";
 		}
 		if (element instanceof IProbe) {
 			return ((IProbe)element).getName();
