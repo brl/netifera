@@ -34,7 +34,7 @@ public class SpotsFlatWorldLayer<E> implements IFlatWorldLayer {
 			spot.elements.add(element);
 		} else {
 			spot = new Spot();
-			spot.elements = new HashSet<E>();
+			spot.elements = new HashSet<E>(1);
 			spot.elements.add(element);
 			spots.put(location, spot);
 		}

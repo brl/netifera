@@ -18,10 +18,9 @@ import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 public class TreeMap implements Iterable<IEntity> {
-		
 	final private TreeMap[] subtrees = new TreeMap[256];
 	final private IPv4Netblock netblock;
-	final private Set<IEntity> entities = new HashSet<IEntity>();
+	final private Set<IEntity> entities = new HashSet<IEntity>(1);
 
 	class TreeMapIterator implements Iterator<IEntity> {
 		final private Iterator<TreeMap> treeMapsIterator;

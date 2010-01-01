@@ -8,7 +8,7 @@ import com.netifera.platform.ui.flatworld.support.FloatRectangle;
 
 public class QuadTree<E> {
 
-	static public int BRANCH_THRESHOLD = 2;
+	static public int BRANCH_THRESHOLD = 8;
 	
 	final private FloatRectangle bounds;
 	private QuadTree<E> quadrants[];
