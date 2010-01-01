@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.treemap;
+package com.netifera.platform.ui.heatmap;
 
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
-import com.netifera.platform.ui.internal.treemap.Activator;
+import com.netifera.platform.ui.internal.heatmap.Activator;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.editor.actions.ChooseLayerAction;
 import com.netifera.platform.ui.spaces.hover.ActionHover;
@@ -48,9 +48,9 @@ import com.netifera.platform.ui.util.MouseTracker;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
-public class TreeMapView extends ViewPart {
+public class HeatMapView extends ViewPart {
 
-	public static final String ID = "com.netifera.platform.views.treemap";
+	public static final String ID = "com.netifera.platform.views.heatmap";
 
 	private IMemento memento;
 	
@@ -64,21 +64,21 @@ public class TreeMapView extends ViewPart {
 		}
 	};
 
-	private TreeMapControl control;
-	private TreeMapUpdater updater;
+	private HeatMapControl control;
+	private HeatMapUpdater updater;
 	private Job loadJob;
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		control = new TreeMapControl(parent, SWT.BORDER);
+		control = new HeatMapControl(parent, SWT.BORDER);
 		control.setLayout(new FillLayout());
 
-		updater = TreeMapUpdater.get(control);
+		updater = HeatMapUpdater.get(control);
 		
 		if (memento != null) {
-			IMemento treeMapMemento = memento.getChild("TreeMap");
-			if (treeMapMemento != null)
-				control.restoreState(treeMapMemento);
+			IMemento heatMapMemento = memento.getChild("HeatMap");
+			if (heatMapMemento != null)
+				control.restoreState(heatMapMemento);
 			memento = null;
 		}
 		
@@ -101,7 +101,7 @@ public class TreeMapView extends ViewPart {
 					IEditorInput editorInput = ((IEditorPart) part).getEditorInput();
 					if (editorInput instanceof SpaceEditorInput) {
 						ISpace closedSpace = ((SpaceEditorInput)editorInput).getSpace();
-						if (closedSpace == TreeMapView.this.space)
+						if (closedSpace == HeatMapView.this.space)
 							setSpace(null);
 					}
 				}
@@ -154,20 +154,20 @@ public class TreeMapView extends ViewPart {
 
 			@Override
 			protected Object getItemAt(Point point) {
-				TreeMap subtree = control.getItem(point);
-				if (subtree == null)
+				HeatMap item = control.getItem(point);
+				if (item == null)
 					return null;
 				
-				List<TreeMap> selection = control.getSelection();
-				if (selection.contains(subtree)) {
+				List<HeatMap> selection = control.getSelection();
+				if (selection.contains(item)) {
 					if (selection.size() > 1)
 						return null; // multiple netblocks not yet implemented
-					return subtree.getNetblock();
+					return item.getNetblock();
 				} else {
-	//				if (subtree.size() != 1)
+	//				if (item.size() != 1)
 	//					return null;
 		
-					for (IEntity entity: subtree)
+					for (IEntity entity: item)
 						return entity;
 					
 	/*				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
@@ -186,17 +186,17 @@ public class TreeMapView extends ViewPart {
 
 			@Override
 			protected Rectangle getAreaOfItemAt(Point point) {
-				Rectangle subtreeArea = control.getItemBounds(control.getItem(point));
-				if (subtreeArea != null) {
-					return subtreeArea;
-//					return expandedItemArea(subtreeArea);
+				Rectangle itemArea = control.getItemBounds(control.getItem(point));
+				if (itemArea != null) {
+					return itemArea;
+//					return expandedItemArea(itemArea);
 				}
 				return super.getAreaOfItemAt(point);
 			}
 			
 			@Override
 			protected Rectangle getAreaOfSelectedItem() {
-				List<TreeMap> selection = control.getSelection();
+				List<HeatMap> selection = control.getSelection();
 				if(selection != null && selection.size() > 0) {
 					return control.getItemBounds(selection.get(0));
 				}
@@ -258,7 +258,7 @@ public class TreeMapView extends ViewPart {
 			protected List<ISemanticLayer> getLayers() {
 				List<ISemanticLayer> answer = new ArrayList<ISemanticLayer>();
 				for (ISemanticLayer layerProvider: Activator.getInstance().getModel().getSemanticLayers()) {
-					if (layerProvider instanceof ITreeMapLayer)
+					if (layerProvider instanceof IHeatMapLayer)
 						answer.add(layerProvider);
 				}
 				return answer;
@@ -269,7 +269,7 @@ public class TreeMapView extends ViewPart {
 			}
 			@Override
 			protected void setActiveLayer(ISemanticLayer provider) {
-				control.setLayer((ITreeMapLayer)provider);
+				control.setLayer((IHeatMapLayer)provider);
 			}
 		});
 	}
@@ -293,8 +293,8 @@ public class TreeMapView extends ViewPart {
 	@Override
 	public void saveState(IMemento memento) {
 		super.saveState(memento);
-		IMemento treeMapMemento = memento.createChild("TreeMap");
-		control.saveState(treeMapMemento);
+		IMemento heatMapMemento = memento.createChild("HeatMap");
+		control.saveState(heatMapMemento);
 	}
 	
 	@Override
@@ -316,9 +316,9 @@ public class TreeMapView extends ViewPart {
 		this.space = space;
 		
 		if (space != null) {
-			setPartName("TreeMap - "+space.getName());//FIXME this is because the name changes and we dont get notified
+			setPartName("HeatMap - "+space.getName());//FIXME this is because the name changes and we dont get notified
 			
-			loadJob = new Job("TreeMap loading space '"+space.getName()+"'") {
+			loadJob = new Job("HeatMap loading space '"+space.getName()+"'") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					Thread.yield();
@@ -339,7 +339,7 @@ public class TreeMapView extends ViewPart {
 			loadJob.setPriority(Job.BUILD);
 			loadJob.schedule();
 		} else {
-			setPartName("TreeMap");
+			setPartName("HeatMap");
 		}
 	}
 	

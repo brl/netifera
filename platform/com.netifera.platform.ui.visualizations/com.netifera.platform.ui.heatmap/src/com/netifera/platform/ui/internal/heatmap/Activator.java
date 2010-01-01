@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.internal.treemap;
+package com.netifera.platform.ui.internal.heatmap;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -12,7 +12,7 @@ import com.netifera.platform.ui.images.ImageCache;
 
 public class Activator implements BundleActivator {
 
-	public static final String PLUGIN_ID = "com.netifera.platform.ui.treemap";
+	public static final String PLUGIN_ID = "com.netifera.platform.ui.heatmap";
 
 	private static Activator instance;
 

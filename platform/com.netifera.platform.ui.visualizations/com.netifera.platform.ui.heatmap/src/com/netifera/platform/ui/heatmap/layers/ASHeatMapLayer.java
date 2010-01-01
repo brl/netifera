@@ -1,11 +1,11 @@
-package com.netifera.platform.ui.treemap.layers;
+package com.netifera.platform.ui.heatmap.layers;
 
 import com.netifera.platform.net.ui.routes.AS;
-import com.netifera.platform.ui.internal.treemap.Activator;
+import com.netifera.platform.ui.internal.heatmap.Activator;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 
-public class ASTreeMapLayer extends AbstractXKCDTreeMapLayer {
+public class ASHeatMapLayer extends AbstractXKCDHeatMapLayer {
 
 	protected String getCategory(IPv4Netblock netblock) {
 		AS as = Activator.getInstance().getIP2ASService().getAS(netblock);

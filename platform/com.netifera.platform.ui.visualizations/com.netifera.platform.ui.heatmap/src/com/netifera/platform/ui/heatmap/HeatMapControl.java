@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.treemap;
+package com.netifera.platform.ui.heatmap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,22 +25,22 @@ import org.eclipse.ui.IPersistable;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
-import com.netifera.platform.ui.internal.treemap.Activator;
-import com.netifera.platform.ui.treemap.layers.GeolocationTreeMapLayer;
+import com.netifera.platform.ui.heatmap.layers.GeolocationHeatMapLayer;
+import com.netifera.platform.ui.internal.heatmap.Activator;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
-public class TreeMapControl extends Canvas implements IPersistable {
+public class HeatMapControl extends Canvas implements IPersistable {
 
-	private TreeMap treeMap;
-	private ITreeMapLayer curve;
+	private HeatMap heatMap;
+	private IHeatMapLayer curve;
 	
-	private List<TreeMap> selection = new ArrayList<TreeMap>();
+	private List<HeatMap> selection = new ArrayList<HeatMap>();
 
 	private Cursor panningCursor;
 	private Cursor zoomingCursor;
 
-	class TreeMapFrame {
+	class HeatMapFrame {
 		double scale = 1.0;
 		double offsetX = 0, offsetY = 0;
 		
@@ -66,20 +66,20 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		}
 	};
 	
-	private TreeMapFrame frame = new TreeMapFrame();
+	private HeatMapFrame frame = new HeatMapFrame();
 	
-	public TreeMapControl(Composite parent, int style) {
+	public HeatMapControl(Composite parent, int style) {
 		super(parent, style);
 
 		initializeCursors();
 
 		for (ISemanticLayer layer: Activator.getInstance().getModel().getSemanticLayers()) {
-			if (layer instanceof GeolocationTreeMapLayer) {
-				curve = (ITreeMapLayer) layer;
+			if (layer instanceof GeolocationHeatMapLayer) {
+				curve = (IHeatMapLayer) layer;
 				break;
 			}
 		}
-		initializeTreeMap();
+		initializeHeatMap();
 
 		setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
 		setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
@@ -114,7 +114,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 						redraw();
 						zooming = false;
 						panning = false;
-						TreeMapControl.this.setCursor(null);
+						HeatMapControl.this.setCursor(null);
 					}
 					break;
 				case SWT.MouseDown:
@@ -125,7 +125,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 						originalOffsetY = frame.offsetY;
 						originalScale = frame.scale;
 						prePanning = true;
-						TreeMapControl.this.setCursor(panningCursor);
+						HeatMapControl.this.setCursor(panningCursor);
 					}
 					if (!zooming && event.button == 3) {
 						clickX = event.x;
@@ -134,14 +134,14 @@ public class TreeMapControl extends Canvas implements IPersistable {
 						originalOffsetY = frame.offsetY;
 						originalScale = frame.scale;
 						zooming = true;
-						TreeMapControl.this.setCursor(zoomingCursor);
+						HeatMapControl.this.setCursor(zoomingCursor);
 					}
 					break;
 				case SWT.MouseMove:
 					if (prePanning && Math.max(Math.abs(clickX - event.x),Math.abs(clickY - event.y)) > 3) {
 						panning = true;
 						prePanning = false;
-						TreeMapControl.this.setCursor(panningCursor);
+						HeatMapControl.this.setCursor(panningCursor);
 					}
 					if (panning) {
 						frame.offsetX = originalOffsetX + (clickX - event.x);
@@ -165,7 +165,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 					break;
 				case SWT.MouseUp:
 					if (event.button == 1 && !panning) {
-						TreeMap item = getItem(new Point(event.x, event.y));
+						HeatMap item = getItem(new Point(event.x, event.y));
 						if (item != null) {
 							if ((event.stateMask & SWT.CTRL) != 0) {
 								if (selection.contains(item))
@@ -174,9 +174,9 @@ public class TreeMapControl extends Canvas implements IPersistable {
 									selection.add(item);
 							} else {
 								if (selection.size() == 1 && selection.contains(item)) {
-									selection = new ArrayList<TreeMap>();
+									selection = new ArrayList<HeatMap>();
 								} else {
-									selection = new ArrayList<TreeMap>();
+									selection = new ArrayList<HeatMap>();
 									selection.add(item);
 								}
 							}
@@ -188,7 +188,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 					prePanning = false;
 					panning = false;
 					zooming = false;
-					TreeMapControl.this.setCursor(null);
+					HeatMapControl.this.setCursor(null);
 					break;
 				case SWT.MouseWheel:
 					originalScale = frame.scale;
@@ -208,8 +208,8 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		addListener(SWT.MouseWheel, mouseListener);
 	}
 
-	private void initializeTreeMap() {
-		treeMap = new TreeMap((IPv4Netblock)IPv4Netblock.fromString("0.0.0.0/0"));
+	private void initializeHeatMap() {
+		heatMap = new HeatMap((IPv4Netblock)IPv4Netblock.fromString("0.0.0.0/0"));
 	}
 
 	private void initializeCursors() {
@@ -259,7 +259,7 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		int x = (int)(rect.x - frame.offsetX);
 		int y = (int)(rect.y - frame.offsetY);
 		int extent = (int) (Math.min(rect.width,rect.height) * frame.scale);
-		treeMap.paint(x, y, extent, gc, curve, palette);
+		heatMap.paint(x, y, extent, gc, curve, palette);
 
 		for (Color color: palette)
 			color.dispose();
@@ -273,33 +273,33 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		if (selection.size() > 0) {
 			gc.setLineStyle(SWT.LINE_SOLID);
 			gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_LIST_SELECTION));
-			for (TreeMap subtree: selection) {
+			for (HeatMap subtree: selection) {
 				gc.drawRectangle(getItemBounds(subtree));
 			}
 		}
 	}
 
-	public ITreeMapLayer getLayer() {
+	public IHeatMapLayer getLayer() {
 		return curve;
 	}
 
-	public void setLayer(ITreeMapLayer layer) {
+	public void setLayer(IHeatMapLayer layer) {
 		this.curve = layer;
 		redraw();
 	}
 
 	public synchronized void add(IPv4Address address, IEntity entity) {
-		treeMap.add(address, entity);
+		heatMap.add(address, entity);
 //		redraw();
 	}
 	
 	public void reset() {
-		selection = new ArrayList<TreeMap>();
-		initializeTreeMap();
+		selection = new ArrayList<HeatMap>();
+		initializeHeatMap();
 		redraw();
 	}
 
-	public synchronized TreeMap getItem(Point point) {
+	public synchronized HeatMap getItem(Point point) {
 		Rectangle rect = getClientArea();
 		double extent = Math.min(rect.width,rect.height) * frame.scale;
 		
@@ -312,41 +312,41 @@ public class TreeMapControl extends Canvas implements IPersistable {
 		if (y0 > 1.0 || y0 < 0)
 			return null;
 		
-		TreeMap tree = treeMap;
-		while (extent > 128 && tree != null && tree.getNetblock().getCIDR() < 32) {
+		HeatMap map = heatMap;
+		while (extent > 128 && map != null && map.getNetblock().getCIDR() < 32) {
 			x0 *= 16;
 			y0 *= 16;
 			int xi = (int) x0;
 			int yi = (int) y0;
 			x0 -= xi;
 			y0 -= yi;
-			IPv4Netblock subnet = curve.getSubNetblock(tree.getNetblock(), yi * 16 + xi);
-			tree = tree.getSubTree(subnet);
+			IPv4Netblock subnet = curve.getSubNetblock(map.getNetblock(), yi * 16 + xi);
+			map = map.getChild(subnet);
 			extent = extent / 16;
 		}
-		return tree;
+		return map;
 	}
 	
-	public synchronized Rectangle getItemBounds(TreeMap subtree) {
+	public synchronized Rectangle getItemBounds(HeatMap item) {
 		Rectangle rect = getClientArea();
 		int x = rect.x - (int)frame.offsetX;
 		int y = rect.y - (int)frame.offsetY;
 		int extent = (int)(Math.min(rect.width,rect.height) * frame.scale);
 		
-		TreeMap tree = treeMap;
-		while (!tree.getNetblock().equals(subtree.getNetblock())) {
-			int h = curve.getIndex(tree.getNetblock(), subtree.getNetblock());
+		HeatMap map = heatMap;
+		while (!map.getNetblock().equals(item.getNetblock())) {
+			int h = curve.getIndex(map.getNetblock(), item.getNetblock());
 			int xi = h % 16;
 			int yi = h / 16;
 			x = x + (xi*extent/16);
 			y = y + (yi*extent/16);
 			extent = extent/16;
-			tree = tree.getSubTree(subtree.getNetblock());
+			map = map.getChild(item.getNetblock());
 		}
 		return new Rectangle(x, y, extent, extent);
 	}
 
-	public List<TreeMap> getSelection() {
+	public List<HeatMap> getSelection() {
 		return Collections.unmodifiableList(selection);
 	}
 }

@@ -1,4 +1,4 @@
-package com.netifera.platform.ui.treemap;
+package com.netifera.platform.ui.heatmap;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,32 +17,32 @@ import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
-public class TreeMap implements Iterable<IEntity> {
-	final private TreeMap[] subtrees = new TreeMap[256];
+public class HeatMap implements Iterable<IEntity> {
+	final private HeatMap[] children = new HeatMap[256];
 	final private IPv4Netblock netblock;
 	final private Set<IEntity> entities = new HashSet<IEntity>(1);
 
-	class TreeMapIterator implements Iterator<IEntity> {
-		final private Iterator<TreeMap> treeMapsIterator;
+	class HeatMapIterator implements Iterator<IEntity> {
+		final private Iterator<HeatMap> childrenIterator;
 		private Iterator<IEntity> entitiesIterator;
 		
-		TreeMapIterator(TreeMap treeMap) {
-			entitiesIterator = treeMap.entities.iterator();
-			List<TreeMap> treeMaps = new ArrayList<TreeMap>();
-			for (TreeMap subtree: treeMap.subtrees) {
-				if (subtree != null)
-					treeMaps.add(subtree);
+		HeatMapIterator(HeatMap heatMap) {
+			entitiesIterator = heatMap.entities.iterator();
+			List<HeatMap> nonNullChildren = new ArrayList<HeatMap>();
+			for (HeatMap child: heatMap.children) {
+				if (child != null)
+					nonNullChildren.add(child);
 			}
-			treeMapsIterator = treeMaps.iterator();
+			childrenIterator = nonNullChildren.iterator();
 		}
 		
 		public boolean hasNext() {
-			return entitiesIterator.hasNext() || treeMapsIterator.hasNext();
+			return entitiesIterator.hasNext() || childrenIterator.hasNext();
 		}
 
 		public IEntity next() {
 			if (!entitiesIterator.hasNext())
-				entitiesIterator = treeMapsIterator.next().iterator();
+				entitiesIterator = childrenIterator.next().iterator();
 			return entitiesIterator.next();
 		}
 
@@ -50,7 +50,7 @@ public class TreeMap implements Iterable<IEntity> {
 		}
 	}
 	
-	public TreeMap(IPv4Netblock netblock) {
+	public HeatMap(IPv4Netblock netblock) {
 		this.netblock = netblock;
 	}
 
@@ -60,15 +60,15 @@ public class TreeMap implements Iterable<IEntity> {
 	
 	public int size() {
 		int answer = entities.size();
-		for (TreeMap subtree: subtrees) {
-			if (subtree != null)
-				answer += subtree.size();
+		for (HeatMap child: children) {
+			if (child != null)
+				answer += child.size();
 		}
 		return answer;
 	}
 
 	public boolean equals(Object o) {
-		return (o instanceof TreeMap) && netblock.equals(((TreeMap)o).netblock);
+		return (o instanceof HeatMap) && netblock.equals(((HeatMap)o).netblock);
 	}
 	
 	public int hashCode() {
@@ -76,14 +76,14 @@ public class TreeMap implements Iterable<IEntity> {
 	}
 	
 	public Iterator<IEntity> iterator() {
-		return new TreeMapIterator(this);
+		return new HeatMapIterator(this);
 	}
 	
-	public TreeMap getSubTree(IPv4Netblock subnet) {
+	public HeatMap getChild(IPv4Netblock subnet) {
 		if (!netblock.contains(subnet.getNetworkAddress()))
 			return null;
-		TreeMap subtree = subtrees[subnet.getNetworkAddress().toBytes()[netblock.getCIDR()/8] & 0xff];
-		return subtree != null ? subtree : new TreeMap(subnet);
+		HeatMap child = children[subnet.getNetworkAddress().toBytes()[netblock.getCIDR()/8] & 0xff];
+		return child != null ? child : new HeatMap(subnet);
 	}
 
 	private int getIndex(IPv4Address address) {
@@ -100,14 +100,14 @@ public class TreeMap implements Iterable<IEntity> {
 		}
 		
 		int index = getIndex(address);
-		TreeMap subtree = subtrees[index];
+		HeatMap child = children[index];
 		
-		if (subtree == null) {
-			subtree = new TreeMap(new IPv4Netblock(address, netblock.getCIDR()+8));
-			subtrees[index] = subtree;
+		if (child == null) {
+			child = new HeatMap(new IPv4Netblock(address, netblock.getCIDR()+8));
+			children[index] = child;
 		}
 
-		subtree.add(address, entity/*, color*/);
+		child.add(address, entity/*, color*/);
 	}
 
 	private double temperature() {
@@ -130,9 +130,9 @@ public class TreeMap implements Iterable<IEntity> {
 			return temperature();
 
 		double temperature = temperature();
-		for (TreeMap subtree: subtrees) {
-			if (subtree != null)
-				temperature = Math.max(temperature, subtree.maximumTemperature());
+		for (HeatMap child: children) {
+			if (child != null)
+				temperature = Math.max(temperature, child.maximumTemperature());
 		}
 		return temperature;
 	}
@@ -158,7 +158,7 @@ public class TreeMap implements Iterable<IEntity> {
 		return false;
 	}
 	
-	public void paint(int x, int y, int extent, GC gc, ITreeMapLayer curve, Color palette[]) {
+	public void paint(int x, int y, int extent, GC gc, IHeatMapLayer curve, Color palette[]) {
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
 			Color color = palette[(int)(temperature*(palette.length-1))];
@@ -194,9 +194,9 @@ public class TreeMap implements Iterable<IEntity> {
 		}
 
 		for (int i=0; i<256; i++) {
-			TreeMap subtree = subtrees[i];
-			if (subtree != null) {
-				int h = curve.getIndex(netblock, subtree.netblock);
+			HeatMap child = children[i];
+			if (child != null) {
+				int h = curve.getIndex(netblock, child.netblock);
 				int xi = h % 16;
 				int yi = h / 16;
 				int subX = x + (xi*extent/16);
@@ -204,7 +204,7 @@ public class TreeMap implements Iterable<IEntity> {
 				int subExtent = extent/16;
 				Rectangle subRect = new Rectangle(subX, subY, subExtent, subExtent);
 				if (subRect.intersects(gc.getClipping())) {
-					subtree.paint(subX, subY, subExtent, gc, curve, palette);
+					child.paint(subX, subY, subExtent, gc, curve, palette);
 				}
 			}
 		}

@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: IPv4 Address Space Tree Map Plug-in
-Bundle-SymbolicName: com.netifera.platform.ui.treemap;singleton:=true
+Bundle-Name: IPv4 Address Space Heat Map Plug-in
+Bundle-SymbolicName: com.netifera.platform.ui.heatmap;singleton:=true
 Bundle-Version: 1.0.0
-Bundle-Activator: com.netifera.platform.ui.internal.treemap.Activator
+Bundle-Activator: com.netifera.platform.ui.internal.heatmap.Activator
 Bundle-Vendor: Netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.ui;bundle-version="3.4.0",
@@ -25,5 +25,5 @@ Import-Package: com.netifera.platform.api.events,
  com.netifera.platform.util.addresses.inet,
  org.osgi.framework;version="1.3.0"
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/geolocation-treemap-layer.xml,
- OSGI-INF/as-treemap-layer.xml
+Service-Component: OSGI-INF/geolocation-heatmap-layer.xml,
+ OSGI-INF/as-heatmap-layer.xml

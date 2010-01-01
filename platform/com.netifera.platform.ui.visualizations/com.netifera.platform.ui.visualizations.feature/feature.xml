@@ -51,14 +51,14 @@
          unpack="false"/>
 
    <plugin
-         id="com.netifera.platform.ui.treemap"
+         id="com.netifera.platform.ui.flatworld"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.netifera.platform.ui.flatworld"
+         id="com.netifera.platform.ui.heatmap"
          download-size="0"
          install-size="0"
          version="0.0.0"

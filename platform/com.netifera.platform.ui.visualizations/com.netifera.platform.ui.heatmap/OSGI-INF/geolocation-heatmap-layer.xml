@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component name="netifera.as-treemap-layer">
-	<implementation class="com.netifera.platform.ui.treemap.layers.ASTreeMapLayer" />
+<component name="netifera.geolocation-heatmap-layer">
+	<implementation class="com.netifera.platform.ui.heatmap.layers.GeolocationHeatMapLayer" />
 	<service>
 		<provide interface="com.netifera.platform.api.model.layers.ISemanticLayer" />
 	</service>

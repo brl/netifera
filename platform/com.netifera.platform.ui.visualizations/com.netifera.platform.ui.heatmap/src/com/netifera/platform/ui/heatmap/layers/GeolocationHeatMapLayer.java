@@ -1,11 +1,11 @@
-package com.netifera.platform.ui.treemap.layers;
+package com.netifera.platform.ui.heatmap.layers;
 
 import com.netifera.platform.net.ui.geoip.ILocation;
-import com.netifera.platform.ui.internal.treemap.Activator;
+import com.netifera.platform.ui.internal.heatmap.Activator;
 import com.netifera.platform.util.addresses.inet.IPv4Netblock;
 
 
-public class GeolocationTreeMapLayer extends AbstractXKCDTreeMapLayer {
+public class GeolocationHeatMapLayer extends AbstractXKCDHeatMapLayer {
 	
 	protected String getCategory(IPv4Netblock netblock) {
 		ILocation location = Activator.getInstance().getGeoIPService().getLocation(netblock);

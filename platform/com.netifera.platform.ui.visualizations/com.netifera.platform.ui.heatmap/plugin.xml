@@ -4,11 +4,12 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            allowMultiple="false"
             category="com.netifera.platform.ui.category.visualizations"
-            class="com.netifera.platform.ui.treemap.TreeMapView"
-            icon="icons/treemap.png"
-            id="com.netifera.platform.views.treemap"
-            name="Tree Map"
+            class="com.netifera.platform.ui.heatmap.HeatMapView"
+            icon="icons/heatmap.png"
+            id="com.netifera.platform.views.heatmap"
+            name="Heat Map"
             restorable="true">
       </view>
    </extension>
@@ -16,11 +17,11 @@
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="com.netifera.platform.ui.perspectives.explore">
-         <viewShortcut id="com.netifera.platform.views.treemap"/>
+         <viewShortcut id="com.netifera.platform.views.heatmap"/>
 <!-- WTF if i put this two views layouts in two different plugins it doesnt work,
 		i had to put them together in this plugin to make it work properly -->
          <view
-               id="com.netifera.platform.views.treemap"
+               id="com.netifera.platform.views.heatmap"
                ratio="0.55"
                relationship="right"
                relative="org.eclipse.ui.editorss">
@@ -29,14 +30,14 @@
                id="com.netifera.platform.views.flatworld"
                ratio="0.55"
                relationship="bottom"
-               relative="com.netifera.platform.views.treemap">
+               relative="com.netifera.platform.views.heatmap">
          </view>
       </perspectiveExtension>
       <perspectiveExtension
             targetID="*">
-         <viewShortcut id="com.netifera.platform.views.treemap"/>
+         <viewShortcut id="com.netifera.platform.views.heatmap"/>
          <view
-               id="com.netifera.platform.views.treemap"
+               id="com.netifera.platform.views.heatmap"
                ratio="0.55"
                relationship="fast"
                relative="org.eclipse.ui.editorss">
