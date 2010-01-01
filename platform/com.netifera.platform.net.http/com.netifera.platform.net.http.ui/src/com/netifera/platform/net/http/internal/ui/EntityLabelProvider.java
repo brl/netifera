@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Display;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.model.TreeStructureContext;
+import com.netifera.platform.api.model.ITreeStructureContext;
 import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.HTTPResponseEntity;
@@ -61,8 +61,8 @@ public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformat
 	public String getText(IShadowEntity e) {
 		if (e instanceof WebSiteEntity) {
 			WebSiteEntity site = (WebSiteEntity) e;
-			if (site.getRealEntity() != site && site.getStructureContext() instanceof TreeStructureContext) {
-				if (!(((TreeStructureContext)site.getStructureContext()).getParent() instanceof HostEntity)) {
+			if (site.getRealEntity() != site && site.getStructureContext() instanceof ITreeStructureContext) {
+				if (!(((ITreeStructureContext)site.getStructureContext()).getParent() instanceof HostEntity)) {
 					return ((WebSiteEntity) e).getRootURL() + "  ("+site.getHTTP().getAddress().getAddressString()+")";
 				}
 			}

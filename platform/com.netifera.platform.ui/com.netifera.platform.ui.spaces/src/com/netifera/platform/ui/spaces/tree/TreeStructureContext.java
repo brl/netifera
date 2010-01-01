@@ -1,38 +1,63 @@
-package com.netifera.platform.model;
+package com.netifera.platform.ui.spaces.tree;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.IStructureContext;
+import com.netifera.platform.api.model.ITreeStructureContext;
 
-public class TreeStructureContext implements IStructureContext {
+public class TreeStructureContext implements ITreeStructureContext {
+	final private Tree tree;
+	final private IShadowEntity entity;
 	private IShadowEntity parent;
-	private IShadowEntity entity;
 	private List<IShadowEntity> children;
 	
-	public static IShadowEntity createRoot(IEntity entity) {
-		return createNode(entity);
+	public static IShadowEntity createRoot(Tree tree, IEntity entity) {
+		return createNode(tree, entity);
 	}
-	
-	public IShadowEntity getParent() {
-		return parent;
+
+	private TreeStructureContext(Tree tree, IEntity entity) {
+		this.tree = tree;
+		this.entity = entity.shadowClone(this);
 	}
 	
 	public IShadowEntity getEntity() {
 		return entity;
 	}
-	
+
+	public IShadowEntity getParent() {
+		return parent;
+	}
+
+	public List<IShadowEntity> getChildren() {
+		List<IShadowEntity> retChildren;
+		
+		if(children == null) {
+			return Collections.emptyList();
+		}
+		/*return a copy to avoid concurrent modification exceptions */
+		synchronized(children) {
+			retChildren = new ArrayList<IShadowEntity>(children); 
+		}
+		return retChildren;
+	}
+
+	public Tree getStructure() {
+		return tree;
+	}
+
 	public IShadowEntity addChild(IEntity entity) {
 		synchronized(this) {
 			if(children == null) {
-				children = Collections.synchronizedList(new ArrayList<IShadowEntity>());
+				children = Collections.synchronizedList(new LinkedList<IShadowEntity>());
 			}
 		}
 		
-		IShadowEntity shadow = createNode(entity, this.entity);
+		IShadowEntity shadow = createNode(tree, entity, this.entity);
 		children.add(shadow);
 		return shadow;
 	}
@@ -59,19 +84,6 @@ public class TreeStructureContext implements IStructureContext {
 		return (children != null && children.size() > 0);
 	}
 	
-	public List<IShadowEntity> getChildren() {
-		List<IShadowEntity> retChildren;
-		
-		if(children == null) {
-			return Collections.emptyList();
-		}
-		/*return a copy to avoid concurrent modification exceptions */
-		synchronized(children) {
-			retChildren = new ArrayList<IShadowEntity>(children); 
-		}
-		return retChildren;
-	}
-
 	public boolean hasChild(IEntity entity) {
 		return getChild(entity) != null;
 	}
@@ -141,14 +153,13 @@ public class TreeStructureContext implements IStructureContext {
 		children = null;
 	}
 	
-	private static IShadowEntity createNode(IEntity entity) {
-		return createNode(entity, null);
+	private static IShadowEntity createNode(Tree tree, IEntity entity) {
+		return createNode(tree, entity, null);
 	}
 	
-	private static IShadowEntity createNode(IEntity entity, IShadowEntity parent) {
-		TreeStructureContext tsc = new TreeStructureContext();
-		tsc.entity = entity.shadowClone(tsc);
-		tsc.parent = parent;
-		return tsc.getEntity();
+	private static IShadowEntity createNode(Tree tree, IEntity entity, IShadowEntity parent) {
+		TreeStructureContext context = new TreeStructureContext(tree, entity);
+		context.parent = parent;
+		return context.getEntity();
 	}
 }

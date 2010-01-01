@@ -20,13 +20,12 @@ import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.model.IStructureContext;
 import com.netifera.platform.api.model.events.ISpaceContentChangeEvent;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
-import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.ui.internal.spaces.Activator;
 import com.netifera.platform.ui.updater.StructuredViewerUpdater;
 
 public class TreeContentProvider implements ITreeContentProvider {
 	private ISpace space;
-	private TreeBuilder treeBuilder;
+	private Tree tree;
 	private StructuredViewerUpdater updater;
 	private Job loadJob;
 	private final IEventHandler spaceListener = new IEventHandler() {
@@ -46,8 +45,8 @@ public class TreeContentProvider implements ITreeContentProvider {
 		return children.toArray();
 	}
 	
-	public TreeBuilder getTreeBuilder() {
-		return treeBuilder;
+	public Tree getTree() {
+		return tree;
 	}
 	
 	private List<IShadowEntity> getChildEntities(IShadowEntity entity) {
@@ -66,7 +65,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 		if(input != space) {
 			throw new IllegalArgumentException();
 		}
-		return getChildEntities(treeBuilder.getRoot()).toArray();
+		return getChildEntities(tree.getRoot()).toArray();
 	}
 	
 	public void dispose() {
@@ -74,8 +73,8 @@ public class TreeContentProvider implements ITreeContentProvider {
 			space.removeChangeListener(spaceListener);
 		if (loadJob != null)
 			loadJob.cancel();
-		if (treeBuilder != null)
-			treeBuilder.dispose();
+		if (tree != null)
+			tree.dispose();
 	}
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
@@ -95,8 +94,8 @@ public class TreeContentProvider implements ITreeContentProvider {
 			if (layerProvider.isDefaultEnabled())
 				layerProviders.add(layerProvider);
 		
-		this.treeBuilder = new TreeBuilder(layerProviders);
-		this.treeBuilder.setListener(createUpdateListener());
+		this.tree = new Tree(layerProviders);
+		this.tree.setChangeListener(createTreeChangeListener());
 
 		space.addChangeListener(spaceListener);
 
@@ -105,19 +104,19 @@ public class TreeContentProvider implements ITreeContentProvider {
 	
 	private void handleSpaceChange(ISpaceContentChangeEvent event) {
 		if(event.isEntityAddEvent()) {
-			treeBuilder.addEntity(event.getEntity());
+			tree.addEntity(event.getEntity());
 		} else if(event.isEntityUpdateEvent()) {
-			if(treeBuilderHasValidRoot())
-				treeBuilder.updateEntity(event.getEntity());
+			if(treeHasValidRoot())
+				tree.updateEntity(event.getEntity());
 		} else if(event.isEntityRemoveEvent()) {
-			treeBuilder.removeEntity(event.getEntity());
+			tree.removeEntity(event.getEntity());
 		}
 	}
 
-	private ITreeBuilderListener createUpdateListener() {
-		return new ITreeBuilderListener() {
+	private ITreeChangeListener createTreeChangeListener() {
+		return new ITreeChangeListener() {
 			public void entityAdded(IShadowEntity entity, IShadowEntity parent) {
-				if (parent == treeBuilder.getRoot()) {
+				if (parent == tree.getRoot()) {
 					updater.refresh();
 				} else {
 					updater.remove(getChildEntities(parent));
@@ -130,7 +129,7 @@ public class TreeContentProvider implements ITreeContentProvider {
 			}
 
 			public void entityRemoved(IShadowEntity entity, IShadowEntity parent) {
-				if (parent == treeBuilder.getRoot()) {
+				if (parent == tree.getRoot()) {
 					updater.refresh();
 				} else {
 					updater.remove(getChildEntities(parent));
@@ -140,16 +139,16 @@ public class TreeContentProvider implements ITreeContentProvider {
 		};
 	}
 	
-	private ITreeBuilderListener createNullUpdateListener() {
-		return new ITreeBuilderListener() {
+	private ITreeChangeListener createNullTreeChangeListener() {
+		return new ITreeChangeListener() {
 			public void entityAdded(IShadowEntity entity, IShadowEntity parent) {}
 			public void entityChanged(IShadowEntity entity) {}
 			public void entityRemoved(IShadowEntity entity, IShadowEntity parent) {}
 		};
 	}
 
-	private boolean treeBuilderHasValidRoot() {
-		return (treeBuilder.getRoot() != null && (treeBuilder.getRoot().getStructureContext() instanceof TreeStructureContext));
+	private boolean treeHasValidRoot() {
+		return (tree.getRoot() != null && (tree.getRoot().getStructureContext() instanceof TreeStructureContext));
 	}
 
 	/*
@@ -166,16 +165,16 @@ public class TreeContentProvider implements ITreeContentProvider {
 	}
 	
 	public List<ISemanticLayer> getLayers() {
-		return treeBuilder.getLayers();
+		return tree.getLayers();
 	}
 	
 	public void addLayer(ISemanticLayer layerProvider) {
-		treeBuilder.addLayer(layerProvider);
+		tree.addLayer(layerProvider);
 		loadSpace();
 	}
 	
 	public void removeLayer(ISemanticLayer layerProvider) {
-		treeBuilder.removeLayer(layerProvider);
+		tree.removeLayer(layerProvider);
 		loadSpace();
 	}
 	
@@ -184,21 +183,21 @@ public class TreeContentProvider implements ITreeContentProvider {
 			loadJob.cancel();
 			Thread.yield();
 		}
-		treeBuilder.setListener(createNullUpdateListener());
-		treeBuilder.setRoot(space.getRootEntity());
+		tree.setChangeListener(createNullTreeChangeListener());
+		tree.setRoot(space.getRootEntity());
 		loadJob = new Job("Loading space '"+space.getName()+"'") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				monitor.beginTask("Loading entities", space.entityCount());
 				for(IEntity entity: space) {
-					treeBuilder.addEntity(entity);
+					tree.addEntity(entity);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {
 						return Status.CANCEL_STATUS;
 					}
 				}
 				
-				treeBuilder.setListener(createUpdateListener());
+				tree.setChangeListener(createTreeChangeListener());
 				updater.refresh();
 				return Status.OK_STATUS;
 			}

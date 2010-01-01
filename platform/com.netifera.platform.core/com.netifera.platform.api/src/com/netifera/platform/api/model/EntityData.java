@@ -36,21 +36,21 @@ public class EntityData implements Serializable {
 
 	private Map<String, String> getAttributesMap() {
 		if(attributes == null) {
-			attributes = new HashMap<String, String>();
+			attributes = new HashMap<String, String>(1);
 		}
 		return attributes;
 	}
 
 	private Map<String, IEntityReference> getAssociationsMap() {
 		if(associations == null) {
-			associations = new HashMap<String, IEntityReference>();
+			associations = new HashMap<String, IEntityReference>(1);
 		}
 		return associations;
 	}
 
 	private Map<String, Set<IEntityReference>> getMultiAssociationsMap() {
 		if(multiAssociations == null) {
-			multiAssociations = new HashMap<String, Set<IEntityReference>>();
+			multiAssociations = new HashMap<String, Set<IEntityReference>>(1);
 		}
 		return multiAssociations;
 	}
@@ -58,7 +58,7 @@ public class EntityData implements Serializable {
 	private Set<IEntityReference> getMultiAssociationsSet(String name) {
 		Set<IEntityReference> set = getMultiAssociationsMap().get(name);
 		if (set == null) {
-			set = new HashSet<IEntityReference>();
+			set = new HashSet<IEntityReference>(1);
 			getMultiAssociationsMap().put(name, set);
 		}
 		return set;
@@ -66,7 +66,7 @@ public class EntityData implements Serializable {
 
 	private Set<String> getTagsSet() {
 		if(tags == null) {
-			tags = new HashSet<String>();
+			tags = new HashSet<String>(1);
 		}
 		return tags;
 	}

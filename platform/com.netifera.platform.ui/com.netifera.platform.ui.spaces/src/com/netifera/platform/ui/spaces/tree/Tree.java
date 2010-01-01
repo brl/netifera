@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,18 +15,17 @@ import com.netifera.platform.api.model.layers.IGroupLayer;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.api.model.layers.ITreeLayer;
 import com.netifera.platform.model.FolderEntity;
-import com.netifera.platform.model.TreeStructureContext;
 
-public class TreeBuilder {
+public class Tree {
 	private volatile IShadowEntity root;
 	private final List<ITreeLayer> treeProviders;
 	private final List<IGroupLayer> groupProviders;
 	private Map<Long,List<IShadowEntity>> shadowsMap;
 	private Map<Long,Map<String,IShadowEntity>> foldersMap;
 	
-	private ITreeBuilderListener updateListener;
+	private ITreeChangeListener changeListener;
 	
-	public TreeBuilder(List<ISemanticLayer> providers) {
+	public Tree(List<ISemanticLayer> providers) {
 		treeProviders = new ArrayList<ITreeLayer>();
 		groupProviders = new ArrayList<IGroupLayer>();
 		for (ISemanticLayer layerProvider: providers) {
@@ -53,8 +53,8 @@ public class TreeBuilder {
 			groupProviders.remove(layerProvider);
 	}
 
-	public synchronized void setListener(ITreeBuilderListener listener) {
-		updateListener = listener;
+	public synchronized void setChangeListener(ITreeChangeListener listener) {
+		changeListener = listener;
 	}
 	
 	public synchronized void setRoot(final IEntity rootEntity) {
@@ -83,8 +83,8 @@ public class TreeBuilder {
 	}
 	
 	private IShadowEntity handleRootEntity(IEntity entity) {
-		IShadowEntity shadow = TreeStructureContext.createRoot(entity);
-		List<IShadowEntity> list = new ArrayList<IShadowEntity>();
+		IShadowEntity shadow = TreeStructureContext.createRoot(this, entity);
+		List<IShadowEntity> list = new LinkedList<IShadowEntity>();
 		list.add(shadow);
 		shadowsMap.put(entity.getId(), list);
 		return shadow;
@@ -143,7 +143,7 @@ public class TreeBuilder {
 		}
 
 		for (IShadowEntity each: getShadows(entity.getId())) {
-			updateListener.entityChanged(each);
+			changeListener.entityChanged(each);
 		}
 
 		if (getShadow(entity.getId()) == null) {
@@ -209,12 +209,12 @@ public class TreeBuilder {
 			if (!(entity instanceof FolderEntity)) {
 				List<IShadowEntity> shadows = shadowsMap.get(entity.getId());
 				if (shadows == null) {
-					shadows = new ArrayList<IShadowEntity>();
+					shadows = new LinkedList<IShadowEntity>();
 					shadowsMap.put(entity.getId(), shadows);
 				}
 				shadows.add(shadow);
 			}
-			updateListener.entityAdded(shadow, parent);
+			changeListener.entityAdded(shadow, parent);
 		}
 		return shadow;
 	}
@@ -229,7 +229,7 @@ public class TreeBuilder {
 				if (shadows.size() == 0)
 					shadowsMap.remove(entity.getId());
 			}
-			updateListener.entityRemoved(shadow, parent);
+			changeListener.entityRemoved(shadow, parent);
 			
 			// if the parent is a folder and becomes empty after removing this child, then remove the folder too
 			if (parent instanceof FolderEntity && !tsc.hasChildren()) {

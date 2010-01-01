@@ -8,6 +8,7 @@ import com.netifera.platform.api.iterables.ListIndexedIterable;
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IShadowEntity;
+import com.netifera.platform.api.model.ITreeStructureContext;
 
 public class FolderEntity extends AbstractEntity implements Comparable<FolderEntity> {
 	
@@ -43,11 +44,11 @@ public class FolderEntity extends AbstractEntity implements Comparable<FolderEnt
 	
 	@Override
 	public IndexedIterable<?> getIterableAdapter(final Class<?> iterableType) {
-		if (!(getStructureContext() instanceof TreeStructureContext))
+		if (!(getStructureContext() instanceof ITreeStructureContext))
 			return null;
 
 		List<Object> list = new ArrayList<Object>();
-		for (IShadowEntity child: ((TreeStructureContext)getStructureContext()).getChildren()) {
+		for (IShadowEntity child: ((ITreeStructureContext)getStructureContext()).getChildren()) {
 			Object adapter = child.getRealEntity().getAdapter(iterableType);
 			if (adapter != null)
 				list.add(adapter);

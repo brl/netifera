@@ -13,8 +13,8 @@ import org.eclipse.swt.graphics.Image;
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.IStructureContext;
+import com.netifera.platform.api.model.ITreeStructureContext;
 import com.netifera.platform.model.FolderEntity;
-import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.net.model.ClientEntity;
 import com.netifera.platform.net.model.ClientServiceConnectionEntity;
 import com.netifera.platform.net.model.CredentialEntity;
@@ -102,7 +102,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 //		} else if(e instanceof LocalNetworkEntity) {
 //			return ((LocalNetworkEntity)e).getName();
 		} else if(e instanceof FolderEntity) {
-			return ((FolderEntity) e).getLabel()+" ("+((TreeStructureContext)((FolderEntity) e).getStructureContext()).getChildren().size()+")";
+			return ((FolderEntity) e).getLabel()+" ("+((ITreeStructureContext)((FolderEntity) e).getStructureContext()).getChildren().size()+")";
 		} else if(e instanceof ServiceEntity) {
 			return getServiceText((ServiceEntity)e);
 		} else if(e instanceof ClientEntity) {
@@ -320,8 +320,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		}
 		
 		String tag = "";
-		if (context instanceof TreeStructureContext) {
-			IShadowEntity parent = ((TreeStructureContext) context).getParent();
+		if (context instanceof ITreeStructureContext) {
+			IShadowEntity parent = ((ITreeStructureContext) context).getParent();
 			if (parent instanceof FolderEntity)
 				tag = "."+((FolderEntity) parent).getTag();
 		}
@@ -568,8 +568,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 	
 	private boolean parentIsHost(IShadowEntity e) {
-		if (e.getRealEntity() != e && e.getStructureContext() instanceof TreeStructureContext)
-			return ((TreeStructureContext)e.getStructureContext()).getParent() instanceof HostEntity;
+		if (e.getRealEntity() != e && e.getStructureContext() instanceof ITreeStructureContext)
+			return ((ITreeStructureContext)e.getStructureContext()).getParent() instanceof HostEntity;
 		return false;
 	}
 }

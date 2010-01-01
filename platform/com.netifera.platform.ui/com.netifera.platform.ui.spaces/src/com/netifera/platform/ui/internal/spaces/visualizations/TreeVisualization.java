@@ -35,7 +35,6 @@ import com.netifera.platform.api.model.layers.IGroupLayer;
 import com.netifera.platform.api.model.layers.ISemanticLayer;
 import com.netifera.platform.api.model.layers.ITreeLayer;
 import com.netifera.platform.model.FolderEntity;
-import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.dnd.EntityTransfer;
@@ -44,6 +43,7 @@ import com.netifera.platform.ui.spaces.editor.actions.SelectLayersAction;
 import com.netifera.platform.ui.spaces.hover.ActionHover;
 import com.netifera.platform.ui.spaces.tree.TreeContentProvider;
 import com.netifera.platform.ui.spaces.tree.TreeLabelProvider;
+import com.netifera.platform.ui.spaces.tree.TreeStructureContext;
 import com.netifera.platform.ui.spaces.tree.TreeViewerComparator;
 import com.netifera.platform.ui.spaces.visualizations.IVisualization;
 import com.netifera.platform.ui.util.MouseTracker;
@@ -161,7 +161,7 @@ public class TreeVisualization implements IVisualization {
 				
 				if (selectionList.contains(targetEntity) && selectionList.size()>1) {
 					FolderEntity folder = new FolderEntity(targetEntity.getRealmId(), null, "Selection");
-					IShadowEntity folderShadow = TreeStructureContext.createRoot(folder);
+					IShadowEntity folderShadow = TreeStructureContext.createRoot(null, folder);
 					for (IShadowEntity entity: selectionList)
 						((TreeStructureContext)folderShadow.getStructureContext()).addChild(entity);
 					return folderShadow;
@@ -340,7 +340,7 @@ public class TreeVisualization implements IVisualization {
 	public void focusEntity(IEntity entity) {
 		if (entity instanceof FolderEntity)
 			return;
-		List<IShadowEntity> shadows = contentProvider.getTreeBuilder().getShadows(entity.getId());
+		List<IShadowEntity> shadows = contentProvider.getTree().getShadows(entity.getId());
 		IShadowEntity lastShadow = null;
 		for(IShadowEntity s : shadows) {
 			viewer.reveal(s);
