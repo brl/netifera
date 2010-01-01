@@ -14,9 +14,13 @@ public class FloatPoint {
 	}
 	
 	public boolean equals(Object o) {
-		//WARNING this can be wrong, but will work for fixed float values taked from a geolocation coordinates database
+		//WARNING this can be wrong, but will work for fixed float values taken from a geolocation coordinates database
 		if (o instanceof FloatPoint)
 			return ((FloatPoint)o).x == x && ((FloatPoint)o).y == y;
 		return false;
+	}
+	
+	public String toString() {
+		return "("+x+", "+y+")";
 	}
 }
