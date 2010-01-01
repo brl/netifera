@@ -188,8 +188,10 @@ public class TreeContentProvider implements ITreeContentProvider {
 		loadJob = new Job("Loading space '"+space.getName()+"'") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				Thread.yield();
 				monitor.beginTask("Loading entities", space.size());
 				for(IEntity entity: space) {
+//					Activator.getInstance().getLabelProvider().getText((IShadowEntity)entity);
 					tree.addEntity(entity);
 					monitor.worked(1);
 					if (monitor.isCanceled()) {

@@ -162,7 +162,10 @@ public class TreeMap implements Iterable<IEntity> {
 		double temperature = maximumTemperature();
 		if (temperature > 0.0) {
 			Color color = palette[(int)(temperature*(palette.length-1))];
-			gc.setAlpha((int)(255 / Math.sqrt(extent/8+1))); // as we zoom-in the outermost color fades out as the smaller detail is more visible
+			float alpha = Math.min(extent, 255.0f);
+			alpha = (255.0f - alpha) / 255.0f;
+			alpha *= alpha * alpha;
+			gc.setAlpha((int)(255.0f*alpha)); // as we zoom-in the outermost color fades out as the smaller detail is more visible
 			if (extent > 0) {
 				gc.setBackground(color);
 				gc.fillRectangle(x, y, extent+1, extent+1);

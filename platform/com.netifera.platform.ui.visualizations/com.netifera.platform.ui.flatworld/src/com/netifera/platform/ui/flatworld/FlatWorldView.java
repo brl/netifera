@@ -205,6 +205,7 @@ public class FlatWorldView extends ViewPart {
 			loadJob = new Job("World loading space '"+space.getName()+"'") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
+					Thread.yield();
 					space.addChangeListener(spaceChangeListener);
 					monitor.beginTask("Loading entities", space.size());
 					for(IEntity entity: space) {
@@ -219,7 +220,7 @@ public class FlatWorldView extends ViewPart {
 					return Status.OK_STATUS;
 				}
 			};
-			loadJob.setPriority(Job.SHORT);
+			loadJob.setPriority(Job.BUILD);
 			loadJob.schedule();
 		} else {
 			setPartName("World");

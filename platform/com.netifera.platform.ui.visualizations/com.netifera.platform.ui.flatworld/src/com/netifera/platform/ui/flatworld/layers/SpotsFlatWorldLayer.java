@@ -65,6 +65,7 @@ public class SpotsFlatWorldLayer<E> implements IFlatWorldLayer {
 		final float logMaxCount = (float)Math.log(maxCount);
 		final float ws = spots.getBounds().width / region.width / logMaxCount;
 		final float hs = spots.getBounds().height / region.height / logMaxCount;
+		final float alphaMultiplier = Math.min(rect.width,rect.height) / 3.0f;
 		spots.visit(region, new IQuadTreeElementsVisitor<Spot>() {
 			public void visit(QuadTree<Spot> tree, FloatPoint location, Spot spot) {
 				int x = (int) ((location.x-region.x)/region.width*rect.width + rect.x);
@@ -73,25 +74,28 @@ public class SpotsFlatWorldLayer<E> implements IFlatWorldLayer {
 				float logCount = (float)Math.log(spot.elements.size());
 				int w = (int)(rect.width/4*ws*logCount);
 				int h = (int)(rect.height/4*hs*logCount);
+				
+				int radius = Math.max(8, Math.min(w, h));
+				
+				float alphaScale = Math.min(1.0f, alphaMultiplier/radius);
+				
+				gc.setAlpha((int)(64.0f * alphaScale));
+				gc.setBackground(palette[(int)((palette.length-1)*logCount/logMaxCount)]);
+				gc.fillOval(x-radius, y-radius, radius*2, radius*2);
+				
 				int fw = (int)(rect.width/(region.width/tree.getBounds().width));
 				int fh = (int)(rect.height/(region.height/tree.getBounds().height));
-				int fontSize = (w+h+fw+fh)/4/spot.label.length();
+				int fontSize = Math.max(radius*3, Math.min(fw,fh))/spot.label.length();
 				if (fontSize <= 0) fontSize = 1;
 				if (fontSize >= 48) fontSize = 48;
 				Font font = new Font(Display.getDefault(),"Arial",fontSize,SWT.BOLD);
-				gc.setAlpha(128-fontSize);
+				gc.setAlpha((int)(128.0 * Math.sqrt(alphaScale)));
 				gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 				gc.setFont(font);
 
 //				Point extent = gc.stringExtent(spot.label);
 				gc.drawString(spot.label, x, y, true);
 				font.dispose();
-
-				gc.setAlpha(64);
-				gc.setBackground(palette[(int)((palette.length-1)*logCount/logMaxCount)]);
-//				int w = label.length()*2;
-				int d = Math.max(8, Math.min(w, h));
-				gc.fillOval(x-d, y-d, d*2, d*2);
 			}
 		});
 		
