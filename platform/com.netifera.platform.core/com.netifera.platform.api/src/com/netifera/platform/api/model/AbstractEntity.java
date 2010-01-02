@@ -95,15 +95,15 @@ public abstract class AbstractEntity implements IEntity, IShadowEntity, Serializ
 		return data.getAssociations(name);
 	}
 
-	public synchronized boolean addTag(String tag) {
+	public boolean addTag(String tag) {
 		return data.addTag(tag);
 	}
 
-	public synchronized boolean removeTag(String tag) {
+	public boolean removeTag(String tag) {
 		return data.removeTag(tag);
 	}
 
-	public synchronized Set<String> getTags() {
+	public Set<String> getTags() {
 		return data.getTags();
 	}
 
