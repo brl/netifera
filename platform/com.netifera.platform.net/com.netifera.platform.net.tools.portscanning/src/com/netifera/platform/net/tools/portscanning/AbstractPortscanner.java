@@ -64,7 +64,7 @@ public abstract class AbstractPortscanner implements ITool {
 
 	protected void waitDelay() throws InterruptedException {
 		if (delay > 0) {
-			int randomDelay = random.nextInt(delay/2) + delay;
+			int randomDelay = random.nextInt(delay) + delay/2;
 			Thread.sleep(randomDelay);
 		}
 	}
