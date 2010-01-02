@@ -29,8 +29,8 @@ public class SpotsFlatWorldLayer<E> implements IFlatWorldLayer {
 
 	public synchronized void addSpot(double latitude, double longitude, String label, E element) {
 		//HACK round to 0.2 precision because the geoip database has repeated entries for cities with different coordinates (maybe because the postal codes are different)
-		latitude = Math.floor(latitude * 5.0) / 5.0;
-		longitude = Math.floor(longitude * 5.0) / 5.0;
+		latitude = Math.round(latitude * 5.0) / 5.0;
+		longitude = Math.round(longitude * 5.0) / 5.0;
 		
 		FloatPoint location = new FloatPoint((float)longitude, (float)latitude);
 		Spot spot = spots.get(location);
@@ -54,11 +54,8 @@ public class SpotsFlatWorldLayer<E> implements IFlatWorldLayer {
 
 		final Color[] palette = new Color[16];
 		for (int i=0; i<palette.length; i++) {
-/*			float hue = 52.0f * i / (palette.length-1);
-			float saturation = (30.0f * (palette.length-1-i) / (palette.length-1) + 50.0f) / 100.0f;
-			float value = (10.0f * (palette.length-1-i) / (palette.length-1) + 84.0f) / 100.0f;
-			palette[palette.length-1-i] = new Color(Display.getCurrent(), new RGB(hue, saturation, value));
-*/			float hue = 24.0f * i / (palette.length-1);
+			float hue = (float)i / (float)(palette.length-1);
+			hue = hue * hue * 45.0f;
 			float saturation = 1.0f;
 			float value = 1.0f;
 			palette[palette.length-1-i] = new Color(Display.getCurrent(), new RGB(hue, saturation, value));
@@ -71,32 +68,35 @@ public class SpotsFlatWorldLayer<E> implements IFlatWorldLayer {
 		final float hs = spots.getBounds().height / region.height / logMaxCount;
 		final float alphaMultiplier = Math.min(rect.width,rect.height) / 3.0f;
 		spots.visit(region, new IQuadTreeElementsVisitor<Spot>() {
-			public void visit(QuadTree<Spot> tree, FloatPoint location, Spot spot) {
+			public void visit(QuadTree<Spot> quad, FloatPoint location, Spot spot) {
 				int x = (int) ((location.x-region.x)/region.width*rect.width + rect.x);
 				int y = (int) ((region.y-location.y)/region.height*rect.height + rect.y + rect.height);
 				
 				float logCount = (float)Math.log(spot.elements.size());
 				int w = (int)(rect.width/4*ws*logCount);
 				int h = (int)(rect.height/4*hs*logCount);
+				int qw = (int)(rect.width/(region.width/quad.getBounds().width)/2.0f);
+				int qh = (int)(rect.height/(region.height/quad.getBounds().height)/2.0f);
 				
-				int radius = Math.max(8, Math.min(w, h));
+				int radius = Math.max(Math.max(8, (int)Math.sqrt(Math.min(qw,qh))), Math.min(w, h));
 				
+				// big spots become more translucent when they are too big (alphaScale)
+				// spots with many entities are less translucent
+				// spots too close are more translucent
 				float alphaScale = Math.min(1.0f, alphaMultiplier/radius);
+				gc.setAlpha((int)(alphaScale * (64.0 * logCount / logMaxCount + Math.min(64.0, Math.min(qw,qh)) + 64.0)));
 				
-				gc.setAlpha((int)(64.0f * alphaScale));
 				gc.setBackground(palette[(int)((palette.length-1)*logCount/logMaxCount)]);
 				gc.fillOval(x-radius, y-radius, radius*2, radius*2);
 				
-				int fw = (int)(rect.width/(region.width/tree.getBounds().width)/2.0f);
-				int fh = (int)(rect.height/(region.height/tree.getBounds().height)/2.0f);
-				int fontSize = Math.max(radius*4, Math.min(fw,fh))/spot.label.length();
+				int fontSize = Math.max(radius*4, Math.min(qw,qh))/spot.label.length();
 				if (fontSize <= 0) fontSize = 1;
 				if (fontSize >= 48) fontSize = 48;
 				Font font = new Font(Display.getDefault(),"Arial",fontSize,SWT.BOLD);
 				if (fontSize >= 10)
-					gc.setAlpha((int)(128.0 * Math.sqrt(alphaScale))); // big labels become more translucent when they are too big
+					gc.setAlpha((int)(128.0 * alphaScale)); // big labels become more translucent when they are too big
 				else
-					gc.setAlpha((int)(128.0 * Math.sqrt(alphaScale) * fontSize / 10.0)); // small labels become more translucent whne they become smaller
+					gc.setAlpha((int)(128.0 * alphaScale * fontSize / 10.0)); // small labels become more translucent when they become smaller
 				gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 				gc.setFont(font);
 
