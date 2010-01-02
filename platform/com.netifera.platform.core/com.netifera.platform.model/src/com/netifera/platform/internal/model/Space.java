@@ -127,11 +127,12 @@ public class Space implements ISpace {
 	}
 	
 	public void addEntity(IEntity entity) {
-		if (!entitySet.contains(entity)) {
-			open();
-			entitySet.add(entity);
+		if (entitySet.add(entity)) {
 			entities.add(entity);
 			entitiesDirty = true;
+			
+			open();
+			
 			SpaceContentChangeEvent event = SpaceContentChangeEvent.createAddEvent(this, entity);
 			getEventManager().fireEvent(event);
 			manager.notifySpaceChange(this);
@@ -147,11 +148,12 @@ public class Space implements ISpace {
 	}
 	
 	public void removeEntity(IEntity entity) {
-		if (entitySet.contains(entity)) {
-			open();
-			entitySet.remove(entity);
+		if (entitySet.remove(entity)) {
 			entities.remove(entity);
 			entitiesDirty = true;
+
+			open();
+
 			SpaceContentChangeEvent event = SpaceContentChangeEvent.createRemoveEvent(this, entity);
 			getEventManager().fireEvent(event);
 			manager.notifySpaceChange(this);
@@ -284,6 +286,7 @@ public class Space implements ISpace {
 		getEventManager().fireEvent(new SpaceRenameEvent(this));
 	}
 
+	@Deprecated
 	public void addChangeListenerAndPopulate(final IEventHandler handler) {
 		addChangeListener(handler);
 		
