@@ -67,7 +67,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 
 	private final static String SERVICE = "icons/service.png";
 	private final static String CLIENT = "icons/client.png";
-	
+
+	private final static String SERVICE_UNKNOWN = "icons/service_unknown.png";
 	private final static String SERVICE_SHELL = "icons/service_shell.png";
 //	private final static String SERVICE_MAIL = "icons/service_mail.png";
 //	private final static String SERVICE_FILES = "icons/service_file.png";
@@ -281,23 +282,21 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private Image getServiceImage(ServiceEntity e) {
 		String type = e.getServiceType();
 		String base = SERVICE;
-		String overlayKeys[] = new String[5];
-		if (type != null) {
-			if (type.matches("SSH|Telnet"))
-				base = SERVICE_SHELL;
-/*			else if (type.matches(".*SQL.*") || type.equals("Oracle"))
-				base = SERVICE_DATABASE;
-			else if (type.matches("SMTP|POP3|IMAP"))
-				base = SERVICE_MAIL;
-			else if (type.matches("HTTP|HTTPS"))
-				base = SERVICE_HTTP;
-			else if (type.matches("FTP"))
-				base = SERVICE_FILES;
+		if (type == null)
+			base = SERVICE_UNKNOWN;
+		else if (type.matches("SSH|Telnet"))
+			base = SERVICE_SHELL;
+/*		else if (type.matches(".*SQL.*") || type.equals("Oracle"))
+			base = SERVICE_DATABASE;
+		else if (type.matches("SMTP|POP3|IMAP"))
+			base = SERVICE_MAIL;
+		else if (type.matches("HTTP|HTTPS"))
+			base = SERVICE_HTTP;
+		else if (type.matches("FTP"))
+			base = SERVICE_FILES;
 */
-			overlayKeys[IDecoration.BOTTOM_LEFT] = getOSDecoration(e);
-		} else {
-			overlayKeys[IDecoration.BOTTOM_LEFT] = WARNING_OVERLAY;
-		}
+		String overlayKeys[] = new String[5];
+		overlayKeys[IDecoration.BOTTOM_LEFT] = getOSDecoration(e);
 		return Activator.getInstance().getImageCache().getDecorated(base, overlayKeys);
 	}
 
