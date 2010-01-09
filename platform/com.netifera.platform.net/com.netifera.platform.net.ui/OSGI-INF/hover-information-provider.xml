@@ -8,7 +8,7 @@
 	
 	<reference 
 		name="GEOIP_SERVICE"
-		interface="com.netifera.platform.net.geoip.IGeoIPService"
+		interface="com.netifera.platform.net.ui.geoip.IGeoIPService"
 		bind="setGeoIPService"
 		unbind="unsetGeoIPService"
 		cardinality="0..1"
@@ -16,7 +16,7 @@
 	
 	<reference 
 		name="IP2AS_SERVICE"
-		interface="com.netifera.platform.net.routes.IIP2ASService"
+		interface="com.netifera.platform.net.ui.routes.IIP2ASService"
 		bind="setIP2ASService"
 		unbind="unsetIP2ASService"
 		cardinality="0..1"
