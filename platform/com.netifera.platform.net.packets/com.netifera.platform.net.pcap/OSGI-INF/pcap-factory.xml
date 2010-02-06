@@ -11,6 +11,13 @@
 		bind="setSystemService"
 		unbind="unsetSystemService"
 	/>
+	
+	<reference
+		name="PRIVD"
+		interface="com.netifera.platform.system.privd.IPrivilegeDaemon"
+		bind="setPrivilegeDaemon"
+		unbind="unsetPrivilegeDaemon"
+	/>
     <reference
         name="LOG_MANAGER"
         interface="com.netifera.platform.api.log.ILogManager"

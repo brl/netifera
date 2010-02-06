@@ -11,16 +11,17 @@ import com.netifera.platform.net.internal.pcap.PacketHeader;
 import com.netifera.platform.net.pcap.Datalink;
 import com.netifera.platform.net.pcap.IBPFProgram;
 import com.netifera.platform.net.pcap.IPacketHandler;
+import com.netifera.platform.system.privd.IPrivilegeDaemon;
 
 public class OsxPacketCapture implements INativePacketCapture {
 
 
 	private final static int MIN_BPF_HEADER_LEN = 18;
-	private final static int BACKDOOR_OPEN_RDONLY = 0;
 	
 	private final ISystemService system;
 	private final IPacketCaptureInternal pcap;
-	//private final ILogger logger;
+	private final IPrivilegeDaemon privilegeDaemon;
+	private final ILogger logger;
 	private final int pointerSize;
 
 	private int fd = -1;
@@ -32,13 +33,14 @@ public class OsxPacketCapture implements INativePacketCapture {
 
 	
 
-	public OsxPacketCapture(ISystemService system, IPacketCaptureInternal pcap, ILogger logger) {
+	public OsxPacketCapture(ISystemService system, IPrivilegeDaemon privilegeDaemon, IPacketCaptureInternal pcap, ILogger logger) {
 		if(system.getArch() != ISystemService.SystemArch.ARCH_X86) {
 			throw new IllegalStateException("Implementation only supports x86 architecture");
 		}
 		this.system = system;
 		this.pcap = pcap;
-		//this.logger = logger;
+		this.logger = logger;
+		this.privilegeDaemon = privilegeDaemon;
 		
 		/* For x86 */
 		pointerSize = 4;
@@ -218,6 +220,7 @@ public class OsxPacketCapture implements INativePacketCapture {
 		}
 
 		if (!openBPF()) {
+			logger.warning("Failed to open BPF device for capture on " + device + " : " + pcap.getLastError());
 			return false;
 		}
 
@@ -281,27 +284,26 @@ public class OsxPacketCapture implements INativePacketCapture {
 				break;
 			}
 		}
-
-		if(backdoorOpenBPF()) {
-			return true;
-		}
 		
 		fd = -1;
 		fail("Failed to open BPF device.", system.getErrno());
 
-		return false;
+		return privilegeDaemonOpenBPF();
 
 	}
 	
-	private boolean backdoorOpenBPF() {
-		fd = system.backdoor_request(BACKDOOR_OPEN_RDONLY);
+	private boolean privilegeDaemonOpenBPF() {
+		if(privilegeDaemon == null)
+			return false;
+		
+		if(!privilegeDaemon.isDaemonAvailable()) {
+			fail(privilegeDaemon.getLastError());
+			return false;
+		}
+		
+		fd = privilegeDaemon.openBPF();
 		if(fd < 0) {
-			final int errno = system.getErrno();
-			if(errno == Constants.EPERM) {
-				fail("Permission error opening BPF with backdoor. (Is backdoor setuid?)");
-				return false;
-			}
-			fail("Error attempting to open BPF with backdoor", errno);
+			fail(privilegeDaemon.getLastError());
 			return false;
 		}
 		return true;

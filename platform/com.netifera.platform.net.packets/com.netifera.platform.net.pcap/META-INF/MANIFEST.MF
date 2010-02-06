@@ -10,6 +10,7 @@ Import-Package: com.netifera.platform.api.log,
  com.netifera.platform.api.system,
  com.netifera.platform.net.packets,
  com.netifera.platform.net.packets.decoders,
+ com.netifera.platform.system.privd,
  org.osgi.service.component;version="1.0.0"
 Export-Package: com.netifera.platform.net.internal.pcap;x-internal:=true,
  com.netifera.platform.net.internal.pcap.linux;x-internal:=true,

@@ -23,19 +23,19 @@ import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.net.pcap.IPacketCapture;
 import com.netifera.platform.net.pcap.IPacketCaptureFactoryService;
 import com.netifera.platform.net.pcap.IPacketHandler;
+import com.netifera.platform.system.privd.IPrivilegeDaemon;
 
 public class PacketCaptureFactoryService implements
 		IPacketCaptureFactoryService {
 
 	private ISystemService system;
+	private IPrivilegeDaemon privilegeDaemon;
 	private ILogger logger;
 
 	private final Set<ICaptureInterface> interfaces = new HashSet<ICaptureInterface>();
 
 	public IPacketCapture create(ICaptureInterface iface, int snaplen, boolean promiscuous,
 			int timeout, IPacketHandler packetHandler) {
-
-
 
 		PacketCapture pcap = new PacketCapture(iface.getName(), snaplen, promiscuous, timeout, packetHandler);
 
@@ -44,7 +44,6 @@ public class PacketCaptureFactoryService implements
 
 		return pcap;
 	}
-
 
 	public Collection<ICaptureInterface> getInterfaces() {
 		synchronized(interfaces) {
@@ -64,7 +63,7 @@ public class PacketCaptureFactoryService implements
 	private INativePacketCapture createNative(IPacketCaptureInternal pcap) {
 		switch(system.getOS()) {
 		case OS_OSX:
-			return new OsxPacketCapture(system, pcap, logger);
+			return new OsxPacketCapture(system, privilegeDaemon, pcap, logger);
 
 		case OS_LINUX:
 			return new LinuxPacketCapture(system, pcap, logger);
@@ -89,6 +88,7 @@ public class PacketCaptureFactoryService implements
 		} catch (SocketException e) {
 			throw new RuntimeException("SocketException initializing interfaces", e);
 		}
+		
 	}
 
 	protected void deactivate(ComponentContext ctx) {
@@ -102,7 +102,14 @@ public class PacketCaptureFactoryService implements
 	protected void unsetLogManager(ILogManager logManager) {
 		logger = null;
 	}
+	
+	protected void setPrivilegeDaemon(IPrivilegeDaemon privd) {
+		privilegeDaemon = privd;
+	}
 
+	protected void unsetPrivilegeDaemon(IPrivilegeDaemon privd) {
+		
+	}
 	private void initializeInterfaces() throws SocketException {
 
 		Enumeration<NetworkInterface> networkInterfaces = null;

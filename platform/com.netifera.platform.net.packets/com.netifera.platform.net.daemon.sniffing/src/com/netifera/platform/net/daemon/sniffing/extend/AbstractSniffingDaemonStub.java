@@ -218,7 +218,6 @@ abstract public class AbstractSniffingDaemonStub implements ISniffingDaemon {
 	}
 
 	public void start(long spaceId) {
-		System.out.println("START");
 		sendQueue.add(new StartSniffingDaemon(messagePrefix, spaceId));
 		isRunning = true;
 		refreshStatus();
