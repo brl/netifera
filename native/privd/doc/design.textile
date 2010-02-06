@@ -1,0 +1,79 @@
+h1. Netifera Privilege Daemon (privd)
+
+{toc}
+
+h2. Introduction 
+
+Some netifera functions such as capturing and injecting raw network packets
+involve acquiring system resources that are only available to privileged
+users.  In order to avoid running the entire netifera UI and framework with elevated 
+privileges (ie: as root), access to such protected resources has
+been isolated in one component which runs as a system daemon and communicates
+with the netifera framework over a local socket using a message based protocol.
+
+This document describes both the architecture of this feature as well as the
+protocol for exchanging messages.
+
+
+h2. Components
+
+Java API ----> privd JNI --- socket connection to --> privd
+
+Java <----> JNI communication
+
+* is privd available?  (starts the daemon if not already started under the assumption that you only want to know if it's available because you intend to use it.)
+** no, not found
+** no, not installed correctly (suid, root, config file exists)
+** no, authentication failed
+** no, some other error
+* send raw message
+* receive raw message
+* receive raw message and fd
+
+The native JNI library manages the lifecycle of the daemon.
+
+h2. Launching the daemon
+
+The privd daemon is meant to be installed on Unix (both Linux and OS X) with 
+setuid root privileges (ie: chown root $PRIVD && chmod 4755 $PRIVD).
+
+The first time the netifera framework requires service from the privilege 
+daemon, it launches the daemon with the following steps:
+
+#  Find the privilege daemon on the filesystem and verify that it is installed correctly (executable by current user and setuid root).
+# Create a socketpair() of SOCK_DGRAM sockets for communicating with the daemon.
+# fork() and in the child, assign the daemon side of the pair of sockets to descriptor 0 (zero) with the dup2() system call.  
+# execute the daemon.
+
+When the daemon starts it performs the following steps:
+
+# Find the home directory of the uid that launched the daemon.
+# Locate the configuration file $HOMEDIR/.netifera/privd_config and ensure that the file is owned and only readable and writable by root.  It is a fatal error to not find this file.
+# Read authentication information from the privd_config file.
+# If authentication is enabled, receive authentication message from socket and verify
+# After authentication has completed enter a loop reading and dispatching messages.
+# When socket closes, the daemon cleanly exits.
+
+h2. Authentication
+
+Since the daemon provides access to privileged system resources an authentication system is optionally
+provided to restrict access to the daemon functionality.
+
+As described in the previous section, the daemon requires that a configuration file exists
+which indicates if authentication is enabled and if authentication is in use this file also contains the
+authentication credential needed to connect to the daemon.
+
+h2. Passing Descriptors
+
+Some of the privileged operations performed by the daemon involve opening a raw socket or a device
+file.  These actions require privileges to open the resource and result in a file descriptor which refers
+to the device or socket.  Once the file descriptor has been obtained it can be used even if the original
+privileges have been dropped.
+
+h2. Binding Privileged Ports
+
+h2. Linux Netlink
+
+h2. Java Interface
+
+h2. Message Format
