@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Linux Netlink Interface Plug-in
+Bundle-SymbolicName: com.netifera.platform.system.linux.netlink
+Bundle-Version: 1.0.0
+Bundle-Vendor: NETIFERA
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Service-Component: OSGI-INF/linux-netlink.xml
+Import-Package: com.netifera.platform.api.log,
+ com.netifera.platform.api.system
+

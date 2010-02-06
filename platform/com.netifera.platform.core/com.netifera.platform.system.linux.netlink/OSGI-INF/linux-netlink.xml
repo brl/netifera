@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.linux-netlink">
+	<implementation class="com.netifera.platform.internal.system.linux.netlink.LinuxNetlink" />
+	<service>
+		<provide interface="com.netifera.platform.system.linux.netlink.ILinuxNetlink" />
+	</service>
+	
+	<reference
+		name="LOGGER"
+		interface="com.netifera.platform.api.log.ILogManager"
+		bind="setLogManager"
+		unbind="unsetLogManager"
+	/>
+	
+	<reference
+		name="SYSTEM"
+		interface="com.netifera.platform.api.system.ISystemService"
+		bind="setSystemService"
+		unbind="unsetSystemService"
+	/>
+</component>

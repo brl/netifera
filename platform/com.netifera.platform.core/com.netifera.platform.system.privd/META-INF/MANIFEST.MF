@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Privilege Daemon Plug-in
+Bundle-SymbolicName: com.netifera.platform.system.privd
+Bundle-Version: 1.0.0
+Bundle-Vendor: NETIFERA
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Service-Component: OSGI-INF/privilege-daemon.xml
+Import-Package: com.netifera.platform.api.log
+Export-Package: com.netifera.platform.system.privd
