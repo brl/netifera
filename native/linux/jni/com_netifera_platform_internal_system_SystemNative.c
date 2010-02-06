@@ -592,6 +592,13 @@ JNIEXPORT jint JNICALL Java_com_netifera_platform_internal_system_SystemNative_n
 
 	(*env)->ReleaseByteArrayElements(env, message, pbuffer, 0);
 	(*env)->ReleaseByteArrayElements(env, address, paddress, 0);
+
+	if(ret < 0)
+		return ret;
+
+	if(ret > iov.iov_len || msg.msg_flags & MSG_TRUNC)
+		return -ENOBUFS;
+
 	return ret;
 }
 

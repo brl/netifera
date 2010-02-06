@@ -2,7 +2,10 @@ all: libsystem.jnilib
 
 # OS X include path for java headers
 
-CFLAGS=-I/System/Library/Frameworks/JavaVM.framework/Headers
+CFLAGS=-I/System/Library/Frameworks/JavaVM.framework/Headers -mmacosx-version-min=10.4 -Wall
+
+LD=gcc
+CC=gcc
 
 # Name used for source, header, and object file
 
@@ -14,7 +17,7 @@ SOURCE=$(PREFIX).c
 
 # where to find the plugin projects
 
-WORKSPACE_ROOT=../../..
+WORKSPACE_ROOT=../../../platform/com.netifera.platform.core
 
 # name of the package which contains the java class we are producing an JNI for
 
@@ -24,14 +27,15 @@ PACKAGE=com.netifera.platform.system.osx
 
 CLASS=com.netifera.platform.internal.system.SystemNative
 
-# classpath for calling javah  ie: '../../com.netifera.platform.system.osx/bin'
+# classpath for calling javah  ie: '../../../platform/com.netifera.platform.core/com.netifera.platform.system.osx/bin'
 
 CLASSPATH=$(WORKSPACE_ROOT)/$(PACKAGE)/bin
 
 LIBS=-lc
+LDFLAGS=-dynamiclib -arch i386 -mmacosx-version-min=10.4
 
 libsystem.jnilib: $(OBJECT)
-	$(LD) -dylib -arch i386 -o libsystem.jnilib $(LIBS) $(OBJECT)
+	$(LD) $(LDFLAGS) -o libsystem.jnilib $(LIBS) $(OBJECT)
 
 
 $(HEADER):
