@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/socket.h>
 #include <sys/errno.h>
 #include <string.h>
@@ -192,9 +193,7 @@ send_message(void *data, size_t size)
 		error_message = error_buffer;
 		return -1;
 	}
-
 	return 0;
-
 }
 
 static int
