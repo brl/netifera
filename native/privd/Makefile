@@ -2,7 +2,7 @@ TARGET=netifera_privd
 all: $(TARGET)
 
 OBJS=privd.o authentication.o dispatch.o initialize.o message.o socket.o
-CFLAGS=-Wall
+CFLAGS=-Wall -D_GNU_SOURCE
 CC=gcc
 LD=gcc
 
