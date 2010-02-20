@@ -22,14 +22,14 @@ initialize(struct privd_instance *privd)
 
 	if(fcntl(privd->socket_fd, F_SETFL, O_NONBLOCK) < 0) {
 		char *error_msg = "Failed setting non-blocking mode on socket.";
-		send_startup(privd, PRIVD_STARTUP_INITIALIZATION_FAILED, error_message);
+		send_startup(privd, PRIVD_STARTUP_INITIALIZATION_FAILED, error_msg);
 		abort_daemon(privd, error_msg);
 	}
 
 	if(geteuid() != 0) {
 		char *error_msg =
 			"Failed to start because privd not installed setuid root. euid=%d";
-		send_startup(privd, PRIVD_LAUNCH_ERROR_NOTROOT, error_msg, geteuid());
+		send_startup(privd, PRIVD_STARTUP_NOT_ROOT, error_msg, geteuid());
 		abort_daemon(privd, error_msg, geteuid());
 	}
 
