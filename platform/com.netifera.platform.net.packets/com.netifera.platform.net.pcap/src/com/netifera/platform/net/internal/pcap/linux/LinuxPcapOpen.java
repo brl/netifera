@@ -3,6 +3,7 @@ package com.netifera.platform.net.internal.pcap.linux;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.system.ISystemService;
 import com.netifera.platform.net.pcap.Datalink;
+import com.netifera.platform.system.privd.IPrivilegeDaemon;
 
 public class LinuxPcapOpen {
 	
@@ -11,13 +12,15 @@ public class LinuxPcapOpen {
 
 	private final LinuxPacketCapture pcap;
 	private final ISystemService system;
+	private final IPrivilegeDaemon privd;
 	private final ILogger logger;
 	private final LinuxArpMap arpMap;
 
 	
-	LinuxPcapOpen(LinuxPacketCapture pcap, ISystemService system, ILogger logger) {
+	LinuxPcapOpen(LinuxPacketCapture pcap, ISystemService system, IPrivilegeDaemon privd, ILogger logger) {
 		this.pcap = pcap;
 		this.system = system;
+		this.privd = privd;
 		this.logger = logger;
 		arpMap = new LinuxArpMap(pcap);
 	}
@@ -138,7 +141,8 @@ public class LinuxPcapOpen {
 		if(s < 0) {
 			final int errno = system.getErrno();
 			if(errno == Constants.EPERM) {
-				return backdoorOpenSocket(cooked);
+				//return backdoorOpenSocket(cooked);
+				return privdOpenSocket(cooked);
 			}
 			pcap.fail("Error opening capture socket", errno);
 			return false;
@@ -148,6 +152,7 @@ public class LinuxPcapOpen {
 		return true;
 	}
 	
+	/*
 	private boolean backdoorOpenSocket(boolean cooked) {
 		final int request = cooked ? (BACKDOOR_COOKED_SOCKET) : (BACKDOOR_RAW_SOCKET);
 		final int s = system.backdoor_request(request);
@@ -159,6 +164,18 @@ public class LinuxPcapOpen {
 			}
 
 			pcap.fail("Error attempting to open capture socket with backdoor", errno);
+			return false;
+		}
+		pcap.setSocket(s);
+		return true;
+	}
+	*/
+	
+	private boolean privdOpenSocket(boolean cooked) {
+		final int socketType = cooked? (Constants.SOCK_DGRAM) : (Constants.SOCK_RAW);
+		final int s = privd.openSocket(Constants.PF_PACKET, socketType, system.htons(Constants.ETH_P_ALL));
+		if(s < 0) {
+			// XXX
 			return false;
 		}
 		pcap.setSocket(s);

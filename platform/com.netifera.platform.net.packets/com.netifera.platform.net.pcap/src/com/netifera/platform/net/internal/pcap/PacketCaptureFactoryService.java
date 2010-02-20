@@ -66,7 +66,7 @@ public class PacketCaptureFactoryService implements
 			return new OsxPacketCapture(system, privilegeDaemon, pcap, logger);
 
 		case OS_LINUX:
-			return new LinuxPacketCapture(system, pcap, logger);
+			return new LinuxPacketCapture(system, privilegeDaemon, pcap, logger);
 
 		default:
 			throw new IllegalStateException("No native pcap implementation for current OS");
@@ -111,7 +111,7 @@ public class PacketCaptureFactoryService implements
 		
 	}
 	private void initializeInterfaces() throws SocketException {
-
+		System.out.println("Initializing interfaces");
 		Enumeration<NetworkInterface> networkInterfaces = null;
 
 		try {
@@ -136,6 +136,7 @@ public class PacketCaptureFactoryService implements
 	}
 
 	public boolean isInterfaceAvailable(String name) {
+		System.out.println("Is interface available "+ name);
 		final PacketCapture pcap = new PacketCapture(name);
 		pcap.setNativeCapture(createNative(pcap));
 		return pcap.testOpen();

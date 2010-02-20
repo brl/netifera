@@ -11,12 +11,14 @@ import com.netifera.platform.net.internal.pcap.PacketHeader;
 import com.netifera.platform.net.pcap.Datalink;
 import com.netifera.platform.net.pcap.IPacketHandler;
 import com.netifera.platform.net.pcap.IPacketCapture.PcapDirection;
+import com.netifera.platform.system.privd.IPrivilegeDaemon;
 
 public class LinuxPacketCapture implements INativePacketCapture {
 	
 
 	private final LinuxPcapOpen openHelper;
 	private final ISystemService system;
+	private final IPrivilegeDaemon privd;
 	private final IPacketCaptureInternal pcap;
 	//private final ILogger logger;
 	private int socket = -1;
@@ -31,11 +33,12 @@ public class LinuxPacketCapture implements INativePacketCapture {
 	private byte[] packetBufferArray;
 	//private byte[] buffer;
 	private PcapDirection direction;
-	public LinuxPacketCapture(ISystemService system, IPacketCaptureInternal pcap, ILogger logger) {
+	public LinuxPacketCapture(ISystemService system, IPrivilegeDaemon privilegeDaemon, IPacketCaptureInternal pcap, ILogger logger) {
 		this.system = system;
+		this.privd = privilegeDaemon;
 		this.pcap = pcap;
 		//this.logger = logger;
-		openHelper = new LinuxPcapOpen(this, system, logger);
+		openHelper = new LinuxPcapOpen(this, system, privd, logger);
 	}
 
 	public synchronized void close() {

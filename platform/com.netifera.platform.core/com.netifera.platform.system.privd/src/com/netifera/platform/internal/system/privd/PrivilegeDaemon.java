@@ -13,6 +13,7 @@ import com.netifera.platform.internal.system.privd.messages.MessageResponseFd;
 import com.netifera.platform.internal.system.privd.messages.MessageResponseStartup;
 import com.netifera.platform.internal.system.privd.messages.MessageSender;
 import com.netifera.platform.internal.system.privd.messages.ResponseType;
+import com.netifera.platform.internal.system.privd.messages.StartupType;
 import com.netifera.platform.system.privd.IPrivilegeDaemon;
 
 public class PrivilegeDaemon implements IPrivilegeDaemon {
@@ -22,6 +23,7 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 	private String lastErrorMessage;
 	private final PrivilegeDaemonNative jni;
 	private final MessageSender sender;
+	private PrivilegeDaemonStatus daemonStatus = PrivilegeDaemonStatus.STATUS_UNCONNECTED;
 	
 	public PrivilegeDaemon() {
 		searchPaths.add("/usr/local/bin");
@@ -29,7 +31,41 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 		sender = new MessageSender(jni);
 	}
 
+	public PrivilegeDaemonStatus getDaemonStatus() {
+		return daemonStatus;
+	}
+	
+	private boolean startDaemonIfNeeded() {
+		System.out.println("Start if needed, status = "+ daemonStatus);
+		switch(daemonStatus) {
+		case STATUS_OK:
+			return true;
+		case STATUS_CONFIG_MISSING:
+		case STATUS_NOTFOUND:
+		case STATUS_NOTSETUID:
+			return false;
+		case STATUS_UNCONNECTED:
+			break;
+		}
+		
+		final String daemonPath = findDaemonExecutable();
+		if(daemonPath == null) {
+			setErrorMessage("Could not lcate privilege daemon executable");
+			daemonStatus = PrivilegeDaemonStatus.STATUS_NOTFOUND;
+			return false;
+		}
+		
+		if(!startDaemon(daemonPath)) {
+			System.out.println("Error: "+ lastErrorMessage);
+			return false;
+		}
+		
+		daemonStatus = PrivilegeDaemonStatus.STATUS_OK;
+		return true;
+		
+	}
 	public synchronized boolean isDaemonAvailable() {
+		System.out.println("isDaemonAvailable()?");
 		if(jni.isDaemonRunning())
 			return true;
 		
@@ -65,9 +101,26 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 			return false;
 		}
 		MessageResponseStartup startupMessage = (MessageResponseStartup) response;
-		
-		System.out.println("startup " + startupMessage);
-		return false;
+		if(startupMessage.getStartupType() != StartupType.PRIVD_STARTUP_OK) {
+			final String msg = startupMessage.getMessage();
+			if(msg != null)
+				setErrorMessage("Daemon startup failed: "+ msg);
+			else
+				setErrorMessage("Daemon startup failed: "+ startupMessage.getStartupType());
+			
+			switch(startupMessage.getStartupType()) {
+			case PRIVD_STARTUP_NOT_ROOT:
+			case PRIVD_STARTUP_AUTHENTICATION_REQUIRED:
+			case PRIVD_STARTUP_CONFIG_BAD_DATA:
+			case PRIVD_STARTUP_CONFIG_NOT_FOUND:
+			case PRIVD_STARTUP_CONFIG_BAD_PERMS:
+			case PRIVD_STARTUP_INITIALIZATION_FAILED:
+			case PRIVD_STARTUP_OK:
+			}
+			return false;
+		}
+		System.out.println("startup " + startupMessage.getStartupType());
+		return true;
 		
 	}
 	
@@ -118,6 +171,8 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 	}
 	
 	public int openSocket(int family, int type, int protocol) {
+		if(!startDaemonIfNeeded())
+			return -1; 
 		final IMessageResponse response = sender.sendOpenSocket(family, type, protocol);
 		return processResponseFd(response);
 	}

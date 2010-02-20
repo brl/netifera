@@ -15,6 +15,13 @@ public class MessageSender {
 		responseBuffer = ByteBuffer.wrap(new byte[8192]);
 	}
 	
+	public MessageResponseStartup readStartupMessage() throws MessageException {
+		final IMessageResponse response = receiveResponse();
+		if(!(response instanceof MessageResponseStartup)) 
+			throw new MessageException("Message received was not expected startup message");
+		return (MessageResponseStartup) response;
+	}
+	
 	public IMessageResponse sendOpenSocket(int family, int type, int protocol) {
 		return exchangeMessage(new MessageRequestOpenSocket(family, type, protocol));
 	}
@@ -28,10 +35,10 @@ public class MessageSender {
 		responseBuffer.clear();
 		final int length = jni.receiveMessage(responseBuffer.array());
 		if(length < 0) {
-			
+			// XXX
 		}
 		if(responseBuffer.capacity() < length) {
-			
+			// XXX
 		}
 		responseBuffer.limit(length);
 		return createResponseFromBuffer();
@@ -55,16 +62,16 @@ public class MessageSender {
 	
 	private IMessageResponse createResponseFromBuffer() throws MessageException {
 		if(responseBuffer.remaining() < PRIVD_HEADER_SIZE)
-			throw new IllegalArgumentException("Message length is smaller than protocol header size.  length = " + responseBuffer.remaining());
+			throw new MessageException("Message length is smaller than protocol header size.  length = " + responseBuffer.remaining());
 		final byte version = responseBuffer.get();
 		if(version != PRIVD_PROTOCOL_VERSION)
-			throw new IllegalArgumentException("Protocol version " + PRIVD_PROTOCOL_VERSION + 
+			throw new MessageException("Protocol version " + PRIVD_PROTOCOL_VERSION + 
 					" expected got " + version);
 		final byte type = responseBuffer.get();
 		
 		final ResponseType responseType = ResponseType.fromCode(type);
 		if(responseType == null)
-			throw new IllegalArgumentException("Unexpected response message type " + type);
+			throw new MessageException("Unexpected response message type " + type);
 
 				
 		IMessageResponse response = responseType.createMessage(responseBuffer);
