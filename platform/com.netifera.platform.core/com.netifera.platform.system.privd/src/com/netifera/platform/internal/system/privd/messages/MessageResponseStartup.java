@@ -12,8 +12,12 @@ public class MessageResponseStartup extends AbstractResponse {
 		super(ResponseType.PRIVD_RESPONSE_STARTUP, buffer);
 	}
 
-	String getMessage() {
+	public String getMessage() {
 		return startupMessage;
+	}
+	
+	public StartupType getStartupType() {
+		return startupType;
 	}
 	
 	@Override
