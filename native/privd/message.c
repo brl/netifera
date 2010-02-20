@@ -5,11 +5,12 @@
 #include <syslog.h>
 #include <sys/types.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include "privd.h"
 
 static int check_space(struct privd_instance *, size_t);
 static struct privd_arghdr *init_argument(struct privd_instance *, int, size_t);
-static void append_error_message(struct privd_instance *, const char *, ...);
+static void append_error_message(struct privd_instance *, const char *, va_list args);
 static void append_errno_message(char *, size_t);
 void
 send_ok(struct privd_instance *privd)
@@ -58,14 +59,11 @@ send_startup(struct privd_instance *privd, int message_type, const char *fmt, ..
 }
 
 static void
-append_error_message(struct privd_instance *privd, const char *fmt, ...)
+append_error_message(struct privd_instance *privd, const char *fmt, va_list args)
 {
 	char message_buffer[PRIVD_ERROR_BUFFER_SIZE];
-	va_list args;
-	va_start(args, fmt);
 	if(vsnprintf(message_buffer, sizeof(message_buffer), fmt, args) >= sizeof(message_buffer))
 		syslog(LOG_WARNING, "Error message was truncated by overflow.");
-	va_end(args);
 
 	if(errno)
 		append_errno_message(message_buffer, sizeof(message_buffer));
@@ -123,7 +121,7 @@ get_integer_argument(struct privd_instance *privd, uint32_t *value)
 	if(!check_space(privd, size))
 		return -1;
 
-	struct privd_arghdr *arghdr = privd->message_ptr;
+	struct privd_arghdr *arghdr = (struct privd_arghdr *)privd->message_ptr;
 
 	if(arghdr->type != PRIVD_ARG_INTEGER)
 		return -1;
