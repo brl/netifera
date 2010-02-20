@@ -1,0 +1,244 @@
+h1. Netifera Sniffing Architecture                                                                                                                                                    
+    
+h2. Introduction 
+                                                                                                                                                                                                                                                       
+The sniffing architecture in netifera is structured into 3 separate layers.                                                                                               
+        
+!images/sniffing.png!
+                                                                                                                                                                          
+h3. 1) Packet Capture                                                                                                                                                                    
+
+The packet capture layer is the lowest layer and interfaces with the Operating System facilities 
+for sniffing network traffic.  This layer is essentially an implementation of the unix libpcap 
+library in Java as an OSGi service and includes a BPF filter compiler.                                                                                                                         
+                                                                                                                                                                                  
+h3. 2) Sniffing Engine                                                                                                                                                                   
+                                                                                                                                                                                  
+The sniffing engine is an abstraction built on the packet capture layer which performs TCP 
+stream assembly and provides a callback based interface for registering interest in receiving 
+traffic at various network protocol layers.                                                                                                         
+                                                                                                                                                                                  
+h3. 3) Sniffing Service                                                                                                                                                                  
+                                                                                                                                                                                  
+The Sniffing Daemon manages the configuration of network interfaces and the collection of 
+netifera sniffing modules.  Unlike the lower two layers which could be used independently 
+outside of netifera, this layer is integrated into the netifera platform itself.                                                                                                                                                
+                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+h2. Packet Capture Layer                                                                                                                                                                      
+                                                                                                                                                                                  
+This is the lowest layer in the netifera network sniffing stack.  At this layer individual native network
+interface instances from the operating system are opened and managed.
+
+bc. com.netifera.platform.net.pcap
+
+This bundle provides the packet capture layer as well as the operating system specific code for
+opening and managing network interfaces on Linux and OS X.
+
+bc. com.netifera.platform.system
+
+Each supported operating system has a corresponding _system_ bundle which provides direct access
+to operating system calls though a native JNI library.  The system specific implementation of the
+_pcap_ bundle (*INativePacketCapture*) uses the *ISystem* OSGi service to directly access operating system
+services such as system calls.
+
+!images/PacketCapture.png!                                                                                                                                                  
+                                                                                                                                                                                  
+The _pcap_ bundle provides an OSGi service *IPacketCaptureFactory* which can be queried for available system network
+interfaces with the *getInterfaces()* method.  This service also provides the *create()* method for creating *IPacketCapture*
+instances.  An *IPacketCapture* instance can be used to open the network interface and capture packets. 
+                                                                                                                                                                                  
+bc. public interface IPacketCaptureFactoryService {                                                                                                                           
+    Collection<ICaptureInterface> getInterfaces();                                                                                                                    
+    IPacketCapture create(ICaptureInterface iface, int snaplen, boolean promiscous,                                                                                   
+                                int timeout, IPacketHandler packetHandler);                                                                                                                                                                                                              
+}                                                   
+        
+The *IPacketCapture* interface provides an API at the level of abstraction of the libpcap library.                                                                                
+The underlying implementation is mostly a port from C to Java of the libpcap library.                                                                                             
+                                                                                                                                                                                  
+When an *IPacketCapture* instance is created through the factory, it is permanently bound to                                                                                      
+an instance of *IPacketHandler* which is a callback where individual packets will be delivered.
+
+When a packet is received it will be delivered by calling the *handlePacket()* method of *IPacketHandler*.
+                                                                                               
+                                                                                                                                                                                  
+bc. public interface IPacketHandler {                                                                                                                                         
+    void handlePacket(ByteBuffer packetData, ICaptureHeader header);                                                                                                  
+}                                                                                                                                                                         
+                                                                                                                                                                                  
+The *ICaptureHeader* provides access to information about the packet which was received.
+    
+bc. public interface ICaptureHeader {
+    long getSeconds();
+    int getMicroseconds();
+    int getCaplen();
+    int getDatalen();
+}
+                                                                                                                                                                                  
+h2. Sniffing Engine Layer                                                                                                                                                             
+                                                                                                                                                             
+                                                                                                                                                                                  
+The sniffing engine provides a higher level service which allows different threads and tools to share 
+access to the same raw packet capture session. It handles the details of opening interfaces when 
+needed and later closing them when no clients are sniffing on them. The API provided by the sniffing 
+engine allows registering to receive packets at various layers such as Ethernet or IP rather than 
+performing this routing in each individual tool.    
+
+!images/SniffingEngine.png!                                                                                                                  
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+bc. public interface ISniffingEngineService {                                                                                                                                                                                                                                                                                                                   
+    Collection<ICaptureInterface> getInterfaces();                                                                                                                    
+                                                                                                                                                                                  
+1. Managing lower level capture interfaces and multiplexing access to them.                                                                                                       
+                                                                                                                                                                                  
+2. Provides API to allow registering interest in packets at specific protocol layers.                                                                                             
+
+bc.    
+    ISnifferHandle createRawHandle(ICaptureInterface iface, IPacketFilter filter, IPacketSniffer<IPacketHeader> sniffer);                                                                                     
+    ISnifferHandle createArpHandle(ICaptureInterface iface, IPacketFilter filter, IPacketSniffer<ARP> sniffer);                                                                                               
+    ISnifferHandle createIPv4Handle(ICaptureInterface iface, IPacketFilter filter, IPacketSniffer<IPv4> sniffer);                                                                                              
+    ISnifferHandle createIPv6Handle(ICaptureInterface iface, IPacketFilter filter, IPacketSniffer<IPv6> sniffer);                                                                                              
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+3. TCP stream reassembly.  Data can be delivered in 'stream' or 'block' modes                                                                                                     
+                                                                                                                                                                                                                                                                                                                                                           
+bc.       
+    IStreamSnifferHandle createTcpStreamHandle(ICaptureInterface iface, IPacketFilter filter, IStreamSniffer sniffer);                                 
+    IBlockSnifferHandle createTcpBlockHandle(ICaptureInterface iface, IPacketFilter filter, IBlockSniffer sniffer);                                                                                                     
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+4. Provides API for capture file processing                                                                                                                                       
+                                                                                                                                                                                  
+bc.    
+    ICaptureFileInterface createCaptureFileInterface(String path);                                                                                                    
+}                                                                                                                                                                         
+                                                                                                                                                                                  
+
+h3. Interface Manager
+
+                                                                                                                                                                                                                                                                                                                                        
+One for each physical interface. Parsing a capture file uses one of these too.                                                                                                                                                                              
+                                                                                                                                                                                  
+Each interface manager contains several protocol specific managers that handle registration at 
+different protocol layers. These protocol managers are layered so that lower layers deliver 
+information to higher layers.       
+
+!images/InterfaceManager.png!                                                                                                         
+                                                                                                                                                                                  
+Each type of protocol manager has a handle type associated with it. These handles are instances 
+of _ISnifferHandle_. The higher protocol layers which depend on lower layers such as IP which 
+depends on Raw, register themselves  with the lower layers though these handles in the same way 
+as any other user  of the sniffing engine.                                                                                                                                                           
+                                                                                                                                                                                  
+ [These paragraphs are total shit and need to be rewritten to explain more                                                                                                        
+coherently]                                                                                                                                                                       
+                                                                                                                                                                                  
+bc. public class InterfaceManager {                                                                                                                                                  
+    public static InterfaceManager createRawManager(ISniffingEngineEx engine,                                                                                                        ICaptureInterface iface) { return new InterfaceManager(new RawManager(engine,                                                                                                     
+iface)); }                                                                                                                                                                        
+ private InterfaceManager(IPacketManager<IPacketHeader> packetManager) {                                                                                                          
+this.packetManager = packetManager; arpManager = new                                                                                                                              
+ArpManager(packetManager); ipv4Manager = new IPv4Manager(packetManager);                                                                                                          
+ipv6Manager = new IPv6Manager(packetManager); tcpManager = new                                                                                                                    
+TCPManager(packetManager, ipv4Manager, ipv6Manager); } }                                                                                                                                                                                                                                                                                                           
+ public interface IPacketManager<T extends IPacketHeader> { void                                                                                                                  
+registerSniffer(IPacketSnifferHandle<T> handle); void                                                                                                                             
+unregisterSniffer(IPacketSnifferHandle<T> handle); ICaptureInterface                         
+getInterface(); ISniffingEngineEx getSniffingEngine(); }                                                                                                                          
+ public abstract class AbstractPacketManager<T extends IPacketHeader> { ... }                                                                                                     
+ public class IPv4Manager extends AbstractPacketManager<IPv4> { }                                                                                                                 
+                                                                                                                                                                                  
+h3. Raw Manager                                                                                                                                                                       
+                                                                                                                                                                       
+                                                                                                                                                                                                                                                                                                                                                                    
+The _RawManager_ receives packets from the Packet Capture layer.  It delivers them to every                                                                                       
+client that has registered with the raw manager.  The higher packet layers such as IPv4 and ARP                                                                                   
+register to receive raw packets.                                                                                                                                                  
+                                                                                                                                                                                  
+bc. public class RawManager extends AbstractPacketManager<IPacketHeader> {                                                                                                    
+                private IPacketCapture pcap;                                                                                                                                      
+                protected boolean start() {                                                                                                                                       
+                        pcap  = getSniffingEngine().pcapCreate(getInterface(), handler);                                                                                          
+                        if(!pcap.open()) { ... }                                                                                                                                  
+                }                                                                                                                                                                 
+        }                                                                                                                                                                         
+                                                                                                                                                                                  
+h3. Differences in the Wireless Sniffing Engine                                                                                                                                       
+                                                                                                                                                                                  
+1. Provides these extra API methods:                                                                                                                                              
+                                                                                                                                                                                  
+bc. Collection<ICaptureInterface> getWifiInterfaces();                                                                                                                                                                                                                                                                                                          
+        ISnifferHandle createWifiHandle(ICaptureInterface iface,                                                                                                                  
+                                IPacketFilter filter, IPacketSniffer<WiFiFrame> sniffer);                                                                                         
+                                                                                                                                                                                  
+2. Does not (currently) support capture files (but it should!)                                                                                                                    
+                                                                                                                                                                                  
+3. _pcapCreate()_ calls the wifi factory instead of the basic factory                                                                                                             
+                                                                                                                                                                                  
+4. Interface set initialized with instances of _WifiInterfaceManager_                                                                                                             
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+h3. Capture Files                                                                                                                                                                     
+                                                                                                                                                                                  
+bc. CaptureFileInterface                                                                                                                                                              
+    
+                                                                                                                                                                              
+* Created by Sniffing Engine from path string                                                                                                                                    
+* Contains a PcapCaptureFile                                                                                                                                                     
+* isValid if can be opened and has a valid link type                                                                                                                             
+                                                                                                                                                                                  
+bc. void process(final ICaptureFileProgress progress);                                                                                                                      
+    
+                                                                                                                            
+creates a thread and starts it that loops over each record in the file and sends it to                                                                                          
+the sniffer set with _setSniffer()_                                                                                                                                               
+                                                                                                                                                                                  
+  isCancelled flag exits loop early                                                                                                                                               
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+Sniffing Daemon --> run capture file                                                                                                                                              
+                                                                                                                                                                                  
+1) create capture file entity                                                                                                                                                     
+2) create a list of interfaces containing only the capture file interface                                                                                                         
+3) start enabled sniffing modules on this interface set                                                                                                                           
+4) call _iface.process()_                                                                                                                                                           
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+Capture file runnable            
+
+
+h2. Sniffing Service (or Daemon)
+
+_ISniffingDaemon_ is the interface for accessing the sniffing daemon. There are two implementations of this interface.                                                              
+                                                                                                                                                                                  
+RemoteSniffingDaemon                                                                                                                                                              
+                                                                                                                                                                                  
+This is the stub for making remote requests to the real sniffing daemon                                                                                                           
+                                                                                                                                                                                  
+SniffingDaemon                                                                                                                                                                    
+                                                                                                                                                                                  
+This is the real implementation                                                                                                                                                   
+                                                                                                                                                                                  
+                                                                                                                                                                                  
+                                                                                                                                                                                 
+bc. InterfaceRecord implements ICaptureInterface {                                                                                                                                    
+  String name;                                                                                                                                                                    
+  String label;                                                                                                                                                                   
+  boolean enabled;                                                                                                                                                                
+  boolean available;                                                                                                                                                              
+}                                                                                                                                                                                 
+                                                                                                                                                                                  
+h3. Client to Server requests:                                                                                                                                                        
+                                                                                                                                                                                  
+bc. RequestInterfaceInformation --> List<InterfaceRecord>
+                                                                                                                        
+                                                                                                                                                                                  
+bc. SetInterfaceEnableState(List<InterfaceRecord>)                                                                                                                               
+                                                                                                                                                                                  
+bc. iface = lookupInterfaceByName(record.getName());                                                                                                                            
+      daemon.setEnabled(iface, iface.isEnabled());                                                                                                                                
+                                                                                                                                                                                  
+                                                              

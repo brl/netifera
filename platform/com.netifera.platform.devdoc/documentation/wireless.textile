@@ -1,0 +1,49 @@
+h1. Netifera wireless support
+
+bc. com.netifera.platform.net.wifi.*
+
+h2. Introduction
+
+The wireless network functionality in netifera extends the sniffing framework to support capturing 
+and injecting wireless network packets.
+
+h2. Wireless Packet Capture Layer
+
+bc. com.netifera.platform.net.wifi.pcap
+
+h3. Wireless Packet Capture Factory
+
+The wireless pcap bundle publishes a factory as an OSGi service which is similar to the
+_IPacketCaptureFactory_ service published by the regular pcap plugin.  This service can be used
+to enumerate available wireless capable interfaces, and to open wireless interfaces creating an 
+_IWifiPacketCapture_ instance.
+
+bc. public interface IWifiPacketCaptureFactory {
+    Collection<IWirelessCaptureInterface> getWifiInterfaces();
+    IWifiPacketCapture create(IWirelessCaptureInterface iface, int snaplen, boolean promiscuous,
+    int timeout, IPacketHandler packetHandler);
+}
+
+
+h3. Wireless Packet Capture instance
+
+The wireless version of the packet capture service uses the regular packet capture service to
+enumerate and open network interfaces.  _IPacketCapture_ instances that are opened with the
+regular packet capture service are wrapped in an _IWifiPacketCapture_ instance that provides
+access to wireless functionality such as setting monitor mode and changing radio channels.
+
+bc. public interface IWifiPacketCapture extends IPacketCapture {
+    boolean enableMonitorMode(boolean enable);
+    boolean setChannel(int channel);
+}
+
+
+h3. Wireless Native 
+
+bc. public interface INativeWireless {
+    Collection<IWirelessCaptureInterface> listInterfaces();
+    boolean enableMonitorMode(IWifiPacketCapture pcap);
+    boolean disableMonitorMode(IWifiPacketCapture pcap);
+    int getChannel(IWifiPacketCapture pcap);
+    boolean setChannel(IWifiPacketCapture pcap, int channel);
+}

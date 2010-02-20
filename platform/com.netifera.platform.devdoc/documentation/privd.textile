@@ -1,0 +1,170 @@
+h1. Netifera Privilege Daemon (privd)
+
+{toc}
+
+h2. Introduction 
+
+Some netifera functions such as capturing and injecting raw network packets
+involve acquiring system resources that are only available to privileged
+users.  In order to avoid running the entire netifera UI and framework with elevated 
+privileges (ie: as root), access to such protected resources has been isolated in one 
+component which runs as a system daemon and communicates with the netifera 
+framework over a local socket using a message based protocol.
+
+This document describes both the architecture of this feature as well as the
+protocol for exchanging messages.
+
+
+h2. Components
+
+Java API ----> privd JNI --- socket connection to --> privd
+  (1)                    (2)                                                    (3)
+  
+  (1) com.netifera.platform.system.privd (IPrivilegeDaemon OSGi service)
+  (2) libprivd.so
+  (3) /usr/bin/privd
+  
+Java <----> JNI communication
+
+* is privd available?  (starts the daemon if not already started under the assumption that you only want to know if it's available because you intend to use it.)
+** no, not found
+** no, not installed correctly (suid, root, config file exists)
+** no, authentication failed
+** no, some other error
+* send raw message
+* receive raw message
+* receive raw message and fd
+
+The native JNI library manages the lifecycle of the daemon.
+
+h2. Launching the daemon
+
+The privd daemon is meant to be installed on Unix (both Linux and OS X) with 
+setuid root privileges (ie: chown root $PRIVD && chmod 4755 $PRIVD).
+
+The first time the netifera framework requires service from the privilege 
+daemon, it launches the daemon with the following steps:
+
+#  Find the privilege daemon on the filesystem and verify that it is installed correctly (executable by current user and setuid root).
+# Create a socketpair() of SOCK_DGRAM sockets for communicating with the daemon.
+# fork() and in the child, assign the daemon side of the pair of sockets to descriptor 0 (zero) with the dup2() system call.  
+# execute the daemon.
+
+When the daemon starts it performs the following steps:
+
+# Find the home directory of the uid that launched the daemon.
+# Locate the configuration file $HOMEDIR/.netifera/privd_config and ensure that the file is owned and only readable and writable by root.  It is a fatal error to not find this file.
+# Read authentication information from the privd_config file.
+# If authentication is enabled, receive authentication message from socket and verify
+# After authentication has completed enter a loop reading and dispatching messages.
+# When socket closes, the daemon cleanly exits.
+
+h2. Authentication
+
+Since the daemon provides access to privileged system resources an authentication system is optionally
+provided to restrict access to the daemon functionality.
+
+As described in the previous section, the daemon requires that a configuration file exists
+which indicates if authentication is enabled and if authentication is in use this file also contains the
+authentication credential needed to connect to the daemon.
+
+h2. Passing File Descriptors
+
+Some of the privileged operations performed by the daemon involve opening a raw socket or a device
+file.  These actions require privileges to open the resource and result in a file descriptor which refers
+to the device or socket.  Once the file descriptor has been obtained it can be used even if the original
+privileges have been dropped.
+
+h2. Binding Privileged Ports
+
+h2. Linux Netlink
+
+h2. Java Interface
+
+h2. Message Format
+
+h3. Message Header
+
+bc. struct privd_msghdr {
+	uint8_t version;
+	uint8_t type;
+	uint16_t length;
+};
+
+The @version@ field is the protocol version which is currently 0.
+
+The @type@ field represents the type of message which is being transmitted.  The values which can appear here are described in the sections *Message types* and *Message response types*
+
+The @length@ field is transmitted in network byte order and contains the length in bytes of the entire message including both the message header and all message arguments.
+
+h3. Message Arguments
+
+bc. struct privd_arghdr {
+	uint8_t type;
+	uint8_t pad;
+	uint16_t length;
+	uint8_t data[];
+};
+
+The @type@ field contains one of the following values depending on what type of argument is being transmitted.
+
+bc. 
+PRIVD_ARG_INTEGER                 0x00
+PRIVD_ARG_STRING                  0x01
+
+The @pad@ field is a single byte of padding which is ignored and must be set to the value 0.
+
+The @length@ field is transmitted in network byte order and the value is the length of the current argument including both the argument header and the argument data.
+
+
+
+
+h3. Message types
+
+bc.. 
+PRIVD_PING                           0x00
+PRIVD_AUTHENTICATE                   0x01
+PRIVD_OPEN_SOCKET                    0x02
+PRIVD_OPEN_BPF                       0x03
+
+h3. Message response types
+
+bc.. 
+PRIVD_RESPONSE_OK                    0x00
+PRIVD_RESPONSE_ERROR                 0x01
+PRIVD_RESPONSE_STARTUP               0x02
+PRIVD_RESPONSE_FD                    0x03
+
+bc.. 
+PRIVD_STARTUP_OK                      0x00
+PRIVD_STARTUP_AUTHENTICATION_REQUIRED 0x01
+PRIVD_STARTUP_NOT_ROOT                0x02
+PRIVD_STARTUP_INITIALIZATION_FAILED   0x03
+PRIVD_STARTUP_CONFIG_NOT_FOUND        0x04
+PRIVD_STARTUP_CONFIG_BAD_DATA         0x05
+
+h4. PRIVD_STARTUP_OK
+
+This startup message indicates that the privilege daemon started without any error.
+
+h4. PRIVD_STARTUP_AUTHENTICATION_REQUIRED
+
+This startup message is sent by a daemon which expects the client to authenticate.  
+
+h4. PRIVD_STARTUP_NOT_ROOT
+
+This startup message is sent by the daemon to indicate that it failed to execute because it was not installed setuid root.
+
+h4. PRIVD_STARTUP_INITIALIZATION_FAILED
+
+h4. PRIVD_STARTUP_CONFIG_NOT_FOUND
+
+Indicates that the configuration file could not be found or it was installed with incorrect permissions.
+
+h4. PRIVD_STARTUP_CONFIG_BAD_DATA
+
+An error occured while trying to parse the contents of the configuration file.
+
+
+
+
