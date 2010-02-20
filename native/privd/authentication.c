@@ -67,7 +67,7 @@ get_config_path(struct privd_instance *privd)
 
 	static char buffer[PATH_MAX + 1];
 
-	if(snprintf(buffer, sizeof(buffer), "%s/.netifera/privd_conf", pw->pw_dir) > sizeof(buffer)) {
+	if(snprintf(buffer, sizeof(buffer), "%s/.privd/config", pw->pw_dir) > sizeof(buffer)) {
 		send_startup(privd, PRIVD_STARTUP_CONFIG_NOT_FOUND, "Overflow creating configuration path");
 		return NULL;
 	}
@@ -78,6 +78,7 @@ static FILE *
 open_config(struct privd_instance *privd)
 {
 	char *path = get_config_path(privd);
+	DEBUG("CONFIG PATH IS %s", path);
 	if(path == NULL)
 		return NULL;
 	int fd = open(path, O_RDONLY|O_NOFOLLOW);
