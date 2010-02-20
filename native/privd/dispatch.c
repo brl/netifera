@@ -67,7 +67,7 @@ authenticate_handler(struct privd_instance *privd, void *data, size_t length) {
 static int
 open_socket_handler(struct privd_instance *privd, void *data, size_t length) {
 
-	int family, type, protocol;
+	uint32_t family, type, protocol;
 	if(
 		get_integer_argument(privd, &family) ||
 		get_integer_argument(privd, &type) ||
