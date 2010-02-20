@@ -86,6 +86,7 @@ void send_error(struct privd_instance *privd, const char *fmt, ...);
 void send_startup(struct privd_instance *privd, int message_type, const char *fmt, ...);
 int add_string_argument(struct privd_instance *privd, const char *string);
 int add_integer_argument(struct privd_instance *privd, uint32_t value);
+int get_integer_argument(struct privd_instance *privd, uint32_t *value);
 void initialize_message(struct privd_instance *privd, int message_type);
 int finalize_message(struct privd_instance *privd);
 
