@@ -2,7 +2,7 @@ all: libsystem.jnilib
 
 # OS X include path for java headers
 
-CFLAGS=-I/System/Library/Frameworks/JavaVM.framework/Headers -mmacosx-version-min=10.4 -Wall
+CFLAGS=-I/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers -mmacosx-version-min=10.4 -Wall -arch ppc -arch i386 -arch x86_64
 
 LD=gcc
 CC=gcc
@@ -32,7 +32,7 @@ CLASS=com.netifera.platform.internal.system.SystemNative
 CLASSPATH=$(WORKSPACE_ROOT)/$(PACKAGE)/bin
 
 LIBS=-lc
-LDFLAGS=-dynamiclib -arch i386 -mmacosx-version-min=10.4
+LDFLAGS=-dynamiclib -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4
 
 libsystem.jnilib: $(OBJECT)
 	$(LD) $(LDFLAGS) -o libsystem.jnilib $(LIBS) $(OBJECT)
