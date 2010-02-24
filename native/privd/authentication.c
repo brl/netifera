@@ -22,7 +22,6 @@ read_authentication_data(struct privd_instance *privd)
 	FILE *fp = open_config(privd);
 	if(fp == NULL)
 		return;
-
 	char line[128];
 	if(fgets(line, sizeof(line), fp) == NULL) {
 		send_startup(privd, PRIVD_STARTUP_CONFIG_BAD_DATA, "Error reading daemon configuration");
@@ -33,7 +32,6 @@ read_authentication_data(struct privd_instance *privd)
 		send_startup(privd, PRIVD_STARTUP_CONFIG_BAD_DATA, "Badly formed config file. No newline found");
 		return;
 	}
-
 	*p = 0;
 	if(strncmp(line, "AUTH_HASH=", 10)) {
 		send_startup(privd, PRIVD_STARTUP_CONFIG_BAD_DATA, "Badly formed config file.  No authentication information found.");
@@ -44,15 +42,14 @@ read_authentication_data(struct privd_instance *privd)
 		send_startup(privd, PRIVD_STARTUP_CONFIG_BAD_DATA, "Badly formed config file.  Authentication information empty.");
 		return;
 	}
-
 	if(strcmp(p, "DISABLED") == 0) {
 		privd->auth_disabled = 1;
+		privd->authenticated = 1;
 		send_startup(privd, PRIVD_STARTUP_OK, NULL);
 		return;
 	}
 	privd->auth_hash = strdup(p);
 	send_startup(privd, PRIVD_STARTUP_AUTHENTICATION_REQUIRED, NULL);
-
 }
 
 static char *
