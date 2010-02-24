@@ -136,7 +136,6 @@ public class PacketCaptureFactoryService implements
 	}
 
 	public boolean isInterfaceAvailable(String name) {
-		System.out.println("Is interface available "+ name);
 		final PacketCapture pcap = new PacketCapture(name);
 		pcap.setNativeCapture(createNative(pcap));
 		return pcap.testOpen();
