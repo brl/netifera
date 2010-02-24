@@ -5,83 +5,87 @@ import java.nio.ByteBuffer;
 import com.netifera.platform.internal.system.privd.PrivilegeDaemonNative;
 
 public class MessageSender {
+	private final static int RESPONSE_BUFFER_SIZE = 8192;
 	private final static int PRIVD_PROTOCOL_VERSION = 0;
 	private final static int PRIVD_HEADER_SIZE = 4;
+
 	private final PrivilegeDaemonNative jni;
 	private final ByteBuffer responseBuffer;
 	
-	public MessageSender(PrivilegeDaemonNative jni) {
-		this.jni = jni;
-		responseBuffer = ByteBuffer.wrap(new byte[8192]);
+	public MessageSender() {
+		jni = new PrivilegeDaemonNative();
+		responseBuffer = ByteBuffer.wrap(new byte[RESPONSE_BUFFER_SIZE]);
 	}
 	
-	public MessageResponseStartup readStartupMessage() throws MessageException {
+	public synchronized void startDaemon(String daemonPath) throws MessageException {
+		if(jni.startDaemon(daemonPath) == -1)
+			throw new MessageException("Could not start privilege daemon : "+ jni.getLastErrorMessage());		
+	}
+	
+	public synchronized MessageResponseStartup readStartupMessage() throws MessageException {
 		final IMessageResponse response = receiveResponse();
-		if(!(response instanceof MessageResponseStartup)) 
-			throw new MessageException("Message received was not expected startup message");
+		if(response.getType() != ResponseType.PRIVD_RESPONSE_STARTUP || !(response instanceof MessageResponseStartup)) 
+			throw new MessageException("Message received was not expected startup message type");
 		return (MessageResponseStartup) response;
 	}
 	
-	public IMessageResponse sendOpenSocket(int family, int type, int protocol) {
-		return exchangeMessage(new MessageRequestOpenSocket(family, type, protocol));
+	public synchronized IMessageResponse sendOpenSocket(int family, int type, int protocol) throws MessageException {
+		sendRequest(new MessageRequestOpenSocket(family, type, protocol));
+		return receiveResponse();
 	}
 	
-	public IMessageResponse sendOpenBPF() {
-		return exchangeMessage(new MessageRequestOpenBPF());
+	public synchronized IMessageResponse sendOpenBPF() throws MessageException {
+		sendRequest(new MessageRequestOpenBPF());
+		return receiveResponse();
 	}
-	
-	
-	public IMessageResponse receiveResponse() throws MessageException {
+
+	private IMessageResponse receiveResponse() throws MessageException {
 		responseBuffer.clear();
 		final int length = jni.receiveMessage(responseBuffer.array());
-		if(length < 0) {
-			// XXX
-		}
-		if(responseBuffer.capacity() < length) {
-			// XXX
-		}
+		if(length < 0) 
+			throw new MessageException(jni.getLastErrorMessage());
+		
+		if(responseBuffer.capacity() < length) 
+			throw new MessageException("Message length exceeds buffer capacity of "+ RESPONSE_BUFFER_SIZE +" bytes.");
+	
 		responseBuffer.limit(length);
+
 		return createResponseFromBuffer();
-		
-		
 	}
 	
-	private IMessageResponse exchangeMessage(IMessageRequest request) {
-		try {
-			sendRequest(request);
-			return receiveResponse();
-		} catch (MessageException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 	private void sendRequest(IMessageRequest request) throws MessageException {
 		jni.sendMessage(request.getMessageBytes());
 	}
 	
-	
 	private IMessageResponse createResponseFromBuffer() throws MessageException {
+		checkResponseHeader();	
+		final ResponseType responseType = extractResponseType();
+		return createMessageResponse(responseType);
+	}
+	
+	private void checkResponseHeader() throws MessageException {
 		if(responseBuffer.remaining() < PRIVD_HEADER_SIZE)
 			throw new MessageException("Message length is smaller than protocol header size.  length = " + responseBuffer.remaining());
+		
 		final byte version = responseBuffer.get();
 		if(version != PRIVD_PROTOCOL_VERSION)
-			throw new MessageException("Protocol version " + PRIVD_PROTOCOL_VERSION + 
-					" expected got " + version);
-		final byte type = responseBuffer.get();
-		
+			throw new MessageException("Protocol version " + PRIVD_PROTOCOL_VERSION +" expected got " + version);
+	}
+	
+	private ResponseType extractResponseType() throws MessageException {
+		final byte type = responseBuffer.get();		
 		final ResponseType responseType = ResponseType.fromCode(type);
 		if(responseType == null)
 			throw new MessageException("Unexpected response message type " + type);
-
-				
-		IMessageResponse response = responseType.createMessage(responseBuffer);
-		
-		if(responseType == ResponseType.PRIVD_RESPONSE_FD) {
+		return responseType;
+	}
+	
+	private IMessageResponse createMessageResponse(ResponseType type) throws MessageException {
+		IMessageResponse response = type.createMessage(responseBuffer);
+		if(type == ResponseType.PRIVD_RESPONSE_FD) {
 			final int fd = jni.getReceivedFileDescriptor();
 			((MessageResponseFd)response).setReceivedFd(fd);
 		}
-		
 		return response;
 	}
-
 }

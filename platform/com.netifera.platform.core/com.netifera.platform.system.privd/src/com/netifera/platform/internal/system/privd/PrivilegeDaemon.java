@@ -1,7 +1,7 @@
 package com.netifera.platform.internal.system.privd;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.netifera.platform.api.log.ILogManager;
@@ -12,145 +12,25 @@ import com.netifera.platform.internal.system.privd.messages.MessageResponseError
 import com.netifera.platform.internal.system.privd.messages.MessageResponseFd;
 import com.netifera.platform.internal.system.privd.messages.MessageResponseStartup;
 import com.netifera.platform.internal.system.privd.messages.MessageSender;
-import com.netifera.platform.internal.system.privd.messages.ResponseType;
 import com.netifera.platform.internal.system.privd.messages.StartupType;
 import com.netifera.platform.system.privd.IPrivilegeDaemon;
+import com.netifera.platform.system.privd.IPrivilegeDaemonLaunchStatus;
 
 public class PrivilegeDaemon implements IPrivilegeDaemon {
-	private final static String PRIVD_EXECUTABLE = "netifera_privd";	
 	private ILogger logger;
-	private final List<String> searchPaths = new ArrayList<String>();
-	private String lastErrorMessage;
-	private final PrivilegeDaemonNative jni;
-	private final MessageSender sender;
-	private PrivilegeDaemonStatus daemonStatus = PrivilegeDaemonStatus.STATUS_UNCONNECTED;
+	private final static String PRIVD_EXECUTABLE = "netifera_privd";
+	private final List<String> searchPaths = Arrays.asList("/usr/local/bin");
+	private MessageSender sender = new MessageSender();
 	
-	public PrivilegeDaemon() {
-		searchPaths.add("/usr/local/bin");
-		jni = new PrivilegeDaemonNative();
-		sender = new MessageSender(jni);
-	}
+	private String lastErrorMessage = "No error.";
+	private IPrivilegeDaemonLaunchStatus launchStatus = PrivilegeDaemonLaunchStatus.createUnconnectedStatus();
 
-	public PrivilegeDaemonStatus getDaemonStatus() {
-		return daemonStatus;
+	public IPrivilegeDaemonLaunchStatus getDaemonLaunchStatus() {
+		return launchStatus;
 	}
 	
-	private boolean startDaemonIfNeeded() {
-		System.out.println("Start if needed, status = "+ daemonStatus);
-		switch(daemonStatus) {
-		case STATUS_OK:
-			return true;
-		case STATUS_CONFIG_MISSING:
-		case STATUS_NOTFOUND:
-		case STATUS_NOTSETUID:
-			return false;
-		case STATUS_UNCONNECTED:
-			break;
-		}
-		
-		final String daemonPath = findDaemonExecutable();
-		if(daemonPath == null) {
-			setErrorMessage("Could not lcate privilege daemon executable");
-			daemonStatus = PrivilegeDaemonStatus.STATUS_NOTFOUND;
-			return false;
-		}
-		
-		if(!startDaemon(daemonPath)) {
-			System.out.println("Error: "+ lastErrorMessage);
-			return false;
-		}
-		
-		daemonStatus = PrivilegeDaemonStatus.STATUS_OK;
-		return true;
-		
-	}
-	public synchronized boolean isDaemonAvailable() {
-		System.out.println("isDaemonAvailable()?");
-		if(jni.isDaemonRunning())
-			return true;
-		
-		final String daemonPath = findDaemonExecutable();
-		if(daemonPath == null) {
-			setErrorMessage("Could not locate privilege daemon executable");
-			return false;
-		}
-		
-		System.out.println("Daemon path is " + daemonPath);
-		return startDaemon(daemonPath);
-			
-	}
-	
-	private boolean startDaemon(String daemonPath) {
-		if(jni.startDaemon(daemonPath) == -1) {
-			setErrorMessage("Could not start privilege daemon : " + jni.getLastErrorMessage());
-			return false;
-		}
-		try {
-			return receiveStartupMessage();
-		} catch (MessageException e) {
-			setErrorMessage("Error receiving startup message : " + e.getMessage());
-			return false;
-		}
-	}
-	
-	private boolean receiveStartupMessage() throws MessageException {
-		System.out.println("receivestartupmessage");
-		final IMessageResponse response = sender.receiveResponse();
-		if(response.getType() != ResponseType.PRIVD_RESPONSE_STARTUP) {
-			setErrorMessage("Unexpected startup message type received");
-			return false;
-		}
-		MessageResponseStartup startupMessage = (MessageResponseStartup) response;
-		if(startupMessage.getStartupType() != StartupType.PRIVD_STARTUP_OK) {
-			final String msg = startupMessage.getMessage();
-			if(msg != null)
-				setErrorMessage("Daemon startup failed: "+ msg);
-			else
-				setErrorMessage("Daemon startup failed: "+ startupMessage.getStartupType());
-			
-			switch(startupMessage.getStartupType()) {
-			case PRIVD_STARTUP_NOT_ROOT:
-			case PRIVD_STARTUP_AUTHENTICATION_REQUIRED:
-			case PRIVD_STARTUP_CONFIG_BAD_DATA:
-			case PRIVD_STARTUP_CONFIG_NOT_FOUND:
-			case PRIVD_STARTUP_CONFIG_BAD_PERMS:
-			case PRIVD_STARTUP_INITIALIZATION_FAILED:
-			case PRIVD_STARTUP_OK:
-			}
-			return false;
-		}
-		System.out.println("startup " + startupMessage.getStartupType());
-		return true;
-		
-	}
-	
-	private void setErrorMessage(String message) {
-		logger.error(message);
-		lastErrorMessage = message;
-	}
-	
-	private String findDaemonExecutable() {
-		for(String path : searchPaths) {
-			if(verifyDaemonPath(path))
-				return pathToExecutablePath(path);
-		}
-		return null;
-	}
-	private boolean verifyDaemonPath(String path) {
-		if(path == null)
-			return false;
-		
-		logger.info("Searching for privilege daemon at : " + pathToExecutablePath(path));
-		
-		final File file = new File(path, PRIVD_EXECUTABLE);
-		return file.exists();
-	}
-	
-	private String pathToExecutablePath(String basePath) {
-		if(basePath.endsWith(File.separator)) {
-			return basePath + PRIVD_EXECUTABLE;
-		}
-		return basePath + File.separator + PRIVD_EXECUTABLE;
+	public boolean isDaemonAvailable() {
+		return startDaemonIfNeeded();
 	}
 	
 	protected void setLogManager(ILogManager manager) {
@@ -164,17 +44,34 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 	public String getLastError() {
 		return lastErrorMessage;
 	}
-
+	
 	public int openBPF() {
-		final IMessageResponse response = sender.sendOpenBPF();
-		return processResponseFd(response);
+		logger.debug("openBPF called.");
+		if(!startDaemonIfNeeded()) {
+			setErrorMessage("Privilege daemon could not be launched");
+			return -1; 
+		}
+		try {
+			IMessageResponse response = sender.sendOpenBPF();
+			return processResponseFd(response);
+		} catch (MessageException e) {
+			setErrorMessage("openBFP request to privd failed : "+ e.getMessage());
+			return -1;
+		}
 	}
 	
 	public int openSocket(int family, int type, int protocol) {
-		if(!startDaemonIfNeeded())
+		if(!startDaemonIfNeeded()) {
+			setErrorMessage("Privilege daemon could not be launched");
 			return -1; 
-		final IMessageResponse response = sender.sendOpenSocket(family, type, protocol);
-		return processResponseFd(response);
+		}
+		try {
+			IMessageResponse response = sender.sendOpenSocket(family, type, protocol);
+			return processResponseFd(response);
+		} catch (MessageException e) {
+			setErrorMessage("openSocket request to privd failed : "+ e.getMessage());
+			return -1;
+		}
 	}
 	
 	private int processResponseFd(IMessageResponse response) {
@@ -193,5 +90,109 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 			return -1;
 		}
 	}
+	
+	private synchronized boolean startDaemonIfNeeded() {
+		if(launchStatus.isConnected())
+			return true;
+		else if(launchStatus.launchFailed())
+			return false;
+		else		
+			return findPathAndStartDaemon();		
+	}
+	
+	private boolean findPathAndStartDaemon() {
+		final String daemonPath = findDaemonExecutable();
+		if(daemonPath == null) {
+			launchStatus = PrivilegeDaemonLaunchStatus.createLaunchFailed("Could not locate privilege daemon executable.");
+			return false;
+		}
+		
+		if(!startDaemon(daemonPath)) 
+			return false;
+		launchStatus = PrivilegeDaemonLaunchStatus.createConnectedStatus();
+		return true;
+	}
+	
+	private boolean startDaemon(String daemonPath) {
+		try {
+			logger.info("Launching privilege daemon from path "+ daemonPath);
+			sender.startDaemon(daemonPath);
+		} catch (MessageException e) {
+			final String msg = "Daemon launch failed : "+ e.getMessage();
+			launchStatus = PrivilegeDaemonLaunchStatus.createLaunchFailed(msg);
+			return false;
+		}
+		
+		try {
+			return receiveStartupMessage();
+		} catch (MessageException e) {
+			final String msg = "Error receiving startup message : "+ e.getMessage();
+			launchStatus = PrivilegeDaemonLaunchStatus.createLaunchFailed(msg);
+			return false;
+		}	
+	}
+	
+	private boolean receiveStartupMessage() throws MessageException {	
+		MessageResponseStartup startupMessage = sender.readStartupMessage();
+		StartupType type = startupMessage.getStartupType();
+		if(type == StartupType.PRIVD_STARTUP_OK) 
+			return true;
+		
+		final String errorMessage = startupMessage.getMessage();
+		
+		switch(type) {
+		case PRIVD_STARTUP_NOT_ROOT:
+		case PRIVD_STARTUP_INITIALIZATION_FAILED:
+		case PRIVD_STARTUP_CONFIG_NOT_FOUND:
+		case PRIVD_STARTUP_CONFIG_BAD_DATA:
+		case PRIVD_STARTUP_CONFIG_BAD_PERMS:
+			formatLaunchStatus(errorMessage);
+			return false;
+		case PRIVD_STARTUP_AUTHENTICATION_REQUIRED:
+			return doAuthentication();
+		default:
+			return false;
+		
+		}
+	}
+	
+	private void formatLaunchStatus(String message) {
+		final String error = "Failed to launch privilege daemon" + ((message == null) ? ("") : (" : "+ message));
+		launchStatus = PrivilegeDaemonLaunchStatus.createLaunchFailed(error);
+	}
+	
+	private boolean doAuthentication() {
+		formatLaunchStatus("Authentication required but not implemented");
+		return false;
+	}
+	
+	private void setErrorMessage(String message) {
+		logger.error(message);
+		lastErrorMessage = message;
+	}
+	
+	private String findDaemonExecutable() {
+		for(String path : searchPaths) {
+			if(verifyDaemonPath(path))
+				return pathToExecutablePath(path);
+		}
+		return null;
+	}
 
+	private boolean verifyDaemonPath(String path) {
+		if(path == null)
+			return false;
+		
+		logger.info("Searching for privilege daemon at : " + pathToExecutablePath(path));
+		
+		final File file = new File(path, PRIVD_EXECUTABLE);
+		return file.exists();
+	}
+	
+	private String pathToExecutablePath(String basePath) {
+		if(basePath.endsWith(File.separator)) {
+			return basePath + PRIVD_EXECUTABLE;
+		}
+		return basePath + File.separator + PRIVD_EXECUTABLE;
+	}
 }
