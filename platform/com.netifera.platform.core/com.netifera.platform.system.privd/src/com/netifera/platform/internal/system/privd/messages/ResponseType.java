@@ -22,6 +22,12 @@ public enum ResponseType {
 		AbstractResponse createMessage(ByteBuffer buffer) throws MessageException {
 			return new MessageResponseFd(buffer);
 		}
+	},
+	PRIVD_RESPONSE_AUTH_FAILED(4) {
+		public AbstractResponse createMessage(ByteBuffer buffer)
+				throws MessageException {
+			return new MessageResponseAuthFailed(buffer);
+		}
 	};
 	
 	abstract AbstractResponse createMessage(ByteBuffer buffer) throws MessageException;
