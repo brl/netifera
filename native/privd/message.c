@@ -1,5 +1,5 @@
-
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <syslog.h>
@@ -56,6 +56,12 @@ send_startup(struct privd_instance *privd, int message_type, const char *fmt, ..
 
 	send_message(privd);
 
+}
+
+void send_auth_failed(struct privd_instance *privd)
+{
+	initialize_message(privd, PRIVD_RESPONSE_AUTH_FAILED);
+	send_message(privd);
 }
 
 static void
@@ -134,6 +140,32 @@ get_integer_argument(struct privd_instance *privd, uint32_t *value)
 	return 0;
 
 }
+
+char *
+get_string_argument(struct privd_instance *privd)
+{
+	if(!check_space(privd, sizeof(struct privd_arghdr))) {
+		DEBUG("No space for header");
+		return NULL;
+	}
+
+	struct privd_arghdr *arghdr = (struct privd_arghdr *)privd->message_ptr;
+	if(arghdr->type != PRIVD_ARG_STRING) {
+		DEBUG("Wrong type %d", arghdr->type);
+		return NULL;
+	}
+	size_t string_length = ntohs(arghdr->length);
+	DEBUG("LENGTH IS %d", (int)string_length);
+	if(string_length == 0)
+		return NULL;
+	if(!check_space(privd, string_length + sizeof(struct privd_arghdr)))
+		return NULL;
+	char *string = malloc(string_length + 1);
+	memset(string, 0, string_length + 1);
+	memcpy(string, arghdr->data, string_length);
+	return string;
+}
+
 static struct privd_arghdr *
 init_argument(struct privd_instance *privd, int type, size_t size)
 {
@@ -154,7 +186,7 @@ check_space(struct privd_instance *privd, size_t size)
 	if(consumed < 0) {
 		return 0;
 	}
-	ssize_t remaining = sizeof(privd->message_buffer) - consumed;
+	ssize_t remaining = privd->message_space - consumed;
 	if((remaining < 0) || (remaining < size))
 		return 0;
 	else
@@ -170,6 +202,7 @@ initialize_message(struct privd_instance *privd, int message_type)
 	header->length = 0;
 	privd->fd_to_send = -1;
 	privd->message_ptr = privd->message_buffer + sizeof(struct privd_msghdr);
+	privd->message_space = sizeof(privd->message_buffer);
 }
 
 int
