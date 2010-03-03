@@ -12,6 +12,7 @@ import com.netifera.platform.internal.system.privd.messages.MessageResponseError
 import com.netifera.platform.internal.system.privd.messages.MessageResponseFd;
 import com.netifera.platform.internal.system.privd.messages.MessageResponseStartup;
 import com.netifera.platform.internal.system.privd.messages.MessageSender;
+import com.netifera.platform.internal.system.privd.messages.ResponseType;
 import com.netifera.platform.internal.system.privd.messages.StartupType;
 import com.netifera.platform.system.privd.IPrivilegeDaemon;
 import com.netifera.platform.system.privd.IPrivilegeDaemonLaunchStatus;
@@ -20,10 +21,11 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 	private ILogger logger;
 	private final static String PRIVD_EXECUTABLE = "netifera_privd";
 	private final List<String> searchPaths = Arrays.asList("/usr/local/bin");
-	private MessageSender sender = new MessageSender();
+	private final MessageSender sender = new MessageSender();
 	
 	private String lastErrorMessage = "No error.";
 	private IPrivilegeDaemonLaunchStatus launchStatus = PrivilegeDaemonLaunchStatus.createUnconnectedStatus();
+	private String authenticationPassword;
 
 	public IPrivilegeDaemonLaunchStatus getDaemonLaunchStatus() {
 		return launchStatus;
@@ -45,6 +47,36 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 		return lastErrorMessage;
 	}
 	
+	public boolean authenticate(String password) {
+		switch(launchStatus.getStatusType()) {
+		case CONNECTED:
+			return true;
+		case UNCONNECTED:
+			return startAndAuthenticate(password);
+		case LAUNCH_FAILED:
+			return false;
+		case WAITING_AUTHENTICATION:
+			authenticationPassword = password;
+			return doAuthentication();
+		}
+		return false;
+	}
+
+	private boolean startAndAuthenticate(String password) {
+		findPathAndStartDaemon();
+		switch(launchStatus.getStatusType()) {
+		case CONNECTED:
+			return true;
+		case LAUNCH_FAILED:
+		case UNCONNECTED:
+			return false;
+		case WAITING_AUTHENTICATION:
+			authenticationPassword = password;
+			return doAuthentication();
+		}
+		return false;
+	}
+
 	public int openBPF() {
 		logger.debug("openBPF called.");
 		if(!startDaemonIfNeeded()) {
@@ -92,12 +124,16 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 	}
 	
 	private synchronized boolean startDaemonIfNeeded() {
-		if(launchStatus.isConnected())
+		switch(launchStatus.getStatusType()) {
+		case CONNECTED:
 			return true;
-		else if(launchStatus.launchFailed())
+		case LAUNCH_FAILED:
+		case WAITING_AUTHENTICATION:
 			return false;
-		else		
-			return findPathAndStartDaemon();		
+		case UNCONNECTED:
+			return findPathAndStartDaemon();
+		}
+		return false;
 	}
 	
 	private boolean findPathAndStartDaemon() {
@@ -162,8 +198,29 @@ public class PrivilegeDaemon implements IPrivilegeDaemon {
 	}
 	
 	private boolean doAuthentication() {
-		formatLaunchStatus("Authentication required but not implemented");
-		return false;
+		if(authenticationPassword == null) {
+			launchStatus = PrivilegeDaemonLaunchStatus.createWaitingAuthenticationStatus();
+			return false;
+		}
+
+		try {
+			final IMessageResponse response = sender.sendAuthenticate(authenticationPassword);
+			if(response.getType() == ResponseType.PRIVD_RESPONSE_OK) {
+				launchStatus = PrivilegeDaemonLaunchStatus.createConnectedStatus();
+				return true;
+			} else if (response.getType() == ResponseType.PRIVD_RESPONSE_AUTH_FAILED) {
+				return false;
+			} else if(response.getType() == ResponseType.PRIVD_RESPONSE_ERROR) {
+				launchStatus = PrivilegeDaemonLaunchStatus.createLaunchFailed(((MessageResponseError)response).getErrorString());
+				return false;
+			} else {
+				launchStatus = PrivilegeDaemonLaunchStatus.createLaunchFailed("Unexpected authentication response type : "+ response.getType());
+				return false;
+			}
+		} catch (MessageException e) {
+			launchStatus = PrivilegeDaemonLaunchStatus.createLaunchFailed("Error exchanging authentication messages : "+ e.getMessage());
+			return false;
+		}
 	}
 	
 	private void setErrorMessage(String message) {

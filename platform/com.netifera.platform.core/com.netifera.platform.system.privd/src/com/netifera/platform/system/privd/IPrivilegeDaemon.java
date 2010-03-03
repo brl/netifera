@@ -6,5 +6,5 @@ public interface IPrivilegeDaemon {
 	int openBPF();
 	int openSocket(int family, int type, int protocol);
 	String getLastError();
-
+	boolean authenticate(String password);
 }
