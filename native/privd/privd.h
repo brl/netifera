@@ -20,7 +20,8 @@ enum {
 	PRIVD_RESPONSE_OK,
 	PRIVD_RESPONSE_ERROR,
 	PRIVD_RESPONSE_STARTUP,
-	PRIVD_RESPONSE_FD
+	PRIVD_RESPONSE_FD,
+	PRIVD_RESPONSE_AUTH_FAILED
 };
 
 enum {
@@ -63,15 +64,21 @@ struct privd_instance {
 	int fd_to_send;
 	uint8_t message_buffer[PRIVD_MAX_MSG_SIZE];
 	uint8_t *message_ptr;
-	size_t message_size;
+	size_t message_space;
 	struct message_handler *message_handlers;
 	int auth_disabled;
 	char *auth_hash;
 };
 struct message_handler {
-	int (*handler)(struct privd_instance *privd, void *data, size_t length);
+	int (*handler)(struct privd_instance *privd);
 };
 
+/* bcrypt.c */
+char * bcrypt_gensalt(u_int8_t log_rounds);
+char * bcrypt(const char *key, const char *salt);
+
+/* config.c */
+void generate_config(const char *username);
 /* privd.c */
 void shutdown_daemon(struct privd_instance *privd);
 void abort_daemon(struct privd_instance *privd, const char *fmt, ...);
@@ -79,14 +86,19 @@ void abort_daemon(struct privd_instance *privd, const char *fmt, ...);
 /* initialize.c */
 void initialize(struct privd_instance *privd);
 
+/* install.c */
+void install_privd(const char *destination_path, const char *source_path);
+
 /* message.c */
 void send_ok(struct privd_instance *privd);
 void send_fd(struct privd_instance *privd, int fd);
 void send_error(struct privd_instance *privd, const char *fmt, ...);
 void send_startup(struct privd_instance *privd, int message_type, const char *fmt, ...);
+void send_auth_failed(struct privd_instance *privd);
 int add_string_argument(struct privd_instance *privd, const char *string);
 int add_integer_argument(struct privd_instance *privd, uint32_t value);
 int get_integer_argument(struct privd_instance *privd, uint32_t *value);
+char *get_string_argument(struct privd_instance *privd);
 void initialize_message(struct privd_instance *privd, int message_type);
 int finalize_message(struct privd_instance *privd);
 
@@ -99,6 +111,7 @@ void recv_message(struct privd_instance *privd);
 void send_message(struct privd_instance *privd);
 
 /* authentication.c */
+int authenticate(struct privd_instance *privd, const char *password);
 void read_authentication_data(struct privd_instance *privd);
 
 
