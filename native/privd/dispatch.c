@@ -1,14 +1,15 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include "privd.h"
 
-static int ping_handler(struct privd_instance *, void *, size_t);
-static int authenticate_handler(struct privd_instance *, void *, size_t);
-static int open_socket_handler(struct privd_instance *, void *, size_t);
-static int open_bpf_handler(struct privd_instance *, void *, size_t);
+static int ping_handler(struct privd_instance *);
+static int authenticate_handler(struct privd_instance *);
+static int open_socket_handler(struct privd_instance *);
+static int open_bpf_handler(struct privd_instance *);
 
 static struct message_handler message_handlers[PRIVD_MESSAGE_MAX] = {
 		[PRIVD_PING] = { .handler = ping_handler },
@@ -20,6 +21,13 @@ static struct message_handler message_handlers[PRIVD_MESSAGE_MAX] = {
 void
 dispatch_message(struct privd_instance *privd)
 {
+
+	if(privd->message_space < PRIVD_HEADER_SIZE) {
+			send_error(privd, "Truncated message size: %d",
+					privd->message_space);
+			return;
+		}
+
 	struct privd_msghdr *msg = (struct privd_msghdr *)privd->message_buffer;
 
 	uint8_t code = msg->type;
@@ -29,11 +37,6 @@ dispatch_message(struct privd_instance *privd)
 		return;
 	}
 
-	if(privd->message_size < PRIVD_HEADER_SIZE) {
-		send_error(privd, "Truncated message size: %d",
-				privd->message_size);
-		return;
-	}
 
 	if(code >= PRIVD_MESSAGE_MAX) {
 		send_error(privd, "Invalid message type: %d", code);
@@ -45,27 +48,41 @@ dispatch_message(struct privd_instance *privd)
 		return;
 	}
 
-	size_t data_length = privd->message_size - PRIVD_HEADER_SIZE;
-	void *data = NULL;
-	if(data_length)
-		data = privd->message_buffer + PRIVD_HEADER_SIZE;
-
-	message_handlers[code].handler(privd, data, data_length);
+	privd->message_ptr += PRIVD_HEADER_SIZE;
+	message_handlers[code].handler(privd);
 }
 
 static int
-ping_handler(struct privd_instance *privd, void *data, size_t length) {
+ping_handler(struct privd_instance *privd) {
 	send_ok(privd);
 	return 0;
 }
 
 static int
-authenticate_handler(struct privd_instance *privd, void *data, size_t length) {
+authenticate_handler(struct privd_instance *privd) {
+	if(privd->auth_hash == NULL) {
+		send_error(privd, "Authentication message was not expected.");
+		return -1;
+	}
+
+	char *password = get_string_argument(privd);
+	if(password == NULL) {
+		send_error(privd, "Failed to extract password from authentication message.");
+		return -1;
+	}
+
+	if(authenticate(privd, password)) {
+		privd->authenticated = 1;
+		send_ok(privd);
+	} else
+		send_auth_failed(privd);
+
+	free(password);
 	return 0;
 }
 
 static int
-open_socket_handler(struct privd_instance *privd, void *data, size_t length) {
+open_socket_handler(struct privd_instance *privd) {
 
 	uint32_t family, type, protocol;
 	if(
@@ -88,7 +105,7 @@ open_socket_handler(struct privd_instance *privd, void *data, size_t length) {
 
 #define MAX_BPF_DEVICE 10
 static int
-open_bpf_handler(struct privd_instance *privd, void *data, size_t length) {
+open_bpf_handler(struct privd_instance *privd) {
 	int i;
 	char device_path[16];
 	int fd;
@@ -107,6 +124,4 @@ open_bpf_handler(struct privd_instance *privd, void *data, size_t length) {
 	}
 	send_error(privd, "All BPF devices are busy");
 	return -1;
-
-
 }
