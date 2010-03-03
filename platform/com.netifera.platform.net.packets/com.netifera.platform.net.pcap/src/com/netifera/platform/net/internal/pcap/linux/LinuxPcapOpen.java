@@ -172,6 +172,8 @@ public class LinuxPcapOpen {
 	*/
 	
 	private boolean privdOpenSocket(boolean cooked) {
+		if(!privd.isDaemonAvailable())
+			return false;
 		final int socketType = cooked? (Constants.SOCK_DGRAM) : (Constants.SOCK_RAW);
 		final int s = privd.openSocket(Constants.PF_PACKET, socketType, system.htons(Constants.ETH_P_ALL));
 		if(s < 0) {
