@@ -119,4 +119,6 @@ public interface ISniffingDaemon extends IDaemon {
 	void runCaptureFile(long spaceId, ICaptureFileInterface iface, ICaptureFileProgress progress);
 	
 	void cancelCaptureFile();
+
+	void refreshInterfaces();
 }

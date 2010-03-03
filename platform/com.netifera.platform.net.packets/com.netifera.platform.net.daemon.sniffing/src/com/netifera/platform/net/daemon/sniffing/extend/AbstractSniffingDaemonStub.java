@@ -110,6 +110,13 @@ abstract public class AbstractSniffingDaemonStub implements ISniffingDaemon {
 		
 	}
 
+	public void refreshInterfaces() {
+		synchronized(lock) {
+			interfaceRecords = null;
+			refreshInterfaceInformation();
+		}
+	}
+
 	private List<InterfaceRecord> getInterfaceRecords() {
 		final RequestInterfaceInformation response = (RequestInterfaceInformation) exchangeMessage(new RequestInterfaceInformation(messagePrefix));
 		if(response == null) {
@@ -117,7 +124,6 @@ abstract public class AbstractSniffingDaemonStub implements ISniffingDaemon {
 			return null;
 		}
 		return response.getInterfaceRecords();
-		
 	}
 	public Set<ISniffingModule> getModules() {
 		synchronized (lock) {
@@ -358,9 +364,5 @@ abstract public class AbstractSniffingDaemonStub implements ISniffingDaemon {
 			
 		});
 		t.start();
-		
 	}
-	
-	
-	
 }
