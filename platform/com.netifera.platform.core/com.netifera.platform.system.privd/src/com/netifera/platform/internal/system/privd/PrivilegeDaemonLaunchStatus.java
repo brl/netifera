@@ -5,24 +5,27 @@ import com.netifera.platform.system.privd.IPrivilegeDaemonLaunchStatus;
 public class PrivilegeDaemonLaunchStatus implements IPrivilegeDaemonLaunchStatus {
 
 	static PrivilegeDaemonLaunchStatus createUnconnectedStatus() {
-		return new PrivilegeDaemonLaunchStatus(false, false, "Not Connected.");
+		return new PrivilegeDaemonLaunchStatus(StatusType.UNCONNECTED, "Not Connected.");
+	}
+
+	static PrivilegeDaemonLaunchStatus createWaitingAuthenticationStatus() {
+		return new PrivilegeDaemonLaunchStatus(StatusType.WAITING_AUTHENTICATION, "Need authentication");
 	}
 	
 	static PrivilegeDaemonLaunchStatus createConnectedStatus() {
-		return new PrivilegeDaemonLaunchStatus(true, false, "No Error.");
+		return new PrivilegeDaemonLaunchStatus(StatusType.CONNECTED, "No Error.");
 	}
 	
 	static PrivilegeDaemonLaunchStatus createLaunchFailed(String failureMessage) {
-		return new PrivilegeDaemonLaunchStatus(false, true, failureMessage);
+		return new PrivilegeDaemonLaunchStatus(StatusType.LAUNCH_FAILED, failureMessage);
 	}
 	
+	private final StatusType statusType;
 	private final String launchFailureMessage;
-	private final boolean connected;
-	private final boolean failed;
 	
-	private PrivilegeDaemonLaunchStatus(boolean connected, boolean failed, String message) {
-		this.connected = connected;
-		this.failed = failed;
+
+	private PrivilegeDaemonLaunchStatus(StatusType type, String message) {
+		this.statusType = type;
 		this.launchFailureMessage = message;
 	}
 	
@@ -30,12 +33,8 @@ public class PrivilegeDaemonLaunchStatus implements IPrivilegeDaemonLaunchStatus
 		return launchFailureMessage;
 	}
 
-	public boolean isConnected() {
-		return connected;
-	}
-
-	public boolean launchFailed() {
-		return failed;
+	public StatusType getStatusType() {
+		return statusType;
 	}
 
 }
