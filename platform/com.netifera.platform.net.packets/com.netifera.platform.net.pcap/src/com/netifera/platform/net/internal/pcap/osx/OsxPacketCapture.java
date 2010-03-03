@@ -220,7 +220,6 @@ public class OsxPacketCapture implements INativePacketCapture {
 		}
 
 		if (!openBPF()) {
-			logger.warning("Failed to open BPF device for capture on " + device + " : " + pcap.getLastError());
 			return false;
 		}
 
