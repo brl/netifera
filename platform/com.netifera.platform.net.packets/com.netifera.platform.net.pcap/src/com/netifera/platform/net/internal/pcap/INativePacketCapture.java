@@ -16,8 +16,6 @@ public interface INativePacketCapture {
 	boolean setDataLink(Datalink dlt);
 	Datalink getLinkType();
 	int getFileDescriptor();
-
-
 	void close();
 
 }
