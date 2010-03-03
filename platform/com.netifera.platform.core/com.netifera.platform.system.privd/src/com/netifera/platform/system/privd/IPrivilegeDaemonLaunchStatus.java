@@ -1,7 +1,12 @@
 package com.netifera.platform.system.privd;
 
 public interface IPrivilegeDaemonLaunchStatus {
-	boolean isConnected();
-	boolean launchFailed();
+	enum StatusType {
+		UNCONNECTED,
+		WAITING_AUTHENTICATION,
+		CONNECTED,
+		LAUNCH_FAILED
+	};
+	StatusType getStatusType();
 	String getLaunchFailureMessage();
 }
