@@ -6,6 +6,7 @@
 #include "privd.h"
 static void wait_recv_ready(struct privd_instance *privd);
 static void attach_fd(struct msghdr *msg, int fd);
+static void dump_message(struct privd_instance *privd);
 
 void recv_message(struct privd_instance *privd)
 {
@@ -18,7 +19,10 @@ void recv_message(struct privd_instance *privd)
 	if(n == 0)
 		shutdown_daemon(privd);
 
-	privd->message_size = n;
+	privd->message_ptr = privd->message_buffer;
+	privd->message_space = n;
+	if(privd->debug_flag)
+		dump_message(privd);
 
 }
 
@@ -65,7 +69,6 @@ send_message(struct privd_instance *privd)
 	if(sendmsg(privd->socket_fd, &msg, 0) != length)
 		abort_daemon(privd, "Failed sending message with sendmsg().");
 
-
 }
 
 static void
@@ -82,4 +85,24 @@ attach_fd(struct msghdr *msg, int fd)
 	cmsg->cmsg_type = SCM_RIGHTS;
 	*(int *)CMSG_DATA(cmsg) = fd;
 
+}
+
+static void
+dump_message(struct privd_instance *privd)
+{
+	size_t length = privd->message_space;
+	char buffer[256];
+	char *p;
+	uint8_t *msg_ptr = privd->message_ptr;
+	int i;
+
+	while(length > 0) {
+		p = buffer;
+		for(i = 0; i < 16; i++) {
+			p += sprintf(p, "%.2x ", *msg_ptr++);
+			length--;
+			if(length == 0) break;
+		}
+		DEBUG("> %s", buffer);
+	}
 }
