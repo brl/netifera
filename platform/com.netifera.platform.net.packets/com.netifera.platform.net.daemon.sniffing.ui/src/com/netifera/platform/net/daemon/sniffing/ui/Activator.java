@@ -5,6 +5,8 @@ import org.eclipse.jface.action.ICoolBarManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -21,6 +23,8 @@ import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.api.system.ISystemService;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemonFactory;
+import com.netifera.platform.system.privd.IPrivilegeDaemon;
+import com.netifera.platform.system.privd.IPrivilegeDaemonLaunchStatus.StatusType;
 import com.netifera.platform.ui.application.ApplicationPlugin;
 import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.workbench.IWorkbenchChangeListener;
@@ -41,6 +45,7 @@ public class Activator extends AbstractUIPlugin {
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker logManagerTracker;
 	private ServiceTracker systemServiceTracker;
+	private ServiceTracker privdTracker;
 	
 	private SniffingActionManager sniffingActionManager;
 	private ToolBarContributionItem toolbarItem;
@@ -70,6 +75,9 @@ public class Activator extends AbstractUIPlugin {
 
 		systemServiceTracker = new ServiceTracker(context,ISystemService.class.getName(),null);
 		systemServiceTracker.open();
+
+		privdTracker = new ServiceTracker(context, IPrivilegeDaemon.class.getName(), null);
+		privdTracker.open();
 	}
 
 	public ISniffingDaemonFactory getSniffingDaemonFactory() {
@@ -88,6 +96,10 @@ public class Activator extends AbstractUIPlugin {
 		return (ISystemService) systemServiceTracker.getService();
 	}
 	
+	public IPrivilegeDaemon getPrivilegeDaemon() {
+		return (IPrivilegeDaemon) privdTracker.getService();
+	}
+
 	public ISniffingDaemon getSniffingDaemon() {
 		IProbe probe = getCurrentProbe();
 		if(probe == null)
@@ -151,6 +163,7 @@ public class Activator extends AbstractUIPlugin {
 		sniffingActionManager = new SniffingActionManager(toolbar);
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			public void run() {
+				checkPrivdAuthentication();
 				sniffingActionManager.setState();
 				coolbar.update(true);
 				
@@ -158,6 +171,22 @@ public class Activator extends AbstractUIPlugin {
 		});	
 	}
 	
+	private void checkPrivdAuthentication() {
+		final IPrivilegeDaemon privd = getPrivilegeDaemon();
+		if(privd == null || privd.getDaemonLaunchStatus().getStatusType() != StatusType.WAITING_AUTHENTICATION)
+			return;
+		while(true) {
+			final InputDialog diag = new InputDialog(null, "Privilege Daemon", "Enter password to authenticate to privilege daemon", "", null);
+			if(diag.open() != Dialog.OK)
+				return;
+			if(privd.authenticate(diag.getValue())) {
+				ISniffingDaemon sniffingDaemon = getSniffingDaemon();
+				if(sniffingDaemon != null)
+					sniffingDaemon.refreshInterfaces();
+				return;
+			}
+		}
+	}
 	public ISpace getCurrentSpace() {
 		IWorkbenchPage page = getWindow().getActivePage();
 		if(page == null) {
