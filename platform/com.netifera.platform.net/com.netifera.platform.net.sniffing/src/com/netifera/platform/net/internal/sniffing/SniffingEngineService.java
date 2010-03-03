@@ -1,8 +1,12 @@
 package com.netifera.platform.net.internal.sniffing;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
 
@@ -45,9 +49,39 @@ public class SniffingEngineService implements ISniffingEngineEx {
 		new HashMap<CaptureFileInterface, InterfaceManager>();
 	
 	public Collection<ICaptureInterface> getInterfaces() {
-		return pcapFactory.getCurrentInterfaces();
+		final Collection<ICaptureInterface> interfaces = pcapFactory.getCurrentInterfaces();
+		synchronized(physicalInterfaces) {
+			addNewPhysicalInterfaces(interfaces);
+			removeOldPhysicalInterfaces(interfaces);
+		}
+		return interfaces;
+	}
+
+	private void addNewPhysicalInterfaces(Collection<ICaptureInterface> currentInterfaces) {
+		for(ICaptureInterface iface : currentInterfaces) {
+			if(!iface.captureAvailable() || !(iface instanceof ICaptureInterfaceEx))
+				continue;
+			if(!physicalInterfaces.containsKey(iface))
+				physicalInterfaces.put(iface, InterfaceManager.createRawManager(this, (ICaptureInterfaceEx) iface));
+		}
 	}
 	
+	private void removeOldPhysicalInterfaces(Collection<ICaptureInterface> currentInterfaces) {
+		final Set<ICaptureInterface> available = new HashSet<ICaptureInterface>();
+		for(ICaptureInterface iface : currentInterfaces) {
+			if(iface.captureAvailable() && (iface instanceof ICaptureInterfaceEx))
+				available.add(iface);
+		}
+		final List<ICaptureInterface> oldInterfaces = new ArrayList<ICaptureInterface>(physicalInterfaces.keySet());
+		for(ICaptureInterface iface : oldInterfaces) {
+			if(!available.contains(iface)) {
+				final InterfaceManager manager = physicalInterfaces.get(iface);
+				manager.dispose();
+				physicalInterfaces.remove(iface);
+			}
+		}
+	}
+
 	public ICaptureInterfaceEx getInterfaceByName(String name) {
 		for(ICaptureInterface iface : getInterfaces()) {
 			if(iface.getName().equals(name) && iface instanceof ICaptureInterfaceEx)
@@ -109,9 +143,11 @@ public class SniffingEngineService implements ISniffingEngineEx {
 		if(!iface.captureAvailable()) {
 			throw new IllegalArgumentException("Attempt to register handle on unavailable interface: " + iface.getName());
 		}
-		if (physicalInterfaces.containsKey(iface)) {
-			return physicalInterfaces.get(iface);
-		} else if(captureFileInterfaces.containsKey(iface)) {
+		synchronized(physicalInterfaces) {
+			if(physicalInterfaces.containsKey(iface))
+				return physicalInterfaces.get(iface);
+		}
+		if(captureFileInterfaces.containsKey(iface)) {
 			return captureFileInterfaces.get(iface);
 		} else {
 			throw new IllegalArgumentException("No interface found for specified handle: " + iface);
@@ -120,13 +156,9 @@ public class SniffingEngineService implements ISniffingEngineEx {
 	}
 	
 	private void initializeInterfaces() {
-		physicalInterfaces.clear();
-		
-		for(ICaptureInterface iface : pcapFactory.getInterfaces()) {
-			if(!iface.captureAvailable() || !(iface instanceof ICaptureInterfaceEx)) 
-				continue;
-			
-			physicalInterfaces.put(iface, InterfaceManager.createRawManager(this, (ICaptureInterfaceEx)iface));
+		synchronized(physicalInterfaces) {
+			physicalInterfaces.clear();
+			addNewPhysicalInterfaces(pcapFactory.getInterfaces());
 		}
 	}
 	
