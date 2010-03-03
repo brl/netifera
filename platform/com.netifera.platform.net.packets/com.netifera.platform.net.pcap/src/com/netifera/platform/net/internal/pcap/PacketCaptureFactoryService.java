@@ -110,8 +110,8 @@ public class PacketCaptureFactoryService implements
 	protected void unsetPrivilegeDaemon(IPrivilegeDaemon privd) {
 		
 	}
+
 	private void initializeInterfaces() throws SocketException {
-		System.out.println("Initializing interfaces");
 		Enumeration<NetworkInterface> networkInterfaces = null;
 
 		try {
