@@ -39,6 +39,11 @@ public class MessageSender {
 		return receiveResponse();
 	}
 
+	public synchronized IMessageResponse sendAuthenticate(String password) throws MessageException {
+		sendRequest(new MessageRequestAuthenticate(password));
+		return receiveResponse();
+	}
+
 	private IMessageResponse receiveResponse() throws MessageException {
 		responseBuffer.clear();
 		final int length = jni.receiveMessage(responseBuffer.array());
