@@ -3,3 +3,10 @@ build/buildpack
 build/archives/*.bz2
 platform/*/*/bin/
 netifera-build/
+*.o
+*.so
+*.jnilib
+*.a
+native/privd/jni/*.h
+native/privd/netifera_privd
+native/privd/jni/libprivd*
