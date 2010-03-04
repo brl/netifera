@@ -8,11 +8,13 @@
 #include <jni.h>
 
 #define PRIVD_FD  5
+#define MONITOR_FD 6
 
 static int is_running = 0;
 static char *error_message;
 static char error_buffer[512];
 static int privd_socket = -1;
+static int monitor_socket = -1;
 static int received_fd = -1;
 static int debug_flag = 0;
 
@@ -147,6 +149,7 @@ static int
 launch_privd(const char *path)
 {
 	int sv[2];
+	int monitor_sv[2];
 	pid_t pid;
 	char * const args[2] = {(char *)path, NULL};
 	if(access(path, X_OK)) {
@@ -161,6 +164,14 @@ launch_privd(const char *path)
 		return -1;
 	}
 
+	if(socketpair(AF_UNIX, SOCK_STREAM, 0, monitor_sv) < 0) {
+		snprintf(error_buffer, sizeof(error_buffer), "Failed to create monitor socket pair (%s)", strerror(errno));
+		error_message = error_buffer;
+		close(sv[0]);
+		close(sv[1]);
+		return -1;
+	}
+
 	signal(SIGCHLD, SIG_IGN);
 
 	if((pid = fork()) < 0) {
@@ -168,21 +179,32 @@ launch_privd(const char *path)
 		error_message = error_buffer;
 		close(sv[0]);
 		close(sv[1]);
+		close(monitor_sv[0]);
+		close(monitor_sv[1]);
 		return -1;
 	}
 
 	if(pid == 0) {
 		close(sv[0]);
+		close(monitor_sv[0]);
 		if(dup2(sv[1], PRIVD_FD) == -1) {
 			exit(EXIT_FAILURE);
 		}
-		close(sv[1]);
+		if(dup2(monitor_sv[1], MONITOR_FD) == -1) {
+			exit(EXIT_FAILURE);
+		}
+		if(sv[1] != PRIVD_FD)
+			close(sv[1]);
+		if(monitor_sv[1] != MONITOR_FD)
+			close(monitor_sv[1]);
 		execv(path, args);
 		exit(EXIT_FAILURE);
 	}
 
 	close(sv[1]);
+	close(monitor_sv[1]);
 	privd_socket = sv[0];
+	monitor_socket = monitor_sv[0];
 	is_running = 1;
 	return 0;
 }
@@ -250,6 +272,8 @@ static void
 close_daemon_connection()
 {
 	close(privd_socket);
+	close(monitor_socket);
 	privd_socket = -1;
+	monitor_socket = -1;
 	is_running = 0;
 }

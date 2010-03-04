@@ -5,6 +5,7 @@
 #include <sys/types.h>
 
 #define PRIVD_FD 5
+#define MONITOR_FD 6
 #define PRIVD_PROTOCOL_VERSION 0
 #define PRIVD_MAX_MSG_SIZE  0xFFFF
 #define PRIVD_ERROR_BUFFER_SIZE 512
@@ -59,6 +60,7 @@ struct privd_msghdr {
 
 struct privd_instance {
 	int socket_fd;
+	int monitor_fd;
 	int authenticated;
 	int debug_flag;
 	int fd_to_send;

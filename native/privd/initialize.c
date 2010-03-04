@@ -9,7 +9,6 @@ static void initialize_instance(struct privd_instance *);
 static void close_descriptors(struct privd_instance *);
 static void dupfd(struct privd_instance *, int, int);
 static void daemonize(struct privd_instance *);
-
 void
 initialize(struct privd_instance *privd)
 {
@@ -22,7 +21,6 @@ initialize(struct privd_instance *privd)
 
 	if(fcntl(privd->socket_fd, F_SETFL, O_NONBLOCK) < 0) {
 		char *error_msg = "Failed setting non-blocking mode on socket.";
-		send_startup(privd, PRIVD_STARTUP_INITIALIZATION_FAILED, error_msg);
 		abort_daemon(privd, error_msg);
 	}
 
@@ -41,6 +39,7 @@ static void
 initialize_instance(struct privd_instance *privd)
 {
 	privd->socket_fd = PRIVD_FD;
+	privd->monitor_fd = MONITOR_FD;
 	privd->authenticated = 0;
 	privd->message_ptr = privd->message_buffer;
 	privd->fd_to_send = -1;
@@ -53,7 +52,7 @@ close_descriptors(struct privd_instance *privd)
 	for(i = getdtablesize(); i>=0; --i) {
 		if(privd->debug_flag && i == STDERR_FILENO)
 			continue;
-		if(i != privd->socket_fd)
+		if((i != privd->socket_fd) && (i != privd->monitor_fd))
 			close(i);
 	}
 	int fd = open("/dev/null", O_RDWR);
@@ -71,7 +70,7 @@ dupfd(struct privd_instance *privd, int from, int to)
 {
 	if(privd->debug_flag && to == STDERR_FILENO)
 		return;
-	if(to == privd->socket_fd)
+	if((to == privd->socket_fd) || (to == privd->monitor_fd))
 		return;
 	dup2(from, to);
 }

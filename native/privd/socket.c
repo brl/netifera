@@ -3,6 +3,7 @@
 #include <poll.h>
 #include <sys/socket.h>
 #include <syslog.h>
+#include <errno.h>
 #include "privd.h"
 static void wait_recv_ready(struct privd_instance *privd);
 static void attach_fd(struct msghdr *msg, int fd);
@@ -11,7 +12,6 @@ static void dump_message(struct privd_instance *privd);
 void recv_message(struct privd_instance *privd)
 {
 	wait_recv_ready(privd);
-
 	int n;
 	if((n = recv(privd->socket_fd, privd->message_buffer, sizeof(privd->message_buffer), 0)) < 0)
 		abort_daemon(privd, "Calling recv() failed.");
@@ -28,20 +28,25 @@ void recv_message(struct privd_instance *privd)
 
 static void wait_recv_ready(struct privd_instance *privd)
 {
-	struct pollfd pfd = {
-			.fd = PRIVD_FD,
-			.events = POLLIN
-	};
+	struct pollfd pfds[2];
+
+	memset(&pfds, 0, sizeof(pfds));
+	pfds[0].fd = privd->socket_fd;
+	pfds[0].events = POLLIN;
+	pfds[1].fd = privd->monitor_fd;
+	pfds[1].events = POLLIN;
 
 	int rv = 0;
-	while(rv == 0 && !(pfd.revents & POLLIN)) {
-		if((rv = poll(&pfd, 1, 5000)) < 0)
+	while(rv == 0 && !(pfds[0].revents & POLLIN)) {
+		if((rv = poll(pfds, 2, 5000)) < 0)
 			abort_daemon(privd, "Calling poll() failed.");
+		if(pfds[1].revents & (POLLIN|POLLERR))
+			shutdown_daemon(privd);
 
 		char c;
 
-		if(recv(privd->socket_fd, &c, 0, MSG_PEEK) < 0)
-			shutdown_daemon(privd);
+		if((recv(privd->socket_fd, &c, 0, MSG_PEEK)) < 0 && errno != EAGAIN)
+			abort_daemon(privd, "Error in recv() : [%d] %s", errno, strerror(errno));
 
 	}
 }
