@@ -178,13 +178,17 @@ public class Activator extends AbstractUIPlugin {
 		final IPrivilegeDaemon privd = getPrivilegeDaemon();
 		if(privd == null || privd.getDaemonLaunchStatus().getStatusType() != StatusType.WAITING_AUTHENTICATION)
 			return;
+		String promptMessage = "Enter password to authenticate to privilege daemon";
 		while(true) {
-			final InputDialog diag = new InputDialog(null, "Privilege Daemon", "Enter password to authenticate to privilege daemon", "", null);
+			final InputDialog diag = new InputDialog(null, "Privilege Daemon", promptMessage, "", null);
+
 			if(diag.open() != Dialog.OK)
 				return;
 			if(privd.authenticate(diag.getValue())) {
 				refreshSniffingInterfaces();
 				return;
+			} else {
+				promptMessage = "Authentication failed.  Try again.";
 			}
 		}
 	}
