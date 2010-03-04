@@ -14,6 +14,7 @@ static char *error_message;
 static char error_buffer[512];
 static int privd_socket = -1;
 static int received_fd = -1;
+static int debug_flag = 0;
 
 static int launch_privd(const char *);
 static int send_message(void *, size_t);
@@ -131,6 +132,17 @@ JNIEXPORT void JNICALL Java_com_netifera_platform_internal_system_privd_Privileg
 
 }
 
+/*
+ * Class:     com_netifera_platform_internal_system_privd_PrivilegeDaemonNative
+ * Method:    enableDebug
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_netifera_platform_internal_system_privd_PrivilegeDaemonNative_enableDebug
+  (JNIEnv *env, jobject obj, jboolean flag)
+{
+	debug_flag = (flag)?(1):(0);
+}
+
 static int
 launch_privd(const char *path)
 {
@@ -222,9 +234,11 @@ recv_message(void *buffer, size_t size)
 
 	if(cmsg && cmsg->cmsg_type == SCM_RIGHTS) {
 		received_fd = (*(int *)CMSG_DATA(cmsg));
-		fprintf(stderr, "JNI: received file descriptor %d\n", received_fd);
+		if(debug_flag)
+			fprintf(stderr, "JNI: received file descriptor %d\n", received_fd);
 	} else {
-		fprintf(stderr, "JNI: no file descriptor received\n");
+		if(debug_flag)
+			fprintf(stderr, "JNI: no file descriptor received\n");
 		received_fd = -1;
 	}
 

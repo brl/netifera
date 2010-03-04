@@ -48,6 +48,8 @@ public class PrivilegeDaemonNative {
 	 */
 	public native void exitDaemon();
 	
+	public native void enableDebug(boolean debugFlag);
+	
 	static {
 		try {
 			System.loadLibrary("privd");
