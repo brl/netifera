@@ -88,8 +88,6 @@ public class SniffingDaemonInterfaces {
 	
 	void enableInterface(ICaptureInterface iface) {
 		if(!getInterfaces().contains(iface)) {
-			
-			System.out.println("getInterfaces " + getInterfaces());
 			throw new IllegalArgumentException("Unknown interface passed to enableInterface() : " + iface);
 		}
 		if(!iface.captureAvailable()) {
