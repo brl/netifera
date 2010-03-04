@@ -45,11 +45,13 @@ check_source_exists(const char *source_path)
 static void
 check_destination_writable(const char *destination_path)
 {
-	char *destination_dirname = dirname((char *)destination_path);
+	char *path = strdup(destination_path);
+	char *destination_dirname = dirname(path);
 	if(access(destination_dirname, W_OK)) {
 		fprintf(stderr, "Cannot write to installation directory %s : %s\n", destination_dirname, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+	free(path);
 }
 
 static void
