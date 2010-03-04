@@ -2,7 +2,7 @@ TARGET=netifera_privd
 all: $(TARGET) bcrypt
 
 OBJS=privd.o authentication.o dispatch.o initialize.o message.o socket.o install.o config.o
-LIBS=bcrypt/bcrypt.a
+LIBS=bcrypt/bcrypt.a -lcrypto
 CFLAGS=-Wall -D_GNU_SOURCE
 CC=gcc
 LD=gcc

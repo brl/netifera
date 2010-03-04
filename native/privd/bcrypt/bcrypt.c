@@ -67,7 +67,9 @@ char   *bcrypt_gensalt(u_int8_t);
 static void encode_salt(char *, u_int8_t *, u_int16_t, u_int8_t);
 static void encode_base64(u_int8_t *, u_int8_t *, u_int16_t);
 static void decode_base64(u_int8_t *, u_int16_t, u_int8_t *);
-
+#ifndef _PASSWORD_LEN
+#define _PASSWORD_LEN 128
+#endif
 static char    encrypted[_PASSWORD_LEN];
 static char    gsalt[7 + (BCRYPT_MAXSALT * 4 + 2) / 3 + 1];
 static char    error[] = ":";

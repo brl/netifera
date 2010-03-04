@@ -36,12 +36,18 @@
 
 #include <fcntl.h>
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/time.h>
 #include <sys/sysctl.h>
+
+#include <openssl/rand.h>
+#include <openssl/err.h>
+
+#define SEED_SIZE 20
 
 #ifdef __GNUC__
 #define inline __inline
@@ -93,8 +99,7 @@ arc4_addrandom(u_char *dat, int datlen)
 static void
 arc4_stir(void)
 {
-	int     i, mib[2];
-	size_t	len;
+	int     i;
 	u_char rnd[128];
 
 	if (!rs_initialized) {
@@ -102,11 +107,10 @@ arc4_stir(void)
 		rs_initialized = 1;
 	}
 
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_ARND;
-
-	len = sizeof(rnd);
-	sysctl(mib, 2, rnd, &len, NULL, 0);
+	if(RAND_bytes(rnd, sizeof(rnd)) <= 0) {
+		fprintf(stderr, "Couldn't obtain random bytes (error %ld)\n", ERR_get_error());
+		exit(EXIT_FAILURE);
+	}
 
 	arc4_stir_pid = getpid();
 	arc4_addrandom(rnd, sizeof(rnd));
@@ -148,31 +152,25 @@ arc4_getword(void)
 void
 arc4random_stir(void)
 {
-	_ARC4_LOCK();
 	arc4_stir();
-	_ARC4_UNLOCK();
 }
 
 void
 arc4random_addrandom(u_char *dat, int datlen)
 {
-	_ARC4_LOCK();
 	if (!rs_initialized)
 		arc4_stir();
 	arc4_addrandom(dat, datlen);
-	_ARC4_UNLOCK();
 }
 
 u_int32_t
 arc4random(void)
 {
 	u_int32_t val;
-	_ARC4_LOCK();
 	arc4_count -= 4;
 	if (arc4_count <= 0 || !rs_initialized || arc4_stir_pid != getpid())
 		arc4_stir();
 	val = arc4_getword();
-	_ARC4_UNLOCK();
 	return val;
 }
 
@@ -180,7 +178,6 @@ void
 arc4random_buf(void *_buf, size_t n)
 {
 	u_char *buf = (u_char *)_buf;
-	_ARC4_LOCK();
 	if (!rs_initialized || arc4_stir_pid != getpid())
 		arc4_stir();
 	while (n--) {
@@ -188,7 +185,6 @@ arc4random_buf(void *_buf, size_t n)
 			arc4_stir();
 		buf[n] = arc4_getbyte();
 	}
-	_ARC4_UNLOCK();
 }
 
 /*

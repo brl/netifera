@@ -1,5 +1,5 @@
 TARGET=bcrypt.a
-OBJ=bcrypt.o blowfish.o 
+OBJ=bcrypt.o blowfish.o arc4random.o
 CFLAGS=-Wall -O2
 RANLIB=ranlib
 all: $(TARGET)
