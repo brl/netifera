@@ -1,6 +1,8 @@
 package com.netifera.platform.net.daemon.sniffing.ui;
 
 
+import java.util.Collection;
+
 import org.eclipse.jface.action.ICoolBarManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarContributionItem;
@@ -23,6 +25,7 @@ import com.netifera.platform.api.probe.IProbeManagerService;
 import com.netifera.platform.api.system.ISystemService;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemon;
 import com.netifera.platform.net.daemon.sniffing.ISniffingDaemonFactory;
+import com.netifera.platform.net.pcap.ICaptureInterface;
 import com.netifera.platform.system.privd.IPrivilegeDaemon;
 import com.netifera.platform.system.privd.IPrivilegeDaemonLaunchStatus.StatusType;
 import com.netifera.platform.ui.application.ApplicationPlugin;
@@ -180,11 +183,21 @@ public class Activator extends AbstractUIPlugin {
 			if(diag.open() != Dialog.OK)
 				return;
 			if(privd.authenticate(diag.getValue())) {
-				ISniffingDaemon sniffingDaemon = getSniffingDaemon();
-				if(sniffingDaemon != null)
-					sniffingDaemon.refreshInterfaces();
+				refreshSniffingInterfaces();
 				return;
 			}
+		}
+	}
+	
+	private void refreshSniffingInterfaces() {
+		final ISniffingDaemon sniffingDaemon = getSniffingDaemon();
+		if(sniffingDaemon == null) 
+			return;
+		sniffingDaemon.refreshInterfaces();
+		final Collection<ICaptureInterface> interfaces = sniffingDaemon.getInterfaces();
+		for(ICaptureInterface i : interfaces) {
+			if(i.captureAvailable())
+				sniffingDaemon.setEnabled(i, true);
 		}
 	}
 	public ISpace getCurrentSpace() {
