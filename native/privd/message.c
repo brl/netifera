@@ -76,7 +76,7 @@ append_error_message(struct privd_instance *privd, const char *fmt, va_list args
 
 	if(add_string_argument(privd, message_buffer))
 		abort_daemon(privd, "Message buffer overflowed sending error message.");
-
+	DEBUG("Sending error message : %s", message_buffer);
 }
 
 static void
