@@ -36,8 +36,10 @@ read_authentication_data(struct privd_instance *privd)
 	char line[128];
 	if(fgets(line, sizeof(line), fp) == NULL) {
 		send_startup(privd, PRIVD_STARTUP_CONFIG_BAD_DATA, "Error reading daemon configuration.");
+		fclose(fp);
 		return;
 	}
+	fclose(fp);
 	char *p = rindex(line, '\n');
 	if(p == NULL) {
 		send_startup(privd, PRIVD_STARTUP_CONFIG_BAD_DATA, "Badly formed config file. No newline found.");
