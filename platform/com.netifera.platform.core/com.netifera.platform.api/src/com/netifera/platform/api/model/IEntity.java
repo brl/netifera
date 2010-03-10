@@ -15,7 +15,7 @@ public interface IEntity {
 
 	/**
 	 * Get the workspace this entity belongs to.
-	 * @return The workspace thise entity belongs to.
+	 * @return The workspace this entity belongs to.
 	 */
 	IWorkspace getWorkspace();
 
@@ -48,12 +48,6 @@ public interface IEntity {
 	IEntityReference createReference();
 	
 	/**
-	 * Return true if this entity type is a 'realm creating' entity.
-	 * @return true if this entity type is a 'realm creating' entity.
-	 */
-	boolean isRealmEntity();
-	
-	/**
 	 * Return the entity id of the <i>realm</i> entity for this entity.
 	 * 
 	 * All entities belong to exactly one <i>realm</i> entity.
@@ -62,6 +56,21 @@ public interface IEntity {
 	 */
 	long getRealmId();
 
+	/**
+	 * Return the <i>realm</i> entity for this entity.
+	 * 
+	 * All entities belong to exactly one <i>realm</i> entity.
+	 * 
+	 * @return The <i>realm</i> entity for this entity.
+	 */
+	IEntity getRealmEntity();
+
+	/**
+	 * Return true if this entity type is a 'realm creating' entity.
+	 * @return true if this entity type is a 'realm creating' entity.
+	 */
+	boolean isRealmEntity();
+	
 	/**
 	 * Attempt to adapt this entity to the specified class or interface.
 	 * 
@@ -78,5 +87,21 @@ public interface IEntity {
 	 */
 	IndexedIterable<?> getIterableAdapter(Class<?> iterableType);
 
+	/*
+	 * Entity data API (attributes, associations and tags)
+	 */
+	
+	Set<String> getAttributes();
+	boolean setAttribute(String name, String value);
+	String getAttribute(String name);
+
+	boolean setAssociation(String name, IEntity value);
+	IEntity getAssociation(String name);
+	void addAssociation(String name, IEntity value);
+	void removeAssociation(String name, IEntity value);
+	Set<IEntityReference> getAssociations(String name);
+
+	boolean addTag(String tag);
+	boolean removeTag(String tag);
 	Set<String> getTags();
 }

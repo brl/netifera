@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.file-action-provider">
+	<implementation class="com.netifera.platform.host.internal.filesystem.ui.HoverActionProvider" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProvider" />
+	</service>
+</component>

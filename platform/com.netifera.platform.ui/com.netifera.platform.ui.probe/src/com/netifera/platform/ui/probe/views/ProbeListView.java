@@ -18,7 +18,7 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.probe.Activator;
 import com.netifera.platform.ui.probe.actions.ConnectProbeAction;
 import com.netifera.platform.ui.probe.actions.DisconnectProbeAction;
-import com.netifera.platform.ui.probe.actions.OpenSpaceAction;
+import com.netifera.platform.ui.spaces.actions.NewSpaceAction;
 
 public class ProbeListView extends ViewPart {
 
@@ -33,7 +33,7 @@ public class ProbeListView extends ViewPart {
 	public void createPartControl(final Composite parent) {
 		viewer = createViewer(parent);
 		
-		Activator.getDefault().getProbeManager().addProbeChangeListener(
+		Activator.getInstance().getProbeManager().addProbeChangeListener(
 				createProbeChangeHandler(parent.getDisplay()));
 		
 		createToolbarButtons();
@@ -47,7 +47,7 @@ public class ProbeListView extends ViewPart {
 		column.getColumn().setWidth(380);
 		tv.setContentProvider(new ProbeListContentProvider());
 		tv.setLabelProvider(new ProbeListLabelProvider());
-		tv.setInput(Activator.getDefault().getProbeManager());
+		tv.setInput(Activator.getInstance().getProbeManager());
 		return tv;
 	}
 	
@@ -73,16 +73,14 @@ public class ProbeListView extends ViewPart {
 		disconnectProbeAction = new DisconnectProbeAction(viewer);
 		toolBarManager.add(disconnectProbeAction);
 
-		toolBarManager.add(new OpenSpaceAction(this));
+		toolBarManager.add(new NewSpaceAction(this, viewer));
 		
 		setActionEnableStates();
 		
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-
 			public void selectionChanged(SelectionChangedEvent event) {
 				setActionEnableStates();
 			}
-			
 		});
 	}
 	

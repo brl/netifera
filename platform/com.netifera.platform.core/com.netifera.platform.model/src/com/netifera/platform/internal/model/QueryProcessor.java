@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 import com.db4o.ObjectContainer;
 import com.db4o.query.Predicate;
 import com.netifera.platform.api.model.AbstractEntity;
@@ -39,11 +38,9 @@ public class QueryProcessor {
 			throw new IllegalArgumentException();
 		}
 		List<AbstractEntity> results = database.query(new Predicate<AbstractEntity>() {
-	
 			public boolean match(AbstractEntity candidate) {
 				return candidate.privateGetId() == id;
 			}
-		
 		});
 
 		if(results.size() == 1) {
@@ -55,7 +52,6 @@ public class QueryProcessor {
 			model.getLogger().error("Database corrupted, duplicate entity found for id = " + id);
 			throw new IllegalStateException();
 		}
-		
 	}
 	
 	@SuppressWarnings("serial")

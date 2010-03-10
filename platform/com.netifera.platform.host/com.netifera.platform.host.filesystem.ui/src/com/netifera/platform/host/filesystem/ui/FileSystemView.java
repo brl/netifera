@@ -21,7 +21,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.LocalFileSystem;
+import com.netifera.platform.host.filesystem.ui.actions.CreateDirectoryAction;
 import com.netifera.platform.host.filesystem.ui.actions.DeleteAction;
 import com.netifera.platform.host.filesystem.ui.actions.RenameAction;
 import com.netifera.platform.ui.util.TreeAction;
@@ -39,6 +39,7 @@ public class FileSystemView extends ViewPart {
 	private ViewerRefreshAction refreshAction;
 	private DeleteAction deleteAction;
 	private RenameAction renameAction;
+	private CreateDirectoryAction createDirectoryAction;
 
 	/**
 	 * Initialize the view.
@@ -150,8 +151,9 @@ public class FileSystemView extends ViewPart {
 			}
 		};
 
-		deleteAction = new DeleteAction(viewer);
-		renameAction = new RenameAction(viewer);
+		deleteAction = new DeleteAction(viewer, contentProvider);
+		renameAction = new RenameAction(viewer, contentProvider);
+		createDirectoryAction = new CreateDirectoryAction(viewer, contentProvider);
 	}
 	
 	/**
@@ -191,6 +193,7 @@ public class FileSystemView extends ViewPart {
 			
 			menuManager.add(renameAction);
 			menuManager.add(deleteAction);
+			menuManager.add(createDirectoryAction);
 		}
 		menuManager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}

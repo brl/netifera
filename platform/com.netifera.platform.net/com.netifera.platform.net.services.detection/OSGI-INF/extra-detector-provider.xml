@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.extra-detector-provider">
+	<implementation class="com.netifera.platform.net.internal.services.detection.examples.ExtraDetectorProvider" />
+	<service>
+		<provide interface="com.netifera.platform.net.services.detection.INetworkServiceDetectorProvider" />
+	</service>
+</component>

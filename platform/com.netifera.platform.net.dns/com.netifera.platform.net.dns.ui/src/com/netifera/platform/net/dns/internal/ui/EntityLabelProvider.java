@@ -16,11 +16,11 @@ import com.netifera.platform.net.dns.model.PTRRecordEntity;
 import com.netifera.platform.net.model.HostEntity;
 import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.model.NetworkAddressEntity;
-import com.netifera.platform.ui.api.model.IEntityInformationProvider;
+import com.netifera.platform.ui.api.hover.IHoverInformationProvider;
 import com.netifera.platform.ui.api.model.IEntityLabelProvider;
 import com.netifera.platform.ui.images.ImageCache;
 
-public class EntityLabelProvider implements IEntityLabelProvider, IEntityInformationProvider {
+public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformationProvider {
 	private final static String PLUGIN_ID = "com.netifera.platform.net.dns.ui";
 
 	private ImageCache images = new ImageCache(PLUGIN_ID);
@@ -43,15 +43,15 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 				return email.getAddress();
 		} else if (e instanceof ARecordEntity) {
 			ARecordEntity hostname = (ARecordEntity) e;
-			return hostname.getHostName() + "  A  "
-					+ hostname.getAddressEntity().getAddress();
+			return hostname.getName() + "  A  "
+					+ hostname.getAddress().toNetworkAddress();
 		} else if (e instanceof AAAARecordEntity) {
 			AAAARecordEntity hostname = (AAAARecordEntity) e;
-			return hostname.getHostName() + "  AAAA  "
-					+ hostname.getAddressEntity().getAddress();
+			return hostname.getName() + "  AAAA  "
+					+ hostname.getAddress().toNetworkAddress();
 		} else if (e instanceof PTRRecordEntity) {
 			PTRRecordEntity ptr = (PTRRecordEntity) e;
-			return ptr.getAddressEntity().getAddress() + "  PTR  "
+			return ptr.getAddress().toNetworkAddress() + "  PTR  "
 					+ ptr.getName();
 		} else if (e instanceof NSRecordEntity) {
 			NSRecordEntity ns = (NSRecordEntity) e;
@@ -88,9 +88,9 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 		return null;
 	}
 
-	public String getInformation(IShadowEntity e) {
-		if (e instanceof HostEntity) {
-			return getHostInformation((HostEntity)e);
+	public String getInformation(Object o) {
+		if (o instanceof HostEntity) {
+			return getHostInformation((HostEntity)o);
 		}
 		return null;
 	}
@@ -125,7 +125,7 @@ public class EntityLabelProvider implements IEntityLabelProvider, IEntityInforma
 				buffer.append("</p>");
 		}
 
-		String countryCode = e.getDefaultAddress().getNamedAttribute("country");
+		String countryCode = e.getDefaultAddress().getAttribute("country");
 		if (countryCode != null) {
 			Locale locale = new Locale("en", countryCode);
 			String countryName = locale.getDisplayCountry(Locale.ENGLISH);

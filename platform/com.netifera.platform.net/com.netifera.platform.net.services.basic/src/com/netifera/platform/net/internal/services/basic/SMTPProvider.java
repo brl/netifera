@@ -3,7 +3,7 @@ package com.netifera.platform.net.internal.services.basic;
 import com.netifera.platform.net.services.INetworkService;
 import com.netifera.platform.net.services.INetworkServiceProvider;
 import com.netifera.platform.net.services.basic.SMTP;
-import com.netifera.platform.util.locators.ISocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
 
 public class SMTPProvider implements INetworkServiceProvider {
 
@@ -15,7 +15,7 @@ public class SMTPProvider implements INetworkServiceProvider {
 		return "SMTP";
 	}
 
-	public SMTP create(ISocketLocator locator) {
-		return new SMTP(locator);
+	public SMTP create(InternetSocketAddress address) {
+		return new SMTP(address);
 	}
 }

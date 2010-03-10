@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0
 Bundle-Vendor: netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Service-Component: OSGI-INF/sniffing-daemon.xml,OSGI-INF/sniffing-entity-factory.xml,
- OSGI-INF/sniffing-tree-provider.xml,OSGI-INF/sniffing-daemon-factory.xml
+ OSGI-INF/sniffing-tree-layer.xml,OSGI-INF/sniffing-daemon-factory.xml
 Eclipse-RegisterBuddy: com.netifera.platform.model 
 Import-Package: com.netifera.platform.api.daemon,
  com.netifera.platform.api.dispatcher,

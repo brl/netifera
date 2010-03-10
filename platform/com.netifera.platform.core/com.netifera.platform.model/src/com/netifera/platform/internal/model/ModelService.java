@@ -14,7 +14,7 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IEntityAdapterService;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.model.IWorkspace;
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 
 public class ModelService implements IModelService {
 
@@ -24,7 +24,7 @@ public class ModelService implements IModelService {
 	
 	private DatabaseConfigurationFactory factory;
 	private IWorkspace currentWorkspace;
-	private final List<ILayerProvider> layerProviders = new ArrayList<ILayerProvider>();
+	private final List<ISemanticLayer> semanticLayers = new ArrayList<ISemanticLayer>();
 	private IEntityAdapterService entityAdapterService;
 	private ILogger logger;
 	private transient EventListenerManager workspaceOpenListeners = new EventListenerManager();
@@ -68,8 +68,8 @@ public class ModelService implements IModelService {
 		return currentWorkspace;
 	}
 
-	public List<ILayerProvider> getLayerProviders() {
-		return layerProviders;
+	public List<ISemanticLayer> getSemanticLayers() {
+		return semanticLayers;
 	}
 	
 	protected void activate(final ComponentContext ctx) {
@@ -125,11 +125,11 @@ public class ModelService implements IModelService {
 		this.dbService = null;
 	}
 	*/
-	protected void registerLayerProvider(ILayerProvider provider) {
-		layerProviders.add(provider);
+	protected void registerSemanticLayer(ISemanticLayer layer) {
+		semanticLayers.add(layer);
 	}
-	protected void unregisterLayerProvider(ILayerProvider provider) {
-		layerProviders.remove(provider);
+	protected void unregisterSemanticLayer(ISemanticLayer layer) {
+		semanticLayers.remove(layer);
 	}
 	
 	protected void setLogManager(ILogManager logManager) {

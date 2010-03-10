@@ -2,7 +2,6 @@ package com.netifera.platform.internal.model;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
@@ -89,10 +88,11 @@ public class Workspace implements IWorkspaceEx {
 	ILogger getLogger() {
 		return logger;
 	}
+	
 	private void registerActivationCallback() {
 		/* inject a reference to the workspace in each newly instantiated entity */
 		EventRegistry registry = EventRegistryFactory.forObjectContainer(database);
-		registry.activating().addListener(new EventListener4() {
+		registry.activated().addListener(new EventListener4() {
 
 			public void onEvent(Event4 event, EventArgs args) {
 				if (args instanceof ObjectEventArgs) {
@@ -106,6 +106,7 @@ public class Workspace implements IWorkspaceEx {
 			
 		});
 	}
+	
 	public void close() {
 		if(!opened) 
 			return;
@@ -116,32 +117,33 @@ public class Workspace implements IWorkspaceEx {
 		}
 		database.close();
 		opened = false;
-		
 	}
 	
 	public <T extends IEntity> void storeEntity(T entity) {
 		database.store(entity);
 	}
-	
-	public void addEntityToSpace(IEntity entity, long spaceId) {
-		for(ISpace space : spaceManager.getAllSpaces()) {
-			if(space.getId() == spaceId) {
-				space.addEntity(entity);
-			}
+
+	public <T extends IEntity> void deleteEntity(T entity) {
+		if (entity.isRealmEntity()) {
+			for (IEntity child: findByRealm(entity.getId()))
+				deleteEntity(child);
 		}
+		database.delete(entity);
+	}
+
+	public void addEntityToSpace(IEntity entity, long spaceId) {
+		spaceManager.addEntityToSpace(entity, spaceId);
 		updateTable.addEntityToSpace(entity, spaceId);
 		fireEntityUpdate();
 	}
 	
 	public <T extends IEntity> void updateEntity(T entity) {
 		storeEntity(entity);
-		for(ISpace space : spaceManager.getOpenSpaces()) {
-			space.updateEntity(entity);
-		}
+		spaceManager.updateEntity(entity);
 		updateTable.updateEntity(entity);
 		fireEntityUpdate();
 	}
-	
+
 	public <T extends IEntity> List<T> findAll(Class<T> klass) {
 		return queryProcessor.findAll(klass);
 	}
@@ -169,12 +171,10 @@ public class Workspace implements IWorkspaceEx {
 	@SuppressWarnings("serial")
 	public IEntity findByKey(final String key) {
 		ObjectSet<AbstractEntity> result = database.query(new Predicate<AbstractEntity>() {
-
 			@Override
 			public boolean match(AbstractEntity candidate) {
 				return candidate.getQueryKey().equals(key);
 			}
-			
 		});
 		if(result.size() == 0) {
 			return null;
@@ -187,9 +187,8 @@ public class Workspace implements IWorkspaceEx {
 	}
 	
 	public IEntityReference createEntityReference(IEntity entity) {
-		return EntityReference.create(entity.getId());
+		return new EntityReference(entity);
 	}
-		
 	
 	public ITaskRecord findTaskById(long taskId) {
 		return taskManager.findTaskById(taskId);
@@ -203,31 +202,29 @@ public class Workspace implements IWorkspaceEx {
 		return spaceManager.createSpace(root, probe);
 	}
 	
-	public Set<ISpace> getOpenSpaces() {	
-		return spaceManager.getOpenSpaces();
-	}
-	
-	public Set<ISpace> getAllSpaces() {
+	public ISpace[] getAllSpaces() {
 		return spaceManager.getAllSpaces();
 	}
-	
+
+	public ISpace[] getOpenSpaces() {	
+		return spaceManager.getOpenSpaces();
+	}
+
 	public ISpace findSpaceById(long id) {
 		return spaceManager.findSpaceById(id);
 	}
 	
-	public void addSpaceCreationListener(IEventHandler handler) {
+	public void addSpaceStatusChangeListener(IEventHandler handler) {
 		spaceManager.addChangeListener(handler);
 	}
 	
-	public void removeSpaceCreationListener(IEventHandler handler) {
+	public void removeSpaceStatusChangeListener(IEventHandler handler) {
 		spaceManager.removeChangeListener(handler);
 	}
 
 	public long generateId() {
 		return status.generateEntityId();
 	}
-	
-	
 	
 	public long getCurrentUpdateIndex() {
 		return updateTable.getCurrentUpdateIndex();
@@ -266,13 +263,11 @@ public class Workspace implements IWorkspaceEx {
 		}
 		
 		// XXX tasks?
-		
 	}
 	
 	public IModelService getModel() {
 		return model;
 	}
-	
 	
 	private void fireEntityUpdate() {
 		getEventManager().fireEvent(new IEvent(){} );
@@ -284,6 +279,7 @@ public class Workspace implements IWorkspaceEx {
 	public void removeEntityUpdateListener(IEventHandler handler) {
 		getEventManager().removeListener(handler);
 	}
+	
 	private EventListenerManager getEventManager() {
 		if(entityUpdateListeners == null) {
 			entityUpdateListeners = new EventListenerManager();
@@ -315,7 +311,6 @@ public class Workspace implements IWorkspaceEx {
 		commitThread.setDaemon(true);
 		commitThread.setName("Background Commit Workspace");
 		commitThread.start();
-		
 	}
 	
 	private void runCommit() {
@@ -325,6 +320,4 @@ public class Workspace implements IWorkspaceEx {
 			Thread.currentThread().interrupt();
 		}
 	}
-
-	
 }

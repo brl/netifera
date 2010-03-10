@@ -3,7 +3,7 @@ package com.netifera.platform.api.model;
 import java.util.List;
 
 import com.netifera.platform.api.events.IEventHandler;
-import com.netifera.platform.api.model.layers.ILayerProvider;
+import com.netifera.platform.api.model.layers.ISemanticLayer;
 
 
 public interface IModelService {
@@ -12,7 +12,7 @@ public interface IModelService {
 	IWorkspace getCurrentWorkspace();	
 	
 	IEntityAdapterService getAdapterService();
-	List<ILayerProvider> getLayerProviders();
+	List<ISemanticLayer> getSemanticLayers();
 
 	/**
 	 * 

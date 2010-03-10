@@ -19,6 +19,7 @@ public class UpdateTransferRecord implements IUpdateRecord, Serializable {
 		this.updateIndex = updateIndex;
 		this.isAddedToSpace = isAddedToSpace;		
 	}
+	
 	public IEntity getEntity() {
 		return entity;
 	}
@@ -34,5 +35,4 @@ public class UpdateTransferRecord implements IUpdateRecord, Serializable {
 	public boolean isAddedToSpace() {
 		return isAddedToSpace;
 	}
-
 }

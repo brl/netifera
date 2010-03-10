@@ -5,8 +5,6 @@ import gov.nasa.worldwind.render.AnnotationAttributes;
 import gov.nasa.worldwind.render.FrameFactory;
 import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.MultiLineTextRenderer;
-import gov.nasa.worldwind.render.PatternFactory;
-import gov.nasa.worldwind.render.Polyline;
 
 import java.awt.Color;
 import java.awt.Font;

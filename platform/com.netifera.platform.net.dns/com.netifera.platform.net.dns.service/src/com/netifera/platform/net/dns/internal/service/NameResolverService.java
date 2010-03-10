@@ -6,32 +6,33 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.SocketException;
 import java.util.StringTokenizer;
 
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.osgi.service.component.ComponentContext;
+import org.xbill.DNS.Lookup;
 
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.dns.service.client.ExtendedResolver;
 import com.netifera.platform.net.dns.service.client.SimpleResolver;
 import com.netifera.platform.net.dns.service.nameresolver.NameResolver;
-import com.netifera.platform.net.sockets.ISocketEngineService;
-import com.netifera.platform.net.sockets.UDPChannel;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class NameResolverService extends NameResolver {
 	
-	private ISocketEngineService socketEngine;
+	private DatagramChannelFactory channelFactory;
 	private ILogger logger;
 	
-	protected void setSocketEngine(ISocketEngineService socketEngine) {
-		this.socketEngine = socketEngine;
+	protected void setChannelFactory(DatagramChannelFactory channelFactory) {
+		if (this.channelFactory == null)
+			this.channelFactory = channelFactory;
 	}
 	
-	protected void unsetSocketEngine(ISocketEngineService socketEngine) {
-		this.socketEngine = null;
+	protected void unsetChannelFactory(DatagramChannelFactory channelFactory) {
+		if (this.channelFactory == channelFactory)
+			this.channelFactory = null;
 	}
 	
 	protected void setLogManager(ILogManager logManager) {
@@ -44,17 +45,15 @@ public class NameResolverService extends NameResolver {
 	
 	private void addNameServer(String nameServer) throws IOException {
 		InternetAddress address = InternetAddress.fromString(nameServer);
-		try {
-			UDPChannel channel = socketEngine.openUDP();
-			channel.connect(new UDPSocketLocator(address, 53));
-			SimpleResolver simpleResolver = new SimpleResolver(channel);
+//		try {
+			SimpleResolver simpleResolver = new SimpleResolver(new UDPSocketAddress(address, 53), channelFactory);
 			simpleResolver.setLogger(logger);
 			resolver.addResolver(simpleResolver);
 			logger.debug("added nameserver " + nameServer);
-		} catch (SocketException e) { // Network is unreachable
+/*		} catch (SocketException e) { // Network is unreachable
 			logger.error("could not add nameserver " + nameServer, e);
 		}
-	}
+*/	}
 	
 	private boolean activateUnix() {
 		boolean activated = false;
@@ -96,12 +95,13 @@ public class NameResolverService extends NameResolver {
 	
 	protected void activate(ComponentContext context) {
 		resolver = new ExtendedResolver();
+		Lookup.setDefaultResolver(resolver);
 		
 		//FIXME Unix only
 		activateUnix();
 		
 		if (resolver.getResolvers().length == 0) {
-			logger.warning("Could not find any system nameserver, try to add a default one");
+			logger.warning("Could not find any system nameserver, setting a default nameserver");
 			try {
 				addNameServer("208.67.222.222"); // resolver1.opendns.com
 			} catch (IOException e) {

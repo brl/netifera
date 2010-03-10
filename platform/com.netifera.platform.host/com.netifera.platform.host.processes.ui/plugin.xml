@@ -4,15 +4,11 @@
 
    <extension
          point="org.eclipse.ui.views">
-      <category
-            name="Host"
-            id="Host">
-      </category>
          
       <view
       		allowMultiple="true"
       		restorable="false"
-      		category="Host"
+      		category="com.netifera.platform.ui.category.host"
             class="com.netifera.platform.host.processes.ui.ProcessListView"
             icon="icons/processes.png"
             id="com.netifera.platform.ui.views.ProcessList"

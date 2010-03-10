@@ -45,7 +45,6 @@ public abstract class ControlUpdater implements Runnable {
 		final Control control = controlUpdater.getControl();
 		/* add dispose listener to the wrapped control */
 		controlUpdater.addDisposeListener(new Listener() {
-
 			public void handleEvent(Event event) {
 				/* dispose the wrapper when the control is disposed */
 				controlUpdater.dispose();

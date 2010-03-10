@@ -14,7 +14,6 @@ import org.xbill.DNS.Record;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -28,8 +27,9 @@ import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv6Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
+import com.netifera.platform.util.patternmatching.HostnameMatcher;
 
 public class AddEmailAddress implements ITool {
 	
@@ -38,14 +38,9 @@ public class AddEmailAddress implements ITool {
 	private Name domain;
 	
 	private IToolContext context;
-	private long realm;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
-		
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 		
 		context.setTitle("Add email address");
 		
@@ -57,7 +52,7 @@ public class AddEmailAddress implements ITool {
 			domain = new Name(address.split("@")[1]);
 			if (!getMX())
 				return;
-			EmailAddressEntity entity = Activator.getInstance().getDomainEntityFactory().createEmailAddress(realm, context.getSpaceId(), address);
+			EmailAddressEntity entity = Activator.getInstance().getDomainEntityFactory().createEmailAddress(context.getRealm(), context.getSpaceId(), address);
 			entity.addTag("Target");
 			entity.update();
 		} catch (TextParseException e) {
@@ -68,7 +63,7 @@ public class AddEmailAddress implements ITool {
 	}
 	
 	private Boolean getMX() {
-		context.setStatus("Quering for mail exchangers");
+		context.setSubTitle("Quering for mail exchangers");
 		Lookup lookup = new Lookup(domain, Type.MX);
 		lookup.setResolver(resolver.getExtendedResolver());
 		lookup.setSearchPath((Name[])null);
@@ -87,35 +82,46 @@ public class AddEmailAddress implements ITool {
 		context.info(o.toString());
 		if (o instanceof ARecord) {
 			ARecord a = (ARecord) o;
-			Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), a.getName().toString(), IPv4Address.fromInetAddress(a.getAddress()));
+			Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), a.getName().toString(), IPv4Address.fromInetAddress(a.getAddress()));
 		} else if (o instanceof AAAARecord) {
 			AAAARecord aaaa = (AAAARecord) o;
-			Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), aaaa.getName().toString(), IPv6Address.fromInetAddress(aaaa.getAddress()));
+			Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), aaaa.getName().toString(), IPv6Address.fromInetAddress(aaaa.getAddress()));
 		} else if (o instanceof PTRRecord) {
 			PTRRecord ptr = (PTRRecord) o;
-//			Activator.getInstance().getDomainEntityFactory().createARecord(realm, a.getName().toString(), InternetAddress.fromInetAddress(o..getAddress()));
-//			System.out.println("unhandled record: "+ptr);
+			String reverseName = ptr.getName().toString();
+			if (!reverseName.endsWith(".in-addr.arpa.")) {
+				context.error("Unknown reverse address format: "+reverseName);
+				return;
+			}
+			String[] octets = reverseName.split("\\.");
+			InternetAddress address = InternetAddress.fromString(octets[3]+"."+octets[2]+"."+octets[1]+"."+octets[0]); // XXX ipv6
+			String hostname = ptr.getTarget().toString();
+			/* verify the hostname is valid before adding it to model
+			 * (avoid configuration errors to pollute the model) */
+			if (HostnameMatcher.matches(hostname)) {
+				Activator.getInstance().getDomainEntityFactory().createPTRRecord(context.getRealm(), context.getSpaceId(), address, ptr.getTarget().toString());
+			}
 		} else if (o instanceof MXRecord) {
 			processMXRecord((MXRecord) o);
 		} else if (o instanceof NSRecord) {
 			processNSRecord((NSRecord) o);
 		} else {
-			context.warning("Unhandled DNS record: "+o);
+			context.warning("Unhandled record: "+o);
 		}
 	}
 	
 	private void processNSRecord(NSRecord ns) {
-		NSRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createNSRecord(realm, context.getSpaceId(), domain.toString(), ns.getTarget().toString());
+		NSRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createNSRecord(context.getRealm(), context.getSpaceId(), domain.toString(), ns.getTarget().toString());
 		try {
 			List<InternetAddress> addresses = resolver.getAddressesByName(ns.getTarget().toString());
 			for (InternetAddress address: addresses) {
 				if (address instanceof IPv4Address) {
-					Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), ns.getTarget().toString(), (IPv4Address)address);
+					Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), ns.getTarget().toString(), (IPv4Address)address);
 				} else {
-					Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), ns.getTarget().toString(), (IPv6Address)address);					
+					Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), ns.getTarget().toString(), (IPv6Address)address);					
 				}
-				UDPSocketLocator locator = new UDPSocketLocator(address,53);
-				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), locator, "DNS", null);
+				UDPSocketAddress socketAddress = new UDPSocketAddress(address,53);
+				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, "DNS", null);
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the NS record entity
 			}
 			entity.save();
@@ -127,17 +133,17 @@ public class AddEmailAddress implements ITool {
 	}
 
 	private void processMXRecord(MXRecord mx) {
-		MXRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createMXRecord(realm, context.getSpaceId(), domain.toString(), mx.getTarget().toString(), mx.getPriority());
+		MXRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createMXRecord(context.getRealm(), context.getSpaceId(), domain.toString(), mx.getTarget().toString(), mx.getPriority());
 		try {
 			List<InternetAddress> addresses = resolver.getAddressesByName(mx.getTarget().toString());
 			for (InternetAddress address: addresses) {
 				if (address instanceof IPv4Address) {
-					Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), mx.getTarget().toString(), (IPv4Address)address);
+					Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), mx.getTarget().toString(), (IPv4Address)address);
 				} else {
-					Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), mx.getTarget().toString(), (IPv6Address)address);					
+					Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), mx.getTarget().toString(), (IPv6Address)address);					
 				}
-				TCPSocketLocator locator = new TCPSocketLocator(address,25);
-				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), locator, "SMTP", null);
+				TCPSocketAddress socketAddress = new TCPSocketAddress(address,25);
+				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, "SMTP", null);
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the MX record entity
 			}
 			entity.save();

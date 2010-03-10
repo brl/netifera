@@ -5,7 +5,11 @@ import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
 import com.netifera.platform.api.model.IWorkspace;
 import com.netifera.platform.util.HexaEncoding;
+import com.netifera.platform.util.addresses.AddressFormatException;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 
 public class ServiceEntity extends AbstractEntity {
@@ -14,7 +18,6 @@ public class ServiceEntity extends AbstractEntity {
 
 	public final static String ENTITY_NAME = "service";
 	
-	public final static String SERVICETYPE_KEY = "serviceType";
 	public final static String BANNER_KEY = "banner";
 	public final static String PRODUCT_KEY = "product";
 	public final static String VERSION_KEY = "version";
@@ -22,26 +25,28 @@ public class ServiceEntity extends AbstractEntity {
 	private final int port;
 	private final String protocol;
 	private final IEntityReference address;
-	/* Store the address as a string for faster queries */
-	private final String addressHex;
-	private final String serviceType;
+	private String serviceType;
 	
 	public ServiceEntity(IWorkspace workspace, InternetAddressEntity address, int port, String protocol, String serviceType) {
-		super(ENTITY_NAME, workspace, address.getRealmId());
-		this.port = port;
-		this.protocol = protocol;
-		this.address = address.createReference();
-		this.addressHex = HexaEncoding.bytes2hex(address.getData());
-		this.serviceType = serviceType;
+		this(workspace, address.getRealmId(), address.createReference(), port, protocol, serviceType);
 	}
 
+	private ServiceEntity(IWorkspace workspace, long realm, IEntityReference addressReference,
+			int port, String protocol, String serviceType) {
+		super(ENTITY_NAME, workspace, realm);
+		this.port = port;
+		this.protocol = protocol;
+		this.address = addressReference;
+		this.serviceType = serviceType;
+	}
+	
 	ServiceEntity() {
 		this.address = null;
-		this.addressHex = null;
 		this.serviceType = null;
 		this.protocol = null;
 		this.port = 0;
 	}
+	
 	public int getPort() {
 		return port;
 	}
@@ -54,50 +59,38 @@ public class ServiceEntity extends AbstractEntity {
 		return (InternetAddressEntity) referenceToEntity(address);
 	}
 	
-	//public String getAddressString() {
-	//	return addressString;
-	//}
-	
 	public String getServiceType() {
 		return serviceType;
 	}
-
+	
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
+	}
+	
 	public String getBanner() {
-		return getNamedAttribute("banner");
+		return getAttribute(BANNER_KEY);
 	}
 
 	public String getProduct() {
-		return getNamedAttribute("product");
+		return getAttribute(PRODUCT_KEY);
 	}
 	
 	public String getVersion() {
-		return getNamedAttribute("version");
+		return getAttribute(VERSION_KEY);
 	}
 	
-	public void setBanner(String banner) {
-		setNamedAttribute("banner", banner);
-	}
-
-	public void setProduct(String product) {
-		setNamedAttribute("product", product);
-	}
-
-	public void setVersion(String version) {
-		setNamedAttribute("version", version);
-	}
-
 	public boolean isSSL() {
+		//FIXME
 		return protocol.equals("ssl");
 	}
 
-	private ServiceEntity(IWorkspace workspace, long realm, IEntityReference addressReference,
-			int port, String protocol, String serviceType) {
-		super(ENTITY_NAME, workspace, realm);
-		this.port = port;
-		this.protocol = protocol;
-		this.address = addressReference.createClone();
-		this.serviceType = serviceType;
-		this.addressHex = HexaEncoding.bytes2hex(getAddress().getData());
+	public InternetSocketAddress toSocketAddress() {
+		if (protocol.equals("tcp")) {
+			return new TCPSocketAddress(getAddress().toNetworkAddress(), getPort());
+		} else if (protocol.equals("udp")) {
+			return new UDPSocketAddress(getAddress().toNetworkAddress(), getPort());
+		}
+		throw new AddressFormatException("Invalid protocol: "+protocol);
 	}
 	
 	public static String createQueryKey(long realmId, InternetAddress address, int port, String protocol) {
@@ -110,11 +103,33 @@ public class ServiceEntity extends AbstractEntity {
 	
 	@Override
 	protected String generateQueryKey() {
-		return createQueryKey(getRealmId(), addressHex, port, protocol);
+		return createQueryKey(getRealmId(), HexaEncoding.bytes2hex(getAddress().getData()), port, protocol);
 	}
 	
+	@Override
+	protected void synchronizeEntity(AbstractEntity masterEntity) {
+		serviceType = ((ServiceEntity)masterEntity).serviceType;
+	}
+
 	protected IEntity cloneEntity() {
-		return new ServiceEntity(getWorkspace(), getRealmId(), address, port,
-				protocol, serviceType); 
+		return new ServiceEntity(getWorkspace(), getRealmId(), address, port, protocol, serviceType);
+	}
+
+	public static synchronized ServiceEntity create(IWorkspace workspace, long realm, long spaceId, InternetSocketAddress socketAddress, String serviceType) {
+		InternetAddressEntity addressEntity = InternetAddressEntity.create(workspace, realm, spaceId, socketAddress.getNetworkAddress());
+
+		ServiceEntity entity = (ServiceEntity) workspace.findByKey(createQueryKey(realm, socketAddress.getNetworkAddress(), socketAddress.getPort(), socketAddress.getProtocol()));
+
+		if (entity == null) {
+			entity = new ServiceEntity(workspace, addressEntity, socketAddress.getPort(), socketAddress.getProtocol(), serviceType);
+			entity.save();
+		}
+		if (serviceType != null && !serviceType.equals(entity.getServiceType())) {
+			entity.setServiceType(serviceType);
+			entity.update();
+		}
+		entity.addToSpace(spaceId);
+		
+		return entity;
 	}
 }

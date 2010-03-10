@@ -2,10 +2,8 @@ package com.netifera.platform.api.model;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import com.netifera.platform.api.events.IEventHandler;
-import com.netifera.platform.api.model.layers.ILayerProvider;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tasks.ITaskRecord;
 
@@ -20,7 +18,14 @@ public interface IWorkspace {
 	 * @param entity
 	 */
 	<T extends IEntity> void storeEntity(T entity);
-	
+
+	/**
+	 * Delete entity from database.
+	 * @param <T> subclass of IEntity
+	 * @param entity
+	 */
+	<T extends IEntity> void deleteEntity(T entity);
+
 	/**
 	 * Add entity to the given space.
 	 * @param entity
@@ -35,7 +40,7 @@ public interface IWorkspace {
 	 *  @param entity The entity instance to update in the database
 	 */
 	<T extends IEntity> void updateEntity(T entity);
-	
+
 	/**
 	 * Find all entities of a specified class.
 	 * @param <T> subclass of IEntity
@@ -85,6 +90,7 @@ public interface IWorkspace {
 	<T extends IEntity> List<T> findByPredicate(Class<T> klass, IModelPredicate<T> predicate);	
 	
 	IEntity findByKey(String key);
+	
 	/**
 	 * Generate unique id.
 	 * @return 64bit id unique in the model
@@ -103,11 +109,11 @@ public interface IWorkspace {
 	IEntityReference createEntityReference(IEntity entity);
 	
 	ISpace createSpace(IEntity root, IProbe probe);
-	Set<ISpace> getOpenSpaces();
-	Set<ISpace> getAllSpaces();
+	ISpace[] getAllSpaces();
+	ISpace[] getOpenSpaces();
 	ISpace findSpaceById(long id);
-	void addSpaceCreationListener(IEventHandler handler);
-	void removeSpaceCreationListener(IEventHandler handler);
+	void addSpaceStatusChangeListener(IEventHandler handler);
+	void removeSpaceStatusChangeListener(IEventHandler handler);
 
 	IModelService getModel();
 

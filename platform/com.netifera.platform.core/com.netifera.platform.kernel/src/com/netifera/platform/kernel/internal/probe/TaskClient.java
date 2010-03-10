@@ -37,8 +37,8 @@ public class TaskClient implements ITaskClient {
 
 	public void createTask(String instance, long taskId, ISpace space) {
 		logger.debug("Creating task with id = " + taskId);
-		final ITaskStatus taskStatus = new TaskStatus(instance, taskId);
-		space.addTaskRecord(taskStatus);
+		final ITaskStatus taskStatus = new TaskStatus(taskId);
+		space.addTask(taskStatus);
 	}
 
 	public void startTask(long taskId) {
@@ -59,7 +59,7 @@ public class TaskClient implements ITaskClient {
 			logger.warning("No task found for id: " + taskStatus.getTaskId());
 			return;
 		}
-		record.updateTaskStatus(taskStatus);
+		record.update(taskStatus);
 	}
 
 	private ITaskRecord getTaskForId(long taskId) {
@@ -91,7 +91,6 @@ public class TaskClient implements ITaskClient {
 		} else if(output instanceof TaskConsoleOutput) {
 			logger.getManager().logRaw( ((TaskConsoleOutput)output).getMessage() + "\n");
 		}
-
 	}
 
 	public ITaskStatus[] getCurrentTasks() {
@@ -111,7 +110,6 @@ public class TaskClient implements ITaskClient {
 		requestCancel(taskIdList);
 	}
 
-
 	public void requestCancel(Collection<Long> taskIdList) {
 		if(taskIdList == null || taskIdList.isEmpty()) {
 			return;
@@ -129,7 +127,6 @@ public class TaskClient implements ITaskClient {
 		} catch (MessengerException e) {
 			logger.warning("Failed sending TaskCancelMessage", e);
 		}
-
 	}
 
 	private IMessenger getMessenger() {
@@ -139,5 +136,4 @@ public class TaskClient implements ITaskClient {
 		}
 		return messenger;
 	}
-
 }

@@ -5,11 +5,11 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="com.netifera.platform.ui.spaces.editors.SpaceEditor"
+            class="com.netifera.platform.ui.spaces.editor.SpaceEditor"
             default="false"
             icon="icons/space.png"
             id="com.netifera.platform.editors.spaces"
-            contributorClass="com.netifera.platform.ui.spaces.editors.SpaceEditorActionBarContributor"
+            contributorClass="com.netifera.platform.ui.spaces.editor.SpaceEditorActionBarContributor"
             name="Space Editor">
       </editor>
    </extension>
@@ -20,11 +20,11 @@
             label="Spaces Action Set"
             visible="true">
          <action
-               class="com.netifera.platform.ui.spaces.actions.NewSpace"
-               definitionId="com.netifera.platform.commands.newSpace"
-               icon="icons/new_space.png"
-               id="com.netifera.platform.actions.newSpace"
-               label="New Space"
+               class="com.netifera.platform.ui.spaces.actions.NewIsolatedSpaceDelegate"
+               definitionId="com.netifera.platform.commands.newIsolatedSpace"
+               icon="icons/add_space_isolated.png"
+               id="com.netifera.platform.actions.newIsolatedSpace"
+               label="New Isolated Space"
                style="push"
                toolbarPath="Normal">
          </action>
@@ -34,7 +34,19 @@
          point="org.eclipse.ui.commands">
       <command
             id="com.netifera.platform.commands.newSpace"
-            name="Open New Space">
+            name="New Space">
+      </command>
+      <command
+            id="com.netifera.platform.commands.newIsolatedSpace"
+            name="New Isolated Space">
+      </command>
+      <command
+            id="com.netifera.platform.commands.spaceImport"
+            name="Import">
+      </command>
+      <command
+            id="com.netifera.platform.commands.spaceExport"
+            name="Export">
       </command>
    </extension>
    <extension
@@ -42,31 +54,13 @@
       <key
             commandId="com.netifera.platform.commands.newSpace"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+T">
+      </key>
+      <key
+            commandId="com.netifera.platform.commands.newIsolatedSpace"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+T">
       </key>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
-      <view
-            category="com.netifera.platform.ui.category.general"
-            class="com.netifera.platform.ui.spaces.views.SpaceListView"
-            icon="icons/space_list.png"
-            id="com.netifera.platform.views.spaceList"
-            name="Space List"
-            restorable="true">
-      </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="*">
-         <view
-               id="com.netifera.platform.views.spaceList"
-               minimized="false"
-               ratio="0.30"
-               relationship="fast">
-         </view>
-      </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.ui.elementFactories">
@@ -83,6 +77,37 @@
    </extension>
    <extension
          point="org.eclipse.ui.editorActions">
+         <editorContribution
+         	id="com.netifera.platform.ui.spaces.editorActions"
+         	targetID="com.netifera.platform.editors.spaces">
+		         <action
+		               class="com.netifera.platform.ui.spaces.actions.ImportDelegate"
+		               definitionId="com.netifera.platform.commands.spaceImport"
+		               icon="icons/space_import.gif"
+		               id="com.netifera.platform.actions.spaceImport"
+		               label="Import XML into Space"
+		               style="push"
+		               toolbarPath="Normal">
+		         </action>
+		         <action
+		               class="com.netifera.platform.ui.spaces.actions.ExportDelegate"
+		               definitionId="com.netifera.platform.commands.spaceExport"
+		               icon="icons/space_export.gif"
+		               id="com.netifera.platform.actions.spaceExport"
+		               label="Export Space to XML"
+		               style="push"
+		               toolbarPath="Normal">
+		         </action>
+		         <action
+		               class="com.netifera.platform.ui.spaces.actions.NewSpaceDelegate"
+		               definitionId="com.netifera.platform.commands.newSpace"
+		               icon="icons/add_space.png"
+		               id="com.netifera.platform.actions.newSpace"
+		               label="New Space"
+		               style="push"
+		               toolbarPath="Normal">
+		         </action>
+         </editorContribution>
    </extension>
 
 </plugin>

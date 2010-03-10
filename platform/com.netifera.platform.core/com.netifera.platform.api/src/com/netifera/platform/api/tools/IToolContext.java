@@ -1,16 +1,20 @@
 package com.netifera.platform.api.tools;
 
+import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.tasks.ITaskMessenger;
 
 public interface IToolContext extends ITaskMessenger {
 	IToolConfiguration getConfiguration();
+	
+	long getRealm();
 	long getSpaceId();
+	
 	void setTotalWork(int totalWork);
 	void worked(int work);
 	void done();
 	
 	void setTitle(String title);
-	void setStatus(String status);
+	void setSubTitle(String subtitle);
 	
 	void enableDebugOutput();
 	
@@ -21,4 +25,6 @@ public interface IToolContext extends ITaskMessenger {
 	
 	void print(String message);
 	void exception(String message, Throwable throwable);
+	
+	ILogger getLogger();
 }

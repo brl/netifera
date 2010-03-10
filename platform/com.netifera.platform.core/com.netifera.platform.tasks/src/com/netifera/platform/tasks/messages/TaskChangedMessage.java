@@ -1,6 +1,4 @@
-
 package com.netifera.platform.tasks.messages;
-
 
 import com.netifera.platform.api.dispatcher.ProbeMessage;
 import com.netifera.platform.api.tasks.ITaskStatus;
@@ -19,5 +17,4 @@ public class TaskChangedMessage extends ProbeMessage {
 	public ITaskStatus[] getTaskList() {
 		return taskList;
 	}
-
 }

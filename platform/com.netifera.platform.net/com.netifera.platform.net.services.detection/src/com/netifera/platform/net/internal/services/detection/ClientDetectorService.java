@@ -1,6 +1,5 @@
 package com.netifera.platform.net.internal.services.detection;
 
-import java.util.List;
 import java.util.Map;
 
 import com.netifera.platform.net.services.detection.IClientDetectorService;
@@ -9,6 +8,7 @@ import com.netifera.platform.net.services.detection.INetworkServiceDetectorProvi
 import com.netifera.platform.util.patternmatching.IPattern;
 
 public class ClientDetectorService extends NetworkServiceDetectorService implements IClientDetectorService {
+
 	protected void registerDetectorProvider(INetworkServiceDetectorProvider provider) {
 		for (INetworkServiceDetector each: provider.getClientDetectors())
 			addDetector(each);
@@ -20,10 +20,8 @@ public class ClientDetectorService extends NetworkServiceDetectorService impleme
 	
 	public Map<String,String> detect(String protocol, int port,
 			String trigger, String response) {
-		List<INetworkServiceDetector> detectors = this.detectors.get(protocol);
-		if (detectors == null)
-			return null;
 		for (INetworkServiceDetector each: detectors) {
+			if (each.getProtocol() != null && !each.getProtocol().equals(protocol)) continue;
 			if (each.getPorts() != null && !each.getPorts().contains(port)) continue;
 			Map<String,String> result = each.detect(trigger, response);
 			if (result != null) {

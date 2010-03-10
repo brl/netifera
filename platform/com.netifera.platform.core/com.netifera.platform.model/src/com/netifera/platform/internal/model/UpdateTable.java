@@ -39,6 +39,7 @@ public class UpdateTable {
 	private void setEnabled() {
 		enabled = System.getProperty("netifera.updatetable") != null;
 	}
+	
 	synchronized void updateEntity(IEntity entity) {
 		if(enabled) {
 			if(entity instanceof ProbeEntity) {
@@ -58,6 +59,7 @@ public class UpdateTable {
 			//db.store(this);
 		}
 	}
+	
 	synchronized long getCurrentUpdateIndex() {
 		return updateTable.size();
 	}
@@ -68,5 +70,4 @@ public class UpdateTable {
 		}
 		return updateTable.get(index);
 	}
-
 }

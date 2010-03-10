@@ -6,14 +6,21 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 
 import com.netifera.platform.api.events.IEvent;
 import com.netifera.platform.api.events.IEventHandler;
+import com.netifera.platform.api.model.ISpace;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.ui.probe.Activator;
+import com.netifera.platform.ui.spaces.SpaceEditorInput;
+import com.netifera.platform.ui.spaces.hover.ActionHover;
 
 public class ProbeStatusLine extends ControlContribution {
 
@@ -35,17 +42,37 @@ public class ProbeStatusLine extends ControlContribution {
 	protected Control createControl(Composite parent) {
 		label = new CLabel(parent, SWT.SHADOW_NONE);
 		label.setFont(JFaceResources.getDialogFont());
-		label.setImage(Activator.getDefault().getImageCache().get(PROBE_DISCONNECTED));
+		label.setImage(Activator.getInstance().getImageCache().get(PROBE_DISCONNECTED));
 
 		probeChangeListener = createProbeChangeListener(parent.getDisplay());
 		
 		label.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent arg0) {
-				Activator.getDefault().getProbeManager().removeProbeChangeListener(probeChangeListener);
+				Activator.getInstance().getProbeManager().removeProbeChangeListener(probeChangeListener);
+			}
+		});
+		
+		label.addMouseListener(new MouseListener() {
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+
+			public void mouseDown(MouseEvent e) {
+			}
+
+			public void mouseUp(MouseEvent e) {
+				IEditorPart editor = Activator.getInstance().getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+				IEditorInput input = editor.getEditorInput();
+				if (input instanceof SpaceEditorInput) {
+					ISpace space = ((SpaceEditorInput)input).getSpace();
+					if (space.getProbeId() != probe.getProbeId())
+						return;
+					ActionHover hover = new ActionHover(label.getShell(), label.toDisplay(e.x,e.y), space, probe.getEntity());
+					hover.open();
+				}
 			}
 		});
 
-		Activator.getDefault().getProbeManager().addProbeChangeListener(probeChangeListener);
+		Activator.getInstance().getProbeManager().addProbeChangeListener(probeChangeListener);
 		
 		update();
 
@@ -66,7 +93,7 @@ public class ProbeStatusLine extends ControlContribution {
 	
 	@Override
 	public void dispose() {
-		Activator.getDefault().getProbeManager().removeProbeChangeListener(probeChangeListener);
+		Activator.getInstance().getProbeManager().removeProbeChangeListener(probeChangeListener);
 		super.dispose();
 	}
 
@@ -95,19 +122,19 @@ public class ProbeStatusLine extends ControlContribution {
 		label.setText(probe.getName());
 		switch (probe.getConnectState()) {
 		case DISCONNECTED:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_DISCONNECTED));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_DISCONNECTED));
 			label.setToolTipText("Disconnected");
 			break;
 		case CONNECTING:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_CONNECTING));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_CONNECTING));
 			label.setToolTipText("Connecting");
 			break;
 		case CONNECTED:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_CONNECTED));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_CONNECTED));
 			label.setToolTipText("Connected");
 			break;
 		case CONNECT_FAILED:
-			label.setImage(Activator.getDefault().getImageCache().get(PROBE_FAILED));
+			label.setImage(Activator.getInstance().getImageCache().get(PROBE_FAILED));
 			label.setToolTipText(probe.getConnectError());
 		}
 	}

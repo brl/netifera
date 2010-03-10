@@ -3,6 +3,7 @@ package com.netifera.platform.net.services.basic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,16 +12,26 @@ import org.apache.commons.net.ftp.FTPFile;
 
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.IFileSystemListener;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class FTPFileSystem implements IFileSystem {
 
 	private FTP ftp;
 	private UsernameAndPassword credential;
 
-	private List<IFileSystemListener> listeners = new ArrayList<IFileSystemListener>();
+	public FTPFileSystem(URI url) {
+		InternetAddress address = InternetAddress.fromString(url.getHost());
+		TCPSocketAddress socketAddress = new TCPSocketAddress(address, url.getPort());
+		this.ftp = new FTP(socketAddress);
 
+		String[] userInfo = url.getUserInfo().split(":");
+		String username = userInfo[0];
+		String password = userInfo.length > 1 ? userInfo[1] : "";
+		this.credential = new UsernameAndPassword(username, password);
+	}
+	
 	public FTPFileSystem(FTP ftp, UsernameAndPassword credential) {
 		this.ftp = ftp;
 		this.credential = credential;
@@ -30,9 +41,7 @@ public class FTPFileSystem implements IFileSystem {
 		FTPClient client = ftp.createClient(credential);
 		try {
 			if (client.makeDirectory(directoryName)) {
-				File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
-				for (IFileSystemListener listener: listeners)
-					listener.added(file);
+				File file = new File(this, directoryName, File.S_IFDIR, 0, 0);
 				return file;
 			}
 		} finally {
@@ -44,44 +53,32 @@ public class FTPFileSystem implements IFileSystem {
 	public boolean delete(String fileName) throws IOException {
 		FTPClient client = ftp.createClient(credential);
 		try {
-			if (client.deleteFile(fileName)) {
-				File file = new File(this, fileName, File.FILE, 0, 0);
-				for (IFileSystemListener listener: listeners)
-					listener.removed(file);
-				return true;
-			}
+			return client.deleteFile(fileName);
 		} finally {
 			client.disconnect();
 		}
-		return false;
 	}
 
 	public boolean deleteDirectory(String directoryName) throws IOException {
 		FTPClient client = ftp.createClient(credential);
 		try {
-			if (client.deleteFile(directoryName)) {
-				File file = new File(this, directoryName, File.DIRECTORY, 0, 0);
-				for (IFileSystemListener listener: listeners)
-					listener.removed(file);
-				return true;
-			}
+			return client.removeDirectory(directoryName);
 		} finally {
 			client.disconnect();
 		}
-		return false;
 	}
 
 	public boolean rename(String oldName, String newName) throws IOException {
 		FTPClient client = ftp.createClient(credential);
 		try {
 			if (client.rename(oldName, newName)) {
-				File oldFile = new File(this, oldName, File.FILE, 0, 0);
+/*				File oldFile = new File(this, oldName, File.FILE, 0, 0);
 				File newFile = new File(this, newName, File.FILE, 0, 0);
 				for (IFileSystemListener listener: listeners) {
 					listener.removed(oldFile);
 					listener.added(newFile);
 				}
-				return true;
+*/				return true;
 			}
 		} finally {
 			client.disconnect();
@@ -92,9 +89,9 @@ public class FTPFileSystem implements IFileSystem {
 	private File convert(String directoryPath, FTPFile ftpFile) {
 		int attributes = 0;
 		if (ftpFile.isDirectory())
-			attributes |= File.DIRECTORY;
+			attributes |= File.S_IFDIR;
 		if (ftpFile.isFile())
-			attributes |= File.FILE;
+			attributes |= File.S_IFDIR;
 		return new File(this, directoryPath+"/"+ftpFile.getName(), attributes, ftpFile.getSize(), ftpFile.getTimestamp().getTimeInMillis());
 	}
 
@@ -110,7 +107,6 @@ public class FTPFileSystem implements IFileSystem {
 		try {
 //			client.pasv();
 			FTPFile[] files = client.listFiles(directoryName);
-
 			return convert(directoryName, files);
 		} finally {
 			client.disconnect();
@@ -122,25 +118,32 @@ public class FTPFileSystem implements IFileSystem {
 	}
 
 	public InputStream getInputStream(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO this is not complete, look at retrieveFileStream comment
+		FTPClient client = ftp.createClient(credential);
+		return client.retrieveFileStream(fileName);
 	}
 
 	public OutputStream getOutputStream(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO this is not complete, look at storeFileStream comment
+		FTPClient client = ftp.createClient(credential);
+		return client.storeFileStream(fileName);
 	}
 
 	public File[] getRoots() {
-		return new File[] {new File(this, "/", File.DIRECTORY, 0, 0)};
+		return new File[] {new File(this, "/", File.S_IFDIR, 0, 0)};
 	}
 
-	public void addListener(IFileSystemListener listener) {
-		listeners.add(listener);
+	public File stat(String fileName) throws IOException {
+/*		FTPClient client = ftp.createClient(credential);
+		FTPFile[] files = client.listFiles(fileName);
+		if (files.length > 1)
+			return new File(this, fileName, File.S_IFDIR, 0, 0);
+		return convert(files);
+*/
+		return null;
 	}
-
-	public void removeListener(IFileSystemListener listener) {
-		listeners.remove(listener);
+	
+	public void disconnect() {
 	}
 	
 	@Override

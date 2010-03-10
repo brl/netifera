@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.visualizations.graph">
-	<implementation class="com.netifera.platform.ui.internal.graphs.SpaceGraphVisualizationProvider" />
+	<implementation class="com.netifera.platform.ui.internal.graphs.GraphVisualizationProvider" />
 	<service>
-		<provide interface="com.netifera.platform.ui.spaces.visualizations.ISpaceVisualizationProvider" />
+		<provide interface="com.netifera.platform.ui.spaces.visualizations.IVisualizationProvider" />
 	</service>
 </component>

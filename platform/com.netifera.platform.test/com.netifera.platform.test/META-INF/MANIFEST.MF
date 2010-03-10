@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Plug-in
+Bundle-SymbolicName: com.netifera.platform.test
+Bundle-Version: 1.0.0
+Bundle-Vendor: Netifera
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.netifera.platform.api.iterables,
+ com.netifera.platform.api.model,
+ com.netifera.platform.api.tools,
+ com.netifera.platform.net.model,
+ com.netifera.platform.net.tools.portscanning,
+ com.netifera.platform.util,
+ com.netifera.platform.util.addresses.inet,
+ org.jboss.netty.bootstrap,
+ org.jboss.netty.channel,
+ org.jboss.netty.channel.socket.nio,
+ org.jboss.netty.handler.timeout,
+ org.jboss.netty.util,
+ org.osgi.framework,
+ org.osgi.util.tracker
+Service-Component: OSGI-INF/tool-provider.xml
+Bundle-Activator: com.netifera.platform.test.internal.Activator
+Bundle-ActivationPolicy: lazy
+Export-Package: com.netifera.platform.test.tools

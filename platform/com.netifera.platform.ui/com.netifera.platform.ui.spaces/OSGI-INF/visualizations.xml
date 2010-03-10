@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="netifera.visualizations-service">
-	<implementation class="com.netifera.platform.ui.internal.spaces.visualizations.SpaceVisualizationFactory" />
+	<implementation class="com.netifera.platform.ui.internal.spaces.visualizations.VisualizationFactory" />
 	<service>
-		<provide interface="com.netifera.platform.ui.spaces.visualizations.ISpaceVisualizationFactory" />
+		<provide interface="com.netifera.platform.ui.spaces.visualizations.IVisualizationFactory" />
 	</service>
 	
 	<reference 
 		name="PROVIDERS"
-		interface="com.netifera.platform.ui.spaces.visualizations.ISpaceVisualizationProvider"
+		interface="com.netifera.platform.ui.spaces.visualizations.IVisualizationProvider"
 		bind="registerProvider"
 		unbind="unregisterProvider"
 		cardinality="0..n"

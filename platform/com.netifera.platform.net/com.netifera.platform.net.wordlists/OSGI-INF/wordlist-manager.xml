@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.wordlist-managerr">
+	<implementation class="com.netifera.platform.net.internal.wordlists.WordListManager" />
+	<service>
+		<provide interface="com.netifera.platform.net.wordlists.IWordListManager" />
+	</service>
+
+	<reference
+    	name="LOGGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
+
+	<reference 
+		name="WORDLISTS"
+		interface="com.netifera.platform.net.wordlists.IWordList"
+		bind="registerWordList"
+		unbind="unregisterWordList"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+	
+</component>

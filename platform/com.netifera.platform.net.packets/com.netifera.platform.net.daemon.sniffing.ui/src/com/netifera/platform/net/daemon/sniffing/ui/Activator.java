@@ -120,7 +120,7 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	public void initialize() {
-		workbenchChangeManager = new WorkbenchChangeManager(getWindow(), PerspectiveFactory.ID, createChangeListener());
+		workbenchChangeManager = new WorkbenchChangeManager(getWindow(), createChangeListener());
 		workbenchChangeManager.initialize();
 	}
 	
@@ -136,7 +136,7 @@ public class Activator extends AbstractUIPlugin {
 				}	
 			}
 
-			public void perspectiveClosed() {
+			private void perspectiveClosed() {
 				if(toolbarItem != null) {
 					ApplicationPlugin.getDefault().getCoolBar().remove(toolbarItem);
 					toolbarItem.dispose();
@@ -149,8 +149,15 @@ public class Activator extends AbstractUIPlugin {
 				
 			}
 
-			public void perspectiveOpened() {
+			private void perspectiveOpened() {
 				displayToolbar();
+			}
+
+			public void perspectiveActivated(String id) {
+				if (id.equals(PerspectiveFactory.ID))
+					perspectiveOpened();
+				else
+					perspectiveClosed();
 			}
 			
 		};

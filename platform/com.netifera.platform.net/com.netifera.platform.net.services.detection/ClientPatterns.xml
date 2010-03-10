@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<netifera:Patterns xmlns:netifera="http://netifera.com/ServicePatterns"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://netifera.com/ServicePatterns ServicePatterns.xsd ">
+	<ServicePattern regex="(?i)^GET http[s]?://.* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
+		<service>HTTP Proxy</service>
+		<product>{$1}</product>
+	</ServicePattern>
+	<ServicePattern regex="(?i)^GET .* HTTP/1\.[01].*User-Agent: ([^\r\n]+)[\r\n].*">
+		<service>HTTP</service>
+		<product>{$1}</product>
+	</ServicePattern>
+	<ServicePattern regex="^SSH-.*OpenSSH_([\w.]+)\s+([^\x00\r\n]*).*">
+		<service>SSH</service>
+		<os>{$2}</os>
+		<product>OpenSSH</product>
+		<version>{$1}</version>
+	</ServicePattern>
+	<ServicePattern regex="^SSH-\d\.\d-([^\r\n\x00]*)">
+		<service>SSH</service>
+		<product>{$1}</product>
+	</ServicePattern>
+	<ServicePattern regex="^VER \d+ MSN.*CVR \d+ [^ ]* (.*) (MSN[^ ]*) ([\d.]*) .*USR \d+ [^ ]* . ([^\r\n]+)[\r\n].*">
+		<service>MSN</service>
+		<os>{$1}</os>
+		<product>{$2}</product>
+		<version>{$3}</version>
+		<username>{$4}</username>
+	</ServicePattern>
+	<ServicePattern regex="^&lt;\?xml version='1\.0' \?&gt;&lt;stream:stream to\='gmail.com' .*">
+		<service>Jabber</service>
+		<product>Google Talk</product>
+	</ServicePattern>
+	<ServicePattern regex="^^NICK ([^\r\n]+)[\r\n].*">
+		<service>IRC</service>
+		<username>{$1}</username>
+	</ServicePattern>
+	<ServicePattern regex="^(\xff[\xfb\xfc\xfd].)+.*">
+		<service>Telnet</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x38.{8}\x00\x00\x00\x00\x00$">
+		<service>OpenVPN</service>
+	</ServicePattern>
+	<ServicePattern regex="(?imd)^M-SEARCH \* HTTP.*">
+		<service>SSDP</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x01\x01\x06.*\x35\x01\x01.*\xff$">
+		<service>DHCP</service>
+	</ServicePattern>
+		<ServicePattern regex="^..[\x01\x28\x29\x30]\x10\x00\x01.*\x00\x20\x00\x01.*">
+		<service>NetBIOS-NS</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x04\x01\x00\x50.{4}\x00$">
+		<service>SOCKS4</service>
+	</ServicePattern>
+	<ServicePattern regex="^\x04\x01\x00\x50\x00\x00\x00.\x00([^\x00]+)\x00$">
+		<service>SOCKS4a</service>
+		<comment>Connects to {$1}</comment>
+	</ServicePattern>
+</netifera:Patterns>

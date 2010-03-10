@@ -71,7 +71,6 @@ public class Task implements Runnable, ITaskProgress, ITaskPrompter, ITaskMessen
 			
 			status.setFinished();
 			output.changed();
-		
 		} catch(TaskException e) {
 			String message = e.getMessage();
 			if (message == null) message = e.toString();
@@ -79,8 +78,12 @@ public class Task implements Runnable, ITaskProgress, ITaskPrompter, ITaskMessen
 			status.setFailed();
 			output.changed();
 		} catch (Exception e) {
-			logger.warning("Unhandled exception in task running tool: " + this, e);
-			error("Unexpected error, please contact technical support.\n" + e);
+			e.printStackTrace();
+			StringWriter stringWriter = new StringWriter();
+			e.printStackTrace(new PrintWriter(stringWriter));
+			String stackTrace = stringWriter.getBuffer().toString();
+			logger.error("Unhandled exception in task running tool: " + this, e);
+			error("Unexpected error: "+stackTrace);
 			status.setFailed();
 			output.changed();
 		}
@@ -164,8 +167,8 @@ public class Task implements Runnable, ITaskProgress, ITaskPrompter, ITaskMessen
 		output.changed();
 	}
 	
-	public void setStatus(String status) {
-		this.status.setStatus(status);
+	public void setSubTitle(String subtitle) {
+		this.status.setSubTitle(subtitle);
 		output.changed();
 	}
 	

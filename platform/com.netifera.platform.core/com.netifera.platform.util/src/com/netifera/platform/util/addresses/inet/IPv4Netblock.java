@@ -104,10 +104,10 @@ public class IPv4Netblock extends InternetNetblock {
 		return maskBitCount >= 2; /* to fit java signed integer */
 	}
 	
-	public IPv4Address itemAt(final int index) {
+	public IPv4Address get(int index) {
 		if (index < 0) {
 			throw new IndexOutOfBoundsException("index:" + index
-					+ " for itemcount:" + itemCount());
+					+ " for size:" + size());
 		}
 		if (!isIndexedIterable()) {
 			throw new NoSuchElementException("index:" + index);
@@ -118,9 +118,8 @@ public class IPv4Netblock extends InternetNetblock {
 	
 	/**
 	 * @return how many InternetAddress this Netblock contains.
-	 * @see com.netifera.platform.util.addresses.INetworkblock#itemCount()
 	 */
-	public int itemCount() {
+	public int size() {
 		if (!isIndexedIterable()) {
 			return 0;
 		}
@@ -134,7 +133,7 @@ public class IPv4Netblock extends InternetNetblock {
 	 * @return the number of hosts available
 	 */
 	public int availableHosts() {
-		int r = itemCount() - 2;
+		int r = size() - 2;
 		if (r <= 0) {
 			/* RFC 3021 for PPP links */
 			r += 2;
@@ -197,21 +196,16 @@ public class IPv4Netblock extends InternetNetblock {
 	}
 
 	public int compareTo(final IPv4Netblock other) {
-		int r;
-		r = network.compareTo(other.network);
-		if (r > 0) {
-			return 1;
-		} else if (r < 0) {
-			return -1;
-		}
-		return maskBitCount < other.maskBitCount ? 1
-				: (maskBitCount == other.maskBitCount ? 0 : -1);
+		int value;
+		value = network.compareTo(other.network);
+		if (value != 0)
+			return value;
+		return maskBitCount < other.maskBitCount ? 1 : (maskBitCount == other.maskBitCount ? 0 : -1);
 	}
 
 	public int compareTo(InternetNetblock other) {
-		if (other instanceof IPv4Netblock) {
+		if (other instanceof IPv4Netblock)
 			return compareTo((IPv4Netblock)other);
-		}
 		return -1; // XXX
 	}
 	

@@ -19,16 +19,12 @@
 <plugin>
    <extension
          point="org.eclipse.ui.views">
-      <category
-            name="Host"
-            id="Host">
-      </category>
       <view
             allowMultiple="true"
             restorable="false"
             class="com.netifera.platform.host.terminal.ui.view.TerminalView"
             icon="icons/terminal_view.png"
-            category="Host"
+            category="com.netifera.platform.ui.category.host"
             name="Terminal"
             id="org.eclipse.tm.terminal.view.TerminalView">
       </view>
@@ -49,7 +45,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             name="Terminal"
-            class="com.netifera.platform.host.terminal.ui.view.TerminalPreferencePage"
+            class="com.netifera.platform.host.terminal.ui.preferences.TerminalPreferencePage"
             id="org.eclipse.tm.terminal.TerminalPreferencePage">
       </page>
    </extension>
@@ -67,7 +63,7 @@
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="com.netifera.platform.host.terminal.ui.view.TerminalPreferenceInitializer"/>
+      <initializer class="com.netifera.platform.host.terminal.ui.preferences.TerminalPreferenceInitializer"/>
    </extension>
 
 	<!-- ============================================ -->

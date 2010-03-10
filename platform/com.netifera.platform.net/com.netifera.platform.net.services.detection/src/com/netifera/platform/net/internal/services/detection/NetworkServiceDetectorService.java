@@ -3,7 +3,6 @@ package com.netifera.platform.net.internal.services.detection;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +12,7 @@ import com.netifera.platform.util.patternmatching.IPattern;
 import com.netifera.platform.util.patternmatching.Regex;
 
 abstract class NetworkServiceDetectorService implements INetworkServiceDetectorService {
-	protected final Map<String, ArrayList<INetworkServiceDetector>> detectors = new HashMap<String, ArrayList<INetworkServiceDetector>>();
+	protected final ArrayList<INetworkServiceDetector> detectors = new ArrayList<INetworkServiceDetector>();
 	
 	protected static List<IPattern> genericOSDetectors;
 	protected static List<IPattern> genericArchDetectors;
@@ -23,25 +22,25 @@ abstract class NetworkServiceDetectorService implements INetworkServiceDetectorS
 		genericOSDetectors = new ArrayList<IPattern>();
 
 		Regex regex = Regex.caseInsensitive(".*((sunos|solaris|linux|macosx|osx|darwin|(net|free|open)bsd) [\\w.]+).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*(sunos|solaris|macosx|darwin|(net|free|open)bsd).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*(red hat|redhat|centos|fedora|debian|ubuntu|gentoo|mandriva|knopixx|slackware|suse).*");
 		regex.add("os", "Linux");
-		regex.add(1, "distribution");
+		regex.add("distribution", "{$1}");
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*((windows.nt|windows.200.|windows |win(32|2k|nt|200.)|cygwin) (version )?[\\w.]+).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		regex.add("arch", "i386"); // FIXME some NT run alpha
 		genericOSDetectors.add(regex);
 
 		regex = Regex.caseInsensitive(".*(windows.nt|windows.200.|windows |for windows|win(32|2k|nt|200.)|cygwin).*");
-		regex.add(1, "os");
+		regex.add("os", "{$1}");
 		regex.add("arch", "i386"); // FIXME some NT run alpha
 		genericOSDetectors.add(regex);
 
@@ -76,14 +75,7 @@ abstract class NetworkServiceDetectorService implements INetworkServiceDetectorS
 	}
 	
 	protected void addDetector(INetworkServiceDetector detector) {
-		ArrayList<INetworkServiceDetector> list;
-		if (detectors.containsKey(detector.getProtocol())) {
-			list = detectors.get(detector.getProtocol());
-		} else {
-			list = new ArrayList<INetworkServiceDetector>();
-			detectors.put(detector.getProtocol(), list);
-		}
-		list.add(detector);
+		detectors.add(detector);
 	}
 
 	public Map<String,String> detect(String protocol, int port,

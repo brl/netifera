@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.spider.extract-basic-auth">
+	<implementation class="com.netifera.platform.net.http.spider.modules.HTTPBasicAuthExtractorModule" />
+	<service>
+		<provide interface="com.netifera.platform.net.http.spider.IWebSpiderModule" />
+	</service>
+	
+	<reference
+		name="FACTORY"
+		interface="com.netifera.platform.net.http.web.model.IWebEntityFactory"
+		bind="setFactory"
+		unbind="unsetFactory"
+	/>
+	
+</component>

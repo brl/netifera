@@ -3,6 +3,7 @@ package com.netifera.platform.host.filesystem.probe;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
 import com.netifera.platform.api.dispatcher.IProbeMessage;
 import com.netifera.platform.api.dispatcher.MessengerException;
@@ -11,41 +12,52 @@ import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.dispatcher.StatusMessage;
 import com.netifera.platform.host.filesystem.File;
 import com.netifera.platform.host.filesystem.IFileSystem;
-import com.netifera.platform.host.filesystem.IFileSystemListener;
 
 public class RemoteFileSystem implements IFileSystem {
 
 	private final IProbe probe;
 	private final ILogger logger;
+	private final URI url;
 	private String messengerError;
 	
-	public RemoteFileSystem(IProbe probe, ILogger logger) {
+	public RemoteFileSystem(URI url, IProbe probe, ILogger logger) {
+		this.url = url;
 		this.probe = probe;
 		this.logger = logger;
 	}
 	
-	public void addListener(IFileSystemListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public File createDirectory(String directoryName) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		final CreateDirectory msg = (CreateDirectory) exchangeMessage(new CreateDirectory(url, directoryName));
+		if(msg == null) {
+			logger.warning("CreateDirectory failed " + messengerError);
+			return null;
+		}
+		
+		return msg.getResult();
 	}
 
 	public boolean delete(String fileName) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		final DeleteFile msg = (DeleteFile) exchangeMessage(new DeleteFile(url, fileName));
+		if(msg == null) {
+			logger.warning("DeleteFile failed " + messengerError);
+			return false;
+		}
+		
+		return msg.getResult();
 	}
 
 	public boolean deleteDirectory(String directoryName) throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		final DeleteDirectory msg = (DeleteDirectory) exchangeMessage(new DeleteDirectory(url, directoryName));
+		if(msg == null) {
+			logger.warning("DeleteDirectory failed " + messengerError);
+			return false;
+		}
+		
+		return msg.getResult();
 	}
 
 	public File[] getDirectoryList(String directoryName) throws IOException {
-		final GetDirectoryListing msg = (GetDirectoryListing) exchangeMessage(new GetDirectoryListing(directoryName));
+		final GetDirectoryListing msg = (GetDirectoryListing) exchangeMessage(new GetDirectoryListing(url, directoryName));
 		if(msg == null) {
 			logger.warning("GetDirectoryList failed " + messengerError);
 			return null;
@@ -71,7 +83,7 @@ public class RemoteFileSystem implements IFileSystem {
 	}
 
 	public File[] getRoots() {
-		final GetRoots msg = (GetRoots) exchangeMessage(new GetRoots());
+		final GetRoots msg = (GetRoots) exchangeMessage(new GetRoots(url));
 		if(msg == null) {
 			logger.warning("GetRoots failed" + messengerError);
 			return null;
@@ -82,14 +94,13 @@ public class RemoteFileSystem implements IFileSystem {
 		return msg.getFileRoots();
 	}
 
-	public void removeListener(IFileSystemListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public boolean rename(String oldName, String newName) throws IOException {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	public void disconnect() throws IOException {
+		// TODO Auto-generated method stub
 	}
 	
 	@SuppressWarnings("unused")
@@ -103,8 +114,7 @@ public class RemoteFileSystem implements IFileSystem {
 		}
 	}
 	
-private IProbeMessage exchangeMessage(IProbeMessage message) {
-		
+	private IProbeMessage exchangeMessage(IProbeMessage message) {
 		try {
 			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
 			if(response instanceof StatusMessage) { 
@@ -117,5 +127,15 @@ private IProbeMessage exchangeMessage(IProbeMessage message) {
 			return null;
 		}
 	}
+	
+	public String toString() {
+		if (url.getScheme().equals("local"))
+			return probe.getName();
+		return url.toString() + " on "+probe.getName();
+	}
 
+	public File stat(String fileName) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

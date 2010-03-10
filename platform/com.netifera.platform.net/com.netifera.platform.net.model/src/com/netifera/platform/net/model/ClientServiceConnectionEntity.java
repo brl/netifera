@@ -42,8 +42,8 @@ public class ClientServiceConnectionEntity extends AbstractEntity {
 	
 	private ClientServiceConnectionEntity(IWorkspace workspace, long realm, IEntityReference clientReference, IEntityReference serviceReference, String identity) {
 		super(ENTITY_NAME, workspace, realm);
-		this.client = clientReference.createClone();
-		this.service = serviceReference.createClone();
+		this.client = clientReference;
+		this.service = serviceReference;
 		this.identity = identity;
 	}
 	

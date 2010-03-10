@@ -33,13 +33,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.netifera.platform.net.sockets"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.netifera.platform.net.services"
          download-size="0"
          install-size="0"
@@ -55,13 +48,6 @@
 
    <plugin
          id="com.netifera.platform.net.tools.portscanning"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.netifera.platform.net.tools.auth"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -110,14 +96,49 @@
          unpack="false"/>
 
    <plugin
-         id="com.netifera.platform.net.geoip"
+         id="com.netifera.platform.net.wordlists"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.netifera.platform.net.routes"
+         id="com.netifera.platform.net.tools.bruteforce"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.jboss.netty"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.ui.geoip"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.ui.rir"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.ui.routes"
          download-size="0"
          install-size="0"
          version="0.0.0"

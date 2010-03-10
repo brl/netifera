@@ -2,6 +2,7 @@ package com.netifera.platform.ui.spaces;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
@@ -14,6 +15,10 @@ import com.netifera.platform.ui.internal.spaces.Activator;
 public class SpaceEditorInput implements IEditorInput {
 	public final static String ID = "com.netifera.platform.editors.spaces";
 
+	public final static String SPACE_ICON = "icons/space.png";
+	public final static String SPACE_ISOLATED_ICON = "icons/space_isolated.png";
+	public final static String SPACE_ACTIVE_OVERLAY = "icons/space_active_overlay.png";
+
 	private final ISpace space;
 	private final IProbe probe;
 	
@@ -23,7 +28,7 @@ public class SpaceEditorInput implements IEditorInput {
 	}
 	
 	private IProbe findProbeForSpace(ISpace space) {
-		final IProbeManagerService probeManager = Activator.getDefault().getProbeManager();
+		final IProbeManagerService probeManager = Activator.getInstance().getProbeManager();
 		if(probeManager == null) {
 			throw new RuntimeException("Cannot create editor because probe manager service is not available");
 		}
@@ -47,7 +52,13 @@ public class SpaceEditorInput implements IEditorInput {
 	}
 
 	public ImageDescriptor getImageDescriptor() {
-		return null;
+		String baseIcon = space.isIsolated() ? SPACE_ISOLATED_ICON : SPACE_ICON;
+		if (space.isActive()) {
+			String overlayKeys[] = new String[5];
+			overlayKeys[IDecoration.TOP_RIGHT] = SPACE_ACTIVE_OVERLAY;
+			return Activator.getInstance().getImageCache().getDecoratedDescriptor(baseIcon, overlayKeys);
+		}
+		return Activator.getInstance().getImageCache().getDescriptor(baseIcon);
 	}
 
 	public String getName() {
@@ -56,20 +67,17 @@ public class SpaceEditorInput implements IEditorInput {
 
 	public IPersistableElement getPersistable() {
 		return new IPersistableElement() {
-
 			public String getFactoryId() {
 				return ElementFactory.ID;
 			}
-
 			public void saveState(IMemento memento) {
 				memento.putInteger("space-id", (int) space.getId());				
 			}
-			
 		};
 	}
 
 	public String getToolTipText() {
-		return "Space:  " + space.getName();
+		return "Space: '" + space.getName()+"'";
 	}
 
 	@Override
@@ -89,5 +97,4 @@ public class SpaceEditorInput implements IEditorInput {
 	public Object getAdapter(Class adapter) {
 		return Platform.getAdapterManager().getAdapter(this, adapter);
 	}
-
 }

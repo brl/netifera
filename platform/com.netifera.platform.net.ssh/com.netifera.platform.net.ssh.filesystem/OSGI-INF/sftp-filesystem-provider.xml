@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.filesystem-sftp">
+	<implementation class="com.netifera.platform.net.ssh.internal.filesystem.SFTPFileSystemProvider" />
+	<service>
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
+	</service>
+</component>

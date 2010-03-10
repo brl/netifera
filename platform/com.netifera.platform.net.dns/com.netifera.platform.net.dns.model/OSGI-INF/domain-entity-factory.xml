@@ -11,11 +11,4 @@
 		bind="setModelService"
 		unbind="unsetModelService"
 	/>
-
-	<reference 
-		name="NETWORK_ENTITY_FACTORY"
-		interface="com.netifera.platform.net.model.INetworkEntityFactory"
-		bind="setNetworkEntityFactory"
-		unbind="unsetNetworkEntityFactory"
-	/>
 </component>

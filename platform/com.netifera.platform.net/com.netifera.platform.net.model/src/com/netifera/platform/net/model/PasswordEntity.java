@@ -40,5 +40,18 @@ public class PasswordEntity extends CredentialEntity implements Comparable<Passw
 		int r = password.compareTo(other.password);
 		return r > 0 ? 1 : (r < 0 ? -1 : 0);
 	}
+	
+	public static synchronized PasswordEntity create(IWorkspace workspace, long realm, long spaceId, IEntity authenticable, String password) {
+		PasswordEntity passwordEntity = (PasswordEntity) workspace.findByKey(createQueryKey(realm, authenticable.getId(), password));
+		if(passwordEntity != null) {
+			passwordEntity.addToSpace(spaceId);
+			return passwordEntity;
+		}
+	
+		passwordEntity = new PasswordEntity(workspace, authenticable, password);
+		passwordEntity.save();
+		passwordEntity.addToSpace(spaceId);
+		return passwordEntity;
+	}
 }
 

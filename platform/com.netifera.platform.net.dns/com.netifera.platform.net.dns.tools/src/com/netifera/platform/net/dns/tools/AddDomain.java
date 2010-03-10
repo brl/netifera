@@ -15,7 +15,6 @@ import org.xbill.DNS.Record;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -30,8 +29,8 @@ import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.inet.IPv4Address;
 import com.netifera.platform.util.addresses.inet.IPv6Address;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class AddDomain implements ITool {
 	
@@ -40,14 +39,9 @@ public class AddDomain implements ITool {
 	private INameResolver resolver;
 	
 	private IToolContext context;
-	private long realm;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
-		
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 		
 		setupToolOptions();
 
@@ -55,7 +49,7 @@ public class AddDomain implements ITool {
 		
 		try {
 			if (dns != null)
-				resolver = dns.createNameResolver(Activator.getInstance().getSocketEngine());
+				resolver = dns.createNameResolver(Activator.getInstance().getDatagramChannelFactory());
 			else
 				resolver = Activator.getInstance().getNameResolver();
 			getNS();
@@ -67,7 +61,7 @@ public class AddDomain implements ITool {
 	}
 	
 	private boolean getNS() {
-		context.setStatus("Querying for authoritative name servers");
+		context.setSubTitle("Querying for authoritative name servers");
 		Lookup lookup = new Lookup(domain, Type.NS);
 		lookup.setResolver(resolver.getExtendedResolver());
 		lookup.setSearchPath((Name[])null);
@@ -79,7 +73,7 @@ public class AddDomain implements ITool {
 		}
 		
 		// if the domain has ns records, it exists
-		DomainEntity entity = Activator.getInstance().getDomainEntityFactory().createDomain(realm, context.getSpaceId(), domain.toString());
+		DomainEntity entity = Activator.getInstance().getDomainEntityFactory().createDomain(context.getRealm(), context.getSpaceId(), domain.toString());
 		entity.addTag("Target");
 		entity.addToSpace(context.getSpaceId());
 		entity.update();
@@ -93,38 +87,39 @@ public class AddDomain implements ITool {
 		context.info(o.toString());
 		if (o instanceof ARecord) {
 			ARecord a = (ARecord) o;
-			Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), a.getName().toString(), IPv4Address.fromInetAddress(a.getAddress()));
+			Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), a.getName().toString(), IPv4Address.fromInetAddress(a.getAddress()));
 		} else if (o instanceof AAAARecord) {
 			AAAARecord aaaa = (AAAARecord) o;
-			Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), aaaa.getName().toString(), IPv6Address.fromInetAddress(aaaa.getAddress()));
+			Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), aaaa.getName().toString(), IPv6Address.fromInetAddress(aaaa.getAddress()));
 		} else if (o instanceof PTRRecord) {
 			PTRRecord ptr = (PTRRecord) o;
-//			Activator.getInstance().getDomainEntityFactory().createARecord(realm, a.getName().toString(), InternetAddress.fromInetAddress(o..getAddress()));
-			context.warning("unhandled record: "+ptr);
+//			Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), a.getName().toString(), InternetAddress.fromInetAddress(o..getAddress()));
+			context.warning("Unhandled record: "+ptr);
 		} else if (o instanceof MXRecord) {
 			processMXRecord((MXRecord) o);
 		} else if (o instanceof NSRecord) {
 			processNSRecord((NSRecord) o);
 		} else {
-			context.warning("Unhandled DNS record: "+o);
+			context.warning("Unhandled record: "+o);
 		}
 	}
 	
 	private void processNSRecord(NSRecord ns) {
-		NSRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createNSRecord(realm, context.getSpaceId(), domain.toString(), ns.getTarget().toString());
+		NSRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createNSRecord(context.getRealm(), context.getSpaceId(), domain.toString(), ns.getTarget().toString());
 		try {
 			List<InternetAddress> addresses = resolver.getAddressesByName(ns.getTarget().toString());
 			for (InternetAddress address: addresses) {
 				if (address instanceof IPv4Address) {
-					Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), ns.getTarget().toString(), (IPv4Address)address);
+					Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), ns.getTarget().toString(), (IPv4Address)address);
 				} else {
-					Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), ns.getTarget().toString(), (IPv6Address)address);
+					Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), ns.getTarget().toString(), (IPv6Address)address);
 				}
-				UDPSocketLocator locator = new UDPSocketLocator(address,53);
-				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), locator, "DNS", null);
+				UDPSocketAddress socketAddress = new UDPSocketAddress(address,53);
+				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, "DNS", null);
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the NS record entity
 			}
 			entity.save();
+			entity.update();
 		} catch (UnknownHostException e) {
 			context.warning("Could not resolve NS record target "+ns.getTarget());
 		} catch (TextParseException e) {
@@ -133,20 +128,21 @@ public class AddDomain implements ITool {
 	}
 
 	private void processMXRecord(MXRecord mx) {
-		MXRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createMXRecord(realm, context.getSpaceId(), domain.toString(), mx.getTarget().toString(), mx.getPriority());
+		MXRecordEntity entity = Activator.getInstance().getDomainEntityFactory().createMXRecord(context.getRealm(), context.getSpaceId(), domain.toString(), mx.getTarget().toString(), mx.getPriority());
 		try {
 			List<InternetAddress> addresses = resolver.getAddressesByName(mx.getTarget().toString());
 			for (InternetAddress address: addresses) {
 				if (address instanceof IPv4Address) {
-					Activator.getInstance().getDomainEntityFactory().createARecord(realm, context.getSpaceId(), mx.getTarget().toString(), (IPv4Address)address);
+					Activator.getInstance().getDomainEntityFactory().createARecord(context.getRealm(), context.getSpaceId(), mx.getTarget().toString(), (IPv4Address)address);
 				} else {
-					Activator.getInstance().getDomainEntityFactory().createAAAARecord(realm, context.getSpaceId(), mx.getTarget().toString(), (IPv6Address)address);
+					Activator.getInstance().getDomainEntityFactory().createAAAARecord(context.getRealm(), context.getSpaceId(), mx.getTarget().toString(), (IPv6Address)address);
 				}
-				TCPSocketLocator locator = new TCPSocketLocator(address,25);
-				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), locator, "SMTP", null);
+				TCPSocketAddress socketAddress = new TCPSocketAddress(address,25);
+				ServiceEntity service = Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), socketAddress, "SMTP", null);
 				entity.setService(service); //XXX just the last one will be kept as default service when accessing it from the MX record entity
 			}
 			entity.save();
+			entity.update();
 		} catch (UnknownHostException e) {
 			context.warning("Could not resolve MX record target "+mx.getTarget());
 		} catch (TextParseException e) {

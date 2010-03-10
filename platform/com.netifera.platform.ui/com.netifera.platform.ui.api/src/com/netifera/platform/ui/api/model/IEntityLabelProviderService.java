@@ -14,7 +14,6 @@ public interface IEntityLabelProviderService {
 	String getText(IShadowEntity entity);
 	String getFullText(IShadowEntity entity);
 	Image getImage(IShadowEntity entity);
-	String getInformation(IShadowEntity entity);
 	int getSortingCategory(IShadowEntity entity);
 	Integer compare(IShadowEntity e1, IShadowEntity e2);
 }

@@ -10,7 +10,7 @@ public interface ITask {
 	void done();
 	
 	void setTitle(String title);
-	void setStatus(String status);
+	void setSubTitle(String subtitle);
 
 	void debug(String message);
 	void info(String message);
@@ -19,5 +19,4 @@ public interface ITask {
 	
 	void print(String message);
 	void exception(String message, Throwable throwable);
-	
 }

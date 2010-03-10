@@ -62,20 +62,20 @@ public class TCPListenConnecter implements ITCPListenConnecter {
 		}
 	}
 	private void doConnect(IChannelConnectProgress progress) throws InterruptedException, IOException {
-	    /*                                                                                                                                                                                      
-         * This is the code we would use to have interruptible connects.                                                                                                                        
-         * Unfortunately it does not seem to work and causes the object                                                                                                                         
-         * streams to block                                                                                                                                                                     
-         */                                                                                                                                                                                     
+	    /*
+         * This is the code we would use to have interruptible connects.
+         * Unfortunately it does not seem to work and causes the object
+         * streams to block
+         */
         
     	/*
-        socketChannel = SocketChannel.open();                                                                                                                                                 
-        socketChannel.connect(address);                                                                                                                                                       
+        socketChannel = SocketChannel.open();
+        socketChannel.connect(address);
         socket = socketChannel.socket();
         */                                                                                                                                                    
-                 
+        
 		connectInProgress = true;
-        socket.connect(remoteAddress);   
+        socket.connect(remoteAddress, 10000);
         connectInProgress = false;
         final IMessenger messenger = dispatcher.createMessenger(TCPSocketTransport.create(socket));
         progress.connectCompleted(messenger);

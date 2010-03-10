@@ -34,7 +34,7 @@ public class PortSet implements IndexedIterable<Integer> {
 			return false;
 		}
 		PortSet portset = (PortSet)obj;
-		if (itemCount() != portset.itemCount()) {
+		if (size() != portset.size()) {
 			return false;
 		}
 		if (ports.size() != portset.ports.size()) {
@@ -108,10 +108,6 @@ public class PortSet implements IndexedIterable<Integer> {
 	
 	@Override
 	public String toString() {
-		return getLabel();
-	}
-	
-	public String getLabel() {
 		final StringBuffer buffer = new StringBuffer();
 		for(PortRange r : ports) {
 			if(buffer.length() > 0) {
@@ -148,30 +144,30 @@ public class PortSet implements IndexedIterable<Integer> {
 	}
 
 	public static int verifyPort(final int port) throws IllegalArgumentException {
-		if (port < 0 || port > PORT_MAX) {
+		if (port <= 0 || port > PORT_MAX) {
 			throw new IllegalArgumentException("Invalid port: " + port);
 		}
 		return port;
 	}
 
-	public Integer itemAt(final int index) {
+	public Integer get(final int index) {
 		if (index < 0) {
 			throw new IndexOutOfBoundsException();
 		}
 		int idx = index;
 		for (PortRange range: ports) {
-			if (idx < range.itemCount()) {
-				return range.itemAt(idx);
+			if (idx < range.size()) {
+				return range.get(idx);
 			}
-			idx -= range.itemCount();
+			idx -= range.size();
 		}
 		throw new IndexOutOfBoundsException();
 	}
 
-	public int itemCount() { // Cardinal
+	public int size() { // Cardinal
 		int answer = 0;
 		for (PortRange range: ports) {
-			answer += range.itemCount();
+			answer += range.size();
 		}
 		return answer;
 	}

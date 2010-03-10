@@ -30,7 +30,7 @@ import org.xbill.DNS.SetResponse;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
-import com.netifera.platform.net.sockets.CompletionHandler;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 /**
  * The Lookup object issues queries to caching DNS servers. The input consists
@@ -237,9 +237,10 @@ public final class AsynchronousLookup {
 	public AsynchronousLookup(Name name, int type, int dclass) {
 		// Type.check(type);
 		// DClass.check(dclass);
-		if (!Type.isRR(type) && type != Type.ANY)
-			throw new IllegalArgumentException("Cannot query for "
-					+ "meta-types other than ANY");
+		if (!Type.isRR(type) && type != Type.ANY) {
+			System.err.println("AsynchronousLookup error: Cannot query for meta-types other than ANY");
+			throw new IllegalArgumentException("Cannot query for meta-types other than ANY");
+		}
 		this.name = name;
 		this.type = type;
 		this.dclass = dclass;
@@ -474,6 +475,7 @@ public final class AsynchronousLookup {
 		} else if (response.isDelegation()) {
 			// We shouldn't get a referral. Ignore it.
 			referral = true;
+			System.err.println("AsynchronousLookup got a REFERRAL");
 		}
 	}
 
@@ -571,6 +573,7 @@ public final class AsynchronousLookup {
 		else if (searchPath == null)
 			resolve(name, Name.root, attachment, handler);
 		else {
+			System.err.println("AsynchronousLookup error: search path not implemented");
 			throw new RuntimeException(this.getClass().getName()+": Search path not implemented");
 /*			if (name.labels() > 1)
 				resolve(name, Name.root, handler);
@@ -625,6 +628,7 @@ public final class AsynchronousLookup {
 		if (dclass != DClass.IN)
 			sb.append(DClass.string(dclass) + " ");
 		sb.append(Type.string(type) + " isn't done");
+		System.err.println("AsynchronousLookup in illegal state: "+sb.toString());
 		throw new IllegalStateException(sb.toString());
 	}
 
@@ -693,6 +697,7 @@ public final class AsynchronousLookup {
 		case TYPE_NOT_FOUND:
 			return "type not found";
 		}
+		System.err.println("AsynchronousLookup getErrorString() cannot determine error string for result="+result);
 		throw new IllegalStateException("unknown result");
 	}
 

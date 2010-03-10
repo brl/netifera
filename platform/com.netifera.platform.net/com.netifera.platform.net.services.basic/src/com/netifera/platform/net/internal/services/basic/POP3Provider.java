@@ -3,7 +3,7 @@ package com.netifera.platform.net.internal.services.basic;
 import com.netifera.platform.net.services.INetworkService;
 import com.netifera.platform.net.services.INetworkServiceProvider;
 import com.netifera.platform.net.services.basic.POP3;
-import com.netifera.platform.util.locators.ISocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
 
 public class POP3Provider implements INetworkServiceProvider {
 
@@ -15,7 +15,7 @@ public class POP3Provider implements INetworkServiceProvider {
 		return "POP3";
 	}
 
-	public POP3 create(ISocketLocator locator) {
-		return new POP3(locator);
+	public POP3 create(InternetSocketAddress address) {
+		return new POP3(address);
 	}
 }

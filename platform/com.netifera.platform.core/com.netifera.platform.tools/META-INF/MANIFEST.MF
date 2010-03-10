@@ -8,6 +8,8 @@ Export-Package: com.netifera.platform.tools,
  com.netifera.platform.tools.options
 Import-Package: com.netifera.platform.api.dispatcher,
  com.netifera.platform.api.log,
+ com.netifera.platform.api.model,
+ com.netifera.platform.api.probe,
  com.netifera.platform.api.tasks,
  com.netifera.platform.api.tools
 Service-Component: OSGI-INF/toollauncher-service.xml

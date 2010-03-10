@@ -59,4 +59,18 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="com.netifera.platform.net.http.spider"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.http.spider.modules"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

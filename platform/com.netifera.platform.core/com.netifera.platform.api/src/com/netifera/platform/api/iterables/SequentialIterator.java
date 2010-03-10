@@ -12,7 +12,7 @@ public class SequentialIterator<E> implements Iterator<E> {
 	private int current;
 	
 	public SequentialIterator(IndexedIterable<E> base) {
-		this.count = base.itemCount();
+		this.count = base.size();
 		this.base = base;
 		current = 0;
 	}
@@ -25,7 +25,7 @@ public class SequentialIterator<E> implements Iterator<E> {
 		if(!hasNext()) {
 			throw new NoSuchElementException();
 		}
-		return base.itemAt(current++);
+		return base.get(current++);
 	}
 
 	public void remove() {

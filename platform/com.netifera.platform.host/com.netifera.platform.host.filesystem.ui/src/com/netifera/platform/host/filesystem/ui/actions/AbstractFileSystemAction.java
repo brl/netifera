@@ -6,12 +6,16 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 
+import com.netifera.platform.host.filesystem.ui.FileSystemContentProvider;
+
 public class AbstractFileSystemAction extends Action implements ISelectionChangedListener {
 	private ISelectionProvider selectionProvider;
 	private IStructuredSelection selection;
+	protected FileSystemContentProvider contentProvider;
 
-	public AbstractFileSystemAction(ISelectionProvider selectionProvider) {
+	public AbstractFileSystemAction(ISelectionProvider selectionProvider, FileSystemContentProvider contentProvider) {
 		setSelectionProvider(selectionProvider);
+		this.contentProvider = contentProvider;
 	}
 
 	public void setSelectionProvider(ISelectionProvider selectionProvider) {

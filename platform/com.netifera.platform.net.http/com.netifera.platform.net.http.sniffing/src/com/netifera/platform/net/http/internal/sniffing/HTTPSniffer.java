@@ -12,7 +12,7 @@ import com.netifera.platform.net.daemon.sniffing.module.ITCPBlockSniffer;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 import com.netifera.platform.net.sniffing.stream.IBlockSnifferConfig;
 import com.netifera.platform.net.sniffing.stream.ISessionKey;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class HTTPSniffer implements ITCPBlockSniffer {
 
@@ -50,14 +50,14 @@ public class HTTPSniffer implements ITCPBlockSniffer {
 		String userAgent = null;
 		for (String header: requestLines) {
 			if (header.startsWith("User-Agent: ")) {
-				userAgent = header.substring(12);
+				userAgent = new String(header.substring(12));
 				break;
 			}
 		}
 		String contentType = null;
 		for (String header: responseLines) {
 			if (header.startsWith("Content-Type: ")) {
-				contentType = header.substring(14);
+				contentType = new String(header.substring(14));
 				break;
 			}
 		}
@@ -65,11 +65,10 @@ public class HTTPSniffer implements ITCPBlockSniffer {
 		ISessionKey key = ctx.getKey();
 		long realm = ctx.getRealm();
 		long spaceId = ctx.getSpaceId();
-		TCPSocketLocator service = new TCPSocketLocator(key.getServerAddress(),
-				key.getServerPort());
+		TCPSocketAddress socketAddress = new TCPSocketAddress(key.getServerAddress(), key.getServerPort());
 		//if (contentType != null) // FIXME
 		Activator.getInstance().getWebEntityFactory().createRequestResponse(
-				realm, spaceId, key.getClientAddress(), getClientInfo(userAgent), service,
+				realm, spaceId, key.getClientAddress(), getClientInfo(userAgent), socketAddress,
 				requestLines[0], responseLines[0], contentType);
 	}
 	

@@ -71,15 +71,6 @@ public abstract class InternetNetblock implements INetblock<InternetAddress>,
 			InternetAddress network, int maskBitCount);
 	
 	/**
-	 * Creates a new instance of this object.
-	 * 
-	 * @return A new InternetAddress instance
-	 */
-	public InternetNetblock newInstance() {
-		return network.createNetblock(maskBitCount);
-	}
-	
-	/**
 	 * The number of shared initial bits, counting from the left-hand side of
 	 * the address.
 	 * 
@@ -95,8 +86,7 @@ public abstract class InternetNetblock implements INetblock<InternetAddress>,
 	 * 
 	 * @exception IllegalArgumentException if the prefix is invalid.
 	 */
-	public static InternetNetblock fromAddress(InternetAddress address,
-			int maskBitCount) {
+	public static InternetNetblock fromAddress(InternetAddress address, int maskBitCount) {
 		return address.createNetblock(maskBitCount);
 	}
 	
@@ -143,9 +133,8 @@ public abstract class InternetNetblock implements INetblock<InternetAddress>,
 		return InternetAddress.fromBytes(addr).createNetblock(maskBitCount);
 	}
 	
-	public static InternetNetblock fromRange(String fromIP, String toIP) {
-		InternetAddress from = InternetAddress.fromString(fromIP);
-		InternetAddress to = InternetAddress.fromString(toIP);
+	public static InternetNetblock fromRange(InternetAddress from, InternetAddress to) {
+		//FIXME what if the range is not a CIDR block?
 		if (from.getNetworkFamily().compareTo(to.getNetworkFamily()) != 0) {
 			// FIXME encapsulated?
 			throw new IllegalArgumentException("Different families: from/to");
@@ -153,9 +142,12 @@ public abstract class InternetNetblock implements INetblock<InternetAddress>,
 		if (from instanceof IPv6Address) { // TODO
 			throw new UnsupportedOperationException("IPv6 from-to netblock");
 		}
-		int maskBitCount = IPv4Netblock.getMaskBits(((IPv4Address)to)
-				.addressData - ((IPv4Address)from).addressData);
+		int maskBitCount = IPv4Netblock.getMaskBits(((IPv4Address)to).addressData - ((IPv4Address)from).addressData);
 		return fromAddress(from, maskBitCount);
+	}
+	
+	public static InternetNetblock fromRange(IPv4Address from, int count) {
+		return fromRange(from, new IPv4Address(from.toInteger()+count));
 	}
 	
 	/**
@@ -235,14 +227,8 @@ public abstract class InternetNetblock implements INetblock<InternetAddress>,
 	
 	//public abstract boolean isMulticast();
 	
-	public IndexedIterable<InternetAddress> getIndexedIterable() {
-		if (!isIndexedIterable()) {
-			return null;
-		}
-		return this;
-	}
-	
 	public Iterator<InternetAddress> iterator() {
+		//FIXME what if the netblock is too big for a SequentialIterator?
 		return new SequentialIterator<InternetAddress>(this);
 	}
 }

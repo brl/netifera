@@ -11,32 +11,34 @@ public class EntityReference implements IEntityReference, Serializable {
 	private static final long serialVersionUID = 454593980781826497L;
 	
 	private final long entityId;
-	transient private IEntity cachedEntity;
+	private transient volatile IEntity cache;
 	
-	public static EntityReference create(long id) {
+	public EntityReference(IEntity entity) {
+		this.entityId = entity.getId();
+		this.cache = entity;
+	}
+
+	public EntityReference(long id) {
 		if(id <= 0) {
 			throw new IllegalArgumentException();
 		}
-		return new EntityReference(id);
+		this.entityId = id;
+		this.cache = null;
 	}
 	
-	public EntityReference(long id) {
-		this.entityId = id;
-		cachedEntity = null;
-	}
-	public IEntityReference createClone() {
-		return new EntityReference(entityId);
-	}
-
 	public IEntity getEntity(IWorkspace workspace) {
-		if(cachedEntity == null) {
-			cachedEntity = workspace.findById(entityId);
+		if(cache == null) {
+			cache = workspace.findById(entityId);
 		}
-		return cachedEntity;
+		return cache;
 	}
 
-	public void freeCachedEntity() {
-		cachedEntity = null;
+	public void setEntity(IEntity entity) {
+		cache = entity;
+	}
+	
+	public void freeCache() {
+		cache = null;
 	}
 	
 	public long getId() {
@@ -48,7 +50,6 @@ public class EntityReference implements IEntityReference, Serializable {
 	}
 	
 	public boolean equals(Object o) {
-		return (o instanceof EntityReference) && entityId == ((EntityReference)o).getId();
+		return (o instanceof EntityReference) && entityId == ((EntityReference)o).entityId;
 	}
-	
 }

@@ -47,9 +47,7 @@ public class TCPListenChannelServer implements ITCPListenServer {
 	}
 	
 	private void acceptSingleConnection() throws InterruptedException, IOException {
-		
 		final Socket newConnection = listenSocket.accept();
-		
         logger.info("Connection from " + newConnection.getInetAddress().getHostAddress());                                                                                              
         handleNewConnection(newConnection);
 	}

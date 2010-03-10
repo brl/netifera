@@ -3,17 +3,16 @@ package com.netifera.platform.ui.world.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import com.netifera.platform.ui.world.WorldView;
+import com.netifera.platform.ui.internal.world.Activator;
+import com.netifera.platform.ui.world.GlobeWorldView;
 
 public class ToggleFollowNewEntitiesAction extends Action {
 	
-	private static final String PLUGIN_NAME = "com.netifera.platform.ui.world";
-
-	final private WorldView view;
+	final private GlobeWorldView view;
 	
-	public ToggleFollowNewEntitiesAction(WorldView view) {
+	public ToggleFollowNewEntitiesAction(GlobeWorldView view) {
 		this.view = view;
-		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_NAME, "icons/follow_new.png"));
+		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/follow_new.png"));
 		update();
 	}
 	

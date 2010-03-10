@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.cifs-action-provider">
+	<implementation class="com.netifera.platform.net.cifs.internal.ui.HoverActionProvider" />
+	<service>
+		<provide interface="com.netifera.platform.ui.api.hover.IHoverActionProvider" />
+	</service>
+	
+	<reference 
+		name="WORDLISTS"
+		interface="com.netifera.platform.net.wordlists.IWordListManager"
+		bind="setWordListManager"
+		unbind="unsetWordListManager"
+	/>
+	
+</component>

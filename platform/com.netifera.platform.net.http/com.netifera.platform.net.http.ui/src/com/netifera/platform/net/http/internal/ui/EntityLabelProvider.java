@@ -12,17 +12,20 @@ import org.eclipse.swt.widgets.Display;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IShadowEntity;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.api.model.ITreeStructureContext;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.HTTPResponseEntity;
 import com.netifera.platform.net.http.web.model.WebApplicationEntity;
 import com.netifera.platform.net.http.web.model.WebFormAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.WebPageEntity;
 import com.netifera.platform.net.http.web.model.WebSiteEntity;
+import com.netifera.platform.net.model.HostEntity;
+import com.netifera.platform.ui.api.hover.IHoverInformationProvider;
 import com.netifera.platform.ui.api.model.IEntityLabelProvider;
 import com.netifera.platform.ui.images.ImageCache;
 
-public class EntityLabelProvider implements IEntityLabelProvider {
+public class EntityLabelProvider implements IEntityLabelProvider, IHoverInformationProvider {
 	private final static String PLUGIN_ID = "com.netifera.platform.net.http.ui";
 
 	private ImageCache images = new ImageCache(PLUGIN_ID);
@@ -57,23 +60,29 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 
 	public String getText(IShadowEntity e) {
 		if (e instanceof WebSiteEntity) {
+			WebSiteEntity site = (WebSiteEntity) e;
+			if (site.getRealEntity() != site && site.getStructureContext() instanceof ITreeStructureContext) {
+				if (!(((ITreeStructureContext)site.getStructureContext()).getParent() instanceof HostEntity)) {
+					return ((WebSiteEntity) e).getRootURL() + "  ("+site.getHTTP().getAddress().getAddressString()+")";
+				}
+			}
 			return ((WebSiteEntity) e).getRootURL();
 		} else if (e instanceof WebPageEntity) {
 			WebPageEntity page = (WebPageEntity)e;
-			if (page.getAuthentication() instanceof HTTPBasicAuthenticationEntity)
-				return page.getPath()+" ["+((HTTPBasicAuthenticationEntity)page.getAuthentication()).getAuthenticationRealm()+"]";
+			if (page.getAuthentication() instanceof BasicAuthenticationEntity)
+				return page.getPath()+" ["+((BasicAuthenticationEntity)page.getAuthentication()).getAuthenticationRealm()+"]";
 			return page.getPath();
-		} else if (e instanceof HTTPBasicAuthenticationEntity) {
-			HTTPBasicAuthenticationEntity auth = (HTTPBasicAuthenticationEntity)e;
+		} else if (e instanceof BasicAuthenticationEntity) {
+			BasicAuthenticationEntity auth = (BasicAuthenticationEntity)e;
 			return "WWW-Authenticate: Basic realm=\""+auth.getAuthenticationRealm()+"\"";
 		} else if (e instanceof WebFormAuthenticationEntity) {
 			WebFormAuthenticationEntity auth = (WebFormAuthenticationEntity)e;
-			return "web forms authentication"; // FIXME caps?
+			return "Web Form Authentication"; // FIXME
 		} else if (e instanceof WebApplicationEntity) {
 			WebApplicationEntity app = (WebApplicationEntity) e;
 			String answer = app.getServiceType();
 			try {
-				URI url = new URI(app.getURL());
+				URI url = new URI(app.getWebPage().getURL());
 				answer = url.getPath()+" "+answer;
 			} catch (URISyntaxException ex) {
 				// TODO Auto-generated catch block
@@ -106,7 +115,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return getMIMEImage(page.getContentType());
 		} else if (e instanceof WebApplicationEntity) {
 			return images.get(WEBAPP);
-		} else if (e instanceof HTTPBasicAuthenticationEntity) {
+		} else if (e instanceof BasicAuthenticationEntity) {
 			return images.get(AUTH);
 		} else if (e instanceof WebFormAuthenticationEntity) {
 			return images.get(AUTH);
@@ -142,7 +151,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return images.get(HTTP_ERROR);
 		if (status > 300)
 			return images.get(HTTP_REDIRECT);
-		return getMIMEImage(response.getNamedAttribute("Content-Type"));
+		return getMIMEImage(response.getAttribute("Content-Type"));
 	}
 	
 	private Image getMIMEImage(String contentType) {
@@ -212,5 +221,23 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	
 	protected void unsetLogManager(ILogManager logManager) {
 		logger = null;
+	}
+
+	public String getInformation(Object o) {
+		if (o instanceof WebPageEntity) {
+			WebPageEntity page = (WebPageEntity)o;
+			if (page.getContentType() != null) {
+				return "<p>Content-Type: "+escape(page.getContentType())+"</p>";
+			}
+		}
+		return null;
+	}
+	
+	private String escape(String data) {
+		data = data.replaceAll("&", "&amp;");
+		data = data.replaceAll("<", "&lt;");
+		data = data.replaceAll(">", "&gt;");
+		data = data.trim().replaceAll("[\\r\\n]+", "</p><p>");
+		return data.replaceAll("[^\\p{Print}\\p{Blank}]", "."); // non-printable chars
 	}
 }

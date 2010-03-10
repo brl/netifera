@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.local-process-service-provider">
+	<implementation class="com.netifera.platform.host.internal.processes.LocalProcessServiceProvider" />
+	<service>
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
+	</service>
+	
+</component>

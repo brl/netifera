@@ -94,11 +94,13 @@ public class ExtendedResolver implements Resolver {
 			try {
 				inprogress[n] = resolvers[n].sendAsync(query, this);
 			} catch (Throwable t) {
-				thrown = t;
-				done = true;
-				if (listener == null) {
-					notifyAll();
-					return;
+				synchronized (this) {
+					thrown = t;
+					done = true;
+					if (listener == null) {
+						notifyAll();
+						return;
+					}
 				}
 			}
 		}
@@ -124,17 +126,20 @@ public class ExtendedResolver implements Resolver {
 				 */
 				handleException(inprogress[0], e);
 			}
-			if (!done) {
-				/*
-				 * Wait for a successful response or for each subresolver to
-				 * fail.
-				 */
-				synchronized (this) {
-					while (!done) {
-						try {
-							wait();
-						} catch (InterruptedException e) {
-						}
+			/*
+			 * Wait for a successful response or for each subresolver to
+			 * fail.
+			 */
+			synchronized (this) {
+				while (!done) {
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						//HACK is this fine? used to not do anything, and never timed out and couldnt cancell tasks. len
+//						done = true;
+						InterruptedIOException e2 = new InterruptedIOException("Interrupted");
+						e2.initCause(e);
+						throw e2;
 					}
 				}
 			}
@@ -183,20 +188,23 @@ public class ExtendedResolver implements Resolver {
 		 */
 		public void handleException(Object id, Exception e) {
 			if (Options.check("verbose"))
-				System.err.println("ExtendedResolver: got " + e);
+				System.err.println("ExtendedResolver: got " + e+" from id "+id);
 			synchronized (this) {
 				outstanding--;
 				if (done)
 					return;
 				int n;
 				for (n = 0; n < inprogress.length; n++)
-					if (inprogress[n] == id)
+					if (inprogress[n].equals(id))
 						break;
 				/* If we don't know what this is, do nothing. */
-				if (n == inprogress.length)
+				if (n == inprogress.length) {
+					if (Options.check("verbose"))
+						System.err.println("ExtendedResolver: WTF");
 					return;
+				}
+				
 				boolean startnext = false;
-				// boolean waiting = false;
 				/*
 				 * If this is the first response from server n, we should start
 				 * sending queries to server n + 1.

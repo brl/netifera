@@ -1,15 +1,11 @@
 package com.netifera.platform.net.http.internal.web.model;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import com.netifera.platform.api.model.IModelPredicate;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.model.IWorkspace;
-import com.netifera.platform.net.http.web.model.HTTPBasicAuthenticationEntity;
+import com.netifera.platform.net.http.web.model.BasicAuthenticationEntity;
 import com.netifera.platform.net.http.web.model.HTTPRequestEntity;
 import com.netifera.platform.net.http.web.model.HTTPResponseEntity;
 import com.netifera.platform.net.http.web.model.IWebEntityFactory;
@@ -22,7 +18,7 @@ import com.netifera.platform.net.model.ClientServiceConnectionEntity;
 import com.netifera.platform.net.model.INetworkEntityFactory;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class WebEntityFactory implements IWebEntityFactory {
 
@@ -53,48 +49,41 @@ public class WebEntityFactory implements IWebEntityFactory {
 		networkEntityFactory = null;
 	}
 
-	public synchronized ServiceEntity createWebServer(final long realm, long space, TCPSocketLocator http, String product) {
-		Map<String,String> info = new HashMap<String,String>();
-		info.put("serviceType", "HTTP");
-		if (product != null) info.put("product", product);
-		return networkEntityFactory.createService(realm, space, http, "HTTP", info);
+	public synchronized ServiceEntity createWebServer(final long realm, long spaceId, TCPSocketAddress socketAddress, String product) {
+		ServiceEntity entity = ServiceEntity.create(getWorkspace(), realm, spaceId, socketAddress, "HTTP");
+		if (product != null && entity.setAttribute(ServiceEntity.PRODUCT_KEY, product))
+			entity.update();
+		return entity;
 	}
 	
 	// TODO add Domain from hostname
 	public synchronized WebSiteEntity createWebSite(final long realm, long spaceId,
-			TCPSocketLocator http, String hostname) {
-		assert http != null;
-		if (hostname == null || hostname.equals(http.getAddress().toString())) {
-			hostname = "";
-		}
-		hostname = hostname.toLowerCase(Locale.ENGLISH);
-		
-		WebSiteEntity answer = (WebSiteEntity) getWorkspace().findByKey(WebSiteEntity.createQueryKey(realm, http.getAddress(), http.getPort(), hostname));
-		if(answer == null) {
-			ServiceEntity service = createWebServer(realm, spaceId, http, null);
-			answer = new WebSiteEntity(getWorkspace(), realm, service, hostname);
-			answer.save();
-		} else {
-			answer.getHTTP().addToSpace(spaceId);
-		}
-		answer.addToSpace(spaceId);
-		return answer;
+			TCPSocketAddress socketAddress, String hostname) {
+		return WebSiteEntity.create(getWorkspace(), realm, spaceId, socketAddress, hostname);
 	}
 
 	//XXX space not used? should notify?
-	public synchronized void setFavicon(long realm, long space, TCPSocketLocator http,
+	public synchronized void setFavicon(long realm, long space, TCPSocketAddress http,
 			URI url, byte[] faviconBytes) {
+		url = url.normalize();
 		WebSiteEntity webSite = createWebSite(realm, space, http, url.getHost());
 		webSite.setFavicon(faviconBytes);
 		webSite.update();
 	}
 
-	public synchronized WebPageEntity createWebPage(final long realm, long spaceId, TCPSocketLocator http,
+	public synchronized WebPageEntity createWebPage(final long realm, long spaceId, TCPSocketAddress http,
 			URI url, String contentType) {
+		url = url.normalize();
 		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
-		final String path = url.normalize().getPath();
-		WebPageEntity answer = (WebPageEntity) getWorkspace().findByKey(WebPageEntity.createQueryKey(realm, http.getAddress(), http.getPort(), site.getHostName(), path));
+		String path = url.getPath();
+		if (path.length() == 0)
+			path = "/";
+		WebPageEntity answer = (WebPageEntity) getWorkspace().findByKey(WebPageEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), site.getHostName(), path));
 		if (answer != null) {
+			if (contentType != null && !contentType.equals(answer.getContentType())) {
+				answer.setContentType(contentType);
+				answer.update();
+			}
 			answer.addToSpace(spaceId);
 			return answer;
 		}
@@ -105,8 +94,30 @@ public class WebEntityFactory implements IWebEntityFactory {
 		return answer;
 	}
 
-	public synchronized WebApplicationEntity createWebApplication(final long realm, long spaceId, TCPSocketLocator http,
+	public synchronized WebApplicationEntity createWebApplication(final long realm, long spaceId, TCPSocketAddress http,
 			URI url, Map<String, String> info) {
+		String serviceType = info.get("serviceType");
+		WebPageEntity page = createWebPage(realm, spaceId, http, url, null);
+		WebApplicationEntity answer = (WebApplicationEntity) getWorkspace().findByKey(WebApplicationEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), page.getWebSite().getHostName(), page.getPath(), serviceType));
+		if (answer != null) {
+			if (info.get("version") != null) {
+				answer.setVersion(info.get("version"));
+				answer.save();
+				answer.update();
+			}
+			answer.addToSpace(spaceId);
+			return answer;
+		}
+		
+		answer = new WebApplicationEntity(getWorkspace(), realm, page.createReference(), serviceType);
+		if (info.get("version") != null)
+			answer.setVersion(info.get("version"));
+		answer.save();
+		answer.update();
+		answer.addToSpace(spaceId);
+		return answer;
+		
+/*		url = url.normalize();
 		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
 		final String urlString = url.toString();
 		List<WebApplicationEntity> results = getWorkspace().findByPredicate(WebApplicationEntity.class,
@@ -131,30 +142,49 @@ public class WebEntityFactory implements IWebEntityFactory {
 		answer.save();
 		answer.addToSpace(spaceId);
 		return answer;
-	}
+*/	}
 
-	public synchronized HTTPBasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
-			TCPSocketLocator http, URI url, final String authenticationRealm) {
-		
-		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
-		
-		HTTPBasicAuthenticationEntity answer = (HTTPBasicAuthenticationEntity) getWorkspace().findByKey(HTTPBasicAuthenticationEntity.createQueryKey(realm, http.getAddress(), http.getPort(), authenticationRealm));
+	public synchronized WebPageEntity createWebPageWithBasicAuthentication(final long realm, long spaceId,
+			TCPSocketAddress http, URI url, final String authenticationRealm) {
+
+		url = url.normalize();
+//		final ServiceEntity service = createWebServer(realm, spaceId, http, null);
+
+		final WebSiteEntity site = createWebSite(realm, spaceId, http, url.getHost());
+
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), site.getHostName(), authenticationRealm));
 		if (answer != null) {
 			answer.addToSpace(spaceId);
 		} else {
-			answer = new HTTPBasicAuthenticationEntity(getWorkspace(), realm, service.createReference(), authenticationRealm);
+			answer = new BasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
 			answer.save();
 			answer.addToSpace(spaceId);
 		}
 		WebPageEntity page = createWebPage(realm, spaceId, http, url, null);
 		page.setAuthentication(answer);
 		page.update();
+		return page;
+	}
+
+	public synchronized BasicAuthenticationEntity createBasicAuthentication(final long realm, long spaceId,
+			TCPSocketAddress http, String hostname, final String authenticationRealm) {
+
+		final WebSiteEntity site = createWebSite(realm, spaceId, http, hostname);
+
+		BasicAuthenticationEntity answer = (BasicAuthenticationEntity) getWorkspace().findByKey(BasicAuthenticationEntity.createQueryKey(realm, http.getNetworkAddress(), http.getPort(), site.getHostName(), authenticationRealm));
+		if (answer != null) {
+			answer.addToSpace(spaceId);
+		} else {
+			answer = new BasicAuthenticationEntity(getWorkspace(), realm, site.createReference(), authenticationRealm);
+			answer.save();
+			answer.addToSpace(spaceId);
+		}
 		return answer;
 	}
 
 	@Deprecated // TODO
 	public synchronized WebFormAuthenticationEntity createFormAuthentication(long realm, long space,
-			TCPSocketLocator http, URI url, String usernameField,
+			TCPSocketAddress http, URI url, String usernameField,
 			String passwordField) {
 		// TODO Auto-generated method stub
 		return null;
@@ -162,7 +192,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 	
 	// TODO split createRequest+createResponse for (sniffed) asymetric traffic
 	public synchronized HTTPRequestEntity createRequestResponse(final long realm, long spaceId,
-			InternetAddress clientAddress, Map<String,String> clientInfo, TCPSocketLocator http,
+			InternetAddress clientAddress, Map<String,String> clientInfo, TCPSocketAddress http,
 			String requestLine, String responseStatusLine, String contentType) {
 		
 		ServiceEntity service = createWebServer(realm, spaceId, http, null);
@@ -172,7 +202,7 @@ public class WebEntityFactory implements IWebEntityFactory {
 		HTTPRequestEntity answer = new HTTPRequestEntity(getWorkspace(), connection, requestLine);
 		HTTPResponseEntity response = new HTTPResponseEntity(getWorkspace(), connection, responseStatusLine);
 		if (contentType != null)
-			response.setNamedAttribute("Content-Type", contentType);
+			response.setAttribute("Content-Type", contentType);
 		response.save();
 		response.addToSpace(spaceId);
 		answer.setResponse(response);

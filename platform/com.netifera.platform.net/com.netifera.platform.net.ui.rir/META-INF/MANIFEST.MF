@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Regional Internet Registries UI Plug-in
+Bundle-SymbolicName: com.netifera.platform.net.ui.rir;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Netifera
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.netifera.platform.api.log,
+ com.netifera.platform.net.tools.basic,
+ com.netifera.platform.tools.options,
+ com.netifera.platform.ui.actions,
+ com.netifera.platform.ui.api.inputbar,
+ com.netifera.platform.util.addresses.inet,
+ org.osgi.service.component
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime;bundle-version="3.4.0"
+Service-Component: OSGI-INF/inputbar-action-provider.xml
+Bundle-ActivationPolicy: lazy

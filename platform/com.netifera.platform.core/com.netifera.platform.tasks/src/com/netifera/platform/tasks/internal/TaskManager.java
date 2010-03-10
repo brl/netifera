@@ -19,8 +19,8 @@ import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.tasks.ITask;
 import com.netifera.platform.api.tasks.ITaskManagerService;
-import com.netifera.platform.api.tasks.ITaskStatus;
 import com.netifera.platform.api.tasks.ITaskRunnable;
+import com.netifera.platform.api.tasks.ITaskStatus;
 import com.netifera.platform.tasks.TaskStatus;
 import com.netifera.platform.tasks.messages.TaskCancelMessage;
 import com.netifera.platform.tasks.messages.TaskListMessage;
@@ -70,7 +70,7 @@ public class TaskManager implements ITaskManagerService {
 	public ITask createTask(ITaskRunnable runnable, IMessenger messenger) {
 		synchronized(this) {
 			long newTaskId = model.getCurrentWorkspace().generateTaskId();
-			TaskStatus record = new TaskStatus(runnable.getClassName(), newTaskId);
+			TaskStatus record = new TaskStatus(newTaskId);
 			Task task = new Task(record, runnable, messenger, this, logger);
 			tasks.put(newTaskId,task);
 			return task;

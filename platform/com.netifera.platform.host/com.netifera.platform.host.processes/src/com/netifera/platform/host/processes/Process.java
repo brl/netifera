@@ -10,7 +10,7 @@ public class Process implements Serializable {
 	public static final int SLEEPING = 2;
 	public static final int ZOMBIE = 3;
 
-	transient private IProcessManager manager; //FIXME NPE this is null when comming form a remote probe
+	transient private IProcessService service; //FIXME NPE this is null when comming form a remote probe
 	
 	final private String name;
 	final private int state;
@@ -21,8 +21,8 @@ public class Process implements Serializable {
 //	final private Map<String,String> environment;
 	final private long size;
 
-	public Process(IProcessManager manager, String name, int state, int pid, int ppid, int uid, String commandLine, long size) {
-		this.manager = manager;
+	public Process(IProcessService service, String name, int state, int pid, int ppid, int uid, String commandLine, long size) {
+		this.service = service;
 		this.name = name;
 		this.state = state;
 		this.pid = pid;
@@ -61,7 +61,7 @@ public class Process implements Serializable {
 	}
 	
 	public boolean kill() {
-		return manager.kill(pid);
+		return service.kill(pid);
 	}
 	
 	public boolean isPriviledged() {

@@ -8,13 +8,13 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.netifera.platform.host.internal.processes.ui.Activator;
-import com.netifera.platform.host.processes.IProcessManager;
+import com.netifera.platform.host.processes.IProcessService;
 import com.netifera.platform.host.processes.Process;
 
 ;public class ProcessListContentProvider implements ITreeContentProvider {
 
 	private TreeViewer viewer;
-	private IProcessManager processManager;
+	private IProcessService processManager;
 	private Process[] roots;
 	private boolean treeMode = false;
 	
@@ -95,7 +95,7 @@ import com.netifera.platform.host.processes.Process;
 	
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		this.viewer = (TreeViewer) viewer;
-		processManager = (IProcessManager) newInput;
+		processManager = (IProcessService) newInput;
 		clear();
 	}
 	

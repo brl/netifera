@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.filesystem-service">
+	<implementation class="com.netifera.platform.host.filesystem.probe.FileSystemBridge" />
+	
+	<reference
+    	name="LOG_MANAGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
+
+	<reference
+    	name="SERVICE_FACTORY"
+    	interface="com.netifera.platform.services.IServiceFactory"
+    	bind="setServiceFactory"
+    	unbind="unsetServiceFactory"
+    />
+    
+   <reference
+    	name="DISPATCHER"
+    	interface="com.netifera.platform.api.dispatcher.IMessageDispatcherService"
+    	bind="setDispatcher"
+    	unbind="unsetDispatcher"
+    />
+    
+</component>

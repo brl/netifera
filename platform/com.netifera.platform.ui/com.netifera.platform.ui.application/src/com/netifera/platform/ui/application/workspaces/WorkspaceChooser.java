@@ -38,7 +38,7 @@ public class WorkspaceChooser {
 		/* more than one and no auto-start */
 		if(workspaceRecord == null) {
 			/* show the dialog with the list of workspaces to select */
-			workspaceRecord = OpenWorkspaceHandler.openChoseWorkspaceDialog(false);
+			workspaceRecord = SwitchWorkspaceHandler.openChoseWorkspaceDialog(false);
 		}
 		
 		if(workspaceRecord != null) {

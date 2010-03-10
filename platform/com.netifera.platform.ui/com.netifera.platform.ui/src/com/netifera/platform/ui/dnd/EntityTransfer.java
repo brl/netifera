@@ -26,7 +26,7 @@ public class EntityTransfer extends ByteArrayTransfer {
 	 */
 	private static EntityTransfer instance = new EntityTransfer();
 	
-	private static final String TYPE_NAME = "entity-transfer-format";
+	private static final String TYPE_NAME = "ENTITIES";
 	private static final int TYPEID = registerType(TYPE_NAME);
 	
 	/**
@@ -47,14 +47,12 @@ public class EntityTransfer extends ByteArrayTransfer {
 	
 	/* This is mostly copied from ResourceTransfer */
 	protected void javaToNative(Object data, TransferData transferData) {
-		System.out.println("j2n "+data);
 		if(!(data instanceof IEntity[])) {
 			return;
 		}
 		IEntity[] entities = (IEntity[]) data;
 		
 		int entityCount = entities.length;
-		System.out.println("  "+entityCount+" entities");
 		
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -69,11 +67,9 @@ public class EntityTransfer extends ByteArrayTransfer {
 			out.close();
 			byte[] bytes = out.toByteArray();
 			super.javaToNative(bytes, transferData);
-			System.out.println("  done!");
 		} catch (IOException e) {
 			// Just ignore, and nothing will be sent
 		}
-		System.out.println("  done");
 	}
 	
 	protected Object nativeToJava(TransferData transferData) {
@@ -116,7 +112,4 @@ public class EntityTransfer extends ByteArrayTransfer {
 	protected void unsetModelService(IModelService model) {
 		getInstance().model = null;
 	}
-	
-	
-
 }

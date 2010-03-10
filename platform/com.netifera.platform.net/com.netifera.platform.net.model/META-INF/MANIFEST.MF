@@ -9,8 +9,7 @@ Import-Package: com.netifera.platform.api.dispatcher,
  com.netifera.platform.model,
  com.netifera.platform.util,
  com.netifera.platform.util.addresses,
- com.netifera.platform.util.addresses.inet,
- com.netifera.platform.util.locators
+ com.netifera.platform.util.addresses.inet
 Service-Component: OSGI-INF/network-entity-factory.xml,
  OSGI-INF/networkentityadapter-provider.xml
 Export-Package: com.netifera.platform.net.internal.model;x-internal:=true,

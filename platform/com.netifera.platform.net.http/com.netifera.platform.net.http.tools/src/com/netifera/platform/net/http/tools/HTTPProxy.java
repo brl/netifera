@@ -57,14 +57,13 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 
 public class HTTPProxy implements ITool {
@@ -73,14 +72,9 @@ public class HTTPProxy implements ITool {
 
 	private IToolContext context;
 	private int listeningPort;
-	private long realm;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
-		
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 		
 		setupToolOptions();
 		try {
@@ -112,11 +106,11 @@ public class HTTPProxy implements ITool {
 		InetAddress address = ((HttpInetConnection)conn).getRemoteAddress();
 		int port = ((HttpInetConnection)conn).getRemotePort();
 
-		TCPSocketLocator locator = new TCPSocketLocator(InternetAddress.fromInetAddress(address), port);
+		TCPSocketAddress socketAddress = new TCPSocketAddress(InternetAddress.fromInetAddress(address), port);
 		if (response.containsHeader("Server"))
-			Activator.getInstance().getWebEntityFactory().createWebServer(realm, context.getSpaceId(), locator, response.getFirstHeader("Server").getValue());
+			Activator.getInstance().getWebEntityFactory().createWebServer(context.getRealm(), context.getSpaceId(), socketAddress, response.getFirstHeader("Server").getValue());
 		else
-			Activator.getInstance().getWebEntityFactory().createWebServer(realm, context.getSpaceId(), locator, null);
+			Activator.getInstance().getWebEntityFactory().createWebServer(context.getRealm(), context.getSpaceId(), socketAddress, null);
 		
 		HttpEntity entity = response.getEntity();
 		int status = response.getStatusLine().getStatusCode();
@@ -126,7 +120,7 @@ public class HTTPProxy implements ITool {
 			context.debug(request.getRequestLine()+" ->  "+response.getStatusLine().toString());
 			if (status == 200) {
 				String contentType = entity.getContentType().getValue();
-				Activator.getInstance().getWebEntityFactory().createWebPage(realm, context.getSpaceId(), locator, url, contentType);
+				Activator.getInstance().getWebEntityFactory().createWebPage(context.getRealm(), context.getSpaceId(), socketAddress, url, contentType);
 				
 				// is favicon? get it and add it to the model
 /*							if (url.getPath().equals("/favicon.ico") && contentType.matches("image/x-icon|application/octet-stream")) {

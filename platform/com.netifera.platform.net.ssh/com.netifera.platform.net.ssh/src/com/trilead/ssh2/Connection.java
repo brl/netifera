@@ -1069,8 +1069,10 @@ public class Connection
 
 	private final SecureRandom getOrCreateSecureRND()
 	{
-		if (generator == null)
+		if (generator == null) {
 			generator = new SecureRandom();
+			generator.setSeed(System.currentTimeMillis() ^ System.nanoTime());
+		}
 
 		return generator;
 	}

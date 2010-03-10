@@ -20,7 +20,7 @@ public class ARecordEntity extends AddressRecordEntity {
 	
 	@Override
 	protected IEntity cloneEntity() {
-		return new ARecordEntity(getWorkspace(), getRealmId(), domain, getHostName(), address);
+		return new ARecordEntity(getWorkspace(), getRealmId(), domain, getName(), address);
 	}
 	
 	public static String createQueryKey(long realmId, String address, String fqdm) {

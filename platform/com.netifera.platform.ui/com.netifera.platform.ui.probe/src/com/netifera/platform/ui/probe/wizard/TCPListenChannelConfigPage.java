@@ -10,19 +10,24 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 
 public class TCPListenChannelConfigPage extends WizardPage {
-	private Text ipAddressText;
+	final private InternetAddress address;
+	private Text addressText;
 	private Text portText;
-	public TCPListenChannelConfigPage() {
+	
+	public TCPListenChannelConfigPage(InternetAddress address) {
 		super("tcpListenConfig");
-		setTitle("Configuration for TCP Listen Channel");
+		setTitle("TCP Listen Channel");
+		setDescription("Configure the connection information for the new Probe.");
 		setPageComplete(false);
+		this.address = address;
 	}
 	
 	public String getConfigString() {
-		return "tcplisten:" + ipAddressText.getText() + ":"+ portText.getText();
+		return "tcplisten:" + addressText.getText() + ":"+ portText.getText();
 	}
 	
 	public void createControl(Composite parent) {
@@ -33,17 +38,41 @@ public class TCPListenChannelConfigPage extends WizardPage {
 			}
 		};
 		
-		ipAddressText = createAddressField(container);
-		ipAddressText.addModifyListener(listener);
+		addressText = createAddressField(container);
+		addressText.addModifyListener(listener);
 		portText = createPortField(container);
 		portText.addModifyListener(listener);
+		
+		if (address != null) {
+			addressText.setText(address.toString());
+			addressText.setEditable(false);
+			addressText.setEnabled(false);
+		}
 	}
 	
 	private void verifyFields() {
-		final String addressString = ipAddressText.getText();
-		final String portString = portText.getText();
-		final boolean valid = addressValid(addressString) && portValid(portString);
-		setPageComplete(valid);
+		if (addressText.getText().length() == 0) {
+			setErrorMessage("Enter an IP address.");
+			setPageComplete(false);
+			return;
+		}
+		if (!addressValid(addressText.getText())) {
+			setErrorMessage("Invalid IP address.");
+			setPageComplete(false);
+			return;
+		}
+		if (portText.getText().length() == 0) {
+			setErrorMessage("Enter a port number.");
+			setPageComplete(false);
+			return;
+		}
+		if (!portValid(portText.getText())) {
+			setErrorMessage("Invalid port.");
+			setPageComplete(false);
+			return;
+		}
+		setErrorMessage(null);
+		setPageComplete(true);
 	}
 	
 	private boolean addressValid(String address) {
@@ -70,12 +99,12 @@ public class TCPListenChannelConfigPage extends WizardPage {
 	
 	private Text createAddressField(Composite container) {
 		createLabel(container, "Probe IP Address:");
-		return createText(container, 16);
+		return createText(container, 16, "IP address for connecting to this probe TCP Listen channel.");
 	}
 	
 	private Text createPortField(Composite container) {
 		createLabel(container, "Probe Listen Port:");
-		return createText(container,5);
+		return createText(container,5, "Port where the Probe is listening");
 	}
 	
 	private void createLabel(Composite container, String text) {
@@ -85,14 +114,14 @@ public class TCPListenChannelConfigPage extends WizardPage {
 		label.setText(text);
 	}
 	
-	private Text createText(Composite container, int limit) {
+	private Text createText(Composite container, int limit, String tooltip) {
 		final Text text = new Text(container, SWT.BORDER);
-		final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.widthHint = 100;
 		text.setLayoutData(gd);
 		text.setTextLimit(limit);
+		text.setToolTipText(tooltip);
 		text.pack();
 		return text;
 	}
-
 }

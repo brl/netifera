@@ -21,7 +21,8 @@ import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.model.IModelService;
 import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.probe.IProbeManagerService;
-import com.netifera.platform.ui.api.actions.IEntityActionProviderService;
+import com.netifera.platform.ui.api.export.IEntityImportExportService;
+import com.netifera.platform.ui.api.hover.IHoverService;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProviderService;
 import com.netifera.platform.ui.api.model.IEntityLabelProviderService;
 import com.netifera.platform.ui.application.ApplicationPlugin;
@@ -32,7 +33,7 @@ import com.netifera.platform.ui.spaces.SpaceEditorInput;
 import com.netifera.platform.ui.spaces.actions.SpaceCreator;
 import com.netifera.platform.ui.spaces.inputbar.InputBar;
 import com.netifera.platform.ui.spaces.inputbar.InputBarAction;
-import com.netifera.platform.ui.spaces.visualizations.ISpaceVisualizationFactory;
+import com.netifera.platform.ui.spaces.visualizations.IVisualizationFactory;
 import com.netifera.platform.ui.workbench.IWorkbenchChangeListener;
 import com.netifera.platform.ui.workbench.WorkbenchChangeManager;
 
@@ -45,20 +46,20 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "com.netifera.platform.ui.spaces";
 
 	// The shared instance
-	private static Activator plugin;
+	private static Activator instance;
 
-	public static Activator getDefault() {
-		return plugin;
+	public static Activator getInstance() {
+		return instance;
 	}
 
-	
 	private ServiceTracker modelTracker;
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker modelLabelsTracker;
-	private ServiceTracker actionProviderServiceTracker;
+	private ServiceTracker hoverServiceTracker;
 	private ServiceTracker inputBarActionProviderTracker;
 	private ServiceTracker logManagerTracker;
 	private ServiceTracker visualizationFactoryTracker;
+	private ServiceTracker importExportServiceTracker;
 	
 	private ServiceTracker statusContributionTracker;
 
@@ -74,15 +75,8 @@ public class Activator extends AbstractUIPlugin {
 	private WorkbenchChangeManager workbenchManager;
 	private ImageCache imageCache;
 
-	
-	/**
-	 * The constructor
-	 */
-	public Activator() {
-	}
-
 	public void initialize() {
-		workbenchManager = new WorkbenchChangeManager(getWindow(), Perspective.ID, createChangeListener());
+		workbenchManager = new WorkbenchChangeManager(getWindow(), createChangeListener());
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			public void run() {
 				workbenchManager.initialize();					
@@ -93,16 +87,16 @@ public class Activator extends AbstractUIPlugin {
 	private void createFirstSpaceIfNeeded(IWorkbenchWindow window) {
 		if(hasSpaces()) return;
 		SpaceCreator creator = new SpaceCreator(window);
-		creator.create();
+		creator.openNewSpace(null, getProbeManager().getLocalProbe(), true);
 	}
 	
 	private boolean hasSpaces() {
-		return getModel().getCurrentWorkspace().getAllSpaces().size() > 0;
+		return getModel().getCurrentWorkspace().getAllSpaces().length > 0;
 	}
 	
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		instance = this;
 
 		imageCache = new ImageCache(PLUGIN_ID);
 		
@@ -115,8 +109,8 @@ public class Activator extends AbstractUIPlugin {
 		modelLabelsTracker = new ServiceTracker(context, IEntityLabelProviderService.class.getName(), null);
 		modelLabelsTracker.open();
 		
-		actionProviderServiceTracker = new ServiceTracker(context, IEntityActionProviderService.class.getName(), null);
-		actionProviderServiceTracker.open();
+		hoverServiceTracker = new ServiceTracker(context, IHoverService.class.getName(), null);
+		hoverServiceTracker.open();
 		
 		inputBarActionProviderTracker = new ServiceTracker(context, IInputBarActionProviderService.class.getName(), null);
 		inputBarActionProviderTracker.open();
@@ -124,11 +118,14 @@ public class Activator extends AbstractUIPlugin {
 		logManagerTracker = new ServiceTracker(context, ILogManager.class.getName(), null);
 		logManagerTracker.open();
 
-		visualizationFactoryTracker = new ServiceTracker(context, ISpaceVisualizationFactory.class.getName(), null);
+		visualizationFactoryTracker = new ServiceTracker(context, IVisualizationFactory.class.getName(), null);
 		visualizationFactoryTracker.open();
 		
 		statusContributionTracker = new ServiceTracker(context, IStatusContribution.class.getName(), null);
 		statusContributionTracker.open();
+		
+		importExportServiceTracker = new ServiceTracker(context, IEntityImportExportService.class.getName(), null);
+		importExportServiceTracker.open();
 	}
 
 	private IWorkbenchChangeListener createChangeListener() {
@@ -139,11 +136,11 @@ public class Activator extends AbstractUIPlugin {
 			}
 
 			public void partChange() {
-				updateState();		
+				updateInputBarState();		
 //				setStatusLine();
 			}
 
-			public void perspectiveClosed() {
+			private void perspectiveClosed() {
 				if(toolbarItem != null) {
 					ApplicationPlugin.getDefault().getCoolBar().remove(toolbarItem);
 					toolbarItem.dispose();
@@ -153,22 +150,26 @@ public class Activator extends AbstractUIPlugin {
 				}				
 			}
 
-			public void perspectiveOpened() {
-				displayToolbar();				
+			private void perspectiveOpened() {
+				displayInputBar();				
 			}
-			
+
+			public void perspectiveActivated(String id) {
+				if (id.equals(Perspective.ID) || id.equals("com.netifera.platform.ui.perspectives.explore"))
+					perspectiveOpened();
+				else
+					perspectiveClosed();
+			}
 		};
 	}
 	
 	private void runActivePageSetup(final IWorkbenchPage page) {
 		closeDeadEditors(page);
 		getWorkbench().getDisplay().asyncExec(new Runnable() {
-
 			public void run() {
 				createFirstSpaceIfNeeded(page.getWorkbenchWindow());
 //				setStatusLine();
 			}
-				
 		});
 	}
 	
@@ -181,32 +182,28 @@ public class Activator extends AbstractUIPlugin {
 			if(!(editorInput instanceof SpaceEditorInput)) {
 				page.closeEditor(part, false);
 			}
-	
-			
 		}
 	}
 	
-	private void updateState() {
-		
-		enableToolbar();
+	private void updateInputBarState() {
+		enableInputBar();
 		IEditorPart editor = getActiveEditor();
 		if(editor == null) {
-			disableToolbar("Open a space to enable.");
+			disableInputBar("Open a space to enable.");
 			return;
 		}
 		IEditorInput input = editor.getEditorInput();
 		if(!(input instanceof SpaceEditorInput)) {
-			disableToolbar("Internal error");
+			disableInputBar("Internal error");
 			return;
 		}
 		IProbe probe = ((SpaceEditorInput) input).getProbeForSpace();
 		if(!probe.isConnected()) {
-			disableToolbar("Connect to probe to enable.");
+			disableInputBar("Connect to probe to enable.");
 		}
-			
 	}
 	
-	private void disableToolbar(String message) {
+	private void disableInputBar(String message) {
 		if(isDisabled || toolbarItem == null) return;
 		isDisabled = true;
 		saveActionState = inputBarAction.isEnabled();
@@ -214,12 +211,13 @@ public class Activator extends AbstractUIPlugin {
 		inputBar.setDisabled(message);
 	}
 	
-	private void enableToolbar() {
+	private void enableInputBar() {
 		if(!isDisabled || toolbarItem == null) return;
 		isDisabled = false;
 		inputBarAction.setEnabled(saveActionState);
 		inputBar.setEnabled();
 	}
+	
 	private IWorkbenchWindow getWindow() {
 		IWorkbenchWindow[] windows = getWorkbench().getWorkbenchWindows();
 		if(windows.length == 0) {
@@ -228,7 +226,7 @@ public class Activator extends AbstractUIPlugin {
 		return windows[0];
 	}
 	
-	private void displayToolbar() {	
+	private void displayInputBar() {	
 		if(toolbarItem != null) {
 			return;
 		}
@@ -247,7 +245,7 @@ public class Activator extends AbstractUIPlugin {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				coolbar.update(true);	
-				updateState();
+				updateInputBarState();
 			}
 		});
 	}
@@ -268,7 +266,7 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		imageCache.dispose();
 		imageCache = null;
-		plugin = null;
+		instance = null;
 		super.stop(context);
 	}
 
@@ -296,14 +294,18 @@ public class Activator extends AbstractUIPlugin {
 		return (IEntityLabelProviderService) modelLabelsTracker.getService();
 	}
 	
-	public IEntityActionProviderService getActionProvider() {
-		return (IEntityActionProviderService) actionProviderServiceTracker.getService();
+	public IHoverService getHoverService() {
+		return (IHoverService) hoverServiceTracker.getService();
 	}
 	
 	public IInputBarActionProviderService getInputBarActionProvider() {
 		return (IInputBarActionProviderService) inputBarActionProviderTracker.getService();
 	}
-	
+
+	public IEntityImportExportService getImportExportService() {
+		return (IEntityImportExportService) importExportServiceTracker.getService();
+	}
+
 	public ILogManager getLogManager() {
 		return (ILogManager) logManagerTracker.getService();
 	}
@@ -312,9 +314,9 @@ public class Activator extends AbstractUIPlugin {
 		return imageCache;
 	}
 
-	public ISpaceVisualizationFactory getVisualizationFactory() {
+	public IVisualizationFactory getVisualizationFactory() {
 		try {
-			return (ISpaceVisualizationFactory) visualizationFactoryTracker.waitForService(10000L);
+			return (IVisualizationFactory) visualizationFactoryTracker.waitForService(10000L);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return null;
@@ -324,6 +326,7 @@ public class Activator extends AbstractUIPlugin {
 	public IStatusContribution getStatusContribution() {
 		return (IStatusContribution) statusContributionTracker.getService();
 	}
+	
 	public IEditorPart getActiveEditor() {
 		IWorkbenchWindow window = getWorkbench().getActiveWorkbenchWindow();
 		if(window == null) {

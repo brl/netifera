@@ -31,10 +31,10 @@ import org.apache.http.protocol.RequestUserAgent;
 
 import com.netifera.platform.api.log.ILogger;
 import com.netifera.platform.net.http.internal.service.Activator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 public class AsynchronousHTTPClient {
-	private final TCPSocketLocator locator;
+	private final TCPSocketAddress address;
 	private final ILogger logger;
 	private final ConnectingIOReactor ioReactor;
 	private final EventListener connectionsListener;
@@ -81,7 +81,7 @@ public class AsynchronousHTTPClient {
 		}
 		
 		private String info(String errtype) {
-			return errtype + " at " + locator;
+			return errtype + " at " + address;
 		}
 		
 		private String debug(String errtype, NHttpConnection conn) {
@@ -89,13 +89,13 @@ public class AsynchronousHTTPClient {
 		}
 	}
 
-	public AsynchronousHTTPClient(TCPSocketLocator locator, EventListener connectionsListener, HttpRequestExecutionHandler requestHandler) throws IOReactorException {
+	public AsynchronousHTTPClient(TCPSocketAddress address, EventListener connectionsListener, HttpRequestExecutionHandler requestHandler) throws IOReactorException {
 		// TODO better logging with loggingContext
-		this(locator, connectionsListener, requestHandler, Activator.getInstance().getLogManager().getLogger("Asynchronous HTTP Client"));
+		this(address, connectionsListener, requestHandler, Activator.getInstance().getLogManager().getLogger("Asynchronous HTTP Client"));
 	}
 	
-	public AsynchronousHTTPClient(TCPSocketLocator locator, EventListener connectionsListener, HttpRequestExecutionHandler requestHandler, final ILogger logger) throws IOReactorException {
-		this.locator = locator;
+	public AsynchronousHTTPClient(TCPSocketAddress address, EventListener connectionsListener, HttpRequestExecutionHandler requestHandler, final ILogger logger) throws IOReactorException {
+		this.address = address;
 		this.connectionsListener = connectionsListener;
 		this.logger = logger;
 		
@@ -139,7 +139,7 @@ public class AsynchronousHTTPClient {
 				logger.debug("Shutdown HTTP Client");
 			}
 		});
-		t.setName("HTTP Client on " + locator);
+		t.setName("HTTP Client on " + address);
 		t.start();
 	}
 
@@ -150,8 +150,8 @@ public class AsynchronousHTTPClient {
 	
 	public synchronized void connect(final SessionRequestCallback callback) {
 		connectionsCount.incrementAndGet();
-		ioReactor.connect(new InetSocketAddress(locator.getAddress()
-				.toInetAddress(), locator.getPort()), null, null, new SessionRequestCallback() {
+		ioReactor.connect(new InetSocketAddress(address.getNetworkAddress()
+				.toInetAddress(), address.getPort()), null, null, new SessionRequestCallback() {
 					public void cancelled(SessionRequest request) {
 						connectionsCount.decrementAndGet();
 						if (callback != null) callback.cancelled(request);

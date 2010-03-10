@@ -14,13 +14,13 @@ public class BasicCredentialSnifferProvider implements ICredentialSnifferProvide
 		List<ICredentialSniffer> answer = new ArrayList<ICredentialSniffer>();
 		
 		Regex regex = Regex.caseInsensitive(".*USER[ ]+([^\r\n]*)[\r\n]+PASS[ ]+([^\r\n]*)[\r\n].*");
-		regex.add(1, "username");
-		regex.add(2, "password");
+		regex.add("username", "{$1}");
+		regex.add("password", "{$2}");
 		answer.add(new RegexCredentialSniffer(new String[]{"FTP","POP3"},regex,null));
 
 		regex = Regex.caseInsensitive("^[^ ]+ LOGIN ([^ \r\n]+) ([^\r\n]+)[\r\n].*");
-		regex.add(1, "username");
-		regex.add(2, "password");
+		regex.add("username", "{$1}");
+		regex.add("password", "{$2}");
 		answer.add(new RegexCredentialSniffer(new String[]{"IMAP"},regex,null));
 
 		answer.add(new HTTPCredentialSniffer());

@@ -11,7 +11,6 @@ import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -25,14 +24,9 @@ public class NetOpGeoLocalizer implements ITool {
 	private IToolContext context;
 	private INameResolver resolver;
 	private IndexedIterable<InternetAddress> addresses;
-	private long realm;
 	
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
-
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 
 		setupToolOptions();
 		context.setTitle("Geo-localize " + addresses);
@@ -40,12 +34,12 @@ public class NetOpGeoLocalizer implements ITool {
 		resolver = Activator.getInstance().getNameResolver();
 
 		// FIXME
-		if (addresses.itemCount() > 0 && !(addresses.itemAt(0) instanceof IPv4Address)) {
+		if (addresses.size() > 0 && !(addresses.get(0) instanceof IPv4Address)) {
 			context.warning("IPv6 not yet supported by NetOp");
 			context.done();
 			return;
 		}
-		context.setTotalWork(addresses.itemCount());
+		context.setTotalWork(addresses.size());
 		for (InternetAddress address: addresses) {
 			localizate(address);
 		}
@@ -65,7 +59,7 @@ public class NetOpGeoLocalizer implements ITool {
 			return;
 		}
 		
-		context.setStatus("Localizing "+address);
+		context.setSubTitle("Localizing "+address);
 		
 		// XXX lame
 		String[] octets = address.toString().split("\\.");
@@ -95,19 +89,19 @@ public class NetOpGeoLocalizer implements ITool {
 							String countryName = locale.getDisplayCountry(Locale.ENGLISH);
 							context.info(address.toString() + " is in " + countryName);
 							
-							InternetAddressEntity entity = Activator.getInstance().getNetworkEntityFactory().createAddress(realm, context.getSpaceId(), address);
-							entity.setNamedAttribute("country", countryCode);
+							InternetAddressEntity entity = Activator.getInstance().getNetworkEntityFactory().createAddress(context.getRealm(), context.getSpaceId(), address);
+							entity.setAttribute("country", countryCode);
 							entity.update();
-							entity.getHost().setNamedAttribute("country", countryCode);
+							entity.getHost().setAttribute("country", countryCode);
 //							entity.getHost().addTag(countryName);
 							entity.getHost().update(); //HACK or the tree builder never gets called to update
 							
-	//						Activator.getInstance().getNetworkEntityFactory().createAttributeFolder(realm, context.getViewId(), countryName, "host", "country", countryCode);
+	//						Activator.getInstance().getNetworkEntityFactory().createAttributeFolder(context.getRealm(), context.getViewId(), countryName, "host", "country", countryCode);
 							return;
 						}
 					}
 				} else {
-					context.warning("Unhandled DNS record: " + record);
+					context.warning("Unhandled record: " + record);
 				}
 			}
 		}

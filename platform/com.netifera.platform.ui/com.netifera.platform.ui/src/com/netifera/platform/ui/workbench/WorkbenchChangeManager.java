@@ -11,11 +11,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 public class WorkbenchChangeManager {
 	
 	private final IWorkbenchWindow window;
-	private final String perspectiveId;
 	private final IWorkbenchChangeListener changeListener;
-	public WorkbenchChangeManager(IWorkbenchWindow window, String perspectiveId, IWorkbenchChangeListener changeListener) {
+	
+	public WorkbenchChangeManager(IWorkbenchWindow window, IWorkbenchChangeListener changeListener) {
 		this.window = window;
-		this.perspectiveId = perspectiveId;
 		this.changeListener = changeListener;
 	}
 	
@@ -49,10 +48,8 @@ public class WorkbenchChangeManager {
 		window.addPerspectiveListener(createPerspectiveListener());
 		
 		IPerspectiveDescriptor perspective = page.getPerspective();
-		if(perspective != null && perspective.getId().equals(perspectiveId)) {
-			changeListener.perspectiveOpened();
-		} else {
-			changeListener.perspectiveClosed();
+		if(perspective != null) {
+			changeListener.perspectiveActivated(perspective.getId());
 		}
 		
 		page.addPartListener(createPartListener());
@@ -63,22 +60,15 @@ public class WorkbenchChangeManager {
 
 			public void perspectiveActivated(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective) {
-				if(perspective.getId().equals(perspectiveId)) {
-					changeListener.perspectiveOpened();
-				} else {
-					changeListener.perspectiveClosed();
-				}
-				
+				changeListener.perspectiveActivated(perspective.getId());
 			}
 			public void perspectiveChanged(IWorkbenchPage page,
 					IPerspectiveDescriptor perspective, String changeId) {}
-			
 		};
 	}
 	
 	private IPartListener createPartListener() {
 		return new IPartListener() {
-
 			public void partActivated(IWorkbenchPart part) {
 				changeListener.partChange();				
 			}
@@ -92,10 +82,6 @@ public class WorkbenchChangeManager {
 			public void partOpened(IWorkbenchPart part) {
 				changeListener.partChange();
 			}
-			
 		};
 	}
-	
-	
-
 }

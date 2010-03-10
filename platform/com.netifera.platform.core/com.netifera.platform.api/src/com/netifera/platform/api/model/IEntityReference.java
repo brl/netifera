@@ -8,7 +8,7 @@ package com.netifera.platform.api.model;
  */
 public interface IEntityReference {
 	long getId();
-	IEntityReference createClone();
 	IEntity getEntity(IWorkspace workspace);
-	void freeCachedEntity();
+	void setEntity(IEntity entity);
+	void freeCache();
 }

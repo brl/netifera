@@ -4,9 +4,9 @@ import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IEntity;
 import com.netifera.platform.api.model.IEntityReference;
 import com.netifera.platform.api.model.IWorkspace;
+import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public class ClientEntity extends AbstractEntity {
-	
 	private static final long serialVersionUID = -1611903324378815778L;
 
 	public final static String ENTITY_NAME = "client";
@@ -34,32 +34,32 @@ public class ClientEntity extends AbstractEntity {
 	}
 
 	public String getBanner() {
-		return getNamedAttribute("banner");
+		return getAttribute("banner");
 	}
 
 	public String getProduct() {
-		return getNamedAttribute("product");
+		return getAttribute("product");
 	}
 	
 	public String getVersion() {
-		return getNamedAttribute("version");
+		return getAttribute("version");
 	}
 	
 	public void setBanner(String banner) {
-		setNamedAttribute("banner", banner);
+		setAttribute("banner", banner);
 	}
 
 	public void setProduct(String product) {
-		setNamedAttribute("product", product);
+		setAttribute("product", product);
 	}
 
 	public void setVersion(String version) {
-		setNamedAttribute("version", version);
+		setAttribute("version", version);
 	}
 
 	private ClientEntity(IWorkspace workspace, long realm, IEntityReference hostReference, String serviceType) {
 		super(ENTITY_NAME, workspace, realm);
-		this.host = hostReference.createClone();
+		this.host = hostReference;
 		this.serviceType = serviceType;
 	}
 	
@@ -77,5 +77,31 @@ public class ClientEntity extends AbstractEntity {
 	
 	protected String generateQueryKey() {
 		return createQueryKey(getRealmId(), getHost().getId(), serviceType, getProduct());
+	}
+	
+	public static synchronized ClientEntity create(IWorkspace workspace, long realm, long spaceId, InternetAddress address, String serviceType, String product) {
+		if (serviceType == null)
+			throw new IllegalArgumentException("serviceType cannot be null");
+		
+		InternetAddressEntity addressEntity = InternetAddressEntity.create(workspace, realm, spaceId, address);
+		
+		ClientEntity entity = (ClientEntity) workspace.findByKey(createQueryKey(realm, addressEntity.getHost().getId(), serviceType, product));
+
+		if (entity == null && product != null) { // XXX is this correct?
+			entity = (ClientEntity) workspace.findByKey(createQueryKey(realm, addressEntity.getHost().getId(), serviceType, null));
+			entity.setProduct(product);
+			entity.update();
+		}
+		
+		if (entity == null) {
+			entity = new ClientEntity(workspace, addressEntity.getHost(), serviceType);
+			if (product != null)
+				entity.setProduct(product);
+			entity.save();
+		}
+		
+		entity.addToSpace(spaceId);
+		
+		return entity;
 	}
 }

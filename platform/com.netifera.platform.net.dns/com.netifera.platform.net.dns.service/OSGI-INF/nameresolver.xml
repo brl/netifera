@@ -6,10 +6,10 @@
 	</service>
 	
 	<reference
-    	name="SOCKET_ENGINE"
-    	interface="com.netifera.platform.net.sockets.ISocketEngineService"
-    	bind="setSocketEngine"
-    	unbind="unsetSocketEngine"
+    	name="CHANNEL_FACTORY"
+    	interface="org.jboss.netty.channel.socket.DatagramChannelFactory"
+    	bind="setChannelFactory"
+    	unbind="unsetChannelFactory"
     />
     
 	<reference

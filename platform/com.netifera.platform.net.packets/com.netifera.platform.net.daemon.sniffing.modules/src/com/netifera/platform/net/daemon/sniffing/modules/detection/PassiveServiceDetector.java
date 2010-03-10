@@ -21,9 +21,9 @@ import com.netifera.platform.net.services.detection.IServerDetectorService;
 import com.netifera.platform.net.sniffing.IPacketFilter;
 import com.netifera.platform.net.sniffing.stream.IBlockSnifferConfig;
 import com.netifera.platform.net.sniffing.stream.ISessionKey;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 	
@@ -48,16 +48,14 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 		final long realm = ctx.getRealm();
 		final long space = ctx.getSpaceId();
 		Map<String,String> clientInfo, serverInfo;
-		TCPSocketLocator locator = new TCPSocketLocator(key.getServerAddress(), key.getServerPort());
+		TCPSocketAddress socketAddress = new TCPSocketAddress(key.getServerAddress(), key.getServerPort());
 		
-		clientInfo = Activator.getInstance().getClientDetector().detect(
-				"tcp", key.getServerPort(), clientData, serverData);
+		clientInfo = Activator.getInstance().getClientDetector().detect("tcp", key.getServerPort(), clientData, serverData);
 
 		clientData.rewind();
 		serverData.rewind();
 		
-		serverInfo = Activator.getInstance().getServerDetector().detect(
-					"tcp", key.getServerPort(), clientData, serverData);
+		serverInfo = Activator.getInstance().getServerDetector().detect("tcp", key.getServerPort(), clientData, serverData);
 
 		String serviceType = null;
 		if(serverInfo != null) {
@@ -67,13 +65,13 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 		}
 
 		if (serviceType != null) {
-			Activator.getInstance().getNetworkEntityFactory().createService(realm, space, locator, serviceType, serverInfo);
-			Activator.getInstance().getNetworkEntityFactory().createClient(realm, space, key.getClientAddress(), serviceType, clientInfo, locator);
+			Activator.getInstance().getNetworkEntityFactory().createService(realm, space, socketAddress, serviceType, serverInfo);
+			Activator.getInstance().getNetworkEntityFactory().createClient(realm, space, key.getClientAddress(), serviceType, clientInfo, socketAddress);
 			
 			clientData.rewind();
 			serverData.rewind();
 
-			sniffCredentials(locator, serviceType, clientData, serverData, realm, space);
+			sniffCredentials(socketAddress, serviceType, clientData, serverData, realm, space);
 		}
 	}
 
@@ -87,47 +85,78 @@ public class PassiveServiceDetector implements ITCPBlockSniffer, IIPSniffer {
 	
 	private void handleIPPacket(IP ip, IPacketModuleContext ctx) {
 		final long realm = ctx.getRealm();
-		final long view = ctx.getSpaceId();
+		final long space = ctx.getSpaceId();
 		final IClientDetectorService clientDetector = Activator.getInstance().getClientDetector();
 		final IServerDetectorService serverDetector = Activator.getInstance().getServerDetector();
 		final INetworkEntityFactory factory = Activator.getInstance().getNetworkEntityFactory();
+		
 		if(clientDetector == null || serverDetector == null || factory == null)
 			return;
+
+		if (!ip.getSourceAddress().isUnspecified())
+			factory.createAddress(realm, space, ip.getSourceAddress());
 		
 		if (ip.getNextHeader() instanceof UDP) {
 			UDP udp = (UDP) ip.getNextHeader();
 			ByteBuffer empty = ByteBuffer.allocate(0);
 			Map<String,String> clientInfo, serverInfo;
 			if(udp.payload() == null) return;
+			
 			clientInfo = clientDetector.detect("udp", udp.getDestinationPort(), udp.payload().toByteBuffer(), empty);
 			if (clientInfo != null) {
-				UDPSocketLocator locator = new UDPSocketLocator(ip.getDestinationAddress(), udp.getDestinationPort());
+				UDPSocketAddress socketAddress = new UDPSocketAddress(ip.getDestinationAddress(), udp.getDestinationPort());
 				String serviceType = clientInfo.get("serviceType");
-				factory.createService(realm, view, locator, serviceType, null);
-				factory.createClient(realm, view, ip.getSourceAddress(), serviceType, clientInfo, locator);
-				sniffCredentials(locator, serviceType, udp.payload().toByteBuffer(), empty, realm, view);
+				if (isToUnicast(ip))
+					factory.createService(realm, space, socketAddress, serviceType, null);
+				if (isFromUnicast(ip))
+					factory.createClient(realm, space, ip.getSourceAddress(), serviceType, clientInfo, socketAddress);
+				sniffCredentials(socketAddress, serviceType, udp.payload().toByteBuffer(), empty, realm, space);
 			} else {
 				serverInfo = serverDetector.detect("udp", udp.getSourcePort(), empty, udp.payload().toByteBuffer());
 				if (serverInfo != null) {
-					UDPSocketLocator locator = new UDPSocketLocator(ip.getSourceAddress(), udp.getSourcePort());
+					UDPSocketAddress socketAddress = new UDPSocketAddress(ip.getSourceAddress(), udp.getSourcePort());
 					String serviceType = serverInfo.get("serviceType");
-					factory.createService(realm, view, locator, serviceType, serverInfo);
-					factory.createClient(realm, view, ip.getDestinationAddress(), serviceType, null, locator);
-					sniffCredentials(locator, serviceType, empty, udp.payload().toByteBuffer(), realm, view);
+					if (isFromUnicast(ip))
+						factory.createService(realm, space, socketAddress, serviceType, serverInfo);
+					if (isToUnicast(ip))
+						factory.createClient(realm, space, ip.getDestinationAddress(), serviceType, null, socketAddress);
+					sniffCredentials(socketAddress, serviceType, empty, udp.payload().toByteBuffer(), realm, space);
 				}
 			}
 		}
 	}
-	
-	private void sniffCredentials(ISocketLocator locator, String serviceType, ByteBuffer clientData, ByteBuffer serverData, long realm, long view) {
+
+	private boolean isFromUnicast(IP ip) {
+		if (!ip.getSourceAddress().isUniCast())
+			return false;
+		if (ip instanceof IPv4) {
+			int source = ((IPv4)ip).getSourceAddress().toInteger();
+			int destination = ((IPv4)ip).getDestinationAddress().toInteger();
+			return !((source & destination) == destination && (source | destination) == source);
+		}
+		return true;
+	}
+
+	private boolean isToUnicast(IP ip) {
+		if (!ip.getDestinationAddress().isUniCast())
+			return false;
+		if (ip instanceof IPv4) {
+			int source = ((IPv4)ip).getSourceAddress().toInteger();
+			int destination = ((IPv4)ip).getDestinationAddress().toInteger();
+			return !((source & destination) == source && (source | destination) == destination);
+		}
+		return true;
+	}
+
+	private void sniffCredentials(InternetSocketAddress address, String serviceType, ByteBuffer clientData, ByteBuffer serverData, long realm, long view) {
 		Credential credential = Activator.getInstance().getCredentialSniffer().sniff(serviceType, clientData, serverData);
 		if(credential != null) {
 			if (credential instanceof UsernameAndPassword) {
 				UsernameAndPassword c = (UsernameAndPassword) credential;
-				Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, view, locator, c.getUsernameString(), c.getPasswordString());
+				Activator.getInstance().getNetworkEntityFactory().createUsernameAndPassword(realm, view, address, c.getUsernameString(), c.getPasswordString());
 			} else if (credential instanceof Password) {
 				Password c = (Password) credential;
-				Activator.getInstance().getNetworkEntityFactory().createPassword(realm, view, locator, c.getPasswordString());
+				Activator.getInstance().getNetworkEntityFactory().createPassword(realm, view, address, c.getPasswordString());
 			}
 		}
 	}

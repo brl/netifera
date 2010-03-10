@@ -2,39 +2,39 @@ package com.netifera.platform.net.http.tools;
 
 import java.io.IOException;
 
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.http.internal.tools.Activator;
 import com.netifera.platform.net.http.service.HTTP;
+import com.netifera.platform.net.http.spider.impl.WebSpider;
+import com.netifera.platform.net.http.spider.modules.WebApplicationDetectorModule;
 
 public class WebApplicationScanner implements ITool {
 	private IToolContext context;
 	private HTTP http;
 	private String hostname;
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 
 		context.setTitle("Web applications scanner");
 		setupToolOptions();
 
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		long realm = probe.getEntity().getId();
-
-		context.setTitle("Scan web applications at "+http.getLocator());
+		context.setTitle("Scan web applications at "+http.getSocketAddress());
 		try {
-			WebSpider spider = new WebSpider(http);
-			spider.setHostName(hostname);
+			WebSpider spider = new WebSpider();
+			spider.setServices(context.getLogger(), Activator.getInstance().getWebEntityFactory(), Activator.getInstance().getNameResolver());
+			spider.setRealm(context.getRealm());
+			spider.setSpaceId(context.getSpaceId());
+			spider.addTarget(http, hostname);
 			spider.setFollowLinks(false);
-			spider.setContext(context);
-			spider.setRealm(realm);
 			if (context.getConfiguration().get("maximumConnections") != null)
 				spider.setMaximumConnections((Integer)context.getConfiguration().get("maximumConnections"));
-			for (String url: Activator.getInstance().getWebApplicationDetector().getTriggers())
-				spider.addURL(spider.getBaseURL().resolve(url));
+			if (context.getConfiguration().get("bufferSize") != null)
+				spider.setBufferSize((Integer)context.getConfiguration().get("bufferSize"));
+			
+			spider.addModule(WebApplicationDetectorModule.class.getName());
 			spider.run();
 		} catch (IOException e) {
 			context.exception("I/O error: " + e.getMessage(), e);

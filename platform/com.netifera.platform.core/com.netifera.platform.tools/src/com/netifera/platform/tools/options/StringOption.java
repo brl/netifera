@@ -7,17 +7,37 @@ public class StringOption extends Option implements IParsableOption {
 	
 	String value;
 	String defaultValue;
+	String[] possibleValues;
 	boolean allowEmpty;
 
-	public StringOption(final String name, final String label, final String description, final String value) {
+	public StringOption(String name, String label, String description, String value) {
 		this(name, label, description, value, false);
 	}
 
-	public StringOption(final String name, final String label, final String description, final String value, final boolean allowEmpty) {
+	public StringOption(String name, String label, String description, String[] possibleValues) {
+		this(name, label, description, possibleValues.length>0 ? possibleValues[0] : "", possibleValues, false);
+	}
+
+	public StringOption(String name, String label, String description, String section, String value) {
+		this(name, label, description, value);
+		setSection(section);
+	}
+
+	public StringOption(String name, String label, String description, String value, boolean allowEmpty) {
+		this(name, label, description, value, (String[]) null, allowEmpty);
+	}
+	
+	public StringOption(String name, String label, String description, String value, String[] possibleValues, boolean allowEmpty) {
 		super(name, label, description);
 		this.value = value;
 		this.defaultValue = value;
+		this.possibleValues = possibleValues;
 		this.allowEmpty = allowEmpty;
+	}
+	
+	public StringOption(String name, String label, String description, String section, String value, boolean allowEmpty) {
+		this(name, label, description, value, allowEmpty);
+		setSection(section);
 	}
 	
 	public String getValue() {
@@ -48,6 +68,10 @@ public class StringOption extends Option implements IParsableOption {
 
 	public boolean allowsEmptyValue() {
 		return allowEmpty;
+	}
+	
+	public String[] getPossibleValues() {
+		return possibleValues;
 	}
 	
 	public boolean fromString(final String text) {

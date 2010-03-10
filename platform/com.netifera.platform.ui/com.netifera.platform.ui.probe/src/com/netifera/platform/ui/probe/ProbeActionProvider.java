@@ -6,66 +6,61 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 
-import com.netifera.platform.api.log.ILogManager;
-import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.probe.IProbe;
-import com.netifera.platform.api.probe.IProbe.ConnectState;
 import com.netifera.platform.model.ProbeEntity;
 import com.netifera.platform.ui.actions.SpaceAction;
-import com.netifera.platform.ui.api.actions.IEntityActionProvider;
 import com.netifera.platform.ui.api.actions.ISpaceAction;
+import com.netifera.platform.ui.api.hover.IHoverActionProvider;
+import com.netifera.platform.ui.spaces.actions.SpaceCreator;
 
-public class ProbeActionProvider implements IEntityActionProvider {
+public class ProbeActionProvider implements IHoverActionProvider {
 
-	private ILogger logger;
-	
-	public List<IAction> getActions(IShadowEntity shadow) {
+	public List<IAction> getActions(Object o) {
 		return Collections.emptyList();
 	}
 
-	private void addProbeActions(List<IAction> actions, ProbeEntity probeEntity) {
-		final IProbe probe = Activator.getDefault().getProbeManager().getProbeById(probeEntity.getProbeId());
-		if(probe == null)
-			return;
-		if(probe.getConnectState() == ConnectState.CONNECTED) {
-			ISpaceAction disconnectAction = new SpaceAction("Disconnect Probe") {
-				public void run() {
-					probe.disconnect();
-				}
-			};
-			disconnectAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/disconnect.png"));
-
-			actions.add(disconnectAction);
+	public List<IAction> getQuickActions(Object o) {
+		if (o instanceof ProbeEntity) {
+			final IProbe probe = Activator.getInstance().getProbeManager().getProbeById(((ProbeEntity)o).getProbeId());
+	
+			if (probe == null)
+				return Collections.emptyList();
+	
+			List<IAction> actions = new ArrayList<IAction>();
 			
-			actions.add(new OpenSpaceAction(probe, logger));
-		}
-		
-		if(probe.getConnectState() == ConnectState.DISCONNECTED) {
-			ISpaceAction connectAction = new SpaceAction("Connect Probe") {
+			if (!probe.isLocalProbe() && probe.isConnected()) {
+				ISpaceAction disconnectAction = new SpaceAction("Disconnect Probe") {
+					public void run() {
+						probe.disconnect();
+					}
+				};
+				disconnectAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/disconnect.png"));
+				actions.add(disconnectAction);
+			}
+			
+			if (!probe.isLocalProbe() && !probe.isConnected()) {
+				ISpaceAction connectAction = new SpaceAction("Connect Probe") {
+					public void run() {
+						probe.connect();
+					}
+				};
+				connectAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/connect.png"));
+				actions.add(connectAction);
+			}
+
+			final SpaceCreator spaceCreator = new SpaceCreator(Activator.getInstance().getWorkbench().getActiveWorkbenchWindow());
+			
+			ISpaceAction newSpaceAction = new SpaceAction("New Space") {
 				public void run() {
-					probe.connect();
+					spaceCreator.openNewSpace(null, probe, false);
 				}
 			};
-			connectAction.setImageDescriptor(Activator.getDefault().getImageCache().getDescriptor("icons/connect.png"));
-			actions.add(connectAction);
-		}
-	}
-	
-	public List<IAction> getQuickActions(IShadowEntity shadow) {
-		List<IAction> actions = new ArrayList<IAction>();
-		if(shadow instanceof ProbeEntity) {
-			addProbeActions(actions, (ProbeEntity) shadow);
-		}
-		return actions;
-	}
-	
-	protected void setLogManager(ILogManager logManager) {
-		logger = logManager.getLogger("Probe Action");
-	}
-	
-	protected void unsetLogManager(ILogManager logManager) {
-		
-	}
+			newSpaceAction.setImageDescriptor(Activator.getInstance().getImageCache().getDescriptor("icons/add_space.png"));
+			actions.add(newSpaceAction);
 
+			return actions;
+		}
+		
+		return Collections.emptyList();
+	}
 }

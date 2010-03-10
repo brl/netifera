@@ -2,10 +2,10 @@
 <component name="maxmind.geoip-service">
 	<implementation class="com.maxmind.geoip.internal.GeoIPService" />
 	<service>
-		<provide interface="com.netifera.platform.net.geoip.IGeoIPService" />
+		<provide interface="com.netifera.platform.net.ui.geoip.IGeoIPService" />
 	</service>
 	
-	 <reference
+	<reference
     	name="LOGGER"
     	interface="com.netifera.platform.api.log.ILogManager"
     	bind="setLogManager"

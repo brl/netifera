@@ -1,7 +1,9 @@
 package com.netifera.platform.ui.application;
 
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPreferenceConstants;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
@@ -26,7 +28,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
         configurer.setShowStatusLine(true);
         configurer.setShowPerspectiveBar(true);
         configurer.setShowFastViewBars(true);
-//        configurer.setShowProgressIndicator(true);
+        configurer.setShowProgressIndicator(true);
         
 //		PlatformUI.getPreferenceStore().setValue( 
 //				IWorkbenchPreferenceConstants.SHOW_TRADITIONAL_STYLE_TABS, false);
@@ -42,8 +44,28 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		// Display all Perspectives by default
 		PlatformUI.getPreferenceStore().setValue(
 				IWorkbenchPreferenceConstants.PERSPECTIVE_BAR_EXTRAS,
-				Perspective.ID + ", com.netifera.platform.ui.perspectives.sniffing");
+				Perspective.ID + ", com.netifera.platform.ui.perspectives.explore, com.netifera.platform.ui.perspectives.sniffing");
     }
+    
+    @Override
+    public void postWindowOpen() {
+    	try {
+    		// Activate the Console and Tasks views so they can show state change in their icons even if they start in fastview mode
+    		// Otherwise we must open the fast view first, and then the icon changes will be shown
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
+					"com.netifera.platform.views.console",
+					null,
+					IWorkbenchPage.VIEW_CREATE);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
+					"com.netifera.platform.ui.views.Tasks",
+					null,
+					IWorkbenchPage.VIEW_CREATE);
+		} catch (PartInitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
+    }
+    
     /* 
      * Called when the window is closed with the top-right corner X or keyboard shortcut
      */

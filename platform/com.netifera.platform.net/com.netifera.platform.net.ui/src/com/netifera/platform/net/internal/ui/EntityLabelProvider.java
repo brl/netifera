@@ -13,8 +13,8 @@ import org.eclipse.swt.graphics.Image;
 import com.netifera.platform.api.model.AbstractEntity;
 import com.netifera.platform.api.model.IShadowEntity;
 import com.netifera.platform.api.model.IStructureContext;
+import com.netifera.platform.api.model.ITreeStructureContext;
 import com.netifera.platform.model.FolderEntity;
-import com.netifera.platform.model.TreeStructureContext;
 import com.netifera.platform.net.model.ClientEntity;
 import com.netifera.platform.net.model.ClientServiceConnectionEntity;
 import com.netifera.platform.net.model.CredentialEntity;
@@ -23,7 +23,6 @@ import com.netifera.platform.net.model.InternetAddressEntity;
 import com.netifera.platform.net.model.NetblockEntity;
 import com.netifera.platform.net.model.NetworkAddressEntity;
 import com.netifera.platform.net.model.PasswordEntity;
-import com.netifera.platform.net.model.PortSetEntity;
 import com.netifera.platform.net.model.ServiceEntity;
 import com.netifera.platform.net.model.UserEntity;
 import com.netifera.platform.net.model.UsernameAndPasswordEntity;
@@ -35,19 +34,24 @@ import com.netifera.platform.util.patternmatching.NetblockMatcher;
 
 public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String HOST_WORKSTATION = "icons/host_workstation.png";
-	private final static String HOST_SERVER = "icons/host_server.png";
+//	private final static String HOST_SERVER = "icons/host_server.png";
 //	private final static String HOST_MAINFRAME = "icons/host_mainframe.png";
 	private final static String HOST_ROUTER = "icons/host_router.png";
 //	private final static String HOST_SWITCH = "icons/host_switch.png";
-	private final static String HOST_AP = "icons/host_ap.png";
+//	private final static String HOST_AP = "icons/host_ap.png";
 	private final static String HOST_IPHONE = "icons/host_iphone.png";
+	private final static String HOST_PRINTER = "icons/host_printer.png";
+//	private final static String HOST_SERVER_IBM = "icons/host_server_ibm.png";
+//	private final static String HOST_SERVER_HP = "icons/host_server_hp.png";
+//	private final static String HOST_SERVER_AS400 = "icons/host_server_as400.png";
 	
 	private final static String ADDRESS = "icons/address.png";
 	private final static String NETWORK = "icons/network.png";
 	private final static String LOCAL_NETWORK = "icons/network_local.png";
-	private final static String PORTS = "icons/ports.png";
 	private final static String CREDENTIAL = "icons/credential.png";
 	private final static String USER = "icons/user.png";
+	private final static String USER_PRIVILEDGED = "icons/user_priviledged.png";
+	private final static String USER_INACTIVE = "icons/user_inactive.png";
 	
 	private final static String FOLDER = "icons/folder.png";
 	private final static String TARGET = "icons/target.png";
@@ -58,24 +62,19 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String VULNERABLE_OVERLAY = "icons/vulnerable_overlay.png";
 	private final static String CONTROLLED_OVERLAY = "icons/controlled_overlay.png";
 //	private final static String ERROR_OVERLAY = "icons/error_overlay.png";
-	
-	//private final static String HOST_SERVER_IBM = "icons/host_server_ibm.png";
-	//private final static String HOST_SERVER_HP = "icons/host_server_hp.png";
-	//private final static String HOST_SERVER_AS400 = "icons/host_server_as400.png";
-	
-	private final static String CISCO_OVERLAY = "icons/cisco_overlay.png";
-	private final static String JUNIPER_OVERLAY = "icons/juniper_overlay.png";
-	
-	private final static String HOST_PRINTER = "icons/host_printer.png";
-	
+	private final static String WARNING_OVERLAY = "icons/warning_overlay.png";
+//	private final static String PRIVILEDGED_OVERLAY = "icons/priviledged_overlay.png";
+
 	private final static String SERVICE = "icons/service.png";
 	private final static String CLIENT = "icons/client.png";
+
+	private final static String SERVICE_UNKNOWN = "icons/service_unknown.png";
 	private final static String SERVICE_SHELL = "icons/service_shell.png";
-	private final static String SERVICE_MAIL = "icons/service_mail.png";
-	private final static String SERVICE_FILES = "icons/service_file.png";
-	private final static String SERVICE_HTTP = "icons/service_http.png";
-	private final static String SERVICE_DATABASE = "icons/service_database.png";
-	
+//	private final static String SERVICE_MAIL = "icons/service_mail.png";
+//	private final static String SERVICE_FILES = "icons/service_file.png";
+//	private final static String SERVICE_HTTP = "icons/service_http.png";
+//	private final static String SERVICE_DATABASE = "icons/service_database.png";
+
 	private final static String OS_BSD = "icons/os_bsd_overlay.png";
 	//private final static String OS_OPENBSD = "icons/os_openbsd_overlay.png";
 	private final static String OS_LINUX = "icons/os_linux_overlay.png";
@@ -86,6 +85,9 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	private final static String OS_RTOS = "icons/os_rtos_overlay.png";
 	private final static String OS_HPUX = "icons/os_hpux_overlay.png";
 
+	private final static String CISCO_OVERLAY = "icons/cisco_overlay.png";
+	private final static String JUNIPER_OVERLAY = "icons/juniper_overlay.png";
+
 	
 	public String getText(IShadowEntity e) {
 		if(e instanceof NetworkAddressEntity) {
@@ -95,19 +97,17 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		} else if(e instanceof HostEntity) {
 			return getHostText((HostEntity) e);
 		} else if(e instanceof UserEntity) {
-			return ((UserEntity)e).getName();
+			return ((UserEntity)e).getName() + (parentIsHost(e) ? "" : "@" + getHostName(((UserEntity)e).getHost()));
 //		} else if(e instanceof LocalNetworkEntity) {
 //			return ((LocalNetworkEntity)e).getName();
 		} else if(e instanceof FolderEntity) {
-			return ((FolderEntity) e).getLabel()+" ("+((TreeStructureContext)((FolderEntity) e).getStructureContext()).getChildren().size()+")";
-		} else if(e instanceof PortSetEntity) {
-			return getPortsetText((PortSetEntity)e);
+			return ((FolderEntity) e).getLabel()+" ("+((ITreeStructureContext)((FolderEntity) e).getStructureContext()).getChildren().size()+")";
 		} else if(e instanceof ServiceEntity) {
 			return getServiceText((ServiceEntity)e);
 		} else if(e instanceof ClientEntity) {
 			return getClientText((ClientEntity)e);
 		} else if(e instanceof ClientServiceConnectionEntity) {
-			return getServiceConnectionText((ClientServiceConnectionEntity)e);
+			return getClientServiceConnectionText((ClientServiceConnectionEntity)e);
 		} else if(e instanceof PasswordEntity) {
 			return ((PasswordEntity)e).getPassword();
 		} else if(e instanceof UsernameAndPasswordEntity) {
@@ -138,7 +138,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		} else if(e instanceof HostEntity) {
 			return getHostImage((HostEntity)e);
 		} else if(e instanceof UserEntity) {
-			return Activator.getInstance().getImageCache().get(USER);
+			return getUserImage((UserEntity)e);
 		} else if(e instanceof NetblockEntity) {
 			InternetAddress net = ((NetblockEntity)e).getNetblock().getNetworkAddress();
 			if (net.isLinkLocal() || net.isPrivate() || net.isLoopback()) { // TODO use InternetNetblock
@@ -153,8 +153,6 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return networkImage;
 */		} else if(e instanceof FolderEntity) {
 			return getFolderImage((FolderEntity)e);
-		} else if(e instanceof PortSetEntity) {
-			return Activator.getInstance().getImageCache().get(PORTS);
 		} else if(e instanceof ServiceEntity) {
 			return getServiceImage((ServiceEntity)e);
 		} else if(e instanceof ClientServiceConnectionEntity) {
@@ -193,7 +191,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			return Activator.getInstance().getImageCache().get(CONTROLLED);
 		
 		//TODO optimise, maybe this is too slow:
-		String overlayKeys[] = new String[5];
+/*		String overlayKeys[] = new String[5];
 		IStructureContext context = e.getStructureContext();
 		if (context instanceof TreeStructureContext) {
 			for (IShadowEntity child: ((TreeStructureContext) context).getChildren()) {
@@ -206,10 +204,12 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			}
 		}
 		return Activator.getInstance().getImageCache().getDecorated(FOLDER, overlayKeys);
+*/
+		return Activator.getInstance().getImageCache().get(FOLDER);
 	}
 	
 	private Image getHostImage(HostEntity e) {
-		String os = e.getNamedAttribute("os");
+		String os = e.getAttribute("os");
 		if (os == null) os = "";
 		os = os.toLowerCase(Locale.ENGLISH);
 		String base = HOST_WORKSTATION;
@@ -239,7 +239,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 	}
 
 	private String getOSDecoration(AbstractEntity e) {
-		String os = e.getNamedAttribute("os");
+		String os = e.getAttribute("os");
 		if (os == null) os = "";
 		os = os.toLowerCase(Locale.ENGLISH);
 		if (os.matches(".*linux.*"))
@@ -269,20 +269,32 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		return null;
 	}
 
+	private Image getUserImage(UserEntity e) {
+		String base = e.isPriviledged() ? USER_PRIVILEDGED : e.isLocked() ? USER_INACTIVE : USER;
+/*		if (e.isPriviledged()) {
+			String overlayKeys[] = new String[5];
+			overlayKeys[IDecoration.BOTTOM_RIGHT] = PRIVILEDGED_OVERLAY;
+			return Activator.getInstance().getImageCache().getDecorated(base, overlayKeys);
+		}
+*/		return Activator.getInstance().getImageCache().get(base);
+	}
+	
 	private Image getServiceImage(ServiceEntity e) {
 		String type = e.getServiceType();
 		String base = SERVICE;
-		if (type.matches(".*SQL.*") || type.equals("Oracle"))
+		if (type == null)
+			base = SERVICE_UNKNOWN;
+		else if (type.matches("SSH|Telnet"))
+			base = SERVICE_SHELL;
+/*		else if (type.matches(".*SQL.*") || type.equals("Oracle"))
 			base = SERVICE_DATABASE;
 		else if (type.matches("SMTP|POP3|IMAP"))
 			base = SERVICE_MAIL;
-		else if (type.matches("SSH|Telnet"))
-			base = SERVICE_SHELL;
 		else if (type.matches("HTTP|HTTPS"))
 			base = SERVICE_HTTP;
 		else if (type.matches("FTP"))
 			base = SERVICE_FILES;
-		
+*/
 		String overlayKeys[] = new String[5];
 		overlayKeys[IDecoration.BOTTOM_LEFT] = getOSDecoration(e);
 		return Activator.getInstance().getImageCache().getDecorated(base, overlayKeys);
@@ -307,8 +319,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		}
 		
 		String tag = "";
-		if (context instanceof TreeStructureContext) {
-			IShadowEntity parent = ((TreeStructureContext) context).getParent();
+		if (context instanceof ITreeStructureContext) {
+			IShadowEntity parent = ((ITreeStructureContext) context).getParent();
 			if (parent instanceof FolderEntity)
 				tag = "."+((FolderEntity) parent).getTag();
 		}
@@ -362,7 +374,7 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			buf.append(" (");
 			int last = addresses.size()-1;
 			for (int i=0; i<addresses.size(); i++) {
-				buf.append(addresses.get(i).getAddress());
+				buf.append(addresses.get(i).toNetworkAddress());
 				if (i != last) {
 					if (buf.length()>50) {
 						buf.append("..");
@@ -378,10 +390,21 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		
 		return host.getLabel() == null ? host.getDefaultAddress().getAddressString() : host.getLabel();
 	}
-	
+
+	private String getHostName(HostEntity host) {
+		for (NetworkAddressEntity address: host.getAddresses()) {
+			if (address instanceof InternetAddressEntity) {
+				for (String name: ((InternetAddressEntity)address).getNames()) {
+					return name;
+				}
+			}
+		}
+		return host.getLabel() == null ? host.getDefaultAddress().getAddressString() : host.getLabel();
+	}
+
 	private String getAddressText(NetworkAddressEntity e) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(e.getAddress());
+		buffer.append(e.toNetworkAddress());
 		if (e instanceof InternetAddressEntity) {
 			InternetAddressEntity i = (InternetAddressEntity) e;
 			if (i.getNames().size() > 0) {
@@ -412,8 +435,11 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			}
 			label.append("]");
 		}
-		
-		return label.toString();
+
+		if (parentIsHost(e))
+			return label.toString();
+		else
+			return label.toString()+" @ "+getHostName(e.getHost());
 	}
 	
 	private String getServiceText(ServiceEntity e) {
@@ -425,7 +451,8 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 //		}
 		label.append(e.getPort()+"/"+e.getProtocol()+" ");
 		
-		label.append(e.getServiceType()+" ");
+		if (e.getServiceType() != null)
+			label.append(e.getServiceType()+" ");
 
 		if (e.getProduct() != null && e.getProduct().length() > 0 && !e.getProduct().equals(e.getServiceType())) {
 			label.append(" ["+e.getProduct());
@@ -435,44 +462,21 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		} else if (e.getVersion() != null && e.getVersion().length()>0) {
 			label.append(" ["+e.getVersion()+"]");
 		}
-		
-		return label.toString();
+
+		if (parentIsHost(e))
+			return label.toString();
+		else
+			return getHostName(e.getAddress().getHost())+":"+label.toString();
 	}
 
-	private String getServiceConnectionText(ClientServiceConnectionEntity e) {
-		InternetAddressEntity address = e.getService().getAddress();
-		HostEntity host = address.getHost();
-		
+	private String getClientServiceConnectionText(ClientServiceConnectionEntity e) {
 		StringBuffer buffer = new StringBuffer();
 		
-		if (host.getLabel() != null) {
-			buffer.append(host.getLabel());
-		} else {
-			buffer.append(address.getAddress().toStringLiteral());
-		}
-		buffer.append(':'); // FIXME '/' for IPv6?
 		buffer.append(getServiceText(e.getService()));
 		if (e.getIdentity() != null) {
 			buffer.append('(' + e.getIdentity() + ')');
 		}
 		return buffer.toString();
-	}
-	
-	private final static int PORTS_FORMATTED_LINE_LENGTH = 40;
-	private final static int PORTS_TRUNCATE_LENGTH = 50;
-
-	private String getPortsetText(PortSetEntity portset) {
-		return portset.getProtocol().toUpperCase(Locale.ENGLISH) + " [" + getPortString(portset) + "]";
-		
-	}
-	
-	private String getPortString(PortSetEntity portset) {
-		final String ports = portset.getPorts();
-		if(ports.length() < PORTS_TRUNCATE_LENGTH) return ports;
-		int idx = ports.lastIndexOf(',', PORTS_TRUNCATE_LENGTH);
-		if(idx == -1) return ports;
-		return ports.substring(0,idx) + "...";
-		
 	}
 	
 	public void dispose() {
@@ -487,64 +491,63 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 			else if(folder.getTag().equals("Controlled"))
 				return 1;
 			else if(NetblockMatcher.matchesIPv4(folder.getTag()))
-				return 5;
-			else if(NetblockMatcher.matchesIPv6(folder.getTag()))
-				return 6;
-			else
 				return 3;
+			else if(NetblockMatcher.matchesIPv6(folder.getTag()))
+				return 4;
+			else
+				return 2;
 		}
 		
-		/* ordering below host entity */
-		if(e instanceof PortSetEntity) {
-			return 0;
-		}
-		if(e instanceof ServiceEntity) {
-			return 2;
-		}
-		/* ordering inside network folders */
-		if(e instanceof NetblockEntity) {
-			return 0;
-		}
-		if(e instanceof HostEntity) {
-			return 1;
-		}
+		if(e instanceof NetblockEntity)
+			return 5;
+		if(e instanceof HostEntity)
+			return 6;
+		if(e instanceof ServiceEntity)
+			return 7;
+		
 		return null;
 	}
 
 	public Integer compare(IShadowEntity e1, IShadowEntity e2) {
-		if(e1 instanceof ServiceEntity && e2 instanceof ServiceEntity) {
-			return compareServiceEntities((ServiceEntity)e1, (ServiceEntity) e2);
-		}
-		if(e1 instanceof HostEntity && e2 instanceof HostEntity) {
+		if(e1 instanceof NetblockEntity && e2 instanceof NetblockEntity)
+			return compareNetblockEntities((NetblockEntity)e1, (NetblockEntity) e2);
+		if(e1 instanceof HostEntity && e2 instanceof HostEntity)
 			return compareHostEntities((HostEntity)e1, (HostEntity) e2);
-		}
-		if(e1 instanceof FolderEntity && e2 instanceof FolderEntity) {
+		if(e1 instanceof ServiceEntity && e2 instanceof ServiceEntity)
+			return compareServiceEntities((ServiceEntity)e1, (ServiceEntity) e2);
+		if(e1 instanceof FolderEntity && e2 instanceof FolderEntity)
 			return compareFolderEntities((FolderEntity)e1, (FolderEntity) e2);
-		}
 		return null;
 	}
-	
-	private int compareServiceEntities(ServiceEntity e1, ServiceEntity e2) {
-		if(e1.getPort() < e2.getPort()) 
-			return -1;
-		else if(e1.getPort() > e2.getPort())
-			return 1;
-		else 
-			return e1.getProtocol().compareToIgnoreCase(e2.getProtocol());
+
+	private int compareNetblockEntities(NetblockEntity e1, NetblockEntity e2) {
+		InternetNetblock n1 = e1.getNetblock();
+		InternetNetblock n2 = e2.getNetblock();
+		return n1.compareTo(n2);
 	}
-	
-	// TODO review (james: compare addresses?)
-	private Integer compareHostEntities(HostEntity e1, HostEntity e2) {
+
+	private int compareHostEntities(HostEntity e1, HostEntity e2) {
 		String s1 = getHostText(e1).split("\\s")[0];
 		String s2 = getHostText(e2).split("\\s")[0];
 		InternetAddressMatcher m1 = new InternetAddressMatcher(s1);
 		InternetAddressMatcher m2 = new InternetAddressMatcher(s2);
 		
 		if (m1.matches() && m2.matches()) {
-			return InternetAddress.fromString(s1).compareTo(InternetAddress.fromString(s2));
+			InternetAddress address1 = InternetAddress.fromString(s1);
+			InternetAddress address2 = InternetAddress.fromString(s2);
+			return address1.compareTo(address2);
 		}
 		
-		return null;
+		return s1.compareTo(s2);
+	}
+
+	private int compareServiceEntities(ServiceEntity e1, ServiceEntity e2) {
+		int value = e1.getProtocol().compareToIgnoreCase(e2.getProtocol());
+		if (value != 0)
+			return value;
+		int p1 = e1.getPort();
+		int p2 = e2.getPort();
+		return p1 == p2 ? 0 : p1 < p2 ? -1 : 1;
 	}
 	
 	private Integer compareFolderEntities(FolderEntity e1, FolderEntity e2) {
@@ -553,15 +556,19 @@ public class EntityLabelProvider implements IEntityLabelProvider {
 		
 		// need to do v4 and v6 separately
 		if (NetblockMatcher.matchesIPv4(tag1) && NetblockMatcher.matchesIPv4(tag2)) {
-			return InternetNetblock.fromString(tag1).compareTo(
-					InternetNetblock.fromString(tag2));
+			return InternetNetblock.fromString(tag1).compareTo(InternetNetblock.fromString(tag2));
 		}
 		else if (NetblockMatcher.matchesIPv6(tag1) && NetblockMatcher.matchesIPv6(tag2)) {
-			return InternetNetblock.fromString(tag1).compareTo(
-					InternetNetblock.fromString(tag2));
+			return InternetNetblock.fromString(tag1).compareTo(InternetNetblock.fromString(tag2));
 		}
 
 		return null;
 //		return tag1.compareToIgnoreCase(tag2);
+	}
+	
+	private boolean parentIsHost(IShadowEntity e) {
+		if (e.getRealEntity() != e && e.getStructureContext() instanceof ITreeStructureContext)
+			return ((ITreeStructureContext)e.getStructureContext()).getParent() instanceof HostEntity;
+		return false;
 	}
 }

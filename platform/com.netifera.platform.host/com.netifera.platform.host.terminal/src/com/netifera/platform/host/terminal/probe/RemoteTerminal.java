@@ -9,13 +9,14 @@ import com.netifera.platform.host.terminal.ITerminalOutputHandler;
 public class RemoteTerminal implements ITerminal {
 
 	private final String ptyName;
-	private final RemoteTerminalManager manager;
+	private final RemoteTerminalService service;
 	private final ITerminalOutputHandler outputHandler;
 	private int lastWidth = -1;
 	private int lastHeight = -1;
-	RemoteTerminal(String ptyName, RemoteTerminalManager manager, ITerminalOutputHandler outputHandler) {
+	
+	RemoteTerminal(String ptyName, RemoteTerminalService service, ITerminalOutputHandler outputHandler) {
 		this.ptyName = ptyName;
-		this.manager = manager;
+		this.service = service;
 		this.outputHandler = outputHandler;
 	}
 	
@@ -48,14 +49,14 @@ public class RemoteTerminal implements ITerminal {
 	}
 	
 	void setClosed() {
-		manager.removeTerminal(ptyName);
+		service.removeTerminal(ptyName);
 		outputHandler.terminalClosed(ptyName);
 	}
 	
 	private void emitMessage(IProbeMessage message) {
-		final IMessenger messenger = manager.getProbe().getMessenger();
+		final IMessenger messenger = service.getProbe().getMessenger();
 		if(messenger == null) {
-			manager.getLogger().error("Cannot send message because probe has no active messenger");
+			service.getLogger().error("Cannot send message because probe has no active messenger");
 			setClosed();
 			return;
 		}
@@ -63,9 +64,8 @@ public class RemoteTerminal implements ITerminal {
 		try {
 			messenger.emitMessage(message);
 		} catch (MessengerException e) {
-			manager.getLogger().warning("Messenger error sending message " + e.getMessage(), e);
+			service.getLogger().warning("Messenger error sending message " + e.getMessage(), e);
 			setClosed();
 		}
 	}
-
 }

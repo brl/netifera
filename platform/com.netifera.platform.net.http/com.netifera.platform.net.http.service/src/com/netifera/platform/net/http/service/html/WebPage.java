@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.netifera.platform.util.patternmatching.EmailCollector;
-
 public class WebPage {
 	final private URI url;
 	final private String content;
@@ -63,8 +61,6 @@ public class WebPage {
 	}
 	
 	public Set<String> emails() {
-		EmailCollector collector = new EmailCollector();
-		collector.parse(content, EmailCollector.PARSE_ALL);
-		return collector.results();
+		return null;
 	}
 }

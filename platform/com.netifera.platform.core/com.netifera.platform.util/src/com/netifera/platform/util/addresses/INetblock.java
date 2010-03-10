@@ -1,6 +1,5 @@
 package com.netifera.platform.util.addresses;
 
-import com.netifera.platform.api.iterables.IndexedIterable;
 
 /**
  * A container of INetworkAddress.
@@ -25,14 +24,4 @@ public interface INetblock<A extends INetworkAddress> extends Iterable<A> {
 	 * IndexedIterable and <code>false</code> otherwise
 	 */
 	boolean isIndexedIterable();
-	
-	/**
-	 * Convenience method to return an IndexedIterable with all of
-	 * the INetworkAddress contained by this network block.
-	 *  
-	 * @return an IndexedIterable object with all of the INetworkAddress
-	 * contained by this network block or <code>null</code> if this network
-	 * block is not IndexedIterable.
-	 */
-	IndexedIterable<A> getIndexedIterable();
 }

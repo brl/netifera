@@ -32,6 +32,9 @@ public class NameResolver implements INameResolver {
 	}
 	
 	public InternetAddress getAddressByName(String name) throws UnknownHostException {
+/*		if (name.equals("localhost"))
+			return IPv4Address.loopback;
+*/		
 		Lookup lookup;
 		try {
 			lookup = new Lookup(name);
@@ -55,7 +58,13 @@ public class NameResolver implements INameResolver {
 
 	public List<InternetAddress> getAddressesByName(String name) throws TextParseException, UnknownHostException {
 		List<InternetAddress> answer = new ArrayList<InternetAddress>();
-		
+
+/*		if (name.equals("localhost")) {
+			answer.add(IPv4Address.loopback);
+			answer.add(IPv6Address.loopback);
+			return answer;
+		}
+*/
 		getAddressesByName(answer, Type.A, name);
 		getAddressesByName(answer, Type.AAAA, name);
 		

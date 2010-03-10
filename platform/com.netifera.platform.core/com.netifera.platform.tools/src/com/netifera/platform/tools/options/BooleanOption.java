@@ -7,7 +7,7 @@ public class BooleanOption extends Option implements IParsableOption {
 	boolean value;
 	boolean defaultValue;
 	
-	public BooleanOption(final String name, final String label, final String description, final boolean value) {
+	public BooleanOption(String name, String label, String description, boolean value) {
 		super(name, label, description);
 		this.value = value;
 		this.defaultValue = value;
@@ -21,10 +21,10 @@ public class BooleanOption extends Option implements IParsableOption {
 		return defaultValue;
 	}
 	
-	public void setDefault(final boolean b) {
+	public void setDefault(boolean b) {
 		defaultValue = b;
 	}
-	public void setValue(final boolean b) {
+	public void setValue(boolean b) {
 		value = b;
 	}
 	

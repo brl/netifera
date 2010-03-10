@@ -16,25 +16,22 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.netifera.platform.ui.probe";
 
-	private static Activator plugin;
-	
-	
+	private static Activator instance;
+
+	public static Activator getInstance() {
+		return instance;
+	}
+		
 	private ServiceTracker probeManagerTracker;
 	private ServiceTracker modelTracker;
 
 	private ImageCache imageCache;
 	
-	/**
-	 * The constructor
-	 */
-	public Activator() {
-	}
-
 	
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		plugin = this;
+		instance = this;
 
 		imageCache = new ImageCache(PLUGIN_ID);
 		
@@ -50,15 +47,10 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		imageCache.dispose();
 		imageCache = null;
-		plugin = null;
+		instance = null;
 		super.stop(context);
 	}
 
-	
-	public static Activator getDefault() {
-		return plugin;
-	}
-	
 	public IProbeManagerService getProbeManager() {
 		return (IProbeManagerService) probeManagerTracker.getService();
 	}

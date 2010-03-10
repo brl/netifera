@@ -1,7 +1,7 @@
 package com.netifera.platform.ui.updater;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.viewers.StructuredViewer;
 
@@ -11,8 +11,10 @@ public class StructuredViewerUpdater extends ControlUpdater {
 	private Object currentInput;
 	private volatile boolean refresh;
 	private volatile boolean setInput;
-	Map<Object,Object> refreshElements = new  HashMap<Object,Object>();
-	private Map<Object, Object> updateElements = new HashMap<Object,Object>();
+	
+	// Concurrent not really needed, but seems to be faster than th enormal HashMap
+	private Map<Object,Object> refreshElements = new ConcurrentHashMap<Object,Object>();
+	private Map<Object,Object> updateElements = new ConcurrentHashMap<Object,Object>();
 
 
 	/* private constructor to force to use the get method */
@@ -45,17 +47,19 @@ public class StructuredViewerUpdater extends ControlUpdater {
 
 	/**
 	 * updateControl() is synchronized and is executed in the UI thread, content
-	 * providers calling ViewerUpdater methods will be blocked while this method
+	 * providers calling the ControlUpdater methods will be blocked while this method
 	 * executes. And the UI thread will be blocked while content providers
 	 * invoke this updater methods below.
 	 */
 	protected void updateControl() {
 		final Object[] relements;
 		final Object[] uelements;
+
 		synchronized(this) {
 			if(checkDisposed()) {
 				return;
 			}
+			
 			/* .setInput() */
 			if (setInput) {
 				currentInput = newInput;
@@ -63,7 +67,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 				setInput = false;
 				viewer.setInput(currentInput);
 			}
-
+			
 			/* .refresh() */
 			if(refresh) {
 				refresh = false;
@@ -74,6 +78,7 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			uelements = updateElements.values().toArray();
 			updateElements.clear();
 		}
+		
 		/* iterate outside the synchronized block, it makes sense if calling refresh
 		 * is slower than copying the values to the array */
 		for(Object element : relements) {
@@ -84,10 +89,13 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			viewer.update(element,null);
 		}
 	}
+	
 	/* the following methods are called from content providers */
 
 	public void refresh() {
 		refresh = true;
+		updateElements.clear();
+		refreshElements.clear();
 		scheduleUpdate();
 	}
 	
@@ -95,11 +103,11 @@ public class StructuredViewerUpdater extends ControlUpdater {
 		if(element != null) {
 			/* the map is used as a set, but we need the newest instance of element */
 			refreshElements.put(element, element);
+			scheduleUpdate();
 		} else {
 			/*refresh all if element is null hack?*/
-			refresh = true;
+//			refresh();
 		}
-		scheduleUpdate();
 	}
 	
 	public synchronized void update(Object element) {
@@ -108,10 +116,10 @@ public class StructuredViewerUpdater extends ControlUpdater {
 			updateElements.put(element, element);
 			scheduleUpdate();
 		}
-
 	}
+	
 	//XXX properties are being ignored
-	public synchronized void update(Object element, String prop[]) {
+	public void update(Object element, String prop[]) {
 		update(element);
 	}
 	
@@ -119,8 +127,16 @@ public class StructuredViewerUpdater extends ControlUpdater {
 		if (input == null || !input.equals(this.currentInput)) {
 			newInput = input;
 			setInput = true;
-			refresh = true;
-			scheduleUpdate();
+			refresh();
 		}
+	}
+	
+	public void remove(Object element) {
+		refreshElements.remove(element);
+		updateElements.remove(element);
+	}
+		
+	public String toString() {
+		return "StructuredViewerUpdater ("+updateElements.size()+", "+refreshElements.size()+")";
 	}
 }

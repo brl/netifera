@@ -32,4 +32,14 @@ public interface IStructureContext {
 	 */
 	IShadowEntity searchEntityById(long entityId);
 
+	/**
+	 * Get the backing structure for this context (the Tree, Graph, etc)
+	 * @return The structure this context belongs to.
+	 */
+	Object getStructure();
+	
+	/**
+	 * Dispose this structure context and the shadow entities that are no longer needed.
+	 */
+	void dispose();
 }

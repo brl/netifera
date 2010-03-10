@@ -1,27 +1,36 @@
 package com.netifera.platform.net.tools.portscanning;
 
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.Random;
+import java.util.concurrent.Executors;
+
+import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.DatagramChannel;
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
+import org.jboss.netty.channel.socket.oio.OioDatagramChannelFactory;
 
 import com.netifera.platform.api.tools.ToolException;
 import com.netifera.platform.net.internal.tools.portscanning.Activator;
-import com.netifera.platform.net.sockets.CompletionHandler;
-import com.netifera.platform.net.sockets.UDPChannel;
 import com.netifera.platform.tools.RequiredOptionMissingException;
-import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.UDPSocketAddress;
 
 
 public class UDPScanner extends AbstractPortscanner {
-	Integer timeout;
-	Integer delay;
-	UDPChannel channel;
+	private Integer timeout;
+	private boolean randomize = false;
 
 	@Override
 	protected void setupToolOptions() throws ToolException {
@@ -30,106 +39,138 @@ public class UDPScanner extends AbstractPortscanner {
 		timeout = (Integer) context.getConfiguration().get("timeout");
 		if (timeout == null)
 			throw new RequiredOptionMissingException("timeout");
-		delay = (Integer) context.getConfiguration().get("delay");
-		if (delay == null)
-			throw new RequiredOptionMissingException("delay");
+		if (context.getConfiguration().get("randomize") != null)
+			randomize = (Boolean) context.getConfiguration().get("randomize");
 	}
 	
 	@Override
 	protected void scannerRun() throws ToolException {
-		context.setTitle("UDP scan "+targetNetwork);
-		context.setTotalWork(targetNetwork.itemCount()*targetPorts.itemCount()+1); //+1 in order to account for waiting responses after sending all requests
+		DatagramChannelFactory factory =
+			new OioDatagramChannelFactory(Executors.newCachedThreadPool());
+		
+		ConnectionlessBootstrap bootstrap = new ConnectionlessBootstrap(factory);
+
+		// Configure the pipeline.
+		ChannelPipeline pipeline = bootstrap.getPipeline();
+		pipeline.addLast("handler", new UDPScannerChannelHandler());
+		
+		// Allow packets as large as up to 4096 bytes (default is 768).
+		// You could increase or decrease this value to avoid truncated packets
+		// or to improve memory footprint respectively.
+		bootstrap.setOption(
+				"receiveBufferSizePredictorFactory",
+				new FixedReceiveBufferSizePredictorFactory(4096));
+
+		DatagramChannel channel = null;
+		
 		try {
-			channel = Activator.getInstance().getSocketEngine().openUDP();
-//			channel.setReuseAddress(true);
-//			channel.bind(new UDPSocketLocator(IPv4Address.any, 53));
-			
-			readResponses();
-			
-			scanAllAddresses(channel);
-			
-			context.setStatus("Waiting responses for "+timeout+" seconds...");
+			channel = (DatagramChannel) bootstrap.bind(new InetSocketAddress(0));
+
+			if (!randomize) {
+				context.setTitle("UDP scan "+targetNetwork);
+				context.setTotalWork(targetNetwork.size()*targetPorts.size()+1); //+1 in order to account for waiting responses after sending all requests
+				scanAllAddresses(channel);
+			} else {
+				context.setTitle("UDP random scan "+targetNetwork);
+				context.info("Randomly scanning "+targetNetwork);
+				randomScan(channel);
+			}
+/*			// If the channel is not closed within 5 seconds,
+			// print an error message and quit.
+			if (!channel.getCloseFuture().awaitUninterruptibly(5000)) {
+				System.err.println("QOTM request timed out.");
+				channel.close().awaitUninterruptibly();
+			}
+*/
+			context.setSubTitle("Waiting responses for "+timeout+" seconds...");
 			Thread.sleep(timeout*1000L);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			context.warning("Interrupted");
 			return;
-		} catch (IOException e) {
-			context.exception("I/O Error", e);
 		} finally {
 			if (channel != null)
-				try {
-					channel.close();
-				} catch (IOException e) {
-					context.exception("I/O Error", e);
-				}
+				channel.close().awaitUninterruptibly();
+			factory.releaseExternalResources();
 		}
 	}
 
-	private void scanAllAddresses(UDPChannel channel) throws InterruptedException {
-		ByteBuffer writeBuffer = ByteBuffer.allocate(4096);
+	private void scanAllAddresses(DatagramChannel channel) throws InterruptedException {
+		ChannelBuffer writeBuffer = ChannelBuffers.buffer(4096);
 		for (Integer port: targetPorts) {
 			byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",port);
 //			context.debug("Trigger for port "+port+": "+trigger);
 			writeBuffer.clear();
-			writeBuffer.put(trigger);
-			writeBuffer.flip();
-			context.setStatus("Scanning "+targetNetwork+":"+port+"/udp");
+			writeBuffer.writeBytes(trigger);
+			context.setSubTitle("Scanning "+targetNetwork+":"+port+"/udp");
 			for (InternetAddress address: targetNetwork) {
 				if (Thread.currentThread().isInterrupted())
 					throw new InterruptedException();
 				try {
-					writeBuffer.rewind();
-					channel.send(writeBuffer, new UDPSocketLocator(address, port)).get();
-					Thread.sleep(delay);
-				} catch (ExecutionException e) {
-					if (e.getCause().getClass() == SocketException.class) {
-						context.warning(e.getCause().getMessage() + " for " +
-								address + ":" + port + "/udp");
-					} else {
-						context.exception("Exception", e);
-					}
+					writeBuffer.resetReaderIndex();
+					ChannelFuture future = channel.write(writeBuffer, new InetSocketAddress(address.toInetAddress(), port));
+					future.await();
+					waitDelay();
 				} finally {
 					context.worked(1);
 				}
 			}
 		}
 	}
-	
-	private void readResponses() {
-		final ByteBuffer responseBuffer = ByteBuffer.allocate(4096);
-		channel.receive(responseBuffer, 1, TimeUnit.SECONDS, null, new CompletionHandler<UDPSocketLocator,Void>() {
-			public void cancelled(Void attachment) {
-				context.debug("Receive operation cancelled");
-			}
-			public void completed(UDPSocketLocator peer, Void attachment) {
-				context.debug("Received response from "+peer);
-				
-				PortSet ports = new PortSet();
-				ports.addPort(peer.getPort());
-				Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(realm, context.getSpaceId(), peer.getAddress(), ports);
-				
-				responseBuffer.flip();
-				
-				byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
-				Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp",peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);
-				if (serviceInfo != null) {
-					Activator.getInstance().getNetworkEntityFactory().createService(realm, context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
-					context.info(serviceInfo.get("serviceType")+" @ "+peer);
-				} else {
-					context.warning("Unknown service @ " + peer);
-				}
 
-				responseBuffer.clear();
-				channel.receive(responseBuffer, 1, TimeUnit.SECONDS, attachment, this);
+	private void randomScan(DatagramChannel channel) throws InterruptedException {
+		Random random = new Random(System.currentTimeMillis());
+		ChannelBuffer writeBuffer = ChannelBuffers.buffer(4096);
+		while (true) {
+			if (Thread.currentThread().isInterrupted())
+				throw new InterruptedException();
+
+			InternetAddress address = targetNetwork.get(random.nextInt(targetNetwork.size()));
+			int port = targetPorts.get(random.nextInt(targetPorts.size()));
+
+			byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",port);
+//			context.debug("Trigger for port "+port+": "+trigger);
+			writeBuffer.clear();
+			writeBuffer.writeBytes(trigger);
+			
+			try {
+				writeBuffer.resetReaderIndex();
+				ChannelFuture future = channel.write(writeBuffer, new InetSocketAddress(address.toInetAddress(), port));
+				future.await();
+				waitDelay();
+			} finally {
+				context.worked(1);
 			}
-			public void failed(Throwable e, Void attachment) {
-				if (e instanceof SocketTimeoutException) {
-					channel.receive(responseBuffer, 1, TimeUnit.SECONDS, attachment, this);
-				} else {
-					context.exception("Exception",e);
-				}
+		}
+	}
+
+	@ChannelPipelineCoverage("all")
+	class UDPScannerChannelHandler extends SimpleChannelUpstreamHandler {
+
+		@Override
+		public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
+				throws Exception {
+			UDPSocketAddress peer = new UDPSocketAddress((InetSocketAddress)e.getRemoteAddress());
+//			PortSet ports = new PortSet();
+//			ports.addPort(peer.getPort());
+//			Activator.getInstance().getNetworkEntityFactory().addOpenUDPPorts(context.getRealm(), context.getSpaceId(), peer.getNetworkAddress(), ports);
+			byte[] trigger = Activator.getInstance().getServerDetector().getTrigger("udp",peer.getPort());
+			ByteBuffer responseBuffer = ((ChannelBuffer)e.getMessage()).toByteBuffer();
+			Map<String,String> serviceInfo = Activator.getInstance().getServerDetector().detect("udp", peer.getPort(), ByteBuffer.wrap(trigger), responseBuffer);
+			if (serviceInfo != null) {
+				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, serviceInfo.get("serviceType"), serviceInfo);
+				context.info(serviceInfo.get("serviceType")+" @ "+peer);
+			} else {
+				Activator.getInstance().getNetworkEntityFactory().createService(context.getRealm(), context.getSpaceId(), peer, null, null);
+				context.warning("Unknown service @ " + peer);
 			}
-		});
+		}
+
+		@Override
+		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+				throws Exception {
+			e.getCause().printStackTrace();
+//			e.getChannel().close();
+		}
 	}
 }

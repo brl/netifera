@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.local-filesystem-provider">
+	<implementation class="com.netifera.platform.host.internal.filesystem.LocalFileSystemProvider" />
+	<service>
+		<provide interface="com.netifera.platform.services.IServiceProvider" />
+	</service>
+	
+</component>

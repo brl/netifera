@@ -1,0 +1,64 @@
+package com.netifera.platform.host.processes.probe;
+
+import com.netifera.platform.api.dispatcher.IProbeMessage;
+import com.netifera.platform.api.dispatcher.MessengerException;
+import com.netifera.platform.api.log.ILogger;
+import com.netifera.platform.api.probe.IProbe;
+import com.netifera.platform.dispatcher.StatusMessage;
+import com.netifera.platform.host.processes.IProcessService;
+import com.netifera.platform.host.processes.Process;
+
+public class RemoteProcessService implements IProcessService {
+
+	private final IProbe probe;
+	private final ILogger logger;
+	private String messengerError;
+	
+	public RemoteProcessService(IProbe probe, ILogger logger) {
+		this.probe = probe;
+		this.logger = logger;
+	}
+	
+	public Process[] getProcessList() {
+		final GetProcessList msg = (GetProcessList) exchangeMessage(new GetProcessList());
+		if(msg == null) {
+			logger.warning("GetProcessList failed " + messengerError);
+			return null;
+		}
+		return msg.getProcessList();
+	}
+
+	public boolean kill(int pid) {
+		final KillProcess msg = (KillProcess) exchangeMessage(new KillProcess(pid));
+		if(msg == null) {
+			logger.warning("KillProcess failed " + messengerError);
+			return false;
+		}
+		return msg.getResult();
+	}
+	
+	@SuppressWarnings("unused")
+	private boolean sendMessage(IProbeMessage message) {
+		try {
+			probe.getMessenger().sendMessage(message);
+			return true;
+		} catch (MessengerException e) {
+			messengerError = e.getMessage();
+			return false;
+		}
+	}
+	
+	private IProbeMessage exchangeMessage(IProbeMessage message) {
+		try {
+			IProbeMessage response = probe.getMessenger().exchangeMessage(message);
+			if(response instanceof StatusMessage) { 
+				return null;
+			} else {
+				return response;
+			}
+		} catch (MessengerException e) {
+			messengerError = e.getMessage();
+			return null;
+		}
+	}
+}

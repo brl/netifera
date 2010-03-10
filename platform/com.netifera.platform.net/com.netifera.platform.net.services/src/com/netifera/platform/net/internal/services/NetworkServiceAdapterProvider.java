@@ -13,11 +13,7 @@ import com.netifera.platform.net.model.UsernameAndPasswordEntity;
 import com.netifera.platform.net.services.INetworkServiceProvider;
 import com.netifera.platform.net.services.credentials.Password;
 import com.netifera.platform.net.services.credentials.UsernameAndPassword;
-import com.netifera.platform.util.addresses.inet.InternetAddress;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.SSLSocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
-import com.netifera.platform.util.locators.UDPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
 
 public class NetworkServiceAdapterProvider implements IEntityAdapterProvider {
 	private Map<String,INetworkServiceProvider> providers = new HashMap<String,INetworkServiceProvider>();
@@ -42,32 +38,21 @@ public class NetworkServiceAdapterProvider implements IEntityAdapterProvider {
 		if (serviceEntity == null)
 			return null;
 		
-		ISocketLocator locator = getSocketLocator(serviceEntity);
-		if (adapterType.isAssignableFrom(locator.getClass()))
-			return locator;
+		InternetSocketAddress socketAddress = serviceEntity.toSocketAddress();
+		if (adapterType.isAssignableFrom(socketAddress.getClass()))
+			return socketAddress;
 
 		String serviceType = serviceEntity.getServiceType();
-		INetworkServiceProvider provider = providers.get(serviceType);
-		if (provider != null && adapterType.isAssignableFrom(provider.getServiceClass())) {
-			return provider.create(locator);
+		if (serviceType != null) {
+			INetworkServiceProvider provider = providers.get(serviceType);
+			if (provider != null && adapterType.isAssignableFrom(provider.getServiceClass())) {
+				return provider.create(socketAddress);
+			}
 		}
 		
 		return null;
 	}
-	
-	private ISocketLocator getSocketLocator(ServiceEntity serviceEntity) {
-		InternetAddress address = (InternetAddress)serviceEntity.getAddress().getAdapter(InternetAddress.class);
-		int port = serviceEntity.getPort();
-		String protocol = serviceEntity.getProtocol();
-		if (protocol.equals("tcp"))
-			return new TCPSocketLocator(address,port);
-		if (protocol.equals("udp"))
-			return new UDPSocketLocator(address,port);
-		if (protocol.equals("ssl"))
-			return new SSLSocketLocator(address,port);
-		return null; // or exception?
-	}
-	
+		
 	protected void registerProvider(INetworkServiceProvider provider) {
 		providers.put(provider.getServiceName(), provider);
 	}

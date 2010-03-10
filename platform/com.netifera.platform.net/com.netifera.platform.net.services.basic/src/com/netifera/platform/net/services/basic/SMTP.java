@@ -6,25 +6,30 @@ import java.net.SocketException;
 import org.apache.commons.net.smtp.SMTPClient;
 
 import com.netifera.platform.net.services.NetworkService;
-import com.netifera.platform.util.locators.ISocketLocator;
-import com.netifera.platform.util.locators.TCPSocketLocator;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
+import com.netifera.platform.util.addresses.inet.TCPSocketAddress;
 
 
 public class SMTP extends NetworkService {
 	private static final long serialVersionUID = 6595378589137067267L;
 
-	public SMTP(ISocketLocator locator) {
-		super(locator);
+	public SMTP(InternetSocketAddress address) {
+		super(address);
 	}
 	
-	public TCPSocketLocator getLocator() {
-		return (TCPSocketLocator) super.getLocator();
+	public TCPSocketAddress getSocketAddress() {
+		return (TCPSocketAddress) super.getSocketAddress();
 	}
 	
 	public SMTPClient createClient() throws SocketException, IOException {
 		SMTPClient client = new SMTPClient();
-		client.connect(getLocator().getAddress().toInetAddress(), getLocator().getPort());
+		client.connect(getSocketAddress().getNetworkAddress().toInetAddress(), getSocketAddress().getPort());
 		return client;
+	}
+	
+	private boolean isSSL() {
+		//HACK
+		return getSocketAddress().getPort() == 465;
 	}
 	
 	@Override

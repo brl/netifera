@@ -21,7 +21,8 @@ public class ProbeEntityLabelProvider implements IEntityLabelProvider {
 
 	public String getText(IShadowEntity e) {
 		if (e instanceof ProbeEntity) {
-			return "Remote Probe";
+			String name = ((ProbeEntity)e).getName();
+			return name != null ? name : "Remote Probe";
 		}
 		return null;
 	}
@@ -42,7 +43,7 @@ public class ProbeEntityLabelProvider implements IEntityLabelProvider {
 	}
 
 	private Image getProbeImage(ProbeEntity probeEntity) {
-		IProbeManagerService probeManager = Activator.getDefault().getProbeManager();
+		IProbeManagerService probeManager = Activator.getInstance().getProbeManager();
 		IProbe probe = probeManager.getProbeById(probeEntity.getProbeId());
 		switch(probe.getConnectState()) {
 		case CONNECTED:

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="netifera.service-factory">
+	<implementation class="com.netifera.platform.services.internal.ServiceFactory" />
+	<service>
+		<provide interface="com.netifera.platform.services.IServiceFactory" />
+	</service>
+	
+	<reference
+    	name="LOG_MANAGER"
+    	interface="com.netifera.platform.api.log.ILogManager"
+    	bind="setLogManager"
+    	unbind="unsetLogManager"
+    />
+
+	<reference
+    	name="PROBE_MANAGER"
+    	interface="com.netifera.platform.api.probe.IProbeManagerService"
+    	bind="setProbeManager"
+    	unbind="unsetProbeManager"
+    />
+     	 	
+	<reference 
+		name="SERVICE_PROVIDERS"
+		interface="com.netifera.platform.services.IServiceProvider"
+		bind="registerProvider"
+		unbind="unregisterProvider"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+
+	<reference 
+		name="REMOTE_PROVIDERS"
+		interface="com.netifera.platform.services.IRemoteServiceProvider"
+		bind="registerRemoteProvider"
+		unbind="unregisterRemoteProvider"
+		cardinality="0..n"
+		policy="dynamic"
+	/>
+ 	
+</component>

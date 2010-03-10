@@ -1,33 +1,26 @@
 package com.netifera.platform.net.tools.portscanning;
 
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Random;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
-import com.netifera.platform.net.internal.tools.portscanning.Activator;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.PortSet;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 
 public abstract class AbstractPortscanner implements ITool {
-
 	protected IToolContext context;
 	protected IndexedIterable<InternetAddress> targetNetwork;
 	protected PortSet targetPorts;
-	final private AtomicInteger outstandingConnects = new AtomicInteger(0);
-	protected long realm;
+	private int delay = 0;
+	private Random random = new Random(System.currentTimeMillis());
 
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		assert(context != null);
 		this.context = context;
-
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 
 		setupPortscannerOptions();
 		//task.setTotalWork(targetNetwork.itemCount() * targetPorts.itemCount());
@@ -44,6 +37,7 @@ public abstract class AbstractPortscanner implements ITool {
 		/* Override me for handling tool specific options */
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void setupPortscannerOptions() throws ToolException {
 		setupToolOptions();
 
@@ -61,17 +55,17 @@ public abstract class AbstractPortscanner implements ITool {
 		} catch (IllegalArgumentException e) {
 			throw new ToolException("Invalid ports: "+portsString);
 		}
+		
+		Integer delay = (Integer)context.getConfiguration().get("delay");
+		if(delay != null) {
+			this.delay = delay;
+		}
 	}
-	
-	void incrementOutstanding() {
-		outstandingConnects.incrementAndGet();
-	}
-	
-	void decrementOutstanding() {
-		outstandingConnects.decrementAndGet();
-	}
-	
-	int getOutstandingCount() {
-		return outstandingConnects.get();
+
+	protected void waitDelay() throws InterruptedException {
+		if (delay > 0) {
+			int randomDelay = random.nextInt(delay) + delay/2;
+			Thread.sleep(randomDelay);
+		}
 	}
 }

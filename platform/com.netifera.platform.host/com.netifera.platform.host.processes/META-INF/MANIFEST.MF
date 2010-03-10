@@ -3,18 +3,22 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Processes Plug-in
 Bundle-SymbolicName: com.netifera.platform.host.processes
 Bundle-Version: 1.0.0
-Bundle-Activator: com.netifera.platform.host.processes.Activator
-Bundle-ActivationPolicy: lazy
 Bundle-Vendor: netifera
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Service-Component: OSGI-INF/process-factory.xml,
- OSGI-INF/process-manager.xml
 Import-Package: com.netifera.platform.api.dispatcher,
+ com.netifera.platform.api.iterables,
  com.netifera.platform.api.log,
+ com.netifera.platform.api.model,
  com.netifera.platform.api.probe,
  com.netifera.platform.dispatcher,
+ com.netifera.platform.model,
+ com.netifera.platform.services,
  org.osgi.framework;version="1.3.0",
  org.osgi.service.component;version="1.0.0",
  org.osgi.util.tracker;version="1.3.0"
 Export-Package: com.netifera.platform.host.processes,
  com.netifera.platform.host.processes.probe
+Service-Component: OSGI-INF/process-service-bridge.xml,
+ OSGI-INF/local-process-service-provider.xml,
+ OSGI-INF/remote-process-service-provider.xml,
+ OSGI-INF/probe-process-service-adapter-provider.xml

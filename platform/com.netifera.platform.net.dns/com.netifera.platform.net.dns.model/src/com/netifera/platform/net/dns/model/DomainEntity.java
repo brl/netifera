@@ -17,22 +17,9 @@ public class DomainEntity extends AbstractEntity implements Comparable<DomainEnt
 	private final IEntityReference parent;
 	
 	public DomainEntity(IWorkspace workspace, long realmId, DomainEntity parent, String fqdm) {
-		this(workspace, realmId, parent, fqdm, false);
-	}
-	
-	private DomainEntity(IWorkspace workspace, long realmId, DomainEntity parent, String fqdm,
-			boolean isTarget) { //, DomainEntity targetDomain) {
 		super(ENTITY_TYPE, workspace, realmId);
-		
-		if (fqdm.endsWith(".")) {
-			fqdm = fqdm.substring(0, fqdm.length()-1);
-		}
-		this.fqdm = fqdm.toLowerCase(Locale.ENGLISH);
-		if (parent == null)
-			this.parent = null;
-		else
-			this.parent = parent.createReference();
-		
+		this.fqdm = normalized(fqdm);
+		this.parent = parent == null ? null : parent.createReference();
 	}
 	
 	DomainEntity() {
@@ -87,6 +74,7 @@ public class DomainEntity extends AbstractEntity implements Comparable<DomainEnt
 		return createQueryKey(getRealmId(), fqdm); 
 		
 	}
+	
 /*	public Iterable<INetworkServiceLocator> getNameServers() {
 		List<INetworkServiceLocator> answer = new ArrayList<INetworkServiceLocator>();
 		for (IEntity e: entity.findChildren(NSRecordEntity.typeName)) {
@@ -110,5 +98,28 @@ public class DomainEntity extends AbstractEntity implements Comparable<DomainEnt
 
 	public int compareTo(DomainEntity other) {
 		return fqdm.compareTo(other.fqdm);
+	}
+
+	static String normalized(String fqdm) {
+		if (fqdm.endsWith(".")) fqdm = fqdm.substring(0, fqdm.length()-1);
+		return fqdm.toLowerCase(Locale.ENGLISH);
+	}
+
+	public static synchronized DomainEntity create(IWorkspace workspace, long realm, long spaceId, String fqdm) {
+		fqdm = normalized(fqdm);
+		DomainEntity entity = (DomainEntity) workspace.findByKey(createQueryKey(realm, fqdm));
+		if(entity == null) {
+			// make sure to create the parent domain
+			DomainEntity parent = null;
+			int dotIndex = fqdm.indexOf('.');
+			if (dotIndex >= 0)
+				parent = create(workspace, realm, spaceId, fqdm.substring(dotIndex+1));
+			entity = new DomainEntity(workspace, realm, parent, fqdm);
+			entity.save();
+		}
+		
+		if(!entity.isTLD() && entity.getParent() != null && entity.getParent().isTLD())
+			entity.addToSpace(spaceId);
+		return entity;
 	}
 }

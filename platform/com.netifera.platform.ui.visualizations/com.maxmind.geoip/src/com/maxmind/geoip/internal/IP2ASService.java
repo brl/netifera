@@ -11,9 +11,10 @@ import org.osgi.service.component.ComponentContext;
 import com.maxmind.geoip.LookupService;
 import com.netifera.platform.api.log.ILogManager;
 import com.netifera.platform.api.log.ILogger;
-import com.netifera.platform.net.routes.AS;
-import com.netifera.platform.net.routes.IIP2ASService;
+import com.netifera.platform.net.ui.routes.AS;
+import com.netifera.platform.net.ui.routes.IIP2ASService;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.addresses.inet.InternetNetblock;
 
 public class IP2ASService implements IIP2ASService {
 	static final private String DB_FILENAME = "GeoIPASNum.dat";
@@ -25,6 +26,9 @@ public class IP2ASService implements IIP2ASService {
 	private Pattern asnumPattern = Pattern.compile("AS([\\d]+)[^\\d]*");
 	
 	public synchronized AS getAS(InternetAddress address) {
+		if (lookupService == null)
+			return null; // initialization failed, for example the db file was not found
+		
 		final String as = lookupService.getOrg(address.toInetAddress());
 		if (as == null)
 			return null;
@@ -34,13 +38,35 @@ public class IP2ASService implements IIP2ASService {
 			}
 			public long getNumber() {
 				Matcher matcher = asnumPattern.matcher(as);
-				String asnum = matcher.group(1);
-				if (asnum != null && asnum.length()>0)
-					return Long.parseLong(asnum);
+				if (matcher.matches()) {
+					String asnum = matcher.group(1);
+					if (asnum != null && asnum.length()>0)
+						return Long.parseLong(asnum);
+				}
 				return 0;
 			}
 		};
 	}
+	
+	public synchronized AS getAS(InternetNetblock netblock) {
+		//FIXME this could probably be made more accurate exploiting the internal structure of the maxmind database, maybe it contains the BGP prefix
+		
+		AS as = getAS(netblock.get(0));
+		if (as == null)
+			return null;
+		long number = as.getNumber();
+		if (number == 0)
+			return null;
+		AS as2 = getAS(netblock.get(netblock.size()/2));
+		if (as2 == null || number != as2.getNumber())
+			return null;
+		AS as3 = getAS(netblock.get(netblock.size()-1));
+		if (as3 == null || number != as3.getNumber())
+			return null;
+
+		return as;
+	}
+
 	
 	protected void activate(ComponentContext context) {
 		if (lookupService == null)
@@ -49,9 +75,7 @@ public class IP2ASService implements IIP2ASService {
 				verifyDBPath(path);
 				lookupService = new LookupService(path, LookupService.GEOIP_MEMORY_CACHE);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-				throw new RuntimeException(e);
 			}
 	}
 	
@@ -113,15 +137,7 @@ public class IP2ASService implements IIP2ASService {
 	}
 	
 	private String getBasePathForEclipse() {
-		final String configArea = System.getProperty("osgi.configuration.area");
-		if(configArea == null || !configArea.startsWith("file:")) {
-			return null;
-		}
-		final String trimmedPath = configArea.substring(5);
-		int metadataIndex = trimmedPath.indexOf(".metadata");
-		if(metadataIndex == -1)
-			return null;
-		return trimmedPath.substring(0, metadataIndex);
+		return System.getProperty("user.home", System.getenv("HOME")) + File.separator + ".netifera" + File.separator + "data" + File.separator;
 	}
 	
 	private boolean isRunningInEclipse() {

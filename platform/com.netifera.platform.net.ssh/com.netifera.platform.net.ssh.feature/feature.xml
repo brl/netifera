@@ -45,4 +45,18 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="com.netifera.platform.probebuild.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.netifera.platform.net.ssh.tools"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

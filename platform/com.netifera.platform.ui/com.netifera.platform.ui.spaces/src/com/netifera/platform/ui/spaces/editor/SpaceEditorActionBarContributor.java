@@ -1,0 +1,27 @@
+package com.netifera.platform.ui.spaces.editor;
+
+import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.part.EditorActionBarContributor;
+
+import com.netifera.platform.ui.internal.spaces.Activator;
+import com.netifera.platform.ui.spaces.IStatusContribution;
+
+public class SpaceEditorActionBarContributor extends EditorActionBarContributor {
+	
+	@Override
+	public void contributeToStatusLine(IStatusLineManager statusLine) {
+		IStatusContribution statusContribution = Activator.getInstance().getStatusContribution();
+		if(statusContribution == null)
+			return;
+		statusLine.add(statusContribution.getContribution());
+	}
+	
+	@Override
+	public void setActiveEditor(IEditorPart editor) {
+		IStatusContribution statusContribution = Activator.getInstance().getStatusContribution();
+		if(statusContribution == null)
+			return;
+		statusContribution.setActiveEditor(editor);
+	}
+}

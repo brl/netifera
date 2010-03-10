@@ -75,21 +75,21 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// Linksys
 		response = new Regex(".*WWW-Authenticate: Basic realm=\"(?:Linksys )?(\\p{Upper}+\\p{Digit}+[\\p{Upper}\\p{Digit}]*)\".*");
 		response.add("serviceType", "Linksys");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		response.add("path", "/");
 		addDetector(new SessionPattern(null, response));
 
 		// TP-Link
 		response = new Regex(".*WWW-Authenticate: Basic realm=\"TP-LINK Wireless Router (.*)\".*");
 		response.add("serviceType", "TP-LINK");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		response.add("path", "/");
 		addDetector(new SessionPattern(null, response));
 
 		// phpMyAdmin
 		response = new Regex(".*<title>phpMyAdmin (.*)</title>.*");
 		response.add("serviceType", "phpMyAdmin");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		response.add("path", "/phpMyAdmin");
 		addDetector(new SessionPattern(null, response));
 
@@ -101,24 +101,24 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 
 		response = new Regex(".*WWW-Authenticate: Basic realm=\"Tomcat Manager Application\".*Apache Tomcat/([\\w.]+) .*");
 		response.add("serviceType", "Tomcat Manager");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		response.add("path", "/manager/html");
 		addDetector(new SessionPattern(null, response));
 
 		// generic php request, bellow are responses that match web services
 		Regex request = new Regex(".* (.*)/.*\\.php.*");
-		request.add(1, "path");
+		request.add("path", "{$1}");
 
 		// vBulletin
 //		response = new Regex(".*Do not remove this copyright notice -->Powered by vBulletin&reg; Version ([\\w.]+)<br.*");
 		response = new Regex(".*Powered by vBulletin.*Version ([\\w.]+)<br.*");
 		response.add("serviceType", "vBulletin");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 
 		// phpBB
 		request = new Regex(".* (.*)/.*\\.php .*");
-		request.add(1, "path");
+		request.add("path", "{$1}");
 		response = new Regex(".*Powered by <a href=\"http://www\\.phpbb\\.com/\" target=\"_phpbb\" class=\"copyright\">phpBB</a>\\s+&copy;.*phpBB Group<br.*");
 		response.add("serviceType", "phpBB");
 		addDetector(new SessionPattern(request, response));
@@ -138,7 +138,7 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// Zeroboard
 		response = new Regex(".* : Zeroboard\\n.* : (.*)\\n.* : zero.*\\n.*Homepage : http://zeroboard\\.com.*");
 		response.add("serviceType", "Zeroboard");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 		
 		response = new Regex(".*function ZB_layerAction\\(name,status\\).*");
@@ -148,7 +148,7 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// Simple Machines Forum
 		response = new Regex(".*<a href=\"http://www\\.simplemachines\\.org/\" title=\"Simple Machines Forum\" target=\"_blank\">Powered by SMF ([\\w.]+)</a>.*");
 		response.add("serviceType", "SMF");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 		
 		// MyBB
@@ -159,7 +159,7 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// PHP-Nuke
 		response = Regex.caseInsensitive(".*<META NAME=\"GENERATOR\" CONTENT=\"PHP-Nuke Copyright \\(c\\) ([\\w.]+) by Francisco.*");
 		response.add("serviceType", "PHP-Nuke");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 		
 		response = Regex.caseInsensitive(".*<META HTTP-EQUIV=\"EXPIRES\".*<META NAME=\"AUTHOR\" CONTENT=\".*");
@@ -169,13 +169,13 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// Invision Power Board
 		response = new Regex(".*<a href='http://www\\.invisionboard\\.com' style='text-decoration:none' target='_blank'>.*Board</a>[\\s\\n]*v?([\\w.]+) &copy;.*IPS, Inc.*");
 		response.add("serviceType", "Invision Power Board");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 		
 		// WordPress
 		response = new Regex(".*wp-admin.css\\?version=([\\w.]+)'.*<div id=\"login\"><h1><a href=\"http://wordpress\\.org/\" title=\"Powered by WordPress\">.*");
 		response.add("serviceType", "WordPress");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 
 		response = new Regex(".*document\\.getElementById\\('user_login'\\).focus\\(\\).*");
@@ -185,14 +185,14 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// Discuz!
 		response = new Regex(".*Powered by <a href=\"http://www\\.discuz\\.net\" target=\"_blank\" style=\"color: blue\"><b>Discuz\\!</b></a> <b style=\"color:.*\">([\\w.]+)</b>.*&copy;.*Comsenz.*");
 		response.add("serviceType", "Discuz");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 
 		// PHP-Fusion
 		// XXX this works?
 		response = new Regex(".*Powered by <a href='http://www\\.php-fusion\\.co\\.uk' target='_blank'><img.*></a> v?([\\w.]+) &copy;.*");
 		response.add("serviceType", "PHP-Fusion");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 
 		// phpinfo()
@@ -204,7 +204,7 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// SquirrelMail
 		response = new Regex(".*function squirrelmail_loginpage_onload.*<small>SquirrelMail version ([\\w.-]+)<br />.*");
 		response.add("serviceType", "SquirellMail");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(request, response));
 		
 		// Joomla!
@@ -221,7 +221,7 @@ public class WebApplicationDetector implements IWebApplicationDetector {
 		// GH inurl:Citrix/MetaFrame/auth/login.aspx
 		response = new Regex(".*Copyright.*Citrix Systems.*Web Interface \\((Build [\\d]*)\\).*");
 		response.add("serviceType", "Citrix Metaframe");
-		response.add(1, "version");
+		response.add("version", "{$1}");
 		addDetector(new SessionPattern(null, response));
 		
 /*		// GH inurl:citrix/metaframe inurl:login.asp

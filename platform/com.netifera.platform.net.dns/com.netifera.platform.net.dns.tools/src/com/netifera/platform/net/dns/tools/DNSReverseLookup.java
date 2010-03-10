@@ -13,7 +13,6 @@ import org.xbill.DNS.ReverseMap;
 import org.xbill.DNS.Type;
 
 import com.netifera.platform.api.iterables.IndexedIterable;
-import com.netifera.platform.api.probe.IProbe;
 import com.netifera.platform.api.tools.ITool;
 import com.netifera.platform.api.tools.IToolContext;
 import com.netifera.platform.api.tools.ToolException;
@@ -21,20 +20,19 @@ import com.netifera.platform.net.dns.internal.tools.Activator;
 import com.netifera.platform.net.dns.service.DNS;
 import com.netifera.platform.net.dns.service.client.AsynchronousLookup;
 import com.netifera.platform.net.dns.service.nameresolver.INameResolver;
-import com.netifera.platform.net.sockets.CompletionHandler;
 import com.netifera.platform.tools.RequiredOptionMissingException;
 import com.netifera.platform.util.addresses.AddressFormatException;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
+import com.netifera.platform.util.asynchronous.CompletionHandler;
 
 public class DNSReverseLookup implements ITool {
 	private static final boolean DEBUG = false;
-	private static final int DEFAULT_DNS_INTERVAL = 200; // 200 milliseconds between requests
+	private static final int DEFAULT_DNS_INTERVAL = 10; // milliseconds between requests
 	private DNS dns;
 	private IndexedIterable<InternetAddress> addresses;
 	private INameResolver resolver;
 	
 	private IToolContext context;
-	private long realm;
 
 	private AtomicInteger activeRequests;
 	private Queue<Runnable> retryQueue = new LinkedList<Runnable>();
@@ -42,12 +40,9 @@ public class DNSReverseLookup implements ITool {
 	private int successCount = 0;
 
 	
-	public void toolRun(IToolContext context) throws ToolException {
+	public void run(IToolContext context) throws ToolException {
 		this.context = context;
 		final int sendDelay = getSendDelay();
-		// XXX hardcode local probe as realm
-		IProbe probe = Activator.getInstance().getProbeManager().getLocalProbe();
-		realm = probe.getEntity().getId();
 		
 		context.setTitle("Reverse lookup");
 		
@@ -57,16 +52,16 @@ public class DNSReverseLookup implements ITool {
 		
 		try {
 			if (dns != null) {
-				resolver = dns.createNameResolver(Activator.getInstance().getSocketEngine());
+				resolver = dns.createNameResolver(Activator.getInstance().getDatagramChannelFactory());
 			} else {
 				resolver = Activator.getInstance().getNameResolver();
 			}
 			if (resolver == null) {
-				throw new ToolException("No Name Resolver available on " + probe.getName());
+				throw new ToolException("No Name Resolver available");
 			}
 			
 			activeRequests = new AtomicInteger(0);
-			context.setTotalWork(addresses.itemCount());
+			context.setTotalWork(addresses.size());
 			
 			for (InternetAddress address: addresses) {
 				if(DEBUG)
@@ -125,6 +120,7 @@ public class DNSReverseLookup implements ITool {
 			return DEFAULT_DNS_INTERVAL;
 		}
 	}
+	
 	private void reverseLookup(final InternetAddress address, final IToolContext toolContext) {
 			Name name = ReverseMap.fromAddress(address.toBytes());
 			
@@ -155,7 +151,7 @@ public class DNSReverseLookup implements ITool {
 					if (result == null) {
 						toolContext.worked(1);
 						activeRequests.decrementAndGet();
-						context.error(address+" Reverse lookup failed: "+lookup.getErrorString());
+						context.error(address+" reverse lookup failed: "+lookup.getErrorString());
 						return;
 					}
 					for (Record record: result)
@@ -182,15 +178,14 @@ public class DNSReverseLookup implements ITool {
 							}
 						});
 						return;
-						
 					}
-					context.error("Reverse lookup of "+address+" failed: "+ lookup.getErrorString() );
+					
+					context.error("Reverse lookup of "+address+" failed: "+lookup.getErrorString());
 					
 					/* Test for SERVFAIL */
 					if(lookup.getResult() != AsynchronousLookup.TRY_AGAIN) {
-						context.exception("Unexpected exception in reverse lookup of " + address, exc);
+						context.exception("Reverse lookup of "+address+" failed", exc);
 					}
-					
 				}};
 				
 			activeRequests.incrementAndGet();
@@ -212,7 +207,7 @@ public class DNSReverseLookup implements ITool {
 			context.info(ptr.toString());
 			try {
 				InternetAddress address = InternetAddress.fromARPA(reverseName);
-				Activator.getInstance().getDomainEntityFactory().createPTRRecord(realm, context.getSpaceId(), address, ptr.getTarget().toString());
+				Activator.getInstance().getDomainEntityFactory().createPTRRecord(context.getRealm(), context.getSpaceId(), address, ptr.getTarget().toString());
 				successCount += successCount + 1;
 			} catch(AddressFormatException e) {
 				warnUnknownFormat(reverseName);
@@ -223,6 +218,8 @@ public class DNSReverseLookup implements ITool {
 	private void warnUnknownFormat(String name) {
 		context.warning("Unknown reverse address format: "+ name);
 	}
+	
+	@SuppressWarnings("unchecked")
 	private void setupToolOptions() throws RequiredOptionMissingException {
 		dns = (DNS) context.getConfiguration().get("dns");
 		addresses = (IndexedIterable<InternetAddress>) context.getConfiguration().get("target");

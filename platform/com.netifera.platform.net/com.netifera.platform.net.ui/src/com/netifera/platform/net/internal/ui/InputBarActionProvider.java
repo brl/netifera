@@ -6,13 +6,15 @@ import java.util.List;
 import org.eclipse.jface.action.IAction;
 
 import com.netifera.platform.net.tools.basic.AddHost;
-import com.netifera.platform.net.tools.basic.AddNetblock;
+import com.netifera.platform.net.tools.basic.AddNetblocks;
+import com.netifera.platform.net.tools.basic.AddService;
 import com.netifera.platform.tools.options.GenericOption;
 import com.netifera.platform.ui.actions.ToolAction;
 import com.netifera.platform.ui.api.inputbar.IInputBarActionProvider;
 import com.netifera.platform.util.addresses.AddressFormatException;
 import com.netifera.platform.util.addresses.inet.InternetAddress;
 import com.netifera.platform.util.addresses.inet.InternetNetblock;
+import com.netifera.platform.util.addresses.inet.InternetSocketAddress;
 import com.netifera.platform.util.patternmatching.InternetAddressMatcher;
 import com.netifera.platform.util.patternmatching.NetblockMatcher;
 
@@ -24,7 +26,7 @@ public class InputBarActionProvider implements IInputBarActionProvider {
 		if (netblockMatcher.matches()) {
 			InternetAddress address = InternetAddress.fromString(netblockMatcher.getNetwork());
 			InternetNetblock netblock = address.createNetblock(netblockMatcher.getCIDR());
-			ToolAction addNetblock = new ToolAction("Add netblock "+netblock, AddNetblock.class.getName());
+			ToolAction addNetblock = new ToolAction("Add netblock "+netblock, AddNetblocks.class.getName());
 			addNetblock.addFixedOption(new GenericOption(InternetNetblock.class, "netblock", "Netblock", "Netblock to add to the model", netblock));
 			answer.add(addNetblock);
 		} else {
@@ -42,6 +44,18 @@ public class InputBarActionProvider implements IInputBarActionProvider {
 				ToolAction addHost = new ToolAction("Add host "+address, AddHost.class.getName());
 				addHost.addFixedOption(new GenericOption(InternetAddress.class, "address", "Address", "Address of the host to add to the model", address));
 				answer.add(addHost);
+			} else if (input.matches("^(\\p{XDigit}+\\.)+\\p{XDigit}+:\\p{XDigit}+/(udp|tcp)$")) {
+				InternetSocketAddress socketAddress = null;
+				try {
+					socketAddress = InternetSocketAddress.fromString(input);
+				} catch (AddressFormatException e) {
+					// nothing
+				}
+				if (socketAddress != null) {
+					ToolAction addService = new ToolAction("Add "+socketAddress, AddService.class.getName());
+					addService.addFixedOption(new GenericOption(InternetSocketAddress.class, "address", "Address", "Address of the service to add to the model", socketAddress));
+					answer.add(addService);
+				}
 			}
 		}
 		return answer;

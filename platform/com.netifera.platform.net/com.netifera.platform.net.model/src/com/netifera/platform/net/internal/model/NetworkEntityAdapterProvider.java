@@ -39,9 +39,9 @@ public class NetworkEntityAdapterProvider implements IEntityAdapterProvider {
 	
 	private InternetAddress getInternetAddress(IEntity entity) {
 		if (entity instanceof InternetAddressEntity)
-			return ((InternetAddressEntity)entity).getAddress();
+			return ((InternetAddressEntity)entity).toNetworkAddress();
 		if (entity instanceof HostEntity)
-			return (InternetAddress) ((HostEntity)entity).getDefaultAddress().getAddress();
+			return (InternetAddress) ((HostEntity)entity).getDefaultAddress().toNetworkAddress();
 		return null;
 	}
 	
@@ -49,8 +49,9 @@ public class NetworkEntityAdapterProvider implements IEntityAdapterProvider {
 		if (iterableType.isAssignableFrom(InternetAddress.class) &&
 				entity instanceof NetblockEntity) {
 			NetblockEntity netblockEntity = (NetblockEntity)entity;
-			return InternetNetblock.fromData(netblockEntity.getData(),
-					netblockEntity.getMaskBitCount()).getIndexedIterable();
+			InternetNetblock netblock = InternetNetblock.fromData(netblockEntity.getData(),
+					netblockEntity.getMaskBitCount());
+			if (netblock.isIndexedIterable()) return netblock;
 		}
 		return null;
 	}
